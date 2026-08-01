@@ -69,9 +69,11 @@ export function AnimeCard({
 
   // Filter useful streaming links (Crunchyroll, Netflix, HiDive, Hulu, Amazon)
   const streamingSites = ['Crunchyroll', 'Netflix', 'HiDive', 'Hulu', 'Amazon', 'CustomSource'];
-  const streamingLinks = anime.externalLinks.filter(link => 
+  const streamingLinks = anime.externalLinks.filter(link =>
     streamingSites.some(s => link.site.toLowerCase().includes(s.toLowerCase()))
   );
+
+  const titleText = typeof titleOverride === 'string' ? titleOverride : displayTitle(anime);
 
   return (
     <motion.div 
@@ -82,7 +84,16 @@ export function AnimeCard({
     >
       {/* Cover Image */}
       <div className="relative aspect-[3/4] w-full overflow-hidden">
-        <img 
+        {/* The keyboard path into the card. Everything painted after it — the
+            gradient, the title, the bookmark — sits on top, so a mouse click
+            still lands on the container handler and never fires twice. */}
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onClick?.(anime); }}
+          aria-label={`Open ${titleText}`}
+          className="absolute inset-0 focus:outline-none focus-visible:z-30 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent-400"
+        />
+        <img
           src={anime.coverImage.extraLarge || anime.coverImage.large}
           alt={displayTitle(anime)}
           loading="lazy"
@@ -116,14 +127,14 @@ export function AnimeCard({
                   : "bg-black/50 text-gray-300 hover:bg-black/80 hover:text-white"
               )}
             >
-              <Bookmark className="h-5 w-5" fill={inLibrary ? "currentColor" : "none"} />
+              <Bookmark className="h-5 w-5" fill={inLibrary ? "currentColor" : "none"} aria-hidden="true" />
             </button>
           )}
         />
 
         {/* Status / Countdown */}
         <div className="absolute bottom-0 left-0 w-full p-3 sm:p-4">
-          <h3 className="line-clamp-2 text-base sm:text-lg font-bold leading-tight text-white" title={typeof titleOverride === 'string' ? titleOverride : displayTitle(anime)}>
+          <h3 className="line-clamp-2 text-base sm:text-lg font-bold leading-tight text-white" title={titleText}>
             {titleOverride || displayTitle(anime)}
           </h3>
           
@@ -188,7 +199,7 @@ export function AnimeCard({
               ))}
             </div>
           ) : (
-            <span className="text-[10px] sm:text-xs text-gray-600">No verified streams</span>
+            <span className="text-[11px] sm:text-xs text-gray-400">No verified streams</span>
           )}
         </div>
       </div>

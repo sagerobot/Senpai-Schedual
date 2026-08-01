@@ -154,6 +154,21 @@ describe('router shell', () => {
     expect(container.querySelector('a[href="/season"]')).not.toBeNull();
   });
 
+  it('gives keyboard users a skip link and two labelled navs', async () => {
+    await render();
+
+    // The skip link must be the first focusable thing on the page.
+    const skip = container.querySelector('a[href="#main-content"]');
+    expect(skip?.textContent).toBe('Skip to content');
+
+    expect(container.querySelector('nav[aria-label="Primary"]')).not.toBeNull();
+    expect(container.querySelector('nav[aria-label="Primary mobile"]')).not.toBeNull();
+
+    // ...and land somewhere focus can actually go.
+    const main = container.querySelector('main#main-content');
+    expect(main?.getAttribute('tabindex')).toBe('-1');
+  });
+
   it('keeps the shell around an unknown path', async () => {
     // The router is a module singleton that captured its location at creation,
     // so navigate through it rather than pushing onto history behind its back.

@@ -37,7 +37,7 @@ export function ForYouView({ library, favorites, onToggleFavorite, onAnimeSelect
     return (
       <div className="flex h-[50vh] flex-col items-center justify-center space-y-4 text-center">
         <Sparkles className="h-12 w-12 text-gray-700" />
-        <h2 className="text-xl font-bold text-gray-300">Nothing here yet</h2>
+        <h1 className="text-xl font-bold text-gray-300">Nothing here yet</h1>
         <p className="max-w-md text-sm text-gray-500">
           Rate a show — or just a few episodes — and Senpai will find your next watch.
         </p>
@@ -55,7 +55,7 @@ export function ForYouView({ library, favorites, onToggleFavorite, onAnimeSelect
     return (
       <div className="flex h-[50vh] flex-col items-center justify-center space-y-4 text-center">
         <Moon className="h-12 w-12 text-accent-400/60" />
-        <h2 className="text-xl font-bold text-gray-300">AI recommendations are resting — back tomorrow</h2>
+        <h1 className="text-xl font-bold text-gray-300">AI recommendations are resting — back tomorrow</h1>
         <p className="max-w-md text-sm text-gray-500">
           The daily AI budget is spent. Your recommendations will refresh when it resets.
         </p>
@@ -67,7 +67,7 @@ export function ForYouView({ library, favorites, onToggleFavorite, onAnimeSelect
     return (
       <div className="flex h-[50vh] flex-col items-center justify-center space-y-4 text-center">
         <PowerOff className="h-12 w-12 text-gray-600" />
-        <h2 className="text-xl font-bold text-gray-300">AI features are off in this deployment</h2>
+        <h1 className="text-xl font-bold text-gray-300">AI features are off in this deployment</h1>
         <p className="max-w-md text-sm text-gray-500">
           This server is running without an AI key, so recommendations can't be generated.
         </p>
@@ -79,7 +79,7 @@ export function ForYouView({ library, favorites, onToggleFavorite, onAnimeSelect
     return (
       <div className="flex h-[50vh] flex-col items-center justify-center space-y-4 text-center">
         <AlertTriangle className="h-12 w-12 text-rose-400/70" />
-        <h2 className="text-xl font-bold text-gray-300">Couldn't build your recommendations</h2>
+        <h1 className="text-xl font-bold text-gray-300">Couldn't build your recommendations</h1>
         <p className="max-w-md text-sm text-gray-500">{errorMessage ?? 'Something went wrong talking to the server.'}</p>
         <button
           onClick={forceRecompute}

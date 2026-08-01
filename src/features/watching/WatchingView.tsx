@@ -126,7 +126,7 @@ export function WatchingView({ animeList, library, logs, onLog, onAnimeSelect }:
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-white">Watching</h2>
+          <h1 className="text-2xl font-bold tracking-tight text-white">Watching</h1>
           <p className="text-gray-400">What's airing for you right now</p>
         </div>
         {logs.length > 0 && (

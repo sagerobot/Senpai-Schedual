@@ -115,9 +115,9 @@ export function DailySchedule({ animeList, favorites, onToggleFavorite, onAnimeS
 
       <div className="flex flex-col 2xl:flex-row gap-6 items-start 2xl:items-center justify-between mb-8 bg-[#05060b]/50 border border-[#1e2336]/60 p-4 sm:p-5 rounded-2xl shadow-sm backdrop-blur-sm">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
             Daily Schedule
-          </h2>
+          </h1>
           <p className="text-gray-400 mt-1 text-sm">Upcoming episodes in your local timezone</p>
           {isStreaming && (
             <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-edge bg-surface-1 px-2.5 py-1 text-[11px] font-medium text-gray-400">

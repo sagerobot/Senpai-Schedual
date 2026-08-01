@@ -96,19 +96,23 @@ export function SeriesCard({ series, libraryEntries, logs, onAnimeSelect }: Seri
       animate={{ opacity: 1, y: 0 }}
       className="flex flex-col overflow-hidden rounded-xl bg-[#1c1c1f] border border-gray-800 transition-all hover:border-gray-700"
     >
-      <div
-        className="flex p-4 gap-4 cursor-pointer"
+      {/* One control for the whole header row: a real disclosure button. The
+          chevron is decoration inside it, not a second target that double-fires. */}
+      <button
+        type="button"
         onClick={() => setExpanded(!expanded)}
+        aria-expanded={expanded}
+        className="flex w-full items-center gap-4 p-4 text-left"
       >
-        <div className="flex-1 min-w-0">
-          <h3 className="truncate text-lg font-bold text-white mb-1">{series.title}</h3>
+        <span className="flex-1 min-w-0">
+          <span className="mb-1 block truncate text-lg font-bold text-white">{series.title}</span>
 
-          <div className="flex items-center gap-3 text-sm text-gray-400">
+          <span className="flex items-center gap-3 text-sm text-gray-400">
             {avgScore != null && (
-              <div className="flex items-center gap-1 text-yellow-400 font-medium">
-                <Star className="h-3.5 w-3.5 fill-current" />
+              <span className="flex items-center gap-1 text-yellow-400 font-medium">
+                <Star className="h-3.5 w-3.5 fill-current" aria-hidden="true" />
                 {avgScore.toFixed(1)}
-              </div>
+              </span>
             )}
             <span>{LIBRARY_STATUS_LABELS[derivedStatus]}</span>
             <span>•</span>
@@ -119,30 +123,25 @@ export function SeriesCard({ series, libraryEntries, logs, onAnimeSelect }: Seri
                 <span>{totalWatched} / {totalAired} Eps</span>
               </>
             )}
-          </div>
+          </span>
 
           {totalAired > 0 && (
-            <div className="mt-3 h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-gray-800">
-              <div
+            <span className="mt-3 block h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-gray-800">
+              <span
                 className={cn(
-                  "h-full transition-all duration-500",
+                  "block h-full transition-all duration-500",
                   derivedStatus === 'completed' ? "bg-emerald-500" : "bg-accent-500"
                 )}
                 style={{ width: `${Math.min(100, progressPercent)}%` }}
               />
-            </div>
+            </span>
           )}
-        </div>
+        </span>
 
-        <div className="flex items-center">
-          <button
-            className="p-2 text-gray-500 hover:text-white transition-colors"
-            aria-label={expanded ? 'Collapse seasons' : 'Expand seasons'}
-          >
-            {expanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-          </button>
-        </div>
-      </div>
+        <span className="flex shrink-0 items-center p-2 text-gray-400">
+          {expanded ? <ChevronUp className="h-5 w-5" aria-hidden="true" /> : <ChevronDown className="h-5 w-5" aria-hidden="true" />}
+        </span>
+      </button>
 
       <AnimatePresence>
         {expanded && (
@@ -158,13 +157,15 @@ export function SeriesCard({ series, libraryEntries, logs, onAnimeSelect }: Seri
                 return (
                   <div key={season.id} className="flex items-center justify-between py-2 px-2 hover:bg-gray-800/50 rounded-lg">
                     <div className="flex flex-col min-w-0 pr-4">
-                      <span
-                        className="truncate text-sm font-medium text-gray-200 cursor-pointer hover:underline hover:text-accent-400"
-                        onClick={(e) => { e.stopPropagation(); onAnimeSelect?.(season.id); }}
+                      <button
+                        type="button"
+                        onClick={() => onAnimeSelect?.(season.id)}
+                        aria-label={`Open ${season.title}`}
+                        className="truncate text-left text-sm font-medium text-gray-200 hover:underline hover:text-accent-400"
                       >
                         {season.seasonLabel}
-                      </span>
-                      <span className="text-xs text-gray-500 truncate">{season.title}</span>
+                      </button>
+                      <span className="text-xs text-gray-400 truncate">{season.title}</span>
                     </div>
 
                     <div className="flex items-center gap-3 text-sm whitespace-nowrap">
@@ -174,7 +175,6 @@ export function SeriesCard({ series, libraryEntries, logs, onAnimeSelect }: Seri
                           <select
                             value={l.status}
                             aria-label={`Status for ${season.seasonLabel}`}
-                            onClick={(e) => e.stopPropagation()}
                             onChange={(e) => setSeasonStatus(l, e.target.value as LibraryStatus)}
                             className="h-8 rounded-md border border-edge bg-surface-3 px-2 text-xs font-medium text-gray-200 focus:border-accent-500 focus:outline-none"
                           >
@@ -187,18 +187,19 @@ export function SeriesCard({ series, libraryEntries, logs, onAnimeSelect }: Seri
                             showId={season.id}
                             align="end"
                             renderTrigger={({ inLibrary }) => (
-                              <button className="flex h-8 w-8 items-center justify-center rounded-md text-accent-400 hover:bg-accent-500/10 hover:text-accent-300 transition-colors">
-                                <Bookmark className="h-4 w-4" fill={inLibrary ? "currentColor" : "none"} />
+                              <button type="button" className="flex h-11 w-11 items-center justify-center rounded-md text-accent-400 hover:bg-accent-500/10 hover:text-accent-300 transition-colors">
+                                <Bookmark className="h-4 w-4" fill={inLibrary ? "currentColor" : "none"} aria-hidden="true" />
                               </button>
                             )}
                           />
                         </>
                       ) : (
                         <button
-                          onClick={(e) => { e.stopPropagation(); addSeasonToLibrary(season.id); }}
-                          className="flex items-center gap-1 text-xs font-medium text-accent-400 hover:text-accent-300 bg-accent-500/10 hover:bg-accent-500/20 px-2 py-1 rounded-md transition-colors"
+                          type="button"
+                          onClick={() => addSeasonToLibrary(season.id)}
+                          className="flex h-11 items-center gap-1 text-xs font-medium text-accent-400 hover:text-accent-300 bg-accent-500/10 hover:bg-accent-500/20 px-3 rounded-md transition-colors"
                         >
-                          <Plus className="h-3.5 w-3.5" /> Add to List
+                          <Plus className="h-3.5 w-3.5" aria-hidden="true" /> Add to List
                         </button>
                       )}
                     </div>
@@ -214,8 +215,9 @@ export function SeriesCard({ series, libraryEntries, logs, onAnimeSelect }: Seri
                   <p className="text-xs text-accent-400/70">{nextAvailable.seasonLabel}</p>
                 </div>
                 <button
+                  type="button"
                   onClick={() => addSeasonToLibrary(nextAvailable!.id)}
-                  className="px-3 py-1.5 bg-accent-600 text-white text-xs font-medium rounded-md hover:bg-accent-500 transition-colors"
+                  className="h-11 px-3 bg-accent-600 text-white text-xs font-medium rounded-md hover:bg-accent-500 transition-colors"
                 >
                   Add to Library
                 </button>

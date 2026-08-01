@@ -79,7 +79,7 @@ export function SearchView({ favorites, onToggleFavorite, onAnimeSelect }: Searc
   return (
     <div className="space-y-6">
       <div className="mb-8">
-        <h2 className="text-3xl font-bold text-white tracking-tight">Search</h2>
+        <h1 className="text-3xl font-bold text-white tracking-tight">Search</h1>
         <p className="text-gray-400 mt-2 text-sm">Find and add previous seasons, movies, or any anime to your watchlist.</p>
       </div>
 

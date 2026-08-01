@@ -60,10 +60,11 @@ export function SeasonRecapModal({ isOpen, onClose, logs, animeList, favorites }
             
             <div className="bg-purple-900/50 p-6 pt-10 text-center relative">
               <Dialog.Close className="absolute right-4 top-4 rounded-lg bg-black/20 p-1.5 text-white hover:bg-black/40 transition-colors">
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4" aria-hidden="true" />
+                <span className="sr-only">Close</span>
               </Dialog.Close>
-              <h2 className="text-3xl font-bold tracking-tight text-white mb-1">Season Recap</h2>
-              <p className="text-purple-200 text-sm">Your anime journey this season</p>
+              <Dialog.Title className="text-3xl font-bold tracking-tight text-white mb-1">Season Recap</Dialog.Title>
+              <Dialog.Description className="text-purple-200 text-sm">Your anime journey this season</Dialog.Description>
             </div>
 
             <div className="p-6 space-y-6 overflow-y-auto custom-scrollbar">

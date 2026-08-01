@@ -1,11 +1,9 @@
-import { AnimatePresence } from 'motion/react';
 import { Save, Settings, Sparkles } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { NavLink, Outlet, useNavigate, useSearchParams } from 'react-router';
 import { toast } from 'sonner';
-import { DataSyncModal } from '../features/data/DataSyncModal';
+import { SettingsDialog } from '../features/data/SettingsDialog';
 import { ShowDetailModal } from '../features/show/ShowDetailModal';
-import { useEpisodeLog } from '../hooks/useEpisodeLog';
 import { useLibrary } from '../hooks/useLibrary';
 import { useCurrentSchedule, useMediaById } from '../queries/hooks';
 import { AnimeMedia } from '../types';
@@ -15,10 +13,9 @@ import { ScheduleContext } from './scheduleContext';
 import { SHOW_PARAM, parseShowId } from './showParam';
 
 export function RootLayout() {
-  const [isDataSyncOpen, setIsDataSyncOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  const { library, toggleFavorite, updateEntry, setLibraryBulk } = useLibrary();
-  const { logs, setLogsBulk } = useEpisodeLog();
+  const { library, toggleFavorite, updateEntry } = useLibrary();
   const favorites = useMemo(() => library.filter((l) => l.status === 'watching').map((l) => l.showId), [library]);
 
   const schedule = useCurrentSchedule();
@@ -144,6 +141,14 @@ export function RootLayout() {
 
   return (
     <div className="min-h-screen bg-black text-gray-100 selection:bg-purple-500/30">
+      {/* First tab stop on every page: jump the navs and land on the view. */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-accent-600 focus:px-4 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-white"
+      >
+        Skip to content
+      </a>
+
       <div className="flex min-h-screen flex-col md:flex-row">
         {/* Desktop Sidebar */}
         <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col overflow-y-auto border-r border-gray-900 bg-black p-6 md:flex">
@@ -154,10 +159,10 @@ export function RootLayout() {
             <span className="text-xl font-bold tracking-tight text-white">Senpai</span>
           </div>
 
-          <nav className="flex-1 space-y-2">
+          <nav aria-label="Primary" className="flex-1 space-y-2">
             {NAV_ITEMS.map((item) => (
               <NavLink key={item.to} to={item.to} className={navLinkClass}>
-                <item.icon className="h-5 w-5" />
+                <item.icon className="h-5 w-5" aria-hidden="true" />
                 <span>{item.label}</span>
                 {item.to === '/watching' && favorites.length > 0 && (
                   <span className="ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-purple-600/20 px-1.5 text-[10px] text-purple-400">
@@ -170,10 +175,10 @@ export function RootLayout() {
 
           <div className="mt-auto pt-6">
             <button
-              onClick={() => setIsDataSyncOpen(true)}
+              onClick={() => setIsSettingsOpen(true)}
               className="flex w-full items-center space-x-3 rounded-lg px-4 py-3 text-sm font-medium text-gray-400 transition-colors hover:bg-surface-2 hover:text-white"
             >
-              <Save className="h-5 w-5" />
+              <Save className="h-5 w-5" aria-hidden="true" />
               <span>Data &amp; Settings</span>
             </button>
           </div>
@@ -188,16 +193,20 @@ export function RootLayout() {
             <span className="text-xl font-bold tracking-tight text-white">Senpai</span>
           </div>
           <button
-            onClick={() => setIsDataSyncOpen(true)}
-            className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-900 hover:text-white"
+            onClick={() => setIsSettingsOpen(true)}
+            className="flex h-11 w-11 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-900 hover:text-white"
             aria-label="Data & Settings"
-            title="Data & Settings"
           >
-            <Settings className="h-5 w-5" />
+            <Settings className="h-5 w-5" aria-hidden="true" />
           </button>
         </header>
 
-        <main className="min-w-0 flex-1 px-4 py-6 pb-24 md:px-8 md:pb-6 lg:px-12">
+        {/* Bottom padding clears the mobile nav (h-14) plus its safe-area inset. */}
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="min-w-0 flex-1 px-4 py-6 pb-[calc(3.5rem+1rem+env(safe-area-inset-bottom))] focus:outline-none md:px-8 md:pb-6 lg:px-12"
+        >
           <div className="mx-auto w-full">
             <Outlet context={outletContext} />
           </div>
@@ -216,49 +225,39 @@ export function RootLayout() {
           />
         )}
 
-        <AnimatePresence>
-          {isDataSyncOpen && (
-            <DataSyncModal
-              isOpen={isDataSyncOpen}
-              onClose={() => setIsDataSyncOpen(false)}
-              library={library}
-              logs={logs}
-              onImportLibrary={setLibraryBulk}
-              onImportLogs={setLogsBulk}
-            />
-          )}
-        </AnimatePresence>
+        <SettingsDialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
 
-        {/* Mobile Bottom Navigation */}
-        <nav className="fixed bottom-0 left-0 z-50 w-full border-t border-gray-900 bg-black/95 p-2 backdrop-blur-md md:hidden">
-          <div className="flex justify-around">
+        {/* Mobile Bottom Navigation — fixed 56px row, six items, labels never wrap. */}
+        <nav
+          aria-label="Primary mobile"
+          className="fixed bottom-0 left-0 z-50 w-full border-t border-gray-900 bg-black/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden"
+        >
+          <div className="flex h-14 items-stretch">
             {NAV_ITEMS.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
                   cn(
-                    'relative flex flex-col items-center justify-center p-2 text-xs transition-colors',
-                    isActive ? 'text-purple-400' : 'text-gray-500 hover:text-gray-300',
+                    'relative flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 whitespace-nowrap text-[10px] font-medium transition-colors',
+                    isActive ? 'text-accent-400' : 'text-gray-400 hover:text-gray-200',
                   )
                 }
               >
                 {({ isActive }) => (
                   <>
-                    <div
-                      className={cn(
-                        'mb-1 flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300',
-                        isActive ? 'bg-purple-600/20' : 'bg-transparent',
-                      )}
-                    >
-                      <item.icon className={cn('h-5 w-5', isActive && 'fill-purple-400/20')} />
-                    </div>
-                    <span className="font-medium">{item.label}</span>
-                    {item.to === '/watching' && favorites.length > 0 && (
-                      <span className="absolute right-0 top-0 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-purple-600 px-1 text-[9px] text-white">
-                        {favorites.length}
-                      </span>
+                    {isActive && (
+                      <span className="absolute top-0 h-0.5 w-8 rounded-b-full bg-accent-400" aria-hidden="true" />
                     )}
+                    <span className="relative">
+                      <item.icon className="h-5 w-5" aria-hidden="true" />
+                      {item.to === '/watching' && favorites.length > 0 && (
+                        <span className="absolute -right-2 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-accent-600 px-1 text-[10px] font-semibold text-white">
+                          {favorites.length}
+                        </span>
+                      )}
+                    </span>
+                    <span>{item.label}</span>
                   </>
                 )}
               </NavLink>

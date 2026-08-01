@@ -32,7 +32,7 @@ function hasKey(key: string): boolean {
 }
 
 /** Normalize one legacy library entry; entries without a numeric showId are dropped. */
-function normalizeLibraryEntry(raw: unknown): LibraryEntry | null {
+export function normalizeLibraryEntry(raw: unknown): LibraryEntry | null {
   if (typeof raw !== 'object' || raw === null) return null;
   const e = raw as Record<string, unknown>;
   if (typeof e.showId !== 'number') return null;
@@ -51,7 +51,7 @@ function normalizeLibraryEntry(raw: unknown): LibraryEntry | null {
   return entry;
 }
 
-const EpisodeLogSchema = z.object({
+export const EpisodeLogSchema = z.object({
   showId: z.number(),
   episodeNumber: z.number(),
   watchedAt: z.number().catch(0),

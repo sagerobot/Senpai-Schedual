@@ -167,15 +167,15 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
                 ) : (
                   <>
                     <div className="flex flex-1 flex-col justify-center rounded-xl bg-[#2a2a2d] py-3">
-                      <span className="text-[10px] font-semibold uppercase text-gray-500">MAL</span>
+                      <span className="text-[11px] font-semibold uppercase text-gray-400">MAL</span>
                       <span className="text-2xl font-bold text-white">{malScore || '-'}</span>
                     </div>
                     <div className="flex flex-1 flex-col justify-center rounded-xl bg-[#2a2a2d] py-3">
-                      <span className="text-[10px] font-semibold uppercase text-gray-500">AniList</span>
+                      <span className="text-[11px] font-semibold uppercase text-gray-400">AniList</span>
                       <span className="text-2xl font-bold text-white">{anilistScore ? `${anilistScore}%` : '-'}</span>
                     </div>
                     <div className="flex flex-1 flex-col justify-center rounded-xl bg-[#2a2a2d] py-3">
-                      <span className="text-[10px] font-semibold uppercase text-gray-500">Kitsu</span>
+                      <span className="text-[11px] font-semibold uppercase text-gray-400">Kitsu</span>
                       <span className="text-2xl font-bold text-white">{kitsuScore ? `${kitsuScore}%` : '-'}</span>
                     </div>
                     <div className="flex flex-1 flex-col justify-center rounded-xl bg-accent-600/20 border border-accent-500/30 py-3">
@@ -341,7 +341,7 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
                       <span>Check community vibe</span>
                     </button>
                   </div>
-                  <p className="text-xs text-gray-500">Searches r/anime discussion for episode {selectedEpisode}</p>
+                  <p className="text-[11px] text-gray-400">Searches r/anime discussion for episode {selectedEpisode}</p>
                 </div>
               ) : pulseState === 'loading' ? (
                 <div className="relative rounded-xl border border-gray-800 bg-[#2a2a2d]/50 p-4 animate-pulse">
@@ -378,7 +378,15 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
                         pulse.indicator === 'negative' ? "text-rose-400" : 
                         "text-pink-400"
                       )}>Community vibe (Ep {selectedEpisode})</span>
-                      <span className="rounded-full bg-purple-950 px-2 py-0.5 text-[10px] font-semibold text-accent-300">Spoiler-free</span>
+                      {/* Sentiment in words: the card's colour is a second signal, never the only one. */}
+                      <span className={cn("rounded-full border px-2 py-0.5 text-[11px] font-bold",
+                        pulse.indicator === 'positive' ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-300" :
+                        pulse.indicator === 'negative' ? "border-rose-500/40 bg-rose-500/15 text-rose-300" :
+                        "border-pink-500/40 bg-pink-500/15 text-pink-300"
+                      )}>
+                        {pulse.indicator === 'positive' ? 'Positive' : pulse.indicator === 'negative' ? 'Negative' : 'Mixed'}
+                      </span>
+                      <span className="rounded-full bg-purple-950 px-2 py-0.5 text-[11px] font-semibold text-accent-300">Spoiler-free</span>
                     </div>
                     <div className={cn("flex items-center space-x-3 text-xs", 
                         pulse.indicator === 'positive' ? "text-emerald-300/80" : 
@@ -429,11 +437,11 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
                   )}
                 </div>
               ) : pulseState === 'resting' ? (
-                <div className="rounded-xl border border-gray-800 bg-[#2a2a2d]/50 p-5 text-center text-sm text-gray-500">
+                <div className="rounded-xl border border-gray-800 bg-[#2a2a2d]/50 p-5 text-center text-sm text-gray-400">
                   AI features are resting — try again tomorrow
                 </div>
               ) : pulseState === 'no_key' ? (
-                <div className="rounded-xl border border-gray-800 bg-[#2a2a2d]/50 p-5 text-center text-sm text-gray-500">
+                <div className="rounded-xl border border-gray-800 bg-[#2a2a2d]/50 p-5 text-center text-sm text-gray-400">
                   AI features are off in this deployment
                 </div>
               ) : (
@@ -531,7 +539,7 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
                     })}
                   </div>
                 ) : (
-                  <p className="text-xs text-gray-500">Add to library to rate</p>
+                  <p className="text-[11px] text-gray-400">Add to library to rate</p>
                 )}
               </div>
 

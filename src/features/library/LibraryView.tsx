@@ -5,7 +5,7 @@ import { AnimeMedia, LibraryEntry, EpisodeLog, LibraryStatus } from '../../types
 import { useMediaByIds } from '../../queries/hooks';
 import { importMalFile } from '../../lib/malImport';
 import { displayTitle } from '../../lib/displayTitle';
-import { Loader2, Upload, Download, BookmarkIcon, AlertCircle } from 'lucide-react';
+import { Loader2, Upload, BookmarkIcon, AlertCircle } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { LIBRARY_STATUS_LABELS, LIBRARY_STATUS_ORDER } from '../../lib/status';
 import { useSeriesGraphs } from '../../series/useSeriesGraphs';
@@ -102,17 +102,6 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
       setImporting(false);
       setImportProgress(null);
     }
-  };
-
-  const exportFullLibrary = () => {
-    const data = { library, logs };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `senpai_full_library_${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
   };
 
   // Group the whole library into franchises once; tab counts and the visible
@@ -240,7 +229,7 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-white">Library</h2>
+          <h1 className="text-2xl font-bold tracking-tight text-white">Library</h1>
           <p className="text-gray-400">Everything you've watched, planned, and shelved — grouped by series</p>
         </div>
 
@@ -261,15 +250,8 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
               importing ? "opacity-50 cursor-not-allowed text-gray-300" : "hover:bg-gray-800 hover:text-white text-gray-300"
             )}
           >
-            {importing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+            {importing ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Upload className="h-4 w-4" aria-hidden="true" />}
             Import MAL (XML)
-          </button>
-          <button
-            onClick={exportFullLibrary}
-            className="flex items-center gap-2 rounded-lg bg-[#2a2a2d] border border-gray-800 px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
-          >
-            <Download className="h-4 w-4" />
-            Export Data
           </button>
         </div>
       </div>

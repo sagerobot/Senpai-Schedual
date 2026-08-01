@@ -74,11 +74,18 @@ export function SeasonView({ favorites, onToggleFavorite, onAnimeSelect }: Seaso
     <div className="space-y-8 pb-12">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
-            <button onClick={handlePrevSeason} className="p-1 hover:bg-gray-800 rounded-lg transition-colors">
-              <ChevronLeft className="w-5 h-5" />
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handlePrevSeason}
+              aria-label="Previous season"
+              title="Previous season"
+              className="p-1 hover:bg-gray-800 rounded-lg transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5" aria-hidden="true" />
             </button>
-            {selectedSeason} {selectedYear}
+            <h1 className="text-2xl font-bold tracking-tight text-white">
+              {selectedSeason} {selectedYear}
+            </h1>
             <button
               onClick={handleNextSeason}
               disabled={atForwardBoundary}
@@ -89,9 +96,9 @@ export function SeasonView({ favorites, onToggleFavorite, onAnimeSelect }: Seaso
                 atForwardBoundary ? 'cursor-not-allowed text-gray-700' : 'hover:bg-gray-800',
               )}
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-5 h-5" aria-hidden="true" />
             </button>
-          </h2>
+          </div>
           <p className="text-gray-400 mt-1">
             {isCurrentSeason ? "All anime airing this season" : `Archive for ${selectedSeason.toLowerCase()} ${selectedYear}`}
           </p>
