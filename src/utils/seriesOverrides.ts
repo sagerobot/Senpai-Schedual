@@ -1,34 +1,34 @@
-export interface SeriesOverrides {
-  merges: Record<number, number>; // showId -> targetSeriesId
-  splits: number[]; // list of showIds that should be standalone
-}
+import { removeKey } from '../stores/storage';
+import { useUserData } from '../stores/userData';
+
+export type { SeriesOverrides } from '../stores/userData';
+import type { SeriesOverrides } from '../stores/userData';
+
+/**
+ * Facade over the userData store's overrides slice. Works outside React
+ * (seriesResolution calls getOverrides during BFS) via getState().
+ *
+ * Every write still deletes the cached series reverse map so the graph
+ * re-resolves — existing invalidation behavior, replaced in the series wave.
+ */
+
+const REVERSE_MAP_KEY = 'senpai_series_reverse_map';
 
 export function getOverrides(): SeriesOverrides {
-  const overrides = localStorage.getItem('senpai_series_overrides');
-  if (overrides) {
-    try {
-      return JSON.parse(overrides);
-    } catch(e) {}
-  }
-  return { merges: {}, splits: [] };
+  return useUserData.getState().overrides;
 }
 
 export function saveOverrides(overrides: SeriesOverrides) {
-  localStorage.setItem('senpai_series_overrides', JSON.stringify(overrides));
-  // Clear the cache of reverse map so we can re-resolve
-  localStorage.removeItem('senpai_series_reverse_map');
+  useUserData.getState().setOverrides(overrides);
+  removeKey(REVERSE_MAP_KEY);
 }
 
 export function splitFromSeries(showId: number) {
-  const overrides = getOverrides();
-  if (!overrides.splits.includes(showId)) {
-    overrides.splits.push(showId);
-    saveOverrides(overrides);
-  }
+  useUserData.getState().splitShow(showId);
+  removeKey(REVERSE_MAP_KEY);
 }
 
 export function mergeIntoSeries(showId: number, targetSeriesId: number) {
-  const overrides = getOverrides();
-  overrides.merges[showId] = targetSeriesId;
-  saveOverrides(overrides);
+  useUserData.getState().mergeShow(showId, targetSeriesId);
+  removeKey(REVERSE_MAP_KEY);
 }

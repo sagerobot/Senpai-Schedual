@@ -2,10 +2,11 @@ import { AnimeMedia, EpisodeLog } from '../types';
 import { AnimeCard } from './AnimeCard';
 import { SeriesTitle } from './SeriesTitle';
 import { Search, Film } from 'lucide-react';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { cn } from '../lib/utils';
 import { displayTitle } from '../lib/displayTitle';
 import { CheckInFeed } from './CheckInFeed';
+import { useUserData } from '../stores/userData';
 
 interface DailyScheduleProps {
   animeList: AnimeMedia[];
@@ -21,21 +22,10 @@ const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 
 export function DailySchedule({ animeList, favorites, onToggleFavorite, onAnimeSelect, logs, onLog }: DailyScheduleProps) {
   const [search, setSearch] = useState('');
 
-  // Persisted state
-  const [includeMovies, setIncludeMovies] = useState(() => {
-    try { const item = window.localStorage.getItem('schedule_includeMovies'); return item ? JSON.parse(item) : false; } catch(e) { return false; }
-  });
-  const [selectedSources, setSelectedSources] = useState<string[]>(() => {
-    try { const item = window.localStorage.getItem('schedule_selectedSources'); return item ? JSON.parse(item) : []; } catch(e) { return []; }
-  });
-
-  useEffect(() => {
-    window.localStorage.setItem('schedule_includeMovies', JSON.stringify(includeMovies));
-  }, [includeMovies]);
-
-  useEffect(() => {
-    window.localStorage.setItem('schedule_selectedSources', JSON.stringify(selectedSources));
-  }, [selectedSources]);
+  // Persisted state (userData store uiPrefs)
+  const includeMovies = useUserData(s => s.uiPrefs.includeMovies);
+  const selectedSources = useUserData(s => s.uiPrefs.selectedSources);
+  const setUiPrefs = useUserData(s => s.setUiPrefs);
 
   const STREAMING_SITES = ['Crunchyroll', 'Netflix', 'Hulu', 'Amazon Prime Video', 'HIDIVE', 'Disney Plus', 'Bilibili TV', 'CustomSource'];
   
@@ -122,7 +112,7 @@ export function DailySchedule({ animeList, favorites, onToggleFavorite, onAnimeS
           {/* Quick Filters */}
           <div className="flex items-center bg-[#0a0c16] border border-[#1e2336] rounded-xl p-1 shrink-0 w-full sm:w-auto justify-center sm:justify-start">
             <button
-              onClick={() => setIncludeMovies(!includeMovies)}
+              onClick={() => setUiPrefs({ includeMovies: !includeMovies })}
               className={cn("px-4 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5", includeMovies ? "bg-accent-600 text-white shadow-md" : "text-gray-400 hover:text-gray-200")}
             >
               <Film className="w-3.5 h-3.5" />
@@ -138,9 +128,11 @@ export function DailySchedule({ animeList, favorites, onToggleFavorite, onAnimeS
                 <button
                   key={source}
                   onClick={() => {
-                    setSelectedSources(prev => 
-                      isSelected ? prev.filter(s => s !== source) : [...prev, source]
-                    );
+                    setUiPrefs({
+                      selectedSources: isSelected
+                        ? selectedSources.filter(s => s !== source)
+                        : [...selectedSources, source],
+                    });
                   }}
                   className={cn(
                     "whitespace-nowrap px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all flex-shrink-0",

@@ -1,22 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useUserData } from '../stores/userData';
 
+/** Facade over the userData store; keeps the pre-store hook API. */
 export function useSimulcastOffsets() {
-  const [offsets, setOffsets] = useState<Record<number, number>>(() => {
-    const saved = localStorage.getItem('senpai_simulcast_offsets');
-    if (saved) return JSON.parse(saved);
-    return {};
-  });
-
-  useEffect(() => {
-    localStorage.setItem('senpai_simulcast_offsets', JSON.stringify(offsets));
-  }, [offsets]);
-
-  const setOffset = (showId: number, offsetMinutes: number) => {
-    setOffsets(prev => ({
-      ...prev,
-      [showId]: offsetMinutes
-    }));
-  };
+  const offsets = useUserData((s) => s.offsets);
+  const setOffset = useUserData((s) => s.setOffset);
 
   return { offsets, setOffset };
 }
