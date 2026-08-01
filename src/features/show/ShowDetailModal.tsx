@@ -1,14 +1,14 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { X, ExternalLink, Bookmark, MessageCircle, Loader2, Sparkles } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { AnimeMedia, LibraryEntry } from '../types';
-import { fetchShowDetails, ShowDetails } from '../api/showDetails';
-import { fetchAnimeByIds, fetchMediaById } from '../api/anilist/queries';
-import { displayTitle } from '../lib/displayTitle';
-import { useCommunityPulse } from '../hooks/useCommunityPulse';
-import { useSimulcastOffsets } from '../hooks/useSimulcastOffsets';
-import { formatTimeUntil, cn } from '../lib/utils';
-import { splitFromSeries, mergeIntoSeries } from '../utils/seriesOverrides';
+import { AnimeMedia, LibraryEntry } from '../../types';
+import { fetchShowDetails, ShowDetails } from '../../api/showDetails';
+import { fetchAnimeByIds, fetchMediaById } from '../../api/anilist/queries';
+import { displayTitle } from '../../lib/displayTitle';
+import { useCommunityPulse } from './useCommunityPulse';
+import { useSimulcastOffsets } from '../../hooks/useSimulcastOffsets';
+import { formatTimeUntil, cn } from '../../lib/utils';
+import { splitFromSeries, mergeIntoSeries } from '../../utils/seriesOverrides';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface ShowDetailModalProps {

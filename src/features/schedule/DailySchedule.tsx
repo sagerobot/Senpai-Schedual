@@ -1,12 +1,12 @@
-import { AnimeMedia, EpisodeLog } from '../types';
-import { AnimeCard } from './AnimeCard';
-import { SeriesTitle } from './SeriesTitle';
+import { AnimeMedia, EpisodeLog } from '../../types';
+import { AnimeCard } from '../../components/AnimeCard';
+import { SeriesTitle } from '../../components/SeriesTitle';
 import { Search, Film } from 'lucide-react';
 import { useState, useMemo } from 'react';
-import { cn } from '../lib/utils';
-import { displayTitle } from '../lib/displayTitle';
+import { cn } from '../../lib/utils';
+import { displayTitle } from '../../lib/displayTitle';
 import { CheckInFeed } from './CheckInFeed';
-import { useUserData } from '../stores/userData';
+import { useUserData } from '../../stores/userData';
 
 interface DailyScheduleProps {
   animeList: AnimeMedia[];

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { AnimeMedia, LibraryEntry } from '../types';
-import { useRecommendations } from '../hooks/useRecommendations';
-import { AnimeCard } from './AnimeCard';
+import { AnimeMedia, LibraryEntry } from '../../types';
+import { useRecommendations } from '../../hooks/useRecommendations';
+import { AnimeCard } from '../../components/AnimeCard';
 import { motion, AnimatePresence } from 'motion/react';
 import { Loader2, Sparkles, X, Filter, Moon, PowerOff, AlertTriangle } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { cn } from '../../lib/utils';
 
 interface ForYouViewProps {
   library: LibraryEntry[];

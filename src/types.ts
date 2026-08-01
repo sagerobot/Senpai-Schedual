@@ -18,5 +18,3 @@ export interface LibraryEntry {
   updatedAt?: number;
   simulcastOffset?: number;
 }
-
-export type ViewMode = 'schedule' | 'season' | 'favorites' | 'library' | 'recommendations' | 'search';

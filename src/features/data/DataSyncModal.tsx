@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Download, Upload, X, Save, AlertTriangle, FileUp, FileDown, CheckCircle2 } from 'lucide-react';
-import { LibraryEntry, EpisodeLog } from '../types';
+import { LibraryEntry, EpisodeLog } from '../../types';
 
 interface DataSyncModalProps {
   isOpen: boolean;

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { AnimeMedia } from '../types';
-import { searchAnime } from '../api/anilist/queries';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router';
+import { AnimeMedia } from '../../types';
+import { searchAnime } from '../../api/anilist/queries';
 import { Search, Loader2 } from 'lucide-react';
-import { AnimeCard } from './AnimeCard';
+import { AnimeCard } from '../../components/AnimeCard';
 
 interface SearchViewProps {
   favorites: number[];
@@ -10,26 +11,87 @@ interface SearchViewProps {
   onAnimeSelect: (anime: AnimeMedia) => void;
 }
 
+const QUERY_PARAM = 'q';
+const DEBOUNCE_MS = 350;
+
 export function SearchView({ favorites, onToggleFavorite, onAnimeSelect }: SearchViewProps) {
-  const [query, setQuery] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlQuery = searchParams.get(QUERY_PARAM) ?? '';
+
+  // The input stays local so typing is never a round-trip through the router.
+  // The URL holds the committed query and is the only thing the fetch reacts to.
+  const [query, setQuery] = useState(urlQuery);
+  const committed = useRef(urlQuery);
+
   const [results, setResults] = useState<AnimeMedia[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!query.trim()) return;
+  const commit = useCallback(
+    (value: string) => {
+      committed.current = value;
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          if (value.trim()) next.set(QUERY_PARAM, value);
+          else next.delete(QUERY_PARAM);
+          return next;
+        },
+        { replace: true, preventScrollReset: true },
+      );
+    },
+    [setSearchParams],
+  );
 
+  // Typing -> URL, debounced. Replace rather than push so Back doesn't walk
+  // back through every keystroke.
+  useEffect(() => {
+    if (query === committed.current) return;
+    const timer = setTimeout(() => commit(query), DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [query, commit]);
+
+  // URL -> input, for Back/Forward and cold-loaded /search?q=... links.
+  useEffect(() => {
+    if (urlQuery === committed.current) return;
+    committed.current = urlQuery;
+    setQuery(urlQuery);
+  }, [urlQuery]);
+
+  useEffect(() => {
+    const term = urlQuery.trim();
+    if (!term) {
+      setResults([]);
+      setSearched(false);
+      setLoading(false);
+      return;
+    }
+
+    let active = true;
     setLoading(true);
     setSearched(true);
-    try {
-      const data = await searchAnime(query.trim());
-      setResults(data);
-    } catch (error) {
-      console.error("Search failed:", error);
-    } finally {
-      setLoading(false);
-    }
+    searchAnime(term)
+      .then((data) => {
+        if (active) setResults(data);
+      })
+      .catch((error) => {
+        if (!active) return;
+        console.error('Search failed:', error);
+        setResults([]);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [urlQuery]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!query.trim()) return;
+    commit(query);
   };
 
   return (
@@ -39,7 +101,7 @@ export function SearchView({ favorites, onToggleFavorite, onAnimeSelect }: Searc
         <p className="text-gray-400 mt-2 text-sm">Find and add previous seasons, movies, or any anime to your watchlist.</p>
       </div>
 
-      <form onSubmit={handleSearch} className="relative w-full max-w-2xl mb-8">
+      <form onSubmit={handleSubmit} className="relative w-full max-w-2xl mb-8">
         <div className="relative flex items-center">
           <Search className="absolute left-4 h-5 w-5 text-gray-400" />
           <input
@@ -67,7 +129,7 @@ export function SearchView({ favorites, onToggleFavorite, onAnimeSelect }: Searc
       ) : searched && results.length === 0 ? (
         <div className="flex h-64 flex-col items-center justify-center rounded-2xl border border-dashed border-gray-800 bg-[#0a0c16]">
           <Search className="mb-4 h-8 w-8 text-gray-600" />
-          <p className="text-gray-400">No results found for "{query}"</p>
+          <p className="text-gray-400">No results found for "{urlQuery}"</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">

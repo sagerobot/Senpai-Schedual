@@ -1,35 +1,35 @@
 
-import { AnimeMedia } from '../types';
-import { AnimeCard } from './AnimeCard';
-import { SeriesTitle } from './SeriesTitle';
+import { AnimeMedia } from '../../types';
+import { AnimeCard } from '../../components/AnimeCard';
+import { SeriesTitle } from '../../components/SeriesTitle';
 import { Search, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
-import { fetchAnimeBySeason } from '../api/anilist/queries';
-import { displayTitle } from '../lib/displayTitle';
+import { useNavigate, useParams } from 'react-router';
+import { fetchAnimeBySeason } from '../../api/anilist/queries';
+import { displayTitle } from '../../lib/displayTitle';
+import { SEASONS, currentSeason, parseSeasonParams, seasonPath } from '../../routes/season';
 
 interface SeasonViewProps {
-  animeList: AnimeMedia[]; // Initially current season
+  animeList: AnimeMedia[]; // The current season, shared with the Schedule view
   favorites: number[];
   onToggleFavorite: (id: number) => void;
   onAnimeSelect: (anime: AnimeMedia) => void;
 }
 
-const SEASONS = ['WINTER', 'SPRING', 'SUMMER', 'FALL'];
-
 export function SeasonView({ animeList, favorites, onToggleFavorite, onAnimeSelect }: SeasonViewProps) {
   const [search, setSearch] = useState('');
-  
-  // Determine current real-world season/year
-  const date = new Date();
-  const currentYear = date.getFullYear();
-  const currentMonth = date.getMonth();
-  let initialSeason = 'WINTER';
-  if (currentMonth >= 3 && currentMonth <= 5) initialSeason = 'SPRING';
-  else if (currentMonth >= 6 && currentMonth <= 8) initialSeason = 'SUMMER';
-  else if (currentMonth >= 9 && currentMonth <= 11) initialSeason = 'FALL';
+  const navigate = useNavigate();
+  const params = useParams();
 
-  const [selectedSeason, setSelectedSeason] = useState(initialSeason);
-  const [selectedYear, setSelectedYear] = useState(currentYear);
+  const now = useMemo(() => currentSeason(), []);
+  const currentYear = now.year;
+  const initialSeason = now.season.toUpperCase();
+
+  // Which season is on screen is URL state; the route loader guarantees it parses.
+  const parsed = parseSeasonParams(params.year, params.season) ?? now;
+  const selectedYear = parsed.year;
+  const selectedSeason = parsed.season.toUpperCase();
+
   const [localList, setLocalList] = useState<AnimeMedia[] | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -65,24 +65,21 @@ export function SeasonView({ animeList, favorites, onToggleFavorite, onAnimeSele
     );
   }, [displayList, search]);
 
+  const goToSeason = (year: number, season: string) => {
+    setSearch('');
+    navigate(seasonPath(year, season));
+  };
+
   const handlePrevSeason = () => {
-    const currentIndex = SEASONS.indexOf(selectedSeason);
-    if (currentIndex === 0) {
-      setSelectedSeason('FALL');
-      setSelectedYear(y => y - 1);
-    } else {
-      setSelectedSeason(SEASONS[currentIndex - 1]);
-    }
+    const currentIndex = SEASONS.indexOf(selectedSeason as (typeof SEASONS)[number]);
+    if (currentIndex <= 0) goToSeason(selectedYear - 1, 'FALL');
+    else goToSeason(selectedYear, SEASONS[currentIndex - 1]);
   };
 
   const handleNextSeason = () => {
-    const currentIndex = SEASONS.indexOf(selectedSeason);
-    if (currentIndex === 3) {
-      setSelectedSeason('WINTER');
-      setSelectedYear(y => y + 1);
-    } else {
-      setSelectedSeason(SEASONS[currentIndex + 1]);
-    }
+    const currentIndex = SEASONS.indexOf(selectedSeason as (typeof SEASONS)[number]);
+    if (currentIndex === SEASONS.length - 1) goToSeason(selectedYear + 1, 'WINTER');
+    else goToSeason(selectedYear, SEASONS[currentIndex + 1]);
   };
 
   const isCurrentSeason = selectedSeason === initialSeason && selectedYear === currentYear;

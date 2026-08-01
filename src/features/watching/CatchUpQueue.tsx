@@ -1,10 +1,10 @@
 import React, { useMemo, useState } from 'react';
-import { AnimeMedia, EpisodeLog } from '../types';
+import { AnimeMedia, EpisodeLog } from '../../types';
 import { motion, AnimatePresence } from 'motion/react';
-import { cn } from '../lib/utils';
+import { cn } from '../../lib/utils';
 import { Clock, ChevronRight, History, Play, Link, Zap, Info } from 'lucide-react';
-import { getCachedSeriesGraph } from '../utils/seriesResolution';
-import { displayTitle } from '../lib/displayTitle';
+import { getCachedSeriesGraph } from '../../utils/seriesResolution';
+import { displayTitle } from '../../lib/displayTitle';
 
 interface CatchUpQueueProps {
   animeList: AnimeMedia[];

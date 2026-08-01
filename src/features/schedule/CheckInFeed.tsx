@@ -1,9 +1,9 @@
 import React, { useMemo, useState, memo } from 'react';
-import { AnimeMedia, EpisodeLog } from '../types';
+import { AnimeMedia, EpisodeLog } from '../../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { Clock, Star, Play, Check, Bookmark, ChevronDown, CheckCircle2, Info, Zap } from 'lucide-react';
-import { cn } from '../lib/utils';
-import { displayTitle } from '../lib/displayTitle';
+import { cn } from '../../lib/utils';
+import { displayTitle } from '../../lib/displayTitle';
 
 interface CheckInFeedProps {
   animeList: AnimeMedia[];

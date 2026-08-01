@@ -1,8 +1,8 @@
 import React from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { AnimeMedia, EpisodeLog } from '../types';
+import { AnimeMedia, EpisodeLog } from '../../types';
 import { X, Trophy, Clock, TrendingUp } from 'lucide-react';
-import { displayTitle } from '../lib/displayTitle';
+import { displayTitle } from '../../lib/displayTitle';
 
 interface SeasonRecapModalProps {
   isOpen: boolean;

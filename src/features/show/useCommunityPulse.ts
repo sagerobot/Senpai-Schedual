@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
-import { postEnvelope } from '../api/aiEnvelope';
+import { postEnvelope } from '../../api/aiEnvelope';
 
 /** Mirrors the server's vibeOutputSchema (server/schemas.ts). */
 const VibeCheckSchema = z.object({

@@ -1,12 +1,12 @@
-import { AnimeMedia, EpisodeLog, LibraryEntry, LibraryStatus } from '../types';
-import { AnimeCard, StatusPillType } from './AnimeCard';
+import { AnimeMedia, EpisodeLog, LibraryEntry, LibraryStatus } from '../../types';
+import { AnimeCard, StatusPillType } from '../../components/AnimeCard';
 import { BookmarkIcon, Trophy, Calendar, Star, TrendingUp, PlaySquare, Archive, XCircle, Clock } from 'lucide-react';
 import { CatchUpQueue } from './CatchUpQueue';
 import React, { useMemo, useState, useEffect } from 'react';
-import { fetchAnimeByIds } from '../api/anilist/queries';
+import { fetchAnimeByIds } from '../../api/anilist/queries';
 import { SeasonRecapModal } from './SeasonRecapModal';
-import { cn } from '../lib/utils';
-import { displayTitle } from '../lib/displayTitle';
+import { cn } from '../../lib/utils';
+import { displayTitle } from '../../lib/displayTitle';
 
 interface FavoritesViewProps {
   animeList: AnimeMedia[];

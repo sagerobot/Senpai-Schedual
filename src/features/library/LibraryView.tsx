@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { AnimeMedia, LibraryEntry, EpisodeLog, LibraryStatus } from '../types';
-import { fetchAnimeByIds, fetchAnimeByMalIds } from '../api/anilist/queries';
-import { parseMalXml } from '../lib/malParser';
-import { displayTitle } from '../lib/displayTitle';
+import { useSearchParams } from 'react-router';
+import { AnimeMedia, LibraryEntry, EpisodeLog, LibraryStatus } from '../../types';
+import { fetchAnimeByIds, fetchAnimeByMalIds } from '../../api/anilist/queries';
+import { parseMalXml } from '../../lib/malParser';
+import { displayTitle } from '../../lib/displayTitle';
 import { Loader2, Upload, FileText, Download } from 'lucide-react';
-import { cn } from '../lib/utils';
-import { useLibrarySeries } from '../hooks/useLibrarySeries';
+import { cn } from '../../lib/utils';
+import { useLibrarySeries } from '../../hooks/useLibrarySeries';
 import { SeriesCard } from './SeriesCard';
-import { SeriesGraph } from '../utils/seriesResolution';
+import { SeriesGraph } from '../../utils/seriesResolution';
 
 interface LibraryViewProps {
   library: LibraryEntry[];
@@ -23,7 +24,10 @@ type TabType = LibraryStatus;
 export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibraryBulk, setLogsBulk }: LibraryViewProps) {
   const [activeTab, setActiveTab] = useState<TabType>('watching');
   const [sortOption, setSortOption] = useState<'my-score' | 'title' | 'recently-updated'>('recently-updated');
-  const [search, setSearch] = useState('');
+  // `?q=` seeds the box once so /library?q=... is linkable; typing after that is
+  // local state and doesn't rewrite the URL.
+  const [searchParams] = useSearchParams();
+  const [search, setSearch] = useState(() => searchParams.get('q') ?? '');
 
   const [loadedAnime, setLoadedAnime] = useState<Record<number, AnimeMedia>>(() => {
     try {
