@@ -165,9 +165,15 @@ export function useShowDetailsQuery(anime: AnimeMedia) {
   return useQuery({
     queryKey: queryKeys.showDetails(anime.id),
     queryFn: async (): Promise<ShowDetailsData> => {
+      // List records no longer carry `description`, so the AI summary's AniList
+      // synopsis comes from the by-id fetch. The promise (never the awaited
+      // value) is handed to fetchShowDetails so Jikan/Kitsu start immediately;
+      // only the synopsis assembly waits on it.
+      const fullPromise = fetchMediaById(anime.id).catch(() => null);
+      const synopsisPromise = fullPromise.then((m) => m?.description ?? anime.description ?? '');
       const [details, full] = await Promise.all([
-        fetchShowDetails(anime.idMal, displayTitle(anime), anime.description ?? '', anime.id),
-        fetchMediaById(anime.id).catch(() => null),
+        fetchShowDetails(anime.idMal, displayTitle(anime), synopsisPromise, anime.id),
+        fullPromise,
       ]);
       return { details, full };
     },

@@ -1,14 +1,17 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { X, ExternalLink, Bookmark, MessageCircle, Loader2, Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { AnimeMedia, LibraryEntry } from '../../types';
+import { toast } from 'sonner';
+import { AnimeMedia, LibraryEntry, LibraryStatus } from '../../types';
 import { useShowDetailsQuery } from '../../queries/hooks';
 import { displayTitle } from '../../lib/displayTitle';
 import { useCommunityPulse } from './useCommunityPulse';
+import { EpisodeTracker } from './EpisodeTracker';
 import { useSimulcastOffsets } from '../../hooks/useSimulcastOffsets';
-import { formatTimeUntil, cn } from '../../lib/utils';
+import { cn } from '../../lib/utils';
+import { LIBRARY_STATUS_LABELS, LIBRARY_STATUS_ORDER } from '../../lib/status';
 import { splitFromSeries, mergeIntoSeries } from '../../series/overrides';
-import { motion, AnimatePresence } from 'motion/react';
+import { useUserData } from '../../stores/userData';
 
 interface ShowDetailModalProps {
   anime: AnimeMedia;
@@ -25,10 +28,32 @@ type TabType = 'mal' | 'anilist' | 'kitsu';
 export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, onAnimeSelect, libraryEntry, onUpdateEntry }: ShowDetailModalProps) {
   const [activeTab, setActiveTab] = useState<TabType>('mal');
 
+  // The vibe check's episode picker — deliberately its own state, fully
+  // decoupled from the episode tracker. Defaults to the latest aired episode.
   const latestEpisode = anime.nextAiringEpisode ? Math.max(1, anime.nextAiringEpisode.episode - 1) : anime.episodes || 1;
   const [selectedEpisode, setSelectedEpisode] = useState(latestEpisode);
   const { pulse, state: pulseState, load: loadPulse } = useCommunityPulse(displayTitle(anime), selectedEpisode, anime.id);
   const { offsets, setOffset } = useSimulcastOffsets();
+
+  const setShowScore = useUserData((s) => s.setShowScore);
+
+  const handleRate = (score: number) => {
+    if (!libraryEntry) return;
+    const previous = libraryEntry.showScore;
+    const next = previous === score ? null : score; // tapping the current score clears it
+    setShowScore(anime.id, next);
+    toast(next === null ? 'Rating cleared' : `Rated ${next}/10`, {
+      action: { label: 'Undo', onClick: () => useUserData.getState().setShowScore(anime.id, previous) },
+    });
+  };
+
+  const handleRemoveFromLibrary = () => {
+    const snapshot = useUserData.getState().removeFromLibrary(anime.id);
+    if (snapshot === null) return;
+    toast('Removed from Library', {
+      action: { label: 'Undo', onClick: () => useUserData.getState().restoreSnapshot(snapshot) },
+    });
+  };
 
   // List queries no longer carry `description` (localStorage quota); the query
   // fetches the full record by id alongside the MAL/Kitsu/AI details, and the
@@ -278,37 +303,46 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
                 </div>
               ) : null}
 
+              {/* Episode tracking */}
+              <EpisodeTracker anime={anime} />
+
               {/* Community Pulse Section */}
-              <div className="mt-2 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-medium text-gray-300">Episodes</h3>
-                </div>
-                <div className="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
-                  {Array.from({ length: latestEpisode }, (_, i) => i + 1).map(ep => (
-                    <button
-                      key={ep}
-                      onClick={() => setSelectedEpisode(ep)}
-                      className={cn(
-                        "shrink-0 flex items-center justify-center h-8 min-w-[2rem] px-2 rounded-lg text-xs font-medium transition-colors",
-                        selectedEpisode === ep
-                          ? "bg-accent-600 text-white"
-                          : "bg-[#2a2a2d] text-gray-400 hover:text-white hover:bg-gray-700"
-                      )}
-                    >
-                      {ep}
-                    </button>
-                  ))}
-                </div>
+              <div className="mt-2 flex items-center justify-between gap-3">
+                <h3 className="text-sm font-medium text-gray-300">Community vibe</h3>
+                {pulseState !== 'idle' && (
+                  <select
+                    value={selectedEpisode}
+                    onChange={(e) => setSelectedEpisode(Number(e.target.value))}
+                    aria-label="Episode for community vibe"
+                    className="rounded-lg border border-gray-700 bg-surface-2 px-2 py-1.5 text-xs font-medium text-gray-300 transition-colors hover:border-gray-600 focus:outline-none focus:ring-1 focus:ring-accent-500"
+                  >
+                    {Array.from({ length: latestEpisode }, (_, i) => i + 1).map((ep) => (
+                      <option key={ep} value={ep}>Episode {ep}</option>
+                    ))}
+                  </select>
+                )}
               </div>
               {pulseState === 'idle' ? (
                 <div className="flex flex-col items-center space-y-2 rounded-xl border border-gray-800 bg-[#2a2a2d]/50 p-5">
-                  <button
-                    onClick={loadPulse}
-                    className="flex items-center space-x-2 rounded-lg bg-accent-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-500"
-                  >
-                    <MessageCircle className="h-4 w-4" />
-                    <span>Check community vibe</span>
-                  </button>
+                  <div className="flex flex-wrap items-center justify-center gap-2">
+                    <select
+                      value={selectedEpisode}
+                      onChange={(e) => setSelectedEpisode(Number(e.target.value))}
+                      aria-label="Episode for community vibe"
+                      className="h-11 rounded-lg border border-gray-700 bg-surface-2 px-2 text-xs font-medium text-gray-300 transition-colors hover:border-gray-600 focus:outline-none focus:ring-1 focus:ring-accent-500"
+                    >
+                      {Array.from({ length: latestEpisode }, (_, i) => i + 1).map((ep) => (
+                        <option key={ep} value={ep}>Episode {ep}</option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={loadPulse}
+                      className="flex items-center space-x-2 rounded-lg bg-accent-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-500"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                      <span>Check community vibe</span>
+                    </button>
+                  </div>
                   <p className="text-xs text-gray-500">Searches r/anime discussion for episode {selectedEpisode}</p>
                 </div>
               ) : pulseState === 'loading' ? (
@@ -455,57 +489,96 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
               </button>
             </div>
             {/* Footer Actions */}
-            <div className="flex flex-wrap items-center gap-3 p-5 md:p-6 shrink-0 pt-0">
-              <a
-                href={`https://www.reddit.com/r/anime/search/?q=${encodeURIComponent(displayTitle(anime))}+episode+${anime.nextAiringEpisode ? anime.nextAiringEpisode.episode - 1 : 1}+discussion&restrict_sr=1`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex flex-1 items-center justify-center space-x-2 rounded-lg border border-gray-700 bg-transparent px-4 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
-              >
-                <MessageCircle className="h-4 w-4" />
-                <span>Episode discussion</span>
-              </a>
-
-              {anime.externalLinks.find(l => ['Crunchyroll', 'Netflix', 'HiDive', 'Hulu', 'Amazon', 'CustomSource'].some(s => l.site.toLowerCase().includes(s.toLowerCase()))) && (
+            <div className="shrink-0 space-y-4 p-5 pt-0 md:p-6 md:pt-0">
+              <div className="flex flex-wrap items-center gap-3">
                 <a
-                  href={anime.externalLinks.find(l => ['Crunchyroll', 'Netflix', 'HiDive', 'Hulu', 'Amazon', 'CustomSource'].some(s => l.site.toLowerCase().includes(s.toLowerCase())))!.url}
+                  href={`https://www.reddit.com/r/anime/search/?q=${encodeURIComponent(displayTitle(anime))}+episode+${anime.nextAiringEpisode ? anime.nextAiringEpisode.episode - 1 : 1}+discussion&restrict_sr=1`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex flex-1 items-center justify-center space-x-2 rounded-lg border border-gray-700 bg-transparent px-4 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
                 >
-                  <ExternalLink className="h-4 w-4" />
-                  <span>Watch on {anime.externalLinks.find(l => ['Crunchyroll', 'Netflix', 'HiDive', 'Hulu', 'Amazon', 'CustomSource'].some(s => l.site.toLowerCase().includes(s.toLowerCase())))!.site}</span>
+                  <MessageCircle className="h-4 w-4" />
+                  <span>Episode discussion</span>
                 </a>
-              )}
 
-              <div className="flex items-center gap-2">
-                {libraryEntry && onUpdateEntry && (
-                  <select
-                    value={libraryEntry.status}
-                    onChange={(e) => onUpdateEntry(anime.id, { status: e.target.value as any })}
-                    className="rounded-lg border border-gray-700 bg-[#2a2a2d] px-3 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:border-gray-600 focus:outline-none focus:ring-1 focus:ring-accent-500"
+                {anime.externalLinks.find(l => ['Crunchyroll', 'Netflix', 'HiDive', 'Hulu', 'Amazon', 'CustomSource'].some(s => l.site.toLowerCase().includes(s.toLowerCase()))) && (
+                  <a
+                    href={anime.externalLinks.find(l => ['Crunchyroll', 'Netflix', 'HiDive', 'Hulu', 'Amazon', 'CustomSource'].some(s => l.site.toLowerCase().includes(s.toLowerCase())))!.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex flex-1 items-center justify-center space-x-2 rounded-lg border border-gray-700 bg-transparent px-4 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
                   >
-                    <option value="watching">Watching</option>
-                    <option value="plan_to_watch">Plan to Watch</option>
-                    <option value="on_hold">Shelved</option>
-                    <option value="completed">Completed</option>
-                    <option value="dropped">Dropped</option>
-                  </select>
+                    <ExternalLink className="h-4 w-4" />
+                    <span>Watch on {anime.externalLinks.find(l => ['Crunchyroll', 'Netflix', 'HiDive', 'Hulu', 'Amazon', 'CustomSource'].some(s => l.site.toLowerCase().includes(s.toLowerCase())))!.site}</span>
+                  </a>
                 )}
-                <button
-                  onClick={() => onToggleFavorite(anime.id)}
-                  className={cn(
-                    "flex items-center justify-center rounded-lg p-2.5 transition-colors border",
-                    isFavorite
-                      ? "bg-accent-600 border-accent-600 text-white"
-                      : "bg-transparent border-gray-700 text-gray-400 hover:text-white hover:bg-gray-800"
+
+                <div className="flex items-center gap-2">
+                  {libraryEntry && onUpdateEntry && (
+                    <select
+                      value={libraryEntry.status}
+                      onChange={(e) => onUpdateEntry(anime.id, { status: e.target.value as LibraryStatus })}
+                      className="rounded-lg border border-gray-700 bg-[#2a2a2d] px-3 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:border-gray-600 focus:outline-none focus:ring-1 focus:ring-accent-500"
+                    >
+                      {LIBRARY_STATUS_ORDER.map((status) => (
+                        <option key={status} value={status}>{LIBRARY_STATUS_LABELS[status]}</option>
+                      ))}
+                    </select>
                   )}
-                  title={isFavorite ? "Remove from watching" : "Add to watching"}
-                >
-                  <Bookmark className="h-5 w-5" fill={isFavorite ? "currentColor" : "none"} />
-                  <span className="sr-only">Toggle Bookmark</span>
-                </button>
+                  <button
+                    onClick={() => onToggleFavorite(anime.id)}
+                    className={cn(
+                      "flex items-center justify-center rounded-lg p-2.5 transition-colors border",
+                      isFavorite
+                        ? "bg-accent-600 border-accent-600 text-white"
+                        : "bg-transparent border-gray-700 text-gray-400 hover:text-white hover:bg-gray-800"
+                    )}
+                    title={isFavorite ? "Remove from watching" : "Add to watching"}
+                  >
+                    <Bookmark className="h-5 w-5" fill={isFavorite ? "currentColor" : "none"} />
+                    <span className="sr-only">Toggle Bookmark</span>
+                  </button>
+                </div>
               </div>
+
+              {/* Your rating */}
+              <div className="space-y-2">
+                <span className="block text-xs font-medium text-gray-400">Your rating</span>
+                {libraryEntry ? (
+                  <div className="grid grid-cols-5 gap-2 sm:grid-cols-10" role="group" aria-label="Your rating, 1 to 10">
+                    {Array.from({ length: 10 }, (_, i) => i + 1).map((score) => {
+                      const isCurrent = libraryEntry.showScore === score;
+                      return (
+                        <button
+                          key={score}
+                          onClick={() => handleRate(score)}
+                          aria-pressed={isCurrent}
+                          aria-label={isCurrent ? `Rated ${score} of 10 — tap to clear` : `Rate ${score} of 10`}
+                          className={cn(
+                            'flex h-11 min-w-11 items-center justify-center rounded-lg text-sm font-semibold transition-colors',
+                            isCurrent
+                              ? 'bg-accent-600 text-white hover:bg-accent-500'
+                              : 'bg-surface-2 text-gray-400 hover:bg-surface-3 hover:text-white',
+                          )}
+                        >
+                          {score}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-500">Add to library to rate</p>
+                )}
+              </div>
+
+              {libraryEntry && (
+                <button
+                  onClick={handleRemoveFromLibrary}
+                  className="text-xs font-medium text-red-400/80 underline-offset-2 transition-colors hover:text-red-300 hover:underline"
+                >
+                  Remove from Library
+                </button>
+              )}
             </div>
             
           </div>

@@ -79,6 +79,24 @@ describe('collapseLibraryToSeries', () => {
     expect(excludeIds.sort((a, b) => a - b)).toEqual([1, 2, 3]);
   });
 
+  it('scores an unrated entry from its episode-log average', () => {
+    const logs = [
+      { showId: 1, episodeNumber: 1, watchedAt: 0, score: 8 },
+      { showId: 1, episodeNumber: 2, watchedAt: 0, score: 6 },
+      { showId: 99, episodeNumber: 1, watchedAt: 0, score: 1 }, // not in the library
+    ];
+    const { topSeries } = collapseLibraryToSeries([entry(1, null)], graphs([1]), logs);
+
+    expect(topSeries).toEqual([{ showId: 1, showScore: 7 }]);
+  });
+
+  it('lets an explicit show score beat the episode-log average', () => {
+    const logs = [{ showId: 1, episodeNumber: 1, watchedAt: 0, score: 2 }];
+    const { topSeries } = collapseLibraryToSeries([entry(1, 10)], graphs([1]), logs);
+
+    expect(topSeries).toEqual([{ showId: 1, showScore: 10 }]);
+  });
+
   it('falls back to the show itself when its graph never resolved', () => {
     const { topSeries, excludeIds } = collapseLibraryToSeries([entry(7, 9), entry(8, 5)], {});
 

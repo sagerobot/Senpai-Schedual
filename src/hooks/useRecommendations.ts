@@ -3,8 +3,10 @@ import { z } from 'zod';
 import { AnimeMedia, LibraryEntry } from '../types';
 import { postEnvelope } from '../api/aiEnvelope';
 import { collapseLibraryToSeries } from '../features/for-you/scoring';
+import { getEffectiveScore } from '../lib/scoring';
 import { useSeriesGraphs } from '../series/useSeriesGraphs';
 import { readJSON, writeJSON } from '../stores/storage';
+import { selectLogsArray, useUserData } from '../stores/userData';
 
 interface RecommendedShow {
   show: AnimeMedia;
@@ -118,6 +120,13 @@ export function useRecommendations(library: LibraryEntry[]) {
 
   const [status, setStatus] = useState<RecommendationsStatus>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  // Effective scores (explicit show score, else episode-log average) are what
+  // gate and feed the pipeline — episode-only raters count too.
+  const logs = useUserData(selectLogsArray);
+  const scoredCount = useMemo(
+    () => library.filter((entry) => getEffectiveScore(entry, logs) !== null).length,
+    [library, logs],
+  );
   // Shares the query cache with the Library view, so opening both resolves
   // each franchise once rather than once per consumer.
   const libraryIds = useMemo(() => library.map((entry) => entry.showId), [library]);
@@ -144,11 +153,10 @@ export function useRecommendations(library: LibraryEntry[]) {
   const computeIfNeeded = useCallback(async () => {
     if (resolving || inFlightRef.current) return;
 
-    const scoredEntries = library.filter(e => e.showScore !== null);
-    if (scoredEntries.length === 0) return;
+    if (scoredCount === 0) return;
 
     const neverProduced = state.items.length === 0 && state.lastComputedScoreCount === 0;
-    const drifted = Math.abs(scoredEntries.length - state.lastComputedScoreCount) >= 5;
+    const drifted = Math.abs(scoredCount - state.lastComputedScoreCount) >= 5;
     if (!forcedRef.current && !drifted && !neverProduced) return;
 
     forcedRef.current = false;
@@ -156,7 +164,7 @@ export function useRecommendations(library: LibraryEntry[]) {
     setStatus('loading');
     setErrorMessage(null);
     try {
-      const { topSeries, excludeIds } = collapseLibraryToSeries(library, seriesGraphs);
+      const { topSeries, excludeIds } = collapseLibraryToSeries(library, seriesGraphs, logs);
 
       const result = await postEnvelope(
         '/api/recommendations',
@@ -173,7 +181,7 @@ export function useRecommendations(library: LibraryEntry[]) {
         // honest empty result would re-fire the pipeline on every render.
         setState(s => ({
           ...s,
-          lastComputedScoreCount: scoredEntries.length,
+          lastComputedScoreCount: scoredCount,
           items: result.data.recommendations
         }));
         setStatus('ok');
@@ -185,7 +193,7 @@ export function useRecommendations(library: LibraryEntry[]) {
     } finally {
       inFlightRef.current = false;
     }
-  }, [library, seriesGraphs, resolving, state.lastComputedScoreCount, state.items.length, state.notInterestedIds, forceToken]);
+  }, [library, logs, scoredCount, seriesGraphs, resolving, state.lastComputedScoreCount, state.items.length, state.notInterestedIds, forceToken]);
 
   useEffect(() => {
     computeIfNeeded();
@@ -201,6 +209,8 @@ export function useRecommendations(library: LibraryEntry[]) {
     loading: status === 'loading' || resolving,
     status,
     errorMessage,
+    /** Library entries with a non-null effective score — the For You gate. */
+    scoredCount,
     removeRecommendation,
     forceRecompute
   };

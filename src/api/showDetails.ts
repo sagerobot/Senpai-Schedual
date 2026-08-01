@@ -51,11 +51,18 @@ function buildSynopses(anilistSynopsis: string, details: ShowDetails): string {
  * back. A show that genuinely has no MAL or Kitsu match still resolves (with
  * an empty result) and caches normally; a transient Jikan/Kitsu 429 does not,
  * so it can never freeze an empty modal for the cache's whole lifetime.
+ *
+ * `anilistSynopsis` may be a promise: list records no longer carry
+ * `description`, so the caller passes the in-flight by-id fetch's description
+ * instead. It is awaited only where the synopses are assembled for the AI
+ * summary — the Jikan/Kitsu fetches above never wait on it. The caller is
+ * expected to hand over a non-rejecting promise; a rejection degrades to an
+ * empty synopsis rather than failing the whole details fetch.
  */
 export async function fetchShowDetails(
   idMal: number | null,
   title: string,
-  anilistSynopsis: string,
+  anilistSynopsis: string | Promise<string>,
   showId: number,
 ): Promise<ShowDetails> {
   const details: ShowDetails = {};
@@ -83,7 +90,9 @@ export async function fetchShowDetails(
     }
   }
 
-  const { aiSummary, aiStatus } = await fetchAiSummary(showId, buildSynopses(anilistSynopsis, details));
+  const resolvedSynopsis = await Promise.resolve(anilistSynopsis).catch(() => '');
+
+  const { aiSummary, aiStatus } = await fetchAiSummary(showId, buildSynopses(resolvedSynopsis, details));
   if (aiSummary) details.aiSummary = aiSummary;
   details.aiStatus = aiStatus;
 

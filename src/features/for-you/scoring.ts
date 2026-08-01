@@ -1,9 +1,14 @@
+import { getEffectiveScore } from '../../lib/scoring';
 import type { SeriesGraph } from '../../series/labeling';
-import type { LibraryEntry } from '../../types';
+import type { EpisodeLog, LibraryEntry } from '../../types';
 
 /**
  * Collapse a scored library into the series-level shape the recommendation
  * endpoint expects. Pure — the graphs are passed in, never resolved here.
+ *
+ * "Scored" means effective score (see lib/scoring.ts): an explicit show score,
+ * or failing that the average of the show's scored episode logs — so episode-only
+ * raters feed the pipeline too.
  *
  * Rating four seasons of one show 9/10 should count as one strong signal about
  * that franchise, not four, so scores are averaged per series before the top
@@ -23,6 +28,7 @@ export interface CollapsedLibrary {
 export function collapseLibraryToSeries(
   entries: LibraryEntry[],
   graphs: Record<number, SeriesGraph>,
+  logs: EpisodeLog[] = [],
 ): CollapsedLibrary {
   const seriesIdByShow = new Map<number, number>();
   const excludeIds = new Set<number>();
@@ -38,10 +44,11 @@ export function collapseLibraryToSeries(
 
   const totals = new Map<number, { sum: number; count: number }>();
   for (const entry of entries) {
-    if (entry.showScore === null) continue;
+    const score = getEffectiveScore(entry, logs);
+    if (score === null) continue;
     const seriesId = seriesIdByShow.get(entry.showId) ?? entry.showId;
     const total = totals.get(seriesId) ?? { sum: 0, count: 0 };
-    total.sum += entry.showScore;
+    total.sum += score;
     total.count += 1;
     totals.set(seriesId, total);
   }

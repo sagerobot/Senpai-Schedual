@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { Link } from 'react-router';
 import { AnimeMedia, LibraryEntry } from '../../types';
 import { useRecommendations } from '../../hooks/useRecommendations';
 import { AnimeCard } from '../../components/AnimeCard';
 import { motion, AnimatePresence } from 'motion/react';
 import { Loader2, Sparkles, X, Filter, Moon, PowerOff, AlertTriangle } from 'lucide-react';
+import { displayTitle } from '../../lib/displayTitle';
 import { cn } from '../../lib/utils';
 
 interface ForYouViewProps {
@@ -14,7 +16,7 @@ interface ForYouViewProps {
 }
 
 export function ForYouView({ library, favorites, onToggleFavorite, onAnimeSelect }: ForYouViewProps) {
-  const { recommendations, loading, status, errorMessage, removeRecommendation, forceRecompute } = useRecommendations(library);
+  const { recommendations, loading, status, errorMessage, scoredCount, removeRecommendation, forceRecompute } = useRecommendations(library);
   const [filter, setFilter] = useState<'all' | 'season'>('all');
 
   const filteredRecs = recommendations.filter(rec => {
@@ -31,14 +33,20 @@ export function ForYouView({ library, favorites, onToggleFavorite, onAnimeSelect
     );
   }
 
-  if (library.filter(e => e.showScore !== null).length === 0) {
+  if (scoredCount === 0) {
     return (
       <div className="flex h-[50vh] flex-col items-center justify-center space-y-4 text-center">
         <Sparkles className="h-12 w-12 text-gray-700" />
-        <h2 className="text-xl font-bold text-gray-300">Rate shows to get recommendations</h2>
+        <h2 className="text-xl font-bold text-gray-300">Nothing here yet</h2>
         <p className="max-w-md text-sm text-gray-500">
-          Once you add shows to your library and give them a score, Senpai will analyze your taste and find new anime for you to watch.
+          Rate a show — or just a few episodes — and Senpai will find your next watch.
         </p>
+        <Link
+          to="/library"
+          className="rounded-lg bg-accent-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-500"
+        >
+          Go to your Library
+        </Link>
       </div>
     );
   }
@@ -150,10 +158,13 @@ export function ForYouView({ library, favorites, onToggleFavorite, onAnimeSelect
               >
                 <button
                   onClick={() => removeRecommendation(rec.show.id)}
-                  className="absolute -top-2 -right-2 z-20 hidden h-6 w-6 items-center justify-center rounded-full bg-red-600 text-white shadow-lg transition-transform hover:scale-110 group-hover:flex"
+                  aria-label={`Not interested in ${displayTitle(rec.show)}`}
                   title="Not interested"
+                  className="group/dismiss absolute -top-3 -right-3 z-20 flex h-11 w-11 items-center justify-center"
                 >
-                  <X className="h-3.5 w-3.5" />
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full border border-edge bg-surface-3 text-gray-300 shadow-lg transition-all group-hover/dismiss:scale-110 group-hover/dismiss:bg-red-600 group-hover/dismiss:text-white">
+                    <X className="h-3.5 w-3.5" aria-hidden="true" />
+                  </span>
                 </button>
                 <div className="flex-1">
                   <AnimeCard
