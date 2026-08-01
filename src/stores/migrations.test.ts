@@ -82,7 +82,7 @@ describe('runMigrations', () => {
       },
       version: 3,
     });
-    expect(storage.getItem('anime_favorites')).toBe(JSON.stringify([101, 202]));
+    expect(storage.getItem('anime_favorites')).toBeNull();
   });
 
   it('migrates a MAL-imported user losslessly, normalizing malformed entries', () => {
@@ -127,7 +127,7 @@ describe('runMigrations', () => {
     expect(v3.state.overrides).toEqual({ merges: { '55': 44 }, splits: [77] });
     expect(v3.state.uiPrefs).toEqual({ includeMovies: true, selectedSources: ['Crunchyroll', 'HIDIVE'] });
 
-    // Every legacy key is left in place as a rollback hedge.
+    // Every legacy key is retired once its data is safely inside the v3 blob.
     for (const key of [
       'anime_library',
       'anime_favorites',
@@ -137,8 +137,47 @@ describe('runMigrations', () => {
       'schedule_includeMovies',
       'schedule_selectedSources',
     ]) {
-      expect(storage.getItem(key)).not.toBeNull();
+      expect(storage.getItem(key)).toBeNull();
     }
+  });
+
+  it('retires legacy keys left behind by an earlier migration that kept them', () => {
+    // A profile migrated while the keys were still retained as a rollback hedge:
+    // v3 already exists, so no import runs, but the strays must still go.
+    storage.setItem(USER_DATA_KEY, JSON.stringify({ state: { library: {} }, version: 3 }));
+    for (const key of [
+      'anime_library',
+      'anime_favorites',
+      'anime_episode_logs',
+      'senpai_simulcast_offsets',
+      'senpai_series_overrides',
+      'schedule_includeMovies',
+      'schedule_audioType',
+      'schedule_selectedSources',
+    ]) {
+      storage.setItem(key, '"stale"');
+    }
+    // Still live, and must survive: recommendations persistence and the caches.
+    storage.setItem('senpai_recommendations', '[{"id":21}]');
+    storage.setItem('senpai.queryCache.v1', '{"clientState":{}}');
+
+    runMigrations();
+
+    for (const key of [
+      'anime_library',
+      'anime_favorites',
+      'anime_episode_logs',
+      'senpai_simulcast_offsets',
+      'senpai_series_overrides',
+      'schedule_includeMovies',
+      'schedule_audioType',
+      'schedule_selectedSources',
+    ]) {
+      expect(storage.getItem(key)).toBeNull();
+    }
+    expect(storage.getItem('senpai_recommendations')).toBe('[{"id":21}]');
+    expect(storage.getItem('senpai.queryCache.v1')).toBe('{"clientState":{}}');
+    expect(storage.getItem(USER_DATA_KEY)).not.toBeNull();
   });
 
   it('keeps the library when anime_episode_logs is corrupt JSON', () => {
@@ -155,7 +194,7 @@ describe('runMigrations', () => {
       '5': { showId: 5, idMal: 50, status: 'watching', showScore: null, source: 'manual' },
     });
     expect(v3.state.logs).toEqual({});
-    expect(storage.getItem('anime_episode_logs')).toBe('{definitely not json');
+    expect(storage.getItem('anime_episode_logs')).toBeNull();
   });
 });
 
@@ -243,7 +282,9 @@ describe('cleanupRetiredCacheKeys', () => {
     expect(store.getItem('senpai_series_reverse_map')).toBeNull();
     expect(store.getItem('senpai_series_21')).toBeNull();
     expect(store.getItem('senpai_series_1535')).toBeNull();
-    expect(store.getItem('senpai_series_overrides')).toBe('{"merges":{},"splits":[77]}');
+    // The overrides survive the prefix sweep long enough to be imported, then
+    // retire with the rest of the legacy keys.
     expect(JSON.parse(store.getItem(USER_DATA_KEY)!).state.overrides).toEqual({ merges: {}, splits: [77] });
+    expect(store.getItem('senpai_series_overrides')).toBeNull();
   });
 });

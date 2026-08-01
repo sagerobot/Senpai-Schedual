@@ -6,7 +6,7 @@ Track upcoming anime releases, see a daily airing schedule with countdowns in yo
 
 **Everything you track lives in your browser's localStorage.** There are no accounts and no server-side user data. That means:
 
-- Each browser/device keeps its own library. Use **Data & Settings → Export** to back up a JSON file and **Import** to merge it on another device.
+- Each browser/device keeps its own library. Use **Data & Settings → Export** to back up a JSON file (`{ version: 2, timestamp, library, logs }`) and **Import** to load it on another device. Import **merges** rather than replaces, so it is safe to run against a device that already has data.
 - Clearing site data clears your library — export first.
 - You can import your MyAnimeList history (XML export, `.gz` supported) from the Library view; watched episodes are reconstructed so catch-up and recap features work on imported history.
 

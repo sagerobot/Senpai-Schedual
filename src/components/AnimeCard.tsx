@@ -13,10 +13,6 @@ export type StatusPillType = WatchState;
 interface AnimeCardProps {
   key?: React.Key;
   anime: AnimeMedia;
-  /** @deprecated The bookmark reads the library store itself; this prop is ignored. */
-  isFavorite?: boolean;
-  /** @deprecated The bookmark uses LibraryStatusMenu; this prop is ignored. */
-  onToggleFavorite?: (id: number) => void;
   showCountdown?: boolean;
   onClick?: (anime: AnimeMedia) => void;
   progress?: { watched: number; aired: number };

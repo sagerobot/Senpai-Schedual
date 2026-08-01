@@ -12,12 +12,10 @@ import { displayTitle } from '../../lib/displayTitle';
 import { SEASONS, currentSeason, maxSeasonYear, parseSeasonParams, seasonPath } from '../../routes/season';
 
 interface SeasonViewProps {
-  favorites: number[];
-  onToggleFavorite: (id: number) => void;
   onAnimeSelect: (anime: AnimeMedia) => void;
 }
 
-export function SeasonView({ favorites, onToggleFavorite, onAnimeSelect }: SeasonViewProps) {
+export function SeasonView({ onAnimeSelect }: SeasonViewProps) {
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
   const params = useParams();
@@ -142,8 +140,6 @@ export function SeasonView({ favorites, onToggleFavorite, onAnimeSelect }: Seaso
                 key={anime.id}
                 anime={anime}
                 titleOverride={<SeriesTitle showId={anime.id} fallbackTitle={displayTitle(anime)} />}
-                isFavorite={favorites.includes(anime.id)}
-                onToggleFavorite={onToggleFavorite}
                 onClick={onAnimeSelect}
               />
             ))}

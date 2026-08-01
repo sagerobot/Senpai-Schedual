@@ -11,18 +11,17 @@ import { buildSeriesGraph, type SeriesGraph } from './labeling';
  * The franchise resolver: one module-level singleton that turns a show id into
  * the graph of every season/movie AniList links to it.
  *
- * What changed from the old `utils/seriesResolution.ts`:
+ * Invariants, each of which fixes a way this can go wrong:
  *
- * - **Overrides are applied before any cache lookup.** The old code read its
- *   localStorage cache first, so a merge or split silently did nothing until
- *   the cache happened to expire (it never did).
+ * - **Overrides are applied before any cache lookup.** Read the cache first and
+ *   a merge or split silently does nothing until the cache expires.
  * - **BFS is batched.** Each round issues one `id_in` request for the whole
- *   frontier instead of one request per node — 2-3 requests per franchise
- *   rather than one per season.
+ *   frontier instead of one per node — 2-3 requests per franchise rather than
+ *   one per season.
  * - **Splits are symmetric.** A split id is never entered from a neighbour and,
  *   when it is the id being resolved, its own edges are not followed either.
- * - **A failed request throws.** The old code swallowed network errors and
- *   cached whatever partial graph it had built, permanently.
+ * - **A failed request throws.** Swallowing the error would cache a truncated
+ *   graph, and a graph missing seasons looks exactly like a correct one.
  * - **The query cache is the reverse map.** Every member id is primed with the
  *   same graph object, so the other N-1 cards of a franchise resolve for free
  *   and the mapping expires on the same TTL as the data.

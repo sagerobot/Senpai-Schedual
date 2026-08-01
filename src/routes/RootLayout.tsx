@@ -15,7 +15,7 @@ import { SHOW_PARAM, parseShowId } from './showParam';
 export function RootLayout() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  const { library, toggleFavorite, updateEntry } = useLibrary();
+  const { library, updateEntry } = useLibrary();
   const favorites = useMemo(() => library.filter((l) => l.status === 'watching').map((l) => l.showId), [library]);
 
   const schedule = useCurrentSchedule();
@@ -217,8 +217,6 @@ export function RootLayout() {
             key={modalShow.id}
             anime={modalShow}
             onClose={closeShow}
-            isFavorite={favorites.includes(modalShow.id)}
-            onToggleFavorite={toggleFavorite}
             onAnimeSelect={openShowFromModal}
             libraryEntry={library.find((l) => l.showId === modalShow.id)}
             onUpdateEntry={updateEntry}

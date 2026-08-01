@@ -7,12 +7,12 @@ import { useState, useMemo } from 'react';
 import { cn } from '../../lib/utils';
 import { displayTitle } from '../../lib/displayTitle';
 import { CheckInFeed } from './CheckInFeed';
+import { STREAMING_SITES } from '../../lib/watchLinks';
 import { useUserData } from '../../stores/userData';
 
 interface DailyScheduleProps {
   animeList: AnimeMedia[];
   favorites: number[];
-  onToggleFavorite: (id: number) => void;
   onAnimeSelect: (anime: AnimeMedia) => void;
   logs: EpisodeLog[];
   onLog: (showId: number, episodeNumber: number, score: number | null) => void;
@@ -22,7 +22,7 @@ interface DailyScheduleProps {
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-export function DailySchedule({ animeList, favorites, onToggleFavorite, onAnimeSelect, logs, onLog, isStreaming = false }: DailyScheduleProps) {
+export function DailySchedule({ animeList, favorites, onAnimeSelect, logs, onLog, isStreaming = false }: DailyScheduleProps) {
   const [search, setSearch] = useState('');
 
   // Persisted state (userData store uiPrefs)
@@ -30,8 +30,6 @@ export function DailySchedule({ animeList, favorites, onToggleFavorite, onAnimeS
   const selectedSources = useUserData(s => s.uiPrefs.selectedSources);
   const setUiPrefs = useUserData(s => s.setUiPrefs);
 
-  const STREAMING_SITES = ['Crunchyroll', 'Netflix', 'Hulu', 'Amazon Prime Video', 'HIDIVE', 'Disney Plus', 'Bilibili TV', 'CustomSource'];
-  
   const availableSources = useMemo(() => {
     const sources = new Set<string>();
     animeList.forEach(anime => {
@@ -105,11 +103,10 @@ export function DailySchedule({ animeList, favorites, onToggleFavorite, onAnimeS
       <WelcomeHero />
 
       <CheckInFeed
-        animeList={animeList} 
-        favorites={favorites} 
-        logs={logs} 
-        onLog={onLog} 
-        onToggleFavorite={onToggleFavorite}
+        animeList={animeList}
+        favorites={favorites}
+        logs={logs}
+        onLog={onLog}
         onAnimeSelect={onAnimeSelect}
       />
 
@@ -219,8 +216,6 @@ export function DailySchedule({ animeList, favorites, onToggleFavorite, onAnimeS
                     key={anime.id}
                     anime={anime}
                     titleOverride={<SeriesTitle showId={anime.id} fallbackTitle={displayTitle(anime)} />}
-                    isFavorite={favorites.includes(anime.id)}
-                    onToggleFavorite={onToggleFavorite}
                     onClick={onAnimeSelect}
                     showCountdown={false}
                   />

@@ -1,15 +1,14 @@
 /**
  * Pure franchise labeling. No I/O, no cache, no store.
  *
- * The season-label rules here are lifted from the original
- * `utils/seriesResolution.ts` and are deliberately unchanged: they are tuned
- * against real AniList titles and every tweak is visible on every card.
+ * The season-label rules are tuned against real AniList titles and every tweak
+ * is visible on every card, so change them only with a fixture to match.
  *
- * The one behavioural change is the canonical-id tiebreak. Sorting by date
- * alone left `seriesId` dependent on Map insertion order, i.e. on which show
- * the BFS happened to start from, so the same franchise could group under two
- * different ids in two different views. Sorting by `(date, id)` makes both the
- * canonical id and the entry order a function of the member set alone.
+ * The canonical-id tiebreak matters more than it looks. Sorting by date alone
+ * leaves `seriesId` dependent on Map insertion order, i.e. on which show the
+ * BFS happened to start from, so the same franchise groups under two different
+ * ids in two different views. Sorting by `(date, id)` makes both the canonical
+ * id and the entry order a function of the member set alone.
  */
 
 export interface FuzzyDate {

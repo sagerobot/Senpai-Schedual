@@ -7,8 +7,6 @@ import { AnimeCard } from '../../components/AnimeCard';
 import { ErrorState, errorDetail } from '../../components/ErrorState';
 
 interface SearchViewProps {
-  favorites: number[];
-  onToggleFavorite: (id: number) => void;
   onAnimeSelect: (anime: AnimeMedia) => void;
 }
 
@@ -18,7 +16,7 @@ const DEBOUNCE_MS = 350;
 /** Something to tap before the user has anything in mind: genres + evergreens. */
 const SUGGESTED_SEARCHES = ['Action', 'Romance', 'Frieren', 'One Piece'];
 
-export function SearchView({ favorites, onToggleFavorite, onAnimeSelect }: SearchViewProps) {
+export function SearchView({ onAnimeSelect }: SearchViewProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const urlQuery = searchParams.get(QUERY_PARAM) ?? '';
 
@@ -145,8 +143,6 @@ export function SearchView({ favorites, onToggleFavorite, onAnimeSelect }: Searc
             <AnimeCard
               key={anime.id}
               anime={anime}
-              isFavorite={favorites.includes(anime.id)}
-              onToggleFavorite={() => onToggleFavorite(anime.id)}
               onClick={() => onAnimeSelect(anime)}
             />
           ))}

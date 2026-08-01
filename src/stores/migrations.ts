@@ -9,8 +9,9 @@ import type { SeriesOverrides, UiPrefs } from './userData';
  *
  * Runs at userData store-module import, BEFORE the store is created, and only
  * when the v3 key is absent. Every legacy key is read through its own guard so
- * one corrupt value cannot sink the rest. Legacy keys are deliberately left in
- * place as a rollback hedge; a later wave removes them.
+ * one corrupt value cannot sink the rest. Once the v3 blob exists the legacy
+ * keys are deleted — including on later boots, for profiles migrated while the
+ * keys were still being retained as a rollback hedge.
  */
 
 export const USER_DATA_KEY = 'senpai.userdata.v3';
@@ -113,11 +114,42 @@ export function cleanupRetiredCacheKeys(): void {
   }
 }
 
+/**
+ * The pre-v3 user-data keys, now fully represented inside the v3 blob.
+ *
+ * `senpai_recommendations` is absent on purpose: it is still the live
+ * persistence for useRecommendations, not legacy. So are the two current keys,
+ * `senpai.userdata.v3` and `senpai.queryCache.v1`.
+ */
+const LEGACY_USER_DATA_KEYS = [
+  'anime_library',
+  'anime_favorites',
+  'anime_episode_logs',
+  'senpai_simulcast_offsets',
+  'senpai_series_overrides',
+  'schedule_includeMovies',
+  // Retired with the Sub/Dub filter it fed, which never actually filtered.
+  'schedule_audioType',
+  'schedule_selectedSources',
+];
+
+/**
+ * Delete the migrated-from keys, but only once the v3 blob is actually on
+ * disk. Gating on its presence means a migration write that failed (quota,
+ * private-browsing) leaves the originals untouched and retries next boot.
+ */
+export function retireLegacyUserDataKeys(): void {
+  if (!hasKey(USER_DATA_KEY)) return;
+  for (const key of LEGACY_USER_DATA_KEYS) removeKey(key);
+}
+
 export function runMigrations(): void {
   // Runs on every boot: unlike the import below it is not one-shot, because a
   // profile can still be carrying these from before the query layer landed.
   cleanupRetiredCacheKeys();
   migrateLegacyUserData();
+  // Must follow the import above — it reads several of the keys this deletes.
+  retireLegacyUserDataKeys();
 }
 
 function migrateLegacyUserData(): void {

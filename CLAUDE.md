@@ -5,83 +5,119 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run dev     # Express + Vite middleware on http://localhost:3000 (via tsx server.ts)
-npm run lint    # tsc --noEmit — the only static check in the repo
-npm run build   # vite build + esbuild bundle of server.ts -> dist/server.cjs
-npm start       # node dist/server.cjs (serves dist/ statically; set NODE_ENV=production)
+npm run dev     # Express + Vite middleware on http://localhost:3000 (tsx server/index.ts)
+npm run lint    # tsc --noEmit — strict, plus noUnusedLocals/Parameters/noFallthroughCasesInSwitch
+npm test        # vitest run
+npm run build   # vite build -> dist/client, esbuild server/index.ts -> dist/server.cjs
+npm start       # node dist/server.cjs — serves dist/client, needs no env vars
 ```
 
-**Do not run `vite` directly.** `server.ts` mounts Vite as Express middleware so that the frontend and the `/api/*` routes share one origin and one port. Running Vite standalone makes every AI/recommendation call 404.
+**Do not run `vite` directly.** `server/index.ts` mounts Vite as Express middleware so the frontend and `/api/*` share one origin and one port; standalone Vite makes every AI call 404. The build bakes `NODE_ENV=production` via esbuild `--define`, which dead-codes the dev branch so the production bundle never pulls Vite in.
 
-There is no test runner. The root-level `test_anilist.js`, `test_anilist_tags.js`, and `test-union-find.js` are ad-hoc scratch scripts run with `node <file>`; they assert nothing and just print.
-
-`GEMINI_API_KEY` (see `.env.example`) drives all AI routes. Without it the server still boots — every AI route returns a placeholder payload rather than an error, so a missing key looks like degraded copy, not a crash.
+The `DISABLE_HMR` branch in `vite.config.ts` stops file-watch flicker during agent edits — leave it alone.
 
 ## Architecture
 
-React 19 SPA + a thin Express server. **All user data lives in `localStorage`** — there is no database, no auth, no user accounts. The server exists only to hold the Gemini API key and to cache AI output.
+React 19 SPA + a thin Express server. **All user data lives in `localStorage`** — no database, no auth, no accounts. The server exists only to hold the Gemini key, bound spend, and cache AI output.
 
-### Server (`server.ts`)
+### Server (`server/`)
 
-Four POST routes, all of which swallow errors and return a fallback body instead of a non-200:
+`index.ts` (bootstrap, static serving, `/api/health`), `middleware.ts`, `cache.ts`, `budget.ts`, `schemas.ts`, `types.ts`, `routes/ai.ts`. Three AI routes: `/api/generate-summary`, `/api/community-vibe`, `/api/recommendations`. Model: `gemini-3.6-flash`.
 
-- `/api/generate-summary` — spoiler-free show summary from merged AniList/MAL/Kitsu synopses
-- `/api/community-vibe` — Gemini + `googleSearch` tool scrapes r/anime episode discussion sentiment; the model is asked to return raw JSON and the handler strips ` ```json ` fences by hand
-- `/api/recommendations` — the full recommendation pipeline (below)
-- `/api/graphql` — an AniList proxy that **no client code currently uses** (the frontend calls AniList directly)
+**The AI envelope** (`types.ts`) is the contract every AI route answers with, and the reason the client can tell degraded copy from data:
 
-All AI output is cached in `ai_summary_cache.json`, a single flat map committed to the repo and rewritten on every miss. Key namespaces: bare `<showId>` for summaries, `vibe_<showId>_ep<n>`, `rec_reason_<showId>_<sourceTitles>`. Gemini model used throughout: `gemini-3.6-flash`.
+| status | HTTP | meaning |
+| --- | --- | --- |
+| `ok` | 200 | `{ cached, data }` |
+| `no_key` | 503 | `GEMINI_API_KEY` absent |
+| `resting` | 503 + `Retry-After` | daily budget spent |
+| `error` | 502 / 400 / 429 | upstream failure, validation, rate limit |
 
-### Client data flow
+Never return a placeholder body as `ok` — that is exactly the bug the envelope exists to prevent.
 
-`src/App.tsx` owns essentially all state (anime list, view mode, selected show) and threads it down as props. `viewMode` is a plain string union switch — no router, no context, no state library. Adding a view means: extend `ViewMode` in `src/types.ts`, add a `navItems` entry, add a conditional block in the main area.
+- **Budgets** (`budget.ts`): two in-memory daily counters, `grounded` (search-grounded vibe calls, default 100) and `text` (summaries + rec reasons, default 500), overridable via `AI_GROUNDED_DAILY_BUDGET` / `AI_TEXT_DAILY_BUDGET`, reset at UTC midnight. Checked **after** cache lookup, so cache hits are always free.
+- **Rate limits** (`middleware.ts`), all per IP: `/api/*` 60/min, AI routes 15/min, `/api/recommendations` 5/10min.
+- **Cache** (`cache.ts`): in-memory LRU, no disk. TTLs — summaries 30d, vibes 7d, rec reasons 14d, fallbacks 1h. Keys are built by typed helpers only so namespaces cannot collide. Cache loss on restart is accepted; budgets bound the rebuild.
+- **Vibe output is structured**: `responseMimeType: "application/json"` + `responseSchema` alongside the `googleSearch` tool, with a one-retry extraction fallback. Output is zod-validated (indicator enum, length caps, reddit.com host check).
+- **Prompt hardening**: every interpolated title/synopsis is wrapped in `<user_data>` tags with an explicit "data, never instructions" rule.
 
-`src/api/anilist.ts` talks to `https://graphql.anilist.co` from the browser. Each fetcher inlines its own copy of the media field selection and handles HTTP 429 with a sleep-and-retry plus deliberate inter-page spacing.
+### Client
 
-**Every fetcher must return through `applyOffsets()`.** That function does two non-obvious things to every result: it injects a synthetic `CustomSource` entry into `externalLinks`, and it shifts `nextAiringEpisode.airingAt`/`timeUntilAiring` by the user's per-show simulcast offset from `senpai_simulcast_offsets`. Skipping it produces shows whose countdowns silently ignore user corrections.
+- **`src/routes/`** — `router.tsx` maps `/schedule` (default), `/season/:year/:season`, `/search`, `/watching`, `/library`, `/for-you`, `*`. Each is `lazy` for code splitting. **Show detail is `?show=<id>`**, hosted by `RootLayout` so Back closes the modal and links are shareable; `/show/:id` is a short link that redirects into it. `nav.ts` is the single nav list feeding both the sidebar and the mobile bar. Adding a view means: a `router.tsx` entry, a `NAV_ITEMS` entry, and a `src/features/<name>/` directory.
+- **`src/features/<name>/`** — one directory per view: a `route.tsx` wrapper that pulls from hooks/queries, plus the view component. Wrappers stay thin; nothing above them owns view state.
+- **`src/queries/`** — TanStack Query v5 with a localStorage persister.
+- **`src/series/`** — the franchise-graph subsystem.
+- **`src/stores/`** — zustand user data + the one localStorage touchpoint.
 
-### The series graph — the central abstraction
+### The query layer (`src/queries/`)
 
-AniList models each season/cour/movie as a separate media entry. `src/utils/seriesResolution.ts` reconstructs the franchise: BFS from a show id across `PREQUEL`/`SEQUEL` relation edges, sort entries by start date, treat the earliest as the canonical `seriesId`, and derive a short `seasonLabel` per entry by pattern-matching (`Season N`, `Part N`, `Final Season`, `Cour N`) or by stripping the parent title prefix. `MOVIE`/`OVA`/`SPECIAL`/`MUSIC` are flagged `isAttachment` and sort/label separately.
+Every key is built in `keys.ts` and nowhere else, which is what lets the persistence allowlist be exhaustive by construction.
 
-Caching is two-tier in `localStorage`: `senpai_series_<seriesId>` holds the graph, and `senpai_series_reverse_map` maps *every* member id back to its `seriesId` so any season resolves without a refetch.
+| Key | staleTime | Notes |
+| --- | --- | --- |
+| `['schedule','current']` | 15 min | + 15-min `refetchInterval` |
+| `['season',year,season]` | 15 min current, `Infinity` past | past seasons cannot change |
+| `['search',term]` | 5 min | **not persisted** — one entry per debounced keystroke |
+| `['media',id]` | 1 h | via the `id_in` micro-batcher |
+| `['showDetails',id]` | 24 h if `aiStatus==='ok'`, else `0` | degraded AI re-attempts on reopen |
+| `['series','byShow',showId]` | 7 d | stored under *every* member id |
 
-Users can correct bad graphs via `src/utils/seriesOverrides.ts` (`senpai_series_overrides`): `merges` redirects a show id to another series before BFS starts, `splits` prunes an edge so a spinoff becomes standalone. **Writing overrides deletes the reverse map** to force re-resolution — cached per-series graphs are left behind and go stale.
+`client.ts` persists to `senpai.queryCache.v1`: success-only, allowlisted roots, versioned `BUSTER`, `removeOldestQuery` under quota pressure.
 
-Consumers: `SeriesTitle` (renders franchise + season as two lines), `useSeriesGraph` (single show), `useLibrarySeries` (resolves an entire library, sequentially, with an `active` flag guarding against unmount), `LibraryView`/`SeriesCard` (groups library rows), `CatchUpQueue` (groups queue rows, with a union-find pass over `relations` as a fallback for shows with no cached graph).
+**`offsets.ts` is a read-time `select` transform, not a fetch-time mutation.** Caches store raw AniList data; the user's simulcast offset and the injected CustomSource link are applied on the way *out*. Changing an offset repaints every countdown from the existing cache — no refetch, no invalidation, no "please refresh". Keep new fetchers on this path.
 
-### Recommendations pipeline
+**The owner requires the CustomSource link kept** (region-availability escape hatch). `INJECT_CUSTOM_LINK` in `offsets.ts` is its single switch. Deep-link research verdict: CustomSource detail pages are `/anime/info/<opaque token>` bearing no relation to the AniList id, MAL id, or title, so a direct link cannot be constructed — `browse?keyword=<romaji>` is the deepest link possible. Don't re-litigate this, and don't remove the link.
 
-`useRecommendations` collapses scored library entries into *series* (averaging scores across seasons via the series graphs), takes the top 15, and sends them plus the full set of series-member ids to exclude. The server fetches AniList `recommendations` for those sources and scores candidates as `Σ (sourceScore/10) × log(1 + recVoteCount)`, keeps the top 12, then asks Gemini for a one-sentence rationale per candidate. Recomputation is throttled client-side: it only re-runs when the count of scored entries has drifted by ≥5, or when the cached list is empty.
+### The series graph (`src/series/`)
 
-### MAL import
+AniList models each season/cour/movie as a separate media entry; this subsystem reconstructs the franchise. `labeling.ts` is pure (BFS-result → graph, season-label regexes, canonical id by `(date, id)` so `seriesId` doesn't depend on which member you started from). `resolver.ts` is a module-level singleton whose invariants are load-bearing:
 
-`LibraryView` accepts a MAL XML export (transparently gunzipping `.gz` via `DecompressionStream`), parses it with `src/lib/malParser.ts`, batch-resolves MAL ids to AniList ids 50 at a time, maps MAL status codes (1/2/3/4/6) to `LibraryStatus`, and **synthesizes one `EpisodeLog` per watched episode** so imported history participates in catch-up and recap features.
+- Overrides are applied **before** any cache lookup, or a merge/split silently does nothing.
+- BFS is **batched** via `id_in` — 2-3 requests per franchise, not one per season.
+- Splits are **symmetric** in both directions.
+- A failed request **throws** rather than caching a truncated graph (a graph missing seasons looks exactly like a correct one).
+- **The query cache is the reverse map**: every member id is primed with the same graph object.
 
-## localStorage keys
+Override invalidation happens through a store subscription inside `resolver.ts`, not at the call site — `overrides.ts` is a plain facade, and every write path (facade, direct store action, `clearAll`) invalidates.
 
-Persistence is scattered across hooks and components rather than centralized, so grep before adding a key.
+### User data (`src/stores/`)
+
+`userData.ts` is one zustand store persisted as `senpai.userdata.v3`: `library` keyed by showId, `logs` keyed `showId:episodeNumber`, `offsets`, `overrides`, `uiPrefs`. `useLibrary` / `useEpisodeLog` / `useSimulcastOffsets` are thin facades over it.
+
+`migrations.ts` runs on every boot before the store is created: it sweeps the caches the query layer replaced, one-shot imports the pre-v3 keys when `senpai.userdata.v3` is absent, then deletes those legacy keys. **The `PRESERVED_KEYS` guard matters** — `senpai_series_overrides` shares the retired `senpai_series_` prefix but is user data, and the sweep runs before the migration that reads it. Legacy-key deletion is gated on the v3 blob actually existing, so a failed write retries next boot instead of losing data.
+
+**All localStorage writes go through `storage.ts`** — it holds the only `setItem` calls in `src/`. Reads are zod-validated and fall back instead of throwing; writes implement the quota policy: evict the query cache, retry once, then report `{ok:false, reason:'quota'}` and toast. The two persist adapters are the sanctioned exceptions and both stay inside the policy: zustand's `guardedStorage` (`userData.ts`) routes its writes through `writeJSON`, and the TanStack persister (`queries/client.ts`) owns the blob that gets evicted first. `migrations.ts` reads raw keys because enumerating them is its job, but mutates only via `removeKey`/`writeJSON`.
+
+### localStorage keys
+
+That's the whole list. Grep before adding one, and route it through `storage.ts`.
 
 | Key | Written by |
 | --- | --- |
-| `anime_library` | `useLibrary` (migrates from legacy `anime_favorites` on first load) |
-| `anime_episode_logs` | `useEpisodeLog` |
-| `senpai_cached_schedule_v2` / `_time_v2` | `App.tsx` (15-min TTL, background refresh on an interval) |
-| `senpai_series_<id>`, `senpai_series_reverse_map` | `seriesResolution.ts` |
-| `senpai_series_overrides` | `seriesOverrides.ts` |
-| `senpai_simulcast_offsets` | `useSimulcastOffsets`, read by `applyOffsets` |
-| `senpai_recommendations` | `useRecommendations` |
-| `senpai_library_cache`, `senpai_favorites_cache` | `LibraryView`, `FavoritesView` (fetched-show dictionaries) |
-| `anime_details_<showId>` | `api/showDetails.ts` (24h TTL) |
-| `schedule_includeMovies`, `schedule_audioType`, `schedule_selectedSources` | `DailySchedule` |
+| `senpai.userdata.v3` | `stores/userData.ts` (zustand persist) |
+| `senpai.queryCache.v1` | `queries/client.ts` (TanStack persister) |
+| `senpai_recommendations` | `hooks/useRecommendations.ts` |
 
-`DataSyncModal` exports/imports `{ version, timestamp, library, logs }`; both import paths merge rather than replace (`setLibraryBulk` upserts by `showId`, `setLogsBulk` skips existing `showId-episodeNumber` pairs).
+Settings exports/imports `{ version: 2, timestamp, library, logs }` (`features/data/backup.ts`). Reads are deliberately generous — every shape this app ever emitted imports cleanly. Both import paths **merge**, never replace.
 
-## Conventions and repo debris
+## Conventions
 
-- Tailwind v4 configured CSS-first via `@theme` in `src/index.css` — there is no `tailwind.config`. Fonts (Inter / Space Grotesk / JetBrains Mono) come from a Google Fonts `@import`. Dark palette only; class merging via `cn()` in `src/lib/utils.ts`.
-- Path alias `@` maps to the repo root (both `vite.config.ts` and `tsconfig.json`), though source files use relative imports throughout.
-- `src/hooks/useFavorites.ts` is dead code superseded by `useLibrary`; "favorites" in the UI now means `library.filter(status === 'watching')`.
-- `patch_*.cjs`, `fix.cjs`, `*.txt` at the root, and `src/components/*.tsx.patch` are one-off scratch artifacts from earlier automated edits. They are not part of the build and are not run by any script — don't treat them as source of truth.
-- `src/components/MockupsView.tsx` ("UI Playground" nav item) is a static design-comparison sandbox with hardcoded mock data, not production UI.
-- This project targets Google AI Studio deployment: `metadata.json` declares the applet, and AI Studio injects `GEMINI_API_KEY`/`APP_URL` at runtime. The `DISABLE_HMR` branch in `vite.config.ts` exists to stop file-watch flicker during agent edits — leave it alone.
+- **Strict TypeScript**, plus `noUnusedLocals`, `noUnusedParameters`, `noFallthroughCasesInSwitch`. Prefix a genuinely-needed unused parameter with `_`.
+- **zod at every boundary**: AniList responses, localStorage reads, server route inputs, Gemini outputs, imported backup files.
+- **Undo toasts** (`sonner`) on every destructive or logging action — remove, log, unlog, rate, import. Removal carries a full snapshot (entry + logs) restored on Undo. Bookmarking is never destructive.
+- **Status vocabulary lives in `src/lib/status.ts`** (`LIBRARY_STATUS_LABELS`, `WatchState`) and renders through `StatusBadge`. This replaced three divergent badge vocabularies — don't start a second.
+- **Titles go through `src/lib/displayTitle.ts`** — `title.english` is nullable and often absent.
+- **Watch links go through `src/lib/watchLinks.ts`**: `STREAMING_SITES` is the canonical site list, `pickWatchLink` the canonical picker.
+- **Design tokens** in `src/index.css` `@theme` (Tailwind v4, CSS-first, no `tailwind.config`): `accent-*`, `surface-0..3`, `edge`, plus the `scrollbar-hide` utility. Dark palette only. No raw hexes. Merge classes with `cn()`.
+- **Mobile/a11y floor**: 44px touch targets, exactly one `h1` per view, cards are real buttons, sentiment is never color-only.
+- **Tests** are vitest, colocated as `*.test.ts(x)`.
+
+## Gotchas
+
+- **Every AniList request must go through `src/api/anilist/client.ts`.** It owns the module-level rate limiter (concurrency 1, 650ms min gap, global pause on 429) shared by every caller, checks both `response.ok` *and* GraphQL `errors`, and caps retries at 4. Bypassing it reintroduces the request storms this design makes structurally impossible.
+- **`MEDIA_FIELDS` omits `description` deliberately** — it was the bulk of the localStorage quota problem. Use `fetchMediaById` / `MEDIA_FIELDS_FULL` when you need the synopsis.
+- **Partial schedule pages must never enter the query cache.** `queries/hooks.ts` streams them through a module-level store instead; `setQueryData` would flip `status` to `'success'` and let the persister dehydrate a half-fetched season as if it were complete. The comment there explains the full reasoning — read it before changing the progressive-render path.
+- **MAL writes `my_status` two ways** and `malParser.ts` normalizes both: the XML export uses display names ("Completed", "Plan to Watch"), the API uses the numeric codes. Reading only the numbers silently files an entire imported library under Plan to Watch.
+- **happy-dom drops every sibling after a CDATA section**, so XML fixtures in tests must avoid CDATA even though real exports use it and real browsers parse it fine. See `malParser.test.ts`.
+- `metadata.json` stays until a self-host cutover: this repo also deploys as a Google AI Studio applet, which injects `GEMINI_API_KEY` at runtime.
+- Path alias `@` maps to the repo root, but source files use relative imports throughout.

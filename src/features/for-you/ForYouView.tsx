@@ -10,12 +10,10 @@ import { cn } from '../../lib/utils';
 
 interface ForYouViewProps {
   library: LibraryEntry[];
-  favorites: number[];
-  onToggleFavorite: (id: number) => void;
   onAnimeSelect: (anime: AnimeMedia) => void;
 }
 
-export function ForYouView({ library, favorites, onToggleFavorite, onAnimeSelect }: ForYouViewProps) {
+export function ForYouView({ library, onAnimeSelect }: ForYouViewProps) {
   const { recommendations, loading, status, errorMessage, scoredCount, removeRecommendation, forceRecompute } = useRecommendations(library);
   const [filter, setFilter] = useState<'all' | 'season'>('all');
 
@@ -169,8 +167,6 @@ export function ForYouView({ library, favorites, onToggleFavorite, onAnimeSelect
                 <div className="flex-1">
                   <AnimeCard
                     anime={rec.show}
-                    isFavorite={favorites.includes(rec.show.id)}
-                    onToggleFavorite={() => onToggleFavorite(rec.show.id)}
                     onClick={() => onAnimeSelect(rec.show)}
                   />
                 </div>

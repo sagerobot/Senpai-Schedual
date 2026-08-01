@@ -35,7 +35,7 @@ function ScheduleSkeleton() {
 
 export function ScheduleRoute() {
   const { animeList, scheduleLoading, scheduleStreaming, scheduleError, retrySchedule } = useScheduleContext();
-  const { library, toggleFavorite } = useLibrary();
+  const { library } = useLibrary();
   const { logs, logEpisode } = useEpisodeLog();
   const openShow = useOpenShow();
 
@@ -54,7 +54,6 @@ export function ScheduleRoute() {
     <DailySchedule
       animeList={animeList}
       favorites={favorites}
-      onToggleFavorite={toggleFavorite}
       onAnimeSelect={openShow}
       logs={logs}
       onLog={logEpisode}

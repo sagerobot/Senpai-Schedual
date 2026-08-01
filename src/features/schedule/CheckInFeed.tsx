@@ -11,8 +11,6 @@ interface CheckInFeedProps {
   favorites: number[];
   logs: EpisodeLog[];
   onLog: (showId: number, episodeNumber: number, score: number | null) => void;
-  /** @deprecated The bookmark uses LibraryStatusMenu; this prop is ignored. */
-  onToggleFavorite?: (id: number) => void;
   onAnimeSelect?: (anime: AnimeMedia) => void;
 }
 

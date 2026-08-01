@@ -11,12 +11,11 @@ import { ShowAdvancedPanel } from './ShowAdvancedPanel';
 import { cn } from '../../lib/utils';
 import { LIBRARY_STATUS_LABELS, LIBRARY_STATUS_ORDER } from '../../lib/status';
 import { useUserData } from '../../stores/userData';
+import { LibraryStatusMenu } from '../../components/LibraryStatusMenu';
 
 interface ShowDetailModalProps {
   anime: AnimeMedia;
   onClose: () => void;
-  isFavorite: boolean;
-  onToggleFavorite: (id: number) => void;
   onAnimeSelect?: (show: { id: number }) => void;
   libraryEntry?: LibraryEntry;
   onUpdateEntry?: (showId: number, update: Partial<LibraryEntry>) => void;
@@ -24,7 +23,7 @@ interface ShowDetailModalProps {
 
 type TabType = 'mal' | 'anilist' | 'kitsu';
 
-export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, onAnimeSelect, libraryEntry, onUpdateEntry }: ShowDetailModalProps) {
+export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, onUpdateEntry }: ShowDetailModalProps) {
   const [activeTab, setActiveTab] = useState<TabType>('mal');
 
   // The vibe check's episode picker — deliberately its own state, fully
@@ -497,19 +496,21 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
                       ))}
                     </select>
                   )}
-                  <button
-                    onClick={() => onToggleFavorite(anime.id)}
-                    className={cn(
-                      "flex items-center justify-center rounded-lg p-2.5 transition-colors border",
-                      isFavorite
-                        ? "bg-accent-600 border-accent-600 text-white"
-                        : "bg-transparent border-gray-700 text-gray-400 hover:text-white hover:bg-gray-800"
+                  <LibraryStatusMenu
+                    showId={anime.id}
+                    renderTrigger={({ inLibrary }) => (
+                      <button
+                        className={cn(
+                          "flex min-h-11 min-w-11 items-center justify-center rounded-lg p-2.5 transition-colors border",
+                          inLibrary
+                            ? "bg-accent-600 border-accent-600 text-white"
+                            : "bg-transparent border-gray-700 text-gray-400 hover:text-white hover:bg-gray-800"
+                        )}
+                      >
+                        <Bookmark className="h-5 w-5" fill={inLibrary ? "currentColor" : "none"} />
+                      </button>
                     )}
-                    title={isFavorite ? "Remove from watching" : "Add to watching"}
-                  >
-                    <Bookmark className="h-5 w-5" fill={isFavorite ? "currentColor" : "none"} />
-                    <span className="sr-only">Toggle Bookmark</span>
-                  </button>
+                  />
                 </div>
               </div>
 

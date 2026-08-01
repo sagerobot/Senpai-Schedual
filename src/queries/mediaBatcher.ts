@@ -12,8 +12,8 @@ import type { AnimeMedia } from '../api/anilist/schemas';
  *
  * The important part is the miss path: an id AniList does not return resolves
  * as `null` rather than being dropped. The query layer caches that null, which
- * is what structurally ends the "unresolvable id refetches forever" loop the
- * old LibraryView/FavoritesView effects had.
+ * is what structurally prevents an unresolvable id from being re-requested on
+ * every render forever.
  */
 
 const BATCH_WINDOW_MS = 25;
