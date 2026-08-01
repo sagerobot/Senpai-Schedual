@@ -1,3 +1,7 @@
+import { z } from 'zod';
+import { postEnvelope, type AiAvailability } from './aiEnvelope';
+import { readJSON, writeJSON } from '../stores/storage';
+
 export interface ShowDetails {
   mal?: {
     score: number | null;
@@ -8,28 +12,64 @@ export interface ShowDetails {
     synopsis: string | null;
   };
   aiSummary?: string;
+  /** Outcome of the AI summary request. Surfaced for the modal, never cached. */
+  aiStatus?: AiAvailability;
 }
 
 const CACHE_KEY_PREFIX = 'anime_details_';
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
+/** What actually goes into localStorage — aiStatus is deliberately absent. */
+const CachedDetailsSchema = z.object({
+  timestamp: z.number(),
+  data: z.object({
+    mal: z.object({ score: z.number().nullable(), synopsis: z.string().nullable() }).optional(),
+    kitsu: z.object({ averageRating: z.string().nullable(), synopsis: z.string().nullable() }).optional(),
+    aiSummary: z.string().optional(),
+  }),
+});
+
+type CachedDetails = z.infer<typeof CachedDetailsSchema>;
+
+const SummaryPayloadSchema = z.object({ summary: z.string().min(1) });
+
+async function fetchAiSummary(
+  showId: number,
+  synopses: string,
+): Promise<{ aiSummary: string | null; aiStatus: AiAvailability }> {
+  const result = await postEnvelope('/api/generate-summary', { showId, synopses }, SummaryPayloadSchema);
+  if (result.kind === 'ok') return { aiSummary: result.data.summary, aiStatus: 'ok' };
+  return { aiSummary: null, aiStatus: result.kind };
+}
+
+function buildSynopses(anilistSynopsis: string, details: CachedDetails['data']): string {
+  let synopsesText = `AniList:\n${anilistSynopsis}\n`;
+  if (details.mal?.synopsis) synopsesText += `\nMyAnimeList:\n${details.mal.synopsis}\n`;
+  if (details.kitsu?.synopsis) synopsesText += `\nKitsu:\n${details.kitsu.synopsis}\n`;
+  return synopsesText;
+}
+
 export async function fetchShowDetails(idMal: number | null, title: string, anilistSynopsis: string, showId: number): Promise<ShowDetails> {
   const cacheKey = `${CACHE_KEY_PREFIX}${showId}`;
-  const cachedStr = localStorage.getItem(cacheKey);
-  
-  if (cachedStr) {
-    try {
-      const cached = JSON.parse(cachedStr);
-      if (Date.now() - cached.timestamp < CACHE_DURATION) {
-        return cached.data;
-      }
-    } catch (e) {
-      // ignore bad cache
+  const cached = readJSON<CachedDetails | null>(cacheKey, CachedDetailsSchema.nullable(), null);
+
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    if (cached.data.aiSummary) {
+      return { ...cached.data, aiStatus: 'ok' };
     }
+    // External details are fresh but no real summary was ever cached (the AI
+    // was off, resting, or failing last time). Re-attempt just the summary —
+    // the server caches summaries, so this is a cheap call when it exists.
+    const { aiSummary, aiStatus } = await fetchAiSummary(showId, buildSynopses(anilistSynopsis, cached.data));
+    if (aiSummary) {
+      writeJSON(cacheKey, { timestamp: cached.timestamp, data: { ...cached.data, aiSummary } });
+      return { ...cached.data, aiSummary, aiStatus };
+    }
+    return { ...cached.data, aiStatus };
   }
 
-  const details: ShowDetails = {};
-  
+  const details: CachedDetails['data'] = {};
+
   const [jikanRes, kitsuRes] = await Promise.allSettled([
     idMal ? fetch(`https://api.jikan.moe/v4/anime/${idMal}`).then(r => r.json()) : Promise.resolve(null),
     fetch(`https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(title)}`).then(r => r.json())
@@ -50,31 +90,13 @@ export async function fetchShowDetails(idMal: number | null, title: string, anil
       synopsis: bestMatch.attributes.synopsis || null,
     };
   }
-  
-  let synopsesText = `AniList:\n${anilistSynopsis}\n`;
-  if (details.mal?.synopsis) synopsesText += `\nMyAnimeList:\n${details.mal.synopsis}\n`;
-  if (details.kitsu?.synopsis) synopsesText += `\nKitsu:\n${details.kitsu.synopsis}\n`;
 
-  // fetch AI summary
-  try {
-    const aiRes = await fetch('/api/generate-summary', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ showId: showId.toString(), synopses: synopsesText })
-    });
-    if (aiRes.ok) {
-      const aiData = await aiRes.json();
-      details.aiSummary = aiData.summary;
-    }
-  } catch (e) {
-    console.error("Failed to fetch AI summary", e);
-  }
+  const { aiSummary, aiStatus } = await fetchAiSummary(showId, buildSynopses(anilistSynopsis, details));
 
-  // save to cache
-  localStorage.setItem(cacheKey, JSON.stringify({
-    timestamp: Date.now(),
-    data: details
-  }));
+  // Only a real summary is persisted — no_key/resting/error must not poison
+  // the 24h cache with placeholder copy or a frozen absence-of-summary.
+  if (aiSummary) details.aiSummary = aiSummary;
+  writeJSON(cacheKey, { timestamp: Date.now(), data: details });
 
-  return details;
+  return { ...details, aiStatus };
 }

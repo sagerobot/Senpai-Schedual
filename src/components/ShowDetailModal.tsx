@@ -1,5 +1,5 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { X, ExternalLink, Bookmark, MessageCircle, Loader2, Sparkles, RefreshCw } from 'lucide-react';
+import { X, ExternalLink, Bookmark, MessageCircle, Loader2, Sparkles } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { AnimeMedia, LibraryEntry } from '../types';
 import { fetchShowDetails, ShowDetails } from '../api/showDetails';
@@ -34,7 +34,7 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
 
   const latestEpisode = anime.nextAiringEpisode ? Math.max(1, anime.nextAiringEpisode.episode - 1) : anime.episodes || 1;
   const [selectedEpisode, setSelectedEpisode] = useState(latestEpisode);
-  const { pulse, loading: pulseLoading, refresh: refreshPulse } = useCommunityPulse(displayTitle(anime), selectedEpisode, anime.id);
+  const { pulse, state: pulseState, load: loadPulse } = useCommunityPulse(displayTitle(anime), selectedEpisode, anime.id);
   const { offsets, setOffset } = useSimulcastOffsets();
 
   useEffect(() => {
@@ -305,11 +305,7 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
                     {details.aiSummary}
                   </p>
                 </div>
-              ) : (
-                <div className="rounded-xl border border-gray-800 bg-[#2a2a2d]/50 p-5 text-center text-sm text-gray-500">
-                  AI Summary unavailable.
-                </div>
-              )}
+              ) : null}
 
               {/* Community Pulse Section */}
               <div className="mt-2 space-y-3">
@@ -333,7 +329,18 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
                   ))}
                 </div>
               </div>
-              {pulseLoading ? (
+              {pulseState === 'idle' ? (
+                <div className="flex flex-col items-center space-y-2 rounded-xl border border-gray-800 bg-[#2a2a2d]/50 p-5">
+                  <button
+                    onClick={loadPulse}
+                    className="flex items-center space-x-2 rounded-lg bg-accent-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-500"
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    <span>Check community vibe</span>
+                  </button>
+                  <p className="text-xs text-gray-500">Searches r/anime discussion for episode {selectedEpisode}</p>
+                </div>
+              ) : pulseState === 'loading' ? (
                 <div className="relative rounded-xl border border-gray-800 bg-[#2a2a2d]/50 p-4 animate-pulse">
                   <div className="mb-2 flex items-center justify-between">
                     <div className="flex items-center space-x-2">
@@ -350,8 +357,8 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
                     <div className="h-3 w-4/5 rounded bg-gray-700"></div>
                   </div>
                 </div>
-              ) : pulse ? (
-                <div className={cn("relative rounded-xl border p-4", 
+              ) : pulseState === 'ok' && pulse ? (
+                <div className={cn("relative rounded-xl border p-4",
                   pulse.indicator === 'positive' ? "bg-emerald-950/30 border-emerald-500/30" : 
                   pulse.indicator === 'negative' ? "bg-rose-950/30 border-rose-500/30" : 
                   "bg-pink-950/30 border-pink-500/30"
@@ -381,13 +388,6 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
                           <span>💬 {pulse.comments}</span>
                         </>
                       ) : null}
-                      <button 
-                        onClick={() => refreshPulse()} 
-                        className={cn("p-1 rounded hover:bg-white/10 transition-colors ml-1")}
-                        title="Regenerate vibe check"
-                      >
-                        <RefreshCw className={cn("h-3.5 w-3.5", pulseLoading ? "animate-spin" : "")} />
-                      </button>
                     </div>
                   </div>
                   <p className={cn("text-sm leading-relaxed text-gray-200", (pulse.goods?.length || pulse.bads?.length) ? "mb-3" : "")}>
@@ -425,7 +425,25 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
                     </div>
                   )}
                 </div>
-              ) : null}
+              ) : pulseState === 'resting' ? (
+                <div className="rounded-xl border border-gray-800 bg-[#2a2a2d]/50 p-5 text-center text-sm text-gray-500">
+                  AI features are resting — try again tomorrow
+                </div>
+              ) : pulseState === 'no_key' ? (
+                <div className="rounded-xl border border-gray-800 bg-[#2a2a2d]/50 p-5 text-center text-sm text-gray-500">
+                  AI features are off in this deployment
+                </div>
+              ) : (
+                <div className="flex flex-col items-center space-y-3 rounded-xl border border-rose-500/30 bg-rose-950/30 p-5 text-center">
+                  <p className="text-sm text-rose-200">Could not check the community vibe.</p>
+                  <button
+                    onClick={loadPulse}
+                    className="rounded-lg border border-gray-700 px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
+                  >
+                    Try again
+                  </button>
+                </div>
+              )}
             </div>
 
                         {/* Advanced Overrides */}

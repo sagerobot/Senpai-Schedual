@@ -3,7 +3,7 @@ import { AnimeMedia, LibraryEntry } from '../types';
 import { useRecommendations } from '../hooks/useRecommendations';
 import { AnimeCard } from './AnimeCard';
 import { motion, AnimatePresence } from 'motion/react';
-import { Loader2, Sparkles, X, Filter } from 'lucide-react';
+import { Loader2, Sparkles, X, Filter, Moon, PowerOff, AlertTriangle } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 interface ForYouViewProps {
@@ -14,7 +14,7 @@ interface ForYouViewProps {
 }
 
 export function ForYouView({ library, favorites, onToggleFavorite, onAnimeSelect }: ForYouViewProps) {
-  const { recommendations, loading, removeRecommendation } = useRecommendations(library);
+  const { recommendations, loading, status, errorMessage, removeRecommendation, forceRecompute } = useRecommendations(library);
   const [filter, setFilter] = useState<'all' | 'season'>('all');
 
   const filteredRecs = recommendations.filter(rec => {
@@ -39,6 +39,46 @@ export function ForYouView({ library, favorites, onToggleFavorite, onAnimeSelect
         <p className="max-w-md text-sm text-gray-500">
           Once you add shows to your library and give them a score, Senpai will analyze your taste and find new anime for you to watch.
         </p>
+      </div>
+    );
+  }
+
+  if (recommendations.length === 0 && status === 'resting') {
+    return (
+      <div className="flex h-[50vh] flex-col items-center justify-center space-y-4 text-center">
+        <Moon className="h-12 w-12 text-accent-400/60" />
+        <h2 className="text-xl font-bold text-gray-300">AI recommendations are resting — back tomorrow</h2>
+        <p className="max-w-md text-sm text-gray-500">
+          The daily AI budget is spent. Your recommendations will refresh when it resets.
+        </p>
+      </div>
+    );
+  }
+
+  if (recommendations.length === 0 && status === 'no_key') {
+    return (
+      <div className="flex h-[50vh] flex-col items-center justify-center space-y-4 text-center">
+        <PowerOff className="h-12 w-12 text-gray-600" />
+        <h2 className="text-xl font-bold text-gray-300">AI features are off in this deployment</h2>
+        <p className="max-w-md text-sm text-gray-500">
+          This server is running without an AI key, so recommendations can't be generated.
+        </p>
+      </div>
+    );
+  }
+
+  if (recommendations.length === 0 && status === 'error') {
+    return (
+      <div className="flex h-[50vh] flex-col items-center justify-center space-y-4 text-center">
+        <AlertTriangle className="h-12 w-12 text-rose-400/70" />
+        <h2 className="text-xl font-bold text-gray-300">Couldn't build your recommendations</h2>
+        <p className="max-w-md text-sm text-gray-500">{errorMessage ?? 'Something went wrong talking to the server.'}</p>
+        <button
+          onClick={forceRecompute}
+          className="rounded-lg bg-accent-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-500"
+        >
+          Retry
+        </button>
       </div>
     );
   }
@@ -78,6 +118,16 @@ export function ForYouView({ library, favorites, onToggleFavorite, onAnimeSelect
         <div className="flex items-center gap-2 text-sm text-purple-400 bg-purple-900/10 px-3 py-2 rounded-lg border border-purple-900/30 w-max">
           <Loader2 className="h-4 w-4 animate-spin" />
           Updating recommendations...
+        </div>
+      )}
+
+      {!loading && status === 'error' && recommendations.length > 0 && (
+        <div className="flex items-center gap-3 text-sm text-rose-300 bg-rose-950/20 px-3 py-2 rounded-lg border border-rose-900/40 w-max">
+          <AlertTriangle className="h-4 w-4" />
+          <span>Couldn't refresh recommendations — showing your last results.</span>
+          <button onClick={forceRecompute} className="font-medium text-rose-200 underline hover:text-white">
+            Retry
+          </button>
         </div>
       )}
 
