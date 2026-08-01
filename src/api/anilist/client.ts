@@ -117,6 +117,13 @@ export async function anilistRequest<T>(
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
+          // Browsers set their own UA (and may ignore this); Node's fetch
+          // sends none at all, and UA-less datacenter traffic is exactly what
+          // API firewalls 403 — the scheduled refresh tasks run in Node.
+          // Identifying ourselves is also AniList API etiquette.
+          ...(typeof window === 'undefined'
+            ? { 'User-Agent': 'senpai-schedule/0.1 (+https://github.com/sagerobot/Senpai-Schedual)' }
+            : {}),
         },
         body: JSON.stringify({ query, variables }),
       }),
