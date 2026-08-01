@@ -79,4 +79,4 @@ export interface LibraryEntry {
   simulcastOffset?: number;
 }
 
-export type ViewMode = 'schedule' | 'season' | 'favorites' | 'library' | 'recommendations' | 'search' | 'mockups';
+export type ViewMode = 'schedule' | 'season' | 'favorites' | 'library' | 'recommendations' | 'search';

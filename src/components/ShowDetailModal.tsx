@@ -1,5 +1,5 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { X, ExternalLink, Bookmark, MessageCircle, PlayCircle, Loader2, Sparkles, RefreshCw } from 'lucide-react';
+import { X, ExternalLink, Bookmark, MessageCircle, Loader2, Sparkles, RefreshCw } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { AnimeMedia, LibraryEntry } from '../types';
 import { fetchShowDetails, ShowDetails } from '../api/showDetails';

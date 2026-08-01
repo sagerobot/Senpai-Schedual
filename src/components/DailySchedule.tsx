@@ -1,7 +1,7 @@
 import { AnimeMedia, EpisodeLog } from '../types';
 import { AnimeCard } from './AnimeCard';
 import { SeriesTitle } from './SeriesTitle';
-import { Search, Filter, Film, Settings2 } from 'lucide-react';
+import { Search, Film } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { cn } from '../lib/utils';
 import { CheckInFeed } from './CheckInFeed';
@@ -13,22 +13,16 @@ interface DailyScheduleProps {
   onAnimeSelect: (anime: AnimeMedia) => void;
   logs: EpisodeLog[];
   onLog: (showId: number, episodeNumber: number, score: number | null) => void;
-  onLinkToSeries?: (id: number) => void;
 }
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-export function DailySchedule({ animeList, favorites, onToggleFavorite, onAnimeSelect, logs, onLog,
-  onLinkToSeries
-}: DailyScheduleProps) {
+export function DailySchedule({ animeList, favorites, onToggleFavorite, onAnimeSelect, logs, onLog }: DailyScheduleProps) {
   const [search, setSearch] = useState('');
 
   // Persisted state
   const [includeMovies, setIncludeMovies] = useState(() => {
     try { const item = window.localStorage.getItem('schedule_includeMovies'); return item ? JSON.parse(item) : false; } catch(e) { return false; }
-  });
-  const [audioType, setAudioType] = useState(() => {
-    try { const item = window.localStorage.getItem('schedule_audioType'); return item ? JSON.parse(item) : 'sub'; } catch(e) { return 'sub'; }
   });
   const [selectedSources, setSelectedSources] = useState<string[]>(() => {
     try { const item = window.localStorage.getItem('schedule_selectedSources'); return item ? JSON.parse(item) : []; } catch(e) { return []; }
@@ -37,10 +31,6 @@ export function DailySchedule({ animeList, favorites, onToggleFavorite, onAnimeS
   useEffect(() => {
     window.localStorage.setItem('schedule_includeMovies', JSON.stringify(includeMovies));
   }, [includeMovies]);
-
-  useEffect(() => {
-    window.localStorage.setItem('schedule_audioType', JSON.stringify(audioType));
-  }, [audioType]);
 
   useEffect(() => {
     window.localStorage.setItem('schedule_selectedSources', JSON.stringify(selectedSources));
@@ -130,28 +120,7 @@ export function DailySchedule({ animeList, favorites, onToggleFavorite, onAnimeS
         <div className="flex flex-col sm:flex-row flex-wrap items-center gap-3 sm:gap-4 w-full 2xl:w-auto">
           {/* Quick Filters */}
           <div className="flex items-center bg-[#0a0c16] border border-[#1e2336] rounded-xl p-1 shrink-0 w-full sm:w-auto justify-center sm:justify-start">
-            <button 
-              onClick={() => setAudioType('sub')}
-              className={cn("px-4 py-1.5 rounded-lg text-xs font-semibold transition-all", audioType === 'sub' ? "bg-indigo-600 text-white shadow-md" : "text-gray-400 hover:text-gray-200")}
-            >
-              Sub
-            </button>
-            <button 
-              onClick={() => setAudioType('dub')}
-              className={cn("px-4 py-1.5 rounded-lg text-xs font-semibold transition-all", audioType === 'dub' ? "bg-indigo-600 text-white shadow-md" : "text-gray-400 hover:text-gray-200")}
-            >
-              Dub
-            </button>
-            <button 
-              onClick={() => setAudioType('both')}
-              className={cn("px-4 py-1.5 rounded-lg text-xs font-semibold transition-all", audioType === 'both' ? "bg-indigo-600 text-white shadow-md" : "text-gray-400 hover:text-gray-200")}
-            >
-              Both
-            </button>
-            
-            <div className="w-px h-4 bg-[#1e2336] mx-2"></div>
-            
-            <button 
+            <button
               onClick={() => setIncludeMovies(!includeMovies)}
               className={cn("px-4 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5", includeMovies ? "bg-indigo-600 text-white shadow-md" : "text-gray-400 hover:text-gray-200")}
             >
@@ -222,7 +191,6 @@ export function DailySchedule({ animeList, favorites, onToggleFavorite, onAnimeS
                     onToggleFavorite={onToggleFavorite}
                     onClick={onAnimeSelect}
                     showCountdown={false}
-                    onLinkToSeries={onLinkToSeries}
                   />
                 ))}
               </div>

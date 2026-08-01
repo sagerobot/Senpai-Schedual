@@ -1,7 +1,7 @@
 import React, { useMemo, useState, memo } from 'react';
 import { AnimeMedia, EpisodeLog } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
-import { Clock, Clapperboard, Star, Play, Check, Bookmark, ChevronDown, CheckCircle2, Info, Zap } from 'lucide-react';
+import { Clock, Star, Play, Check, Bookmark, ChevronDown, CheckCircle2, Info, Zap } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 interface CheckInFeedProps {
@@ -12,19 +12,6 @@ interface CheckInFeedProps {
   onToggleFavorite: (id: number) => void;
   onAnimeSelect?: (anime: AnimeMedia) => void;
 }
-
-const SCORE_LABELS: Record<number, string> = {
-  10: "Masterpiece 👑",
-  9: "Excellent ✨",
-  8: "Great 😁",
-  7: "Good 👍",
-  6: "Fine 😐",
-  5: "Average 🫤",
-  4: "Bad 👎",
-  3: "Awful 🤢",
-  2: "Painful 😫",
-  1: "Trash 🗑️"
-};
 
 export function CheckInFeed({ animeList, favorites, logs, onLog, onToggleFavorite, onAnimeSelect }: CheckInFeedProps) {
   const drops = useMemo(() => {
@@ -47,7 +34,7 @@ export function CheckInFeed({ animeList, favorites, logs, onLog, onToggleFavorit
           if (!log) {
             const maxWatched = showLogs.length > 0 ? Math.max(...showLogs.map(l => l.episodeNumber)) : 0;
             const ratedLogs = showLogs.filter(l => l.score !== null && l.score !== undefined);
-            const userAvgScore = ratedLogs.length > 0 ? ratedLogs.reduce((acc, l) => acc + l.score, 0) / ratedLogs.length : null;
+            const userAvgScore = ratedLogs.length > 0 ? ratedLogs.reduce((acc, l) => acc + (l.score ?? 0), 0) / ratedLogs.length : null;
             recent.push({ anime, episode: episodeNum, airedAt: prevAirTime, score: null, maxWatched, userAvgScore });
           }
         }
@@ -115,9 +102,6 @@ const CheckInItem = memo(function CheckInItem({ drop, onLog, onToggleFavorite, o
   const handleRateAndWatch = (s: number | null) => {
     onLog(anime.id, targetEp, s);
   };
-
-  const mockEpisodeTitles = ["The Shattered Signal", "The Forgotten Shore", "The Eternal Steppe"];
-  const epTitle = mockEpisodeTitles[anime.id % 3];
 
   const seasonMatch = anime.title.english?.match(/Season (\d+)/i) || anime.title.userPreferred?.match(/Season (\d+)/i);
   const seasonText = seasonMatch ? `Season ${seasonMatch[1]}` : "Series";
@@ -217,7 +201,7 @@ const CheckInItem = memo(function CheckInItem({ drop, onLog, onToggleFavorite, o
 
         <div className="flex justify-between items-center mb-1 gap-2">
           <div className="text-[13px] text-gray-300 line-clamp-1">
-            Episode {todayEp} • {epTitle}
+            Episode {todayEp}
           </div>
           <div className="flex items-center gap-1.5 text-[11px] sm:text-[12px] text-purple-400 flex-shrink-0">
             <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.8)]" />

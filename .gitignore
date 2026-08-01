@@ -6,3 +6,7 @@ coverage/
 *.log
 .env*
 !.env.example
+ai_summary_cache.json
+*.tsbuildinfo
+.vscode/
+.idea/

@@ -1,7 +1,7 @@
 import React from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { AnimeMedia, EpisodeLog } from '../types';
-import { X, Trophy, Clock, Star, TrendingUp, Share2 } from 'lucide-react';
+import { X, Trophy, Clock, TrendingUp } from 'lucide-react';
 
 interface SeasonRecapModalProps {
   isOpen: boolean;
@@ -33,11 +33,11 @@ export function SeasonRecapModal({ isOpen, onClose, logs, animeList, favorites }
       return { anime, avgScore, maxJump, scoredLogs };
     }).filter((s): s is NonNullable<typeof s> => s !== null && s.scoredLogs.length > 0);
 
-    let mvp = null;
+    let mvp: AnimeMedia | null = null;
     let highestScore = -1;
-    let biggestJump = { show: null as any, jump: 0 };
+    let biggestJump: { show: AnimeMedia | null; jump: number } = { show: null, jump: 0 };
 
-    showStats.forEach(stat => {
+    for (const stat of showStats) {
       if (stat.avgScore > highestScore) {
         highestScore = stat.avgScore;
         mvp = stat.anime;
@@ -45,7 +45,7 @@ export function SeasonRecapModal({ isOpen, onClose, logs, animeList, favorites }
       if (stat.maxJump > biggestJump.jump) {
         biggestJump = { show: stat.anime, jump: stat.maxJump };
       }
-    });
+    }
 
     return { totalHours, mvp, highestScore, biggestJump, showStats };
   }, [logs, animeList, favorites]);
@@ -124,12 +124,6 @@ export function SeasonRecapModal({ isOpen, onClose, logs, animeList, favorites }
               )}
             </div>
 
-            <div className="p-4 bg-black/40 border-t border-gray-800 flex justify-center">
-              <button className="flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-6 py-2.5 rounded-full font-medium transition-colors">
-                <Share2 className="h-4 w-4" />
-                Share Recap
-              </button>
-            </div>
           </div>
         </Dialog.Content>
       </Dialog.Portal>

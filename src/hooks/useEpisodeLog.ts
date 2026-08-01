@@ -27,12 +27,6 @@ export function useEpisodeLog() {
     setLogs(prev => prev.filter(l => !(l.showId === showId && l.episodeNumber === episodeNumber)));
   };
 
-  const updateScore = (showId: number, episodeNumber: number, score: number | null) => {
-    setLogs(prev => prev.map(l => 
-      l.showId === showId && l.episodeNumber === episodeNumber ? { ...l, score } : l
-    ));
-  };
-
   const exportLogs = () => {
     const blob = new Blob([JSON.stringify(logs, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -52,5 +46,5 @@ export function useEpisodeLog() {
     });
   };
 
-  return { logs, logEpisode, unlogEpisode, updateScore, exportLogs, setLogsBulk };
+  return { logs, logEpisode, unlogEpisode, exportLogs, setLogsBulk };
 }

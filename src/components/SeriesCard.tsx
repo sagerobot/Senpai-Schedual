@@ -1,22 +1,20 @@
 import React, { useState } from 'react';
-import { Bookmark, Star, ChevronDown, ChevronUp, Plus } from 'lucide-react';
+import { Star, ChevronDown, ChevronUp, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import { SeriesGraph, SeriesEntry } from '../utils/seriesResolution';
-import { LibraryEntry, LibraryStatus } from '../types';
+import { EpisodeLog, LibraryEntry, LibraryStatus } from '../types';
 
 interface SeriesCardProps {
   key?: React.Key;
   series: SeriesGraph;
   libraryEntries: LibraryEntry[];
-  logs: import('../types').EpisodeLog[];
-  onToggleFavorite?: (id: number) => void;
+  logs: EpisodeLog[];
   onAnimeSelect?: (id: number) => void;
   onAddPlanToWatch?: (id: number) => void;
-  isFavorite?: boolean;
 }
 
-export function SeriesCard({ series, libraryEntries, logs, onToggleFavorite, onAnimeSelect, onAddPlanToWatch, isFavorite }: SeriesCardProps) {
+export function SeriesCard({ series, libraryEntries, logs, onAnimeSelect, onAddPlanToWatch }: SeriesCardProps) {
   const [expanded, setExpanded] = useState(false);
 
   // Filter out attachments unless they are in the library

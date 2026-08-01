@@ -1,6 +1,6 @@
 import { AnimeMedia } from '../types';
 import { formatTimeUntil, cn } from '../lib/utils';
-import { Bookmark, Clock, ExternalLink, PlayCircle, Star, CheckCircle2, Library } from 'lucide-react';
+import { Bookmark, Clock, PlayCircle, Star, CheckCircle2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import React, { useState, useEffect } from 'react';
 
@@ -18,21 +18,19 @@ interface AnimeCardProps {
   behindCount?: number;
   userScore?: number | null;
   titleOverride?: React.ReactNode;
-  onLinkToSeries?: (seriesId: number) => void;
 }
 
-export function AnimeCard({ 
-  anime, 
-  isFavorite, 
-  onToggleFavorite, 
-  showCountdown = true, 
+export function AnimeCard({
+  anime,
+  isFavorite,
+  onToggleFavorite,
+  showCountdown = true,
   onClick,
   progress,
   statusPill,
   behindCount,
   userScore,
-  titleOverride,
-  onLinkToSeries
+  titleOverride
 }: AnimeCardProps) {
   const [now, setNow] = useState(Math.floor(Date.now() / 1000));
 

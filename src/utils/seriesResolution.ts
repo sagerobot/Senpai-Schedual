@@ -117,7 +117,7 @@ export async function resolveSeriesGraph(startId: number): Promise<SeriesGraph |
 
   const rawEntries = Array.from(entriesMap.values()).map(media => {
     const isAttachment = media.format === 'MOVIE' || media.format === 'OVA' || media.format === 'SPECIAL' || media.format === 'MUSIC';
-    const rawTitle = media.title.english || media.title.userPreferred;
+    const rawTitle: string = media.title.english || media.title.userPreferred;
     
     // Attempt to extract season label
     let seasonLabel = rawTitle;
@@ -213,17 +213,4 @@ export function getCachedSeriesGraph(id: number): SeriesGraph | null {
   } catch (e) {
     return null;
   }
-}
-
-export function getAllCachedSeries(): SeriesGraph[] {
-  const graphs: SeriesGraph[] = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key?.startsWith('senpai_series_') && key !== 'senpai_series_reverse_map') {
-      try {
-        graphs.push(JSON.parse(localStorage.getItem(key)!));
-      } catch (e) {}
-    }
-  }
-  return graphs;
 }

@@ -1,6 +1,6 @@
 import { AnimeMedia, EpisodeLog, LibraryEntry, LibraryStatus } from '../types';
 import { AnimeCard, StatusPillType } from './AnimeCard';
-import { BookmarkIcon, Trophy, Calendar, Star, TrendingUp, PlaySquare, Library, Archive, XCircle, Clock } from 'lucide-react';
+import { BookmarkIcon, Trophy, Calendar, Star, TrendingUp, PlaySquare, Archive, XCircle, Clock } from 'lucide-react';
 import { CatchUpQueue } from './CatchUpQueue';
 import React, { useMemo, useState, useEffect } from 'react';
 import { fetchAnimeByIds } from '../api/anilist';
@@ -15,7 +15,6 @@ interface FavoritesViewProps {
   onAnimeSelect: (anime: AnimeMedia) => void;
   logs: EpisodeLog[];
   onLog: (showId: number, episodeNumber: number, score: number | null) => void;
-  onUnlog: (showId: number, episodeNumber: number) => void;
   onUpdateEntry: (showId: number, update: Partial<LibraryEntry>) => void;
 }
 
@@ -23,7 +22,7 @@ type FilterTab = 'all' | 'behind' | 'caught-up' | 'finished';
 type SortOption = 'next-airing' | 'most-behind' | 'highest-score' | 'a-z';
 type ListTab = 'watching' | 'on_hold' | 'dropped' | 'plan_to_watch';
 
-export function FavoritesView({ animeList, library, favorites, onToggleFavorite, onAnimeSelect, logs, onLog, onUnlog, onUpdateEntry }: FavoritesViewProps) {
+export function FavoritesView({ animeList, library, favorites, onToggleFavorite, onAnimeSelect, logs, onLog, onUpdateEntry }: FavoritesViewProps) {
   const [activeList, setActiveList] = useState<ListTab>('watching');
   const [filter, setFilter] = useState<FilterTab>('all');
   const [sort, setSort] = useState<SortOption>('next-airing');
@@ -174,12 +173,11 @@ export function FavoritesView({ animeList, library, favorites, onToggleFavorite,
         favorites={favorites} 
       />
 
-      <CatchUpQueue 
-        animeList={fullAnimeList} 
-        favorites={favorites} 
-        logs={logs} 
-        onLog={onLog} 
-        onUnlog={onUnlog} 
+      <CatchUpQueue
+        animeList={fullAnimeList}
+        favorites={favorites}
+        logs={logs}
+        onLog={onLog}
         onAnimeSelect={onAnimeSelect}
       />
 

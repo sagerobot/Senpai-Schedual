@@ -52,7 +52,7 @@ export function useRecommendations(library: LibraryEntry[]) {
       try {
         // Collect all related IDs for exclusions
         const excludeSet = new Set<number>();
-        Object.values(seriesGraphs).forEach((g: any) => {
+        Object.values(seriesGraphs).forEach(g => {
           g.entries.forEach(e => excludeSet.add(e.id));
         });
 
@@ -61,7 +61,7 @@ export function useRecommendations(library: LibraryEntry[]) {
         scoredEntries.forEach(e => {
           let sid = e.showId;
           // Find series ID
-          for (const g of Object.values(seriesGraphs) as any[]) {
+          for (const g of Object.values(seriesGraphs)) {
             if (g.entries.some(ge => ge.id === e.showId)) {
               sid = g.seriesId;
               break;

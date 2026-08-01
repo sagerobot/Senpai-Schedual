@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { AnimeMedia, LibraryEntry, EpisodeLog, LibraryStatus } from '../types';
 import { fetchAnimeByIds, fetchAnimeByMalIds } from '../api/anilist';
-import { parseMalXml, MalEntry } from '../lib/malParser';
+import { parseMalXml } from '../lib/malParser';
 import { Loader2, Upload, FileText, Download } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useLibrarySeries } from '../hooks/useLibrarySeries';
@@ -12,26 +12,18 @@ interface LibraryViewProps {
   library: LibraryEntry[];
   logs: EpisodeLog[];
   animeList: AnimeMedia[];
-  onToggleFavorite: (id: number) => void;
   onAnimeSelect: (anime: AnimeMedia) => void;
   setLibraryBulk: (entries: LibraryEntry[]) => void;
   setLogsBulk: (logs: EpisodeLog[]) => void;
-  initialSearch?: string;
 }
 
 type TabType = LibraryStatus;
 
-export function LibraryView({ library, logs, animeList, onToggleFavorite, onAnimeSelect, setLibraryBulk, setLogsBulk,
-  initialSearch
-}: LibraryViewProps) {
+export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibraryBulk, setLogsBulk }: LibraryViewProps) {
   const [activeTab, setActiveTab] = useState<TabType>('watching');
   const [sortOption, setSortOption] = useState<'my-score' | 'title' | 'recently-updated'>('recently-updated');
-  const [search, setSearch] = useState(initialSearch || '');
-  
-  useEffect(() => {
-    if (initialSearch !== undefined) setSearch(initialSearch);
-  }, [initialSearch]);
-  
+  const [search, setSearch] = useState('');
+
   const [loadedAnime, setLoadedAnime] = useState<Record<number, AnimeMedia>>(() => {
     try {
       const cached = localStorage.getItem('senpai_library_cache');

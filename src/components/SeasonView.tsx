@@ -11,12 +11,11 @@ interface SeasonViewProps {
   favorites: number[];
   onToggleFavorite: (id: number) => void;
   onAnimeSelect: (anime: AnimeMedia) => void;
-  onLinkToSeries?: (id: number) => void;
 }
 
 const SEASONS = ['WINTER', 'SPRING', 'SUMMER', 'FALL'];
 
-export function SeasonView({ animeList, favorites, onToggleFavorite, onAnimeSelect, onLinkToSeries }: SeasonViewProps) {
+export function SeasonView({ animeList, favorites, onToggleFavorite, onAnimeSelect }: SeasonViewProps) {
   const [search, setSearch] = useState('');
   
   // Determine current real-world season/year
@@ -132,7 +131,6 @@ export function SeasonView({ animeList, favorites, onToggleFavorite, onAnimeSele
                 isFavorite={favorites.includes(anime.id)}
                 onToggleFavorite={onToggleFavorite}
                 onClick={onAnimeSelect}
-                onLinkToSeries={onLinkToSeries}
               />
             ))}
           </div>

@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { AnimeMedia, EpisodeLog } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
-import { Clock, CheckCircle2, ChevronRight, History, Play, Check, Link, Zap, Filter, Info } from 'lucide-react';
+import { Clock, ChevronRight, History, Play, Link, Zap, Info } from 'lucide-react';
 import { getCachedSeriesGraph } from '../utils/seriesResolution';
 
 interface CatchUpQueueProps {
@@ -10,18 +10,12 @@ interface CatchUpQueueProps {
   favorites: number[];
   logs: EpisodeLog[];
   onLog: (showId: number, episodeNumber: number, score: number | null) => void;
-  onUnlog: (showId: number, episodeNumber: number) => void;
   onAnimeSelect: (anime: AnimeMedia) => void;
 }
 
 type SortOption = 'soonest' | 'most_behind' | 'alphabetical';
 
-
-
-
-
-
-export function CatchUpQueue({ animeList, favorites, logs, onLog, onUnlog, onAnimeSelect }: CatchUpQueueProps) {
+export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect }: CatchUpQueueProps) {
   const [sortBy, setSortBy] = useState<SortOption>('soonest');
   const [groupSeasons, setGroupSeasons] = useState(true);
 
@@ -340,12 +334,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onUnlog, onAni
                   </div>
                   
                   <div className="flex items-center gap-2 h-[42px]">
-                    <button 
-                      className="shrink-0 h-full px-3 flex items-center justify-center gap-2 rounded-[10px] border border-[#2e1d52] bg-[#05040a] text-[12px] font-bold text-gray-400 hover:bg-[#120e24] transition-colors"
-                    >
-                      <Filter className="w-4 h-4" /> <span className="hidden sm:inline">0-4</span>
-                    </button>
-                    <button 
+                    <button
                       onClick={(e) => { e.stopPropagation(); onLog(currentItem!.anime.id, nextEpisodeToWatch, null); }}
                       className="shrink-0 h-full px-3 flex items-center justify-center gap-2 rounded-[10px] border border-[#2e1d52] bg-[#05040a] text-[12px] font-bold text-gray-400 hover:bg-[#120e24] transition-colors"
                       title="Mark watched only"
@@ -374,7 +363,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onUnlog, onAni
       </motion.div>
     );
   };
-  const renderQueueItem = (item: typeof queueData.queue[0], isGrouped: boolean = false, seasonIndex?: number) => {
+  const renderQueueItem = (item: typeof queueData.queue[0], seasonIndex?: number) => {
     const progress = item.airedCount > 0 ? (item.watched.length / item.airedCount) * 100 : 0;
     
     const nextUnwatched = Array.from({ length: item.airedCount }, (_, i) => i + 1).find(ep => !item.watched.includes(ep));
@@ -489,12 +478,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onUnlog, onAni
               </div>
               
               <div className="flex items-center gap-2 h-[38px]">
-                <button 
-                  className="shrink-0 h-full px-2.5 flex items-center justify-center gap-2 rounded-[10px] border border-[#2e1d52] bg-[#05040a] text-[11px] font-bold text-gray-400 hover:bg-[#120e24] transition-colors"
-                >
-                  <Filter className="w-3.5 h-3.5" /> 0-4
-                </button>
-                <button 
+                <button
                   onClick={(e) => { e.stopPropagation(); onLog(item.anime.id, nextUnwatched, null); }}
                   className="shrink-0 h-full px-2.5 flex items-center justify-center gap-2 rounded-[10px] border border-[#2e1d52] bg-[#05040a] text-[11px] font-bold text-gray-400 hover:bg-[#120e24] transition-colors"
                   title="Mark watched only"
@@ -522,14 +506,6 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onUnlog, onAni
       </>
     );
 
-    if (isGrouped) {
-      return (
-        <>
-          {Inner}
-        </>
-      );
-    }
-    
     return (
       <motion.div
         layout
@@ -592,7 +568,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onUnlog, onAni
         <AnimatePresence mode="popLayout">
           {groupedQueue.map((group) => {
             if (!groupSeasons || group.length === 1) {
-              return group.map(item => renderQueueItem(item, false));
+              return group.map(item => renderQueueItem(item));
             }
             return renderSeriesGroup(group);
           })}

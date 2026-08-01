@@ -1,6 +1,6 @@
 import { AnimatePresence } from 'motion/react';
 import { useEffect, useState } from 'react';
-import { Calendar, LayoutGrid, Bookmark, Loader2, Sparkles, Download, Save, Search } from 'lucide-react';
+import { Calendar, LayoutGrid, Bookmark, Loader2, Sparkles, Save, Search, Settings } from 'lucide-react';
 import { fetchCurrentSeasonAnime } from './api/anilist';
 import { AnimeMedia, ViewMode } from './types';
 import { useLibrary } from './hooks/useLibrary';
@@ -13,28 +13,17 @@ import { ForYouView } from './components/ForYouView';
 import { SearchView } from './components/SearchView';
 import { ShowDetailModal } from './components/ShowDetailModal';
 import { DataSyncModal } from './components/DataSyncModal';
-import { MockupsView } from './components/MockupsView';
 import { cn } from './lib/utils';
-import { Library, Figma } from 'lucide-react';
+import { Library } from 'lucide-react';
 
 export default function App() {
   const [animeList, setAnimeList] = useState<AnimeMedia[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('schedule');
-  const [librarySearch, setLibrarySearch] = useState('');
-  
-  const handleLinkToSeries = async (id: number) => {
-    setViewMode('library');
-    // try to find the series graph and search by its title
-    const { resolveSeriesGraph } = await import('./utils/seriesResolution');
-    const graph = await resolveSeriesGraph(id);
-    if (graph) {
-      setLibrarySearch(graph.title);
-    }
-  };
+
   const { library, toggleFavorite, updateEntry, setLibraryBulk } = useLibrary();
-  const { logs, logEpisode, unlogEpisode, updateScore, exportLogs, setLogsBulk } = useEpisodeLog();
+  const { logs, logEpisode, setLogsBulk } = useEpisodeLog();
 
   const favorites = library.filter(l => l.status === 'watching').map(l => l.showId);
 
@@ -92,7 +81,6 @@ export default function App() {
     { id: 'favorites', label: 'My Watchlist', icon: Bookmark },
     { id: 'library', label: 'All-Time Library', icon: Library },
     { id: 'recommendations', label: 'For You', icon: Sparkles },
-    { id: 'mockups', label: 'UI Playground', icon: Figma },
   ] as const;
 
   return (
@@ -150,11 +138,12 @@ export default function App() {
             <span className="text-xl font-bold text-white tracking-tight">Senpai</span>
           </div>
           <button
-            onClick={exportLogs}
+            onClick={() => setIsDataSyncOpen(true)}
             className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-900 hover:text-white"
-            title="Export Logs"
+            aria-label="Data & Settings"
+            title="Data & Settings"
           >
-            <Download className="h-5 w-5" />
+            <Settings className="h-5 w-5" />
           </button>
         </header>
 
@@ -202,17 +191,14 @@ export default function App() {
                     onAnimeSelect={setSelectedAnime}
                     logs={logs}
                     onLog={logEpisode}
-                    onUnlog={unlogEpisode}
                     onUpdateEntry={updateEntry}
                   />
                 )}
                 {viewMode === 'library' && (
-                  <LibraryView 
+                  <LibraryView
                     library={library}
-                    initialSearch={librarySearch}
                     logs={logs}
                     animeList={animeList}
-                    onToggleFavorite={toggleFavorite}
                     onAnimeSelect={setSelectedAnime}
                     setLibraryBulk={setLibraryBulk}
                     setLogsBulk={setLogsBulk}
@@ -233,9 +219,6 @@ export default function App() {
                     onToggleFavorite={toggleFavorite}
                     onAnimeSelect={setSelectedAnime}
                   />
-                )}
-                {viewMode === 'mockups' && (
-                  <MockupsView />
                 )}
               </div>
             )}
