@@ -4,8 +4,10 @@ import { NavLink, Outlet, useNavigate, useSearchParams } from 'react-router';
 import { toast } from 'sonner';
 import { SettingsDialog } from '../features/data/SettingsDialog';
 import { ShowDetailModal } from '../features/show/ShowDetailModal';
+import { ServerWakeBanner } from '../components/ServerWakeBanner';
 import { useLibrary } from '../hooks/useLibrary';
 import { useCurrentSchedule, useMediaById } from '../queries/hooks';
+import { useServerWake } from '../queries/serverWake';
 import { AnimeMedia } from '../types';
 import { cn } from '../lib/utils';
 import { NAV_ITEMS } from './nav';
@@ -14,6 +16,7 @@ import { SHOW_PARAM, parseShowId } from './showParam';
 
 export function RootLayout() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const wakeStatus = useServerWake();
 
   const { library, updateEntry } = useLibrary();
   const favorites = useMemo(() => library.filter((l) => l.status === 'watching').map((l) => l.showId), [library]);
@@ -224,6 +227,8 @@ export function RootLayout() {
         )}
 
         <SettingsDialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
+
+        <ServerWakeBanner status={wakeStatus} />
 
         {/* Mobile Bottom Navigation — fixed 56px row, six items, labels never wrap. */}
         <nav
