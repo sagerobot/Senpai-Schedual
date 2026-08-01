@@ -1,9 +1,9 @@
 import { AnimeMedia, EpisodeLog, LibraryEntry, LibraryStatus } from '../../types';
 import { AnimeCard, StatusPillType } from '../../components/AnimeCard';
-import { BookmarkIcon, Trophy, Calendar, Star, TrendingUp, PlaySquare, Archive, XCircle, Clock } from 'lucide-react';
+import { BookmarkIcon, Trophy, Calendar, Star, TrendingUp, PlaySquare, Archive, XCircle, Clock, Loader2 } from 'lucide-react';
 import { CatchUpQueue } from './CatchUpQueue';
-import React, { useMemo, useState, useEffect } from 'react';
-import { fetchAnimeByIds } from '../../api/anilist/queries';
+import { useMemo, useState } from 'react';
+import { useMediaByIds } from '../../queries/hooks';
 import { SeasonRecapModal } from './SeasonRecapModal';
 import { cn } from '../../lib/utils';
 import { displayTitle } from '../../lib/displayTitle';
@@ -30,41 +30,24 @@ export function FavoritesView({ animeList, library, favorites, onToggleFavorite,
   const [showRecap, setShowRecap] = useState(false);
 
 
-  const [loadedFavorites, setLoadedFavorites] = useState<Record<number, AnimeMedia>>(() => {
-    try {
-      const cached = localStorage.getItem('senpai_favorites_cache');
-      if (cached) return JSON.parse(cached);
-    } catch (e) {}
-    return {};
-  });
-  const [loadingMissing, setLoadingMissing] = useState(false);
-
   const currentListIds = useMemo(() => library.filter(l => l.status === activeList).map(l => l.showId), [library, activeList]);
 
-  useEffect(() => {
-    const missingIds = currentListIds.filter(id => !animeList.find(a => a.id === id) && !loadedFavorites[id]);
-    if (missingIds.length > 0 && !loadingMissing) {
-      setLoadingMissing(true);
-      fetchAnimeByIds(missingIds).then(newAnime => {
-        setLoadedFavorites(prev => {
-          const next = { ...prev };
-          newAnime.forEach(a => next[a.id] = a);
-          localStorage.setItem('senpai_favorites_cache', JSON.stringify(next));
-          return next;
-        });
-        setLoadingMissing(false);
-      }).catch(() => {
-        setLoadingMissing(false);
-      });
-    }
-  }, [currentListIds, animeList, loadedFavorites, loadingMissing]);
+  // Everything the library references, not just the visible tab: the Catch-Up
+  // Queue and the Season Recap read across the whole list. Unresolvable ids
+  // settle as `null` in the query cache instead of re-firing forever.
+  const scheduleIds = useMemo(() => new Set(animeList.map(a => a.id)), [animeList]);
+  const missingIds = useMemo(
+    () => library.map(l => l.showId).filter(id => !scheduleIds.has(id)),
+    [library, scheduleIds],
+  );
+  const { media: resolvedMedia, pendingCount } = useMediaByIds(missingIds);
 
   const fullAnimeList = useMemo(() => {
     const map = new Map<number, AnimeMedia>();
     animeList.forEach(a => map.set(a.id, a));
-    Object.values(loadedFavorites).forEach((a: any) => map.set(a.id, a as AnimeMedia));
+    resolvedMedia.forEach(a => map.set(a.id, a));
     return Array.from(map.values());
-  }, [animeList, loadedFavorites]);
+  }, [animeList, resolvedMedia]);
 
   const currentShows = useMemo(() => fullAnimeList.filter(a => currentListIds.includes(a.id)), [fullAnimeList, currentListIds]);
 
@@ -294,6 +277,13 @@ export function FavoritesView({ animeList, library, favorites, onToggleFavorite,
           </div>
         )}
       </div>
+
+      {pendingCount > 0 && (
+        <div className="flex items-center gap-2 text-xs text-gray-500">
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          <span>Loading {pendingCount} more {pendingCount === 1 ? 'show' : 'shows'}…</span>
+        </div>
+      )}
 
       {currentShows.length > 0 ? (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4 sm:gap-6">

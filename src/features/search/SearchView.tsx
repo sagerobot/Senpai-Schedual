@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { AnimeMedia } from '../../types';
-import { searchAnime } from '../../api/anilist/queries';
-import { Search, Loader2 } from 'lucide-react';
+import { useSearchQuery } from '../../queries/hooks';
+import { Search, Loader2, RefreshCw } from 'lucide-react';
 import { AnimeCard } from '../../components/AnimeCard';
 
 interface SearchViewProps {
@@ -23,9 +23,10 @@ export function SearchView({ favorites, onToggleFavorite, onAnimeSelect }: Searc
   const [query, setQuery] = useState(urlQuery);
   const committed = useRef(urlQuery);
 
-  const [results, setResults] = useState<AnimeMedia[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [searched, setSearched] = useState(false);
+  const search = useSearchQuery(urlQuery);
+  const results = search.data ?? [];
+  const term = urlQuery.trim();
+  const loading = term.length > 0 && search.isPending;
 
   const commit = useCallback(
     (value: string) => {
@@ -56,36 +57,6 @@ export function SearchView({ favorites, onToggleFavorite, onAnimeSelect }: Searc
     if (urlQuery === committed.current) return;
     committed.current = urlQuery;
     setQuery(urlQuery);
-  }, [urlQuery]);
-
-  useEffect(() => {
-    const term = urlQuery.trim();
-    if (!term) {
-      setResults([]);
-      setSearched(false);
-      setLoading(false);
-      return;
-    }
-
-    let active = true;
-    setLoading(true);
-    setSearched(true);
-    searchAnime(term)
-      .then((data) => {
-        if (active) setResults(data);
-      })
-      .catch((error) => {
-        if (!active) return;
-        console.error('Search failed:', error);
-        setResults([]);
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-
-    return () => {
-      active = false;
-    };
   }, [urlQuery]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -126,7 +97,22 @@ export function SearchView({ favorites, onToggleFavorite, onAnimeSelect }: Searc
         <div className="flex h-64 items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
         </div>
-      ) : searched && results.length === 0 ? (
+      ) : search.isError ? (
+        // A failed search and a search that found nothing are different answers.
+        <div className="flex h-64 flex-col items-center justify-center space-y-3 rounded-2xl border border-red-900/50 bg-red-900/20 px-6 text-center">
+          <p className="text-red-300">Search failed.</p>
+          <p className="text-sm text-red-400/70">
+            {search.error instanceof Error ? search.error.message : 'The request did not go through.'}
+          </p>
+          <button
+            onClick={() => void search.refetch()}
+            className="inline-flex items-center gap-2 rounded-lg border border-red-800/60 px-4 py-2 text-sm font-medium text-red-300 transition-colors hover:bg-red-900/30"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Retry
+          </button>
+        </div>
+      ) : search.isSuccess && results.length === 0 ? (
         <div className="flex h-64 flex-col items-center justify-center rounded-2xl border border-dashed border-gray-800 bg-[#0a0c16]">
           <Search className="mb-4 h-8 w-8 text-gray-600" />
           <p className="text-gray-400">No results found for "{urlQuery}"</p>

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { EpisodeLog, LibraryEntry, LibraryStatus } from '../types';
-import { readJSON, writeJSON } from './storage';
+import { readJSON, removeKey, writeJSON } from './storage';
 import type { SeriesOverrides, UiPrefs } from './userData';
 
 /**
@@ -75,7 +75,42 @@ function toNumberKeys(record: Record<string, number>): Record<number, number> {
   return out;
 }
 
+/**
+ * Caches the TanStack Query layer replaced. Every one of these is re-fetchable
+ * AniList or upstream data holding no user state, so they are dropped
+ * unconditionally rather than migrated.
+ */
+const RETIRED_CACHE_KEYS = [
+  'senpai_cached_schedule_v2',
+  'senpai_cached_schedule_time_v2',
+  'senpai_library_cache',
+  'senpai_favorites_cache',
+];
+const RETIRED_CACHE_PREFIXES = ['anime_details_'];
+
+export function cleanupRetiredCacheKeys(): void {
+  for (const key of RETIRED_CACHE_KEYS) removeKey(key);
+
+  let keys: string[];
+  try {
+    keys = Object.keys(localStorage);
+  } catch (err) {
+    console.warn('[migrations] Could not enumerate localStorage; skipping prefix cleanup.', err);
+    return;
+  }
+  for (const key of keys) {
+    if (RETIRED_CACHE_PREFIXES.some((prefix) => key.startsWith(prefix))) removeKey(key);
+  }
+}
+
 export function runMigrations(): void {
+  // Runs on every boot: unlike the import below it is not one-shot, because a
+  // profile can still be carrying these from before the query layer landed.
+  cleanupRetiredCacheKeys();
+  migrateLegacyUserData();
+}
+
+function migrateLegacyUserData(): void {
   if (hasKey(USER_DATA_KEY)) return;
 
   // Library. Legacy `anime_favorites` (a bare id list) only counts when

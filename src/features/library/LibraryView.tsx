@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 import { AnimeMedia, LibraryEntry, EpisodeLog, LibraryStatus } from '../../types';
-import { fetchAnimeByIds, fetchAnimeByMalIds } from '../../api/anilist/queries';
+import { fetchAnimeByMalIds } from '../../api/anilist/queries';
+import { useMediaByIds } from '../../queries/hooks';
 import { parseMalXml } from '../../lib/malParser';
 import { displayTitle } from '../../lib/displayTitle';
 import { Loader2, Upload, FileText, Download } from 'lucide-react';
@@ -14,7 +15,7 @@ interface LibraryViewProps {
   library: LibraryEntry[];
   logs: EpisodeLog[];
   animeList: AnimeMedia[];
-  onAnimeSelect: (anime: AnimeMedia) => void;
+  onAnimeSelect: (show: { id: number }) => void;
   setLibraryBulk: (entries: LibraryEntry[]) => void;
   setLogsBulk: (logs: EpisodeLog[]) => void;
 }
@@ -29,15 +30,6 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
   const [searchParams] = useSearchParams();
   const [search, setSearch] = useState(() => searchParams.get('q') ?? '');
 
-  const [loadedAnime, setLoadedAnime] = useState<Record<number, AnimeMedia>>(() => {
-    try {
-      const cached = localStorage.getItem('senpai_library_cache');
-      if (cached) return JSON.parse(cached);
-    } catch (e) {}
-    return {};
-  });
-  const [loadingIds, setLoadingIds] = useState(false);
-
   const { graphs: seriesGraphs, resolving } = useLibrarySeries(library);
 
   // Import state
@@ -45,31 +37,22 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
   const [importProgress, setImportProgress] = useState<{ current: number, total: number } | null>(null);
   const [importResult, setImportResult] = useState<{ imported: number, failed: number } | null>(null);
 
-  // Load missing anime details
-  useEffect(() => {
-    const missingIds = library
-      .map(l => l.showId)
-      .filter(id => !loadedAnime[id] && !animeList.find(a => a.id === id));
-    
-    if (missingIds.length > 0) {
-      setLoadingIds(true);
-      fetchAnimeByIds(missingIds).then(newAnime => {
-        setLoadedAnime(prev => {
-          const next = { ...prev };
-          newAnime.forEach(a => { next[a.id] = a; });
-          localStorage.setItem('senpai_library_cache', JSON.stringify(next));
-          return next;
-        });
-        setLoadingIds(false);
-      });
-    }
-  }, [library, animeList, loadedAnime]);
+  // Anything the schedule already carries is free; the rest is resolved by id.
+  // Ids AniList cannot resolve settle as `null` and stay settled, which is what
+  // the old effect-plus-localStorage arrangement could never do.
+  const scheduleIds = useMemo(() => new Set(animeList.map((a) => a.id)), [animeList]);
+  const missingIds = useMemo(
+    () => library.map((l) => l.showId).filter((id) => !scheduleIds.has(id)),
+    [library, scheduleIds],
+  );
+  const { media: resolvedMedia, pendingCount } = useMediaByIds(missingIds);
 
   const allAnimeDict = useMemo(() => {
-    const dict: Record<number, AnimeMedia> = { ...loadedAnime };
+    const dict: Record<number, AnimeMedia> = {};
     animeList.forEach(a => { dict[a.id] = a; });
+    resolvedMedia.forEach(a => { dict[a.id] = a; });
     return dict;
-  }, [loadedAnime, animeList]);
+  }, [resolvedMedia, animeList]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -271,22 +254,9 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
     { id: 'plan_to_watch', label: 'Plan to Watch' },
   ];
 
-  const handleAnimeSelect = (id: number) => {
-    let anime = allAnimeDict[id];
-    if (anime) {
-      onAnimeSelect(anime);
-    } else {
-      // Need to fetch it and select it
-      setLoadingIds(true);
-      fetchAnimeByIds([id]).then(res => {
-        setLoadingIds(false);
-        if (res.length > 0) {
-          setLoadedAnime(p => ({ ...p, [id]: res[0] }));
-          onAnimeSelect(res[0]);
-        }
-      });
-    }
-  };
+  // The modal host resolves `?show=<id>` itself, so opening a row never needs
+  // the record in hand first.
+  const handleAnimeSelect = (id: number) => onAnimeSelect({ id });
 
   const handleAddPlanToWatch = (id: number) => {
     const newEntry: LibraryEntry = {
@@ -386,11 +356,14 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
         </div>
       </div>
 
-      {loadingIds ? (
-        <div className="flex h-32 items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-accent-500" />
+      {pendingCount > 0 && (
+        <div className="flex items-center gap-2 text-xs text-gray-500">
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          <span>Loading {pendingCount} more {pendingCount === 1 ? 'show' : 'shows'}…</span>
         </div>
-      ) : displaySeries.length > 0 ? (
+      )}
+
+      {displaySeries.length > 0 ? (
         <div className="flex flex-col gap-3">
           {displaySeries.map(item => (
             <SeriesCard

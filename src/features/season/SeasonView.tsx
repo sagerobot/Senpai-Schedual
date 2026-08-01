@@ -2,60 +2,36 @@
 import { AnimeMedia } from '../../types';
 import { AnimeCard } from '../../components/AnimeCard';
 import { SeriesTitle } from '../../components/SeriesTitle';
+import { ScheduleError } from '../../components/ScheduleState';
 import { Search, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { fetchAnimeBySeason } from '../../api/anilist/queries';
+import { useSeasonQuery } from '../../queries/hooks';
 import { displayTitle } from '../../lib/displayTitle';
 import { SEASONS, currentSeason, parseSeasonParams, seasonPath } from '../../routes/season';
 
 interface SeasonViewProps {
-  animeList: AnimeMedia[]; // The current season, shared with the Schedule view
   favorites: number[];
   onToggleFavorite: (id: number) => void;
   onAnimeSelect: (anime: AnimeMedia) => void;
 }
 
-export function SeasonView({ animeList, favorites, onToggleFavorite, onAnimeSelect }: SeasonViewProps) {
+export function SeasonView({ favorites, onToggleFavorite, onAnimeSelect }: SeasonViewProps) {
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
   const params = useParams();
 
   const now = useMemo(() => currentSeason(), []);
   const currentYear = now.year;
-  const initialSeason = now.season.toUpperCase();
 
   // Which season is on screen is URL state; the route loader guarantees it parses.
   const parsed = parseSeasonParams(params.year, params.season) ?? now;
   const selectedYear = parsed.year;
   const selectedSeason = parsed.season.toUpperCase();
 
-  const [localList, setLocalList] = useState<AnimeMedia[] | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    // If it's the current season, just use the props animeList to save requests
-    if (selectedSeason === initialSeason && selectedYear === currentYear) {
-      setLocalList(null);
-      return;
-    }
-
-    let isMounted = true;
-    setLoading(true);
-    
-    fetchAnimeBySeason(selectedSeason, selectedYear)
-      .then(data => {
-        if (isMounted) setLocalList(data);
-      })
-      .catch(console.error)
-      .finally(() => {
-        if (isMounted) setLoading(false);
-      });
-      
-    return () => { isMounted = false; };
-  }, [selectedSeason, selectedYear, initialSeason, currentYear]);
-
-  const displayList = localList || animeList;
+  const query = useSeasonQuery(parsed.year, parsed.season);
+  const displayList = useMemo(() => query.data ?? [], [query.data]);
+  const loading = query.isPending;
 
   const filtered = useMemo(() => {
     if (!search) return displayList;
@@ -82,7 +58,7 @@ export function SeasonView({ animeList, favorites, onToggleFavorite, onAnimeSele
     else goToSeason(selectedYear, SEASONS[currentIndex + 1]);
   };
 
-  const isCurrentSeason = selectedSeason === initialSeason && selectedYear === currentYear;
+  const isCurrentSeason = parsed.season === now.season && selectedYear === currentYear;
 
   return (
     <div className="space-y-8 pb-12">
@@ -118,6 +94,12 @@ export function SeasonView({ animeList, favorites, onToggleFavorite, onAnimeSele
         <div className="flex h-64 items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
         </div>
+      ) : query.isError ? (
+        <ScheduleError
+          title={`Couldn't load ${selectedSeason.toLowerCase()} ${selectedYear}.`}
+          message={query.error instanceof Error ? query.error.message : 'The request failed.'}
+          onRetry={() => void query.refetch()}
+        />
       ) : (
         <>
           <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4 sm:gap-6">

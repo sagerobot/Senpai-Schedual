@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Mock } from 'vitest';
-import { runMigrations, USER_DATA_KEY } from './migrations';
+import { cleanupRetiredCacheKeys, runMigrations, USER_DATA_KEY } from './migrations';
 
 interface MemoryStorage {
   getItem: Mock<(key: string) => string | null>;
@@ -156,5 +156,77 @@ describe('runMigrations', () => {
     });
     expect(v3.state.logs).toEqual({});
     expect(storage.getItem('anime_episode_logs')).toBe('{definitely not json');
+  });
+});
+
+/**
+ * Real localStorage exposes its entries as own enumerable properties and its
+ * methods on the prototype, which is what makes `Object.keys(localStorage)`
+ * work. The map-backed mock above cannot model the prefix sweep, so this
+ * block uses a storage that does.
+ */
+function createEnumerableStorage(): Storage {
+  const store: Record<string, string> = {};
+  const define = (name: string, fn: unknown) =>
+    Object.defineProperty(store, name, { value: fn, enumerable: false, writable: true });
+
+  define('getItem', (key: string) => (Object.hasOwn(store, key) ? store[key] : null));
+  define('setItem', (key: string, value: string) => {
+    store[key] = String(value);
+  });
+  define('removeItem', (key: string) => {
+    delete store[key];
+  });
+  return store as unknown as Storage;
+}
+
+describe('cleanupRetiredCacheKeys', () => {
+  let store: Storage;
+
+  beforeEach(() => {
+    store = createEnumerableStorage();
+    vi.stubGlobal('localStorage', store);
+  });
+
+  it('drops the caches the query layer replaced and nothing else', () => {
+    for (const key of [
+      'senpai_cached_schedule_v2',
+      'senpai_cached_schedule_time_v2',
+      'senpai_library_cache',
+      'senpai_favorites_cache',
+      'anime_details_21',
+      'anime_details_1535',
+    ]) {
+      store.setItem(key, '"cached"');
+    }
+    // User data and the store's own key must survive untouched.
+    store.setItem('anime_library', '[{"showId":1}]');
+    store.setItem('senpai_simulcast_offsets', '{"1":30}');
+    store.setItem(USER_DATA_KEY, '{"state":{},"version":3}');
+
+    cleanupRetiredCacheKeys();
+
+    for (const key of [
+      'senpai_cached_schedule_v2',
+      'senpai_cached_schedule_time_v2',
+      'senpai_library_cache',
+      'senpai_favorites_cache',
+      'anime_details_21',
+      'anime_details_1535',
+    ]) {
+      expect(store.getItem(key)).toBeNull();
+    }
+    expect(store.getItem('anime_library')).toBe('[{"showId":1}]');
+    expect(store.getItem('senpai_simulcast_offsets')).toBe('{"1":30}');
+    expect(store.getItem(USER_DATA_KEY)).toBe('{"state":{},"version":3}');
+  });
+
+  it('runs on every boot, not only the first migration', () => {
+    store.setItem(USER_DATA_KEY, '{"state":{},"version":3}');
+    store.setItem('anime_details_21', '"stale"');
+
+    runMigrations();
+
+    expect(store.getItem('anime_details_21')).toBeNull();
   });
 });

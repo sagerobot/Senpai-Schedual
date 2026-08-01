@@ -23,14 +23,15 @@ const COWBOY_BEBOP = {
 };
 
 // Every route wrapper pulls the AniList client in; the shell must render
-// without a network.
+// without a network. `fetchAnimeByIds` is what the media micro-batcher — and
+// so every by-id lookup, including the `?show=` host — actually calls.
 vi.mock('../api/anilist/queries', () => ({
   fetchCurrentSeasonAnime: vi.fn(async () => []),
   fetchMediaById: vi.fn(async (id: number) => {
     if (id !== COWBOY_BEBOP.id) throw new Error('no such show');
     return COWBOY_BEBOP;
   }),
-  fetchAnimeByIds: vi.fn(async () => []),
+  fetchAnimeByIds: vi.fn(async (ids: number[]) => (ids.includes(COWBOY_BEBOP.id) ? [COWBOY_BEBOP] : [])),
   fetchAnimeByMalIds: vi.fn(async () => []),
   fetchAnimeBySeason: vi.fn(async () => []),
   searchAnime: vi.fn(async () => []),
@@ -102,12 +103,24 @@ describe('router shell', () => {
     // contexts. The browser build has no such split (both ESM entries share one
     // chunk), so this only affects the test harness.
     // Imported lazily so the history entry above is in place first.
-    const [{ RouterProvider }, { router }] = await Promise.all([
-      import('react-router'),
-      import('./router'),
-    ]);
+    const [{ RouterProvider }, { router }, { QueryClient, QueryClientProvider }, { resetMediaBatcher }] =
+      await Promise.all([
+        import('react-router'),
+        import('./router'),
+        import('@tanstack/react-query'),
+        import('../queries/mediaBatcher'),
+      ]);
+    resetMediaBatcher();
+    // A throwaway client per test: no retries and no cache carried between them.
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false, gcTime: 0 } },
+    });
     await act(async () => {
-      root.render(<RouterProvider router={router} />);
+      root.render(
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} />
+        </QueryClientProvider>,
+      );
     });
     await settle();
     return router;

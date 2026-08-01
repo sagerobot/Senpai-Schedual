@@ -1,9 +1,8 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { X, ExternalLink, Bookmark, MessageCircle, Loader2, Sparkles } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { AnimeMedia, LibraryEntry } from '../../types';
-import { fetchShowDetails, ShowDetails } from '../../api/showDetails';
-import { fetchAnimeByIds, fetchMediaById } from '../../api/anilist/queries';
+import { useShowDetailsQuery } from '../../queries/hooks';
 import { displayTitle } from '../../lib/displayTitle';
 import { useCommunityPulse } from './useCommunityPulse';
 import { useSimulcastOffsets } from '../../hooks/useSimulcastOffsets';
@@ -16,7 +15,7 @@ interface ShowDetailModalProps {
   onClose: () => void;
   isFavorite: boolean;
   onToggleFavorite: (id: number) => void;
-  onAnimeSelect?: (anime: AnimeMedia) => void;
+  onAnimeSelect?: (show: { id: number }) => void;
   libraryEntry?: LibraryEntry;
   onUpdateEntry?: (showId: number, update: Partial<LibraryEntry>) => void;
 }
@@ -24,45 +23,30 @@ interface ShowDetailModalProps {
 type TabType = 'mal' | 'anilist' | 'kitsu';
 
 export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, onAnimeSelect, libraryEntry, onUpdateEntry }: ShowDetailModalProps) {
-  const [details, setDetails] = useState<ShowDetails | null>(null);
-  // List queries no longer carry `description` (localStorage quota); the modal
-  // fetches the full record by id and uses the passed-in anime for immediate render.
-  const [fullMedia, setFullMedia] = useState<AnimeMedia | null>(null);
-  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabType>('mal');
-  const [loadingRelationId, setLoadingRelationId] = useState<number | null>(null);
 
   const latestEpisode = anime.nextAiringEpisode ? Math.max(1, anime.nextAiringEpisode.episode - 1) : anime.episodes || 1;
   const [selectedEpisode, setSelectedEpisode] = useState(latestEpisode);
   const { pulse, state: pulseState, load: loadPulse } = useCommunityPulse(displayTitle(anime), selectedEpisode, anime.id);
   const { offsets, setOffset } = useSimulcastOffsets();
 
-  useEffect(() => {
-    let mounted = true;
-    setLoading(true);
-    setFullMedia(null);
-
-    Promise.all([
-      fetchShowDetails(anime.idMal, displayTitle(anime), anime.description ?? '', anime.id),
-      fetchMediaById(anime.id).catch(() => null),
-    ]).then(([data, full]) => {
-      if (mounted) {
-        setDetails(data);
-        setFullMedia(full);
-
-        // Auto select best tab
-        const anilistSynopsis = full?.description ?? anime.description;
-        if (!data.mal?.synopsis && anilistSynopsis) setActiveTab('anilist');
-        else if (!data.mal?.synopsis && !anilistSynopsis && data.kitsu?.synopsis) setActiveTab('kitsu');
-
-        setLoading(false);
-      }
-    });
-
-    return () => { mounted = false; };
-  }, [anime]);
+  // List queries no longer carry `description` (localStorage quota); the query
+  // fetches the full record by id alongside the MAL/Kitsu/AI details, and the
+  // passed-in `anime` covers the immediate render.
+  const detailsQuery = useShowDetailsQuery(anime);
+  const details = detailsQuery.data?.details ?? null;
+  const fullMedia = detailsQuery.data?.full ?? null;
+  const loading = detailsQuery.isPending;
 
   const anilistDescription = fullMedia?.description ?? anime.description ?? null;
+
+  // Land on a tab that actually has copy, once we know which do.
+  useEffect(() => {
+    if (!details) return;
+    if (details.mal?.synopsis) return;
+    if (anilistDescription) setActiveTab('anilist');
+    else if (details.kitsu?.synopsis) setActiveTab('kitsu');
+  }, [details, anilistDescription]);
 
   const kitsuScore = details?.kitsu?.averageRating ? parseFloat(details.kitsu.averageRating) : null;
   const anilistScore = anime.averageScore;
@@ -220,27 +204,14 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
                     {anime.relations.edges.filter(e => e.node?.type === 'ANIME').map(e => (
                       <button
                         key={e.node.id}
-                        disabled={loadingRelationId !== null}
-                        onClick={async () => {
-                          if (onAnimeSelect) {
-                            setLoadingRelationId(e.node.id);
-                            try {
-                              const fetched = await fetchAnimeByIds([e.node.id]);
-                              if (fetched && fetched[0]) {
-                                onAnimeSelect(fetched[0]);
-                              }
-                            } finally {
-                              setLoadingRelationId(null);
-                            }
-                          }
-                        }}
-                        className="flex items-center gap-2 rounded-lg bg-[#2a2a2d] px-3 py-2 text-left transition-colors hover:bg-accent-500/20 hover:border-accent-500/50 border border-transparent disabled:opacity-50"
+                        // Opening by id is enough — the modal host resolves the record.
+                        onClick={() => onAnimeSelect?.({ id: e.node.id })}
+                        className="flex items-center gap-2 rounded-lg bg-[#2a2a2d] px-3 py-2 text-left transition-colors hover:bg-accent-500/20 hover:border-accent-500/50 border border-transparent"
                       >
                         <div className="flex flex-col">
                           <span className="text-[10px] font-semibold uppercase text-accent-400">{e.relationType.replace('_', ' ')}</span>
                           <span className="text-xs font-medium text-white line-clamp-1">{e.node.title.userPreferred}</span>
                         </div>
-                        {loadingRelationId === e.node.id && <Loader2 className="w-4 h-4 animate-spin text-accent-400" />}
                       </button>
                     ))}
                   </div>
@@ -474,8 +445,8 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
                   const current = offsets[anime.id] || 0;
                   const res = prompt('Enter simulcast delay in minutes (e.g. 30 for half an hour later):', current.toString());
                   if (res !== null && !isNaN(parseInt(res))) {
+                    // Applied at read time — every countdown repaints on the next render.
                     setOffset(anime.id, parseInt(res));
-                    alert('Delay updated! Please refresh the page to see changes.');
                   }
                 }}
                 className="text-xs text-gray-500 hover:text-white underline"

@@ -155,14 +155,17 @@ describe('log actions', () => {
 });
 
 describe('offsets, overrides, uiPrefs', () => {
-  it('setOffset stores minutes, clears on 0/undefined, and mirrors the legacy key', () => {
+  it('setOffset stores minutes and clears on 0/undefined', () => {
     state().setOffset(11, 90);
     expect(state().offsets[11]).toBe(90);
-    expect(JSON.parse(storage.getItem('senpai_simulcast_offsets')!)).toEqual({ '11': 90 });
 
     state().setOffset(11, 0);
     expect(state().offsets[11]).toBeUndefined();
-    expect(JSON.parse(storage.getItem('senpai_simulcast_offsets')!)).toEqual({});
+
+    // The store is now the only home for offsets — the transform in
+    // src/queries/offsets.ts reads this slice, so nothing mirrors to the
+    // retired `senpai_simulcast_offsets` key any more.
+    expect(storage.getItem('senpai_simulcast_offsets')).toBeNull();
 
     state().setOffset(12, 30);
     state().setOffset(12, undefined);

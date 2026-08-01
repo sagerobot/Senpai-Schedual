@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { postEnvelope, type AiAvailability } from './aiEnvelope';
-import { readJSON, writeJSON } from '../stores/storage';
 
 export interface ShowDetails {
   mal?: {
@@ -12,26 +11,24 @@ export interface ShowDetails {
     synopsis: string | null;
   };
   aiSummary?: string;
-  /** Outcome of the AI summary request. Surfaced for the modal, never cached. */
+  /** Outcome of the AI summary request, so the modal can tell "off" from "failed". */
   aiStatus?: AiAvailability;
 }
 
-const CACHE_KEY_PREFIX = 'anime_details_';
-const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
-
-/** What actually goes into localStorage — aiStatus is deliberately absent. */
-const CachedDetailsSchema = z.object({
-  timestamp: z.number(),
-  data: z.object({
-    mal: z.object({ score: z.number().nullable(), synopsis: z.string().nullable() }).optional(),
-    kitsu: z.object({ averageRating: z.string().nullable(), synopsis: z.string().nullable() }).optional(),
-    aiSummary: z.string().optional(),
-  }),
-});
-
-type CachedDetails = z.infer<typeof CachedDetailsSchema>;
+/**
+ * A pure fetcher. Caching lives in the query layer
+ * (`useShowDetailsQuery`, key `['showDetails', id]`, 24h) — this module used to
+ * keep its own `anime_details_<id>` localStorage entry and no longer does.
+ */
 
 const SummaryPayloadSchema = z.object({ summary: z.string().min(1) });
+
+/** Both upstreams answer 429 with a JSON body, so a bare `.json()` would read as "no data". */
+async function fetchJson(url: string): Promise<unknown> {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`${url} responded ${res.status}`);
+  return res.json();
+}
 
 async function fetchAiSummary(
   showId: number,
@@ -42,61 +39,59 @@ async function fetchAiSummary(
   return { aiSummary: null, aiStatus: result.kind };
 }
 
-function buildSynopses(anilistSynopsis: string, details: CachedDetails['data']): string {
+function buildSynopses(anilistSynopsis: string, details: ShowDetails): string {
   let synopsesText = `AniList:\n${anilistSynopsis}\n`;
   if (details.mal?.synopsis) synopsesText += `\nMyAnimeList:\n${details.mal.synopsis}\n`;
   if (details.kitsu?.synopsis) synopsesText += `\nKitsu:\n${details.kitsu.synopsis}\n`;
   return synopsesText;
 }
 
-export async function fetchShowDetails(idMal: number | null, title: string, anilistSynopsis: string, showId: number): Promise<ShowDetails> {
-  const cacheKey = `${CACHE_KEY_PREFIX}${showId}`;
-  const cached = readJSON<CachedDetails | null>(cacheKey, CachedDetailsSchema.nullable(), null);
-
-  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
-    if (cached.data.aiSummary) {
-      return { ...cached.data, aiStatus: 'ok' };
-    }
-    // External details are fresh but no real summary was ever cached (the AI
-    // was off, resting, or failing last time). Re-attempt just the summary —
-    // the server caches summaries, so this is a cheap call when it exists.
-    const { aiSummary, aiStatus } = await fetchAiSummary(showId, buildSynopses(anilistSynopsis, cached.data));
-    if (aiSummary) {
-      writeJSON(cacheKey, { timestamp: cached.timestamp, data: { ...cached.data, aiSummary } });
-      return { ...cached.data, aiSummary, aiStatus };
-    }
-    return { ...cached.data, aiStatus };
-  }
-
-  const details: CachedDetails['data'] = {};
+/**
+ * Throws when every upstream that was tried failed and nothing usable came
+ * back. A show that genuinely has no MAL or Kitsu match still resolves (with
+ * an empty result) and caches normally; a transient Jikan/Kitsu 429 does not,
+ * so it can never freeze an empty modal for the cache's whole lifetime.
+ */
+export async function fetchShowDetails(
+  idMal: number | null,
+  title: string,
+  anilistSynopsis: string,
+  showId: number,
+): Promise<ShowDetails> {
+  const details: ShowDetails = {};
 
   const [jikanRes, kitsuRes] = await Promise.allSettled([
-    idMal ? fetch(`https://api.jikan.moe/v4/anime/${idMal}`).then(r => r.json()) : Promise.resolve(null),
-    fetch(`https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(title)}`).then(r => r.json())
+    idMal ? fetchJson(`https://api.jikan.moe/v4/anime/${idMal}`) : Promise.resolve(null),
+    fetchJson(`https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(title)}`),
   ]);
 
-  if (jikanRes.status === 'fulfilled' && jikanRes.value?.data) {
-    details.mal = {
-      score: jikanRes.value.data.score || null,
-      synopsis: jikanRes.value.data.synopsis || null,
-    };
+  if (jikanRes.status === 'fulfilled') {
+    const data = (jikanRes.value as { data?: { score?: number; synopsis?: string } } | null)?.data;
+    if (data) {
+      details.mal = { score: data.score || null, synopsis: data.synopsis || null };
+    }
   }
 
-  if (kitsuRes.status === 'fulfilled' && kitsuRes.value?.data?.length > 0) {
-    // try to find closest match or just take first
-    const bestMatch = kitsuRes.value.data[0];
-    details.kitsu = {
-      averageRating: bestMatch.attributes.averageRating || null,
-      synopsis: bestMatch.attributes.synopsis || null,
-    };
+  if (kitsuRes.status === 'fulfilled') {
+    const list = (kitsuRes.value as { data?: { attributes: Record<string, string | null> }[] } | null)?.data;
+    if (list && list.length > 0) {
+      const bestMatch = list[0];
+      details.kitsu = {
+        averageRating: bestMatch.attributes.averageRating || null,
+        synopsis: bestMatch.attributes.synopsis || null,
+      };
+    }
   }
 
   const { aiSummary, aiStatus } = await fetchAiSummary(showId, buildSynopses(anilistSynopsis, details));
-
-  // Only a real summary is persisted — no_key/resting/error must not poison
-  // the 24h cache with placeholder copy or a frozen absence-of-summary.
   if (aiSummary) details.aiSummary = aiSummary;
-  writeJSON(cacheKey, { timestamp: Date.now(), data: details });
+  details.aiStatus = aiStatus;
 
-  return { ...details, aiStatus };
+  const gotNothing = !details.mal && !details.kitsu && !details.aiSummary;
+  const upstreamFailed = jikanRes.status === 'rejected' || kitsuRes.status === 'rejected';
+  if (gotNothing && upstreamFailed) {
+    throw new Error('Could not load details for this show.');
+  }
+
+  return details;
 }

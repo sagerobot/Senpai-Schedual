@@ -35,13 +35,6 @@ export interface Snapshot {
 
 export const logKey = (showId: number, episodeNumber: number) => `${showId}:${episodeNumber}`;
 
-/**
- * The legacy offsets key that applyOffsets() (src/api/anilist/queries.ts)
- * still reads. Mirrored on every offsets change until a later wave moves
- * applyOffsets onto the store.
- */
-const LEGACY_OFFSETS_KEY = 'senpai_simulcast_offsets';
-
 export interface UserDataState {
   library: Record<number, LibraryEntry>;
   logs: Record<string, EpisodeLog>; // keyed logKey(showId, episodeNumber)
@@ -235,8 +228,9 @@ export const useUserData = create<UserDataState>()(
         } else {
           nextOffsets[showId] = offsetMinutes;
         }
+        // The read-time transform (src/queries/offsets.ts) subscribes to this
+        // slice, so a change repaints countdowns without a refetch.
         set({ offsets: nextOffsets });
-        reportWrite(writeJSON(LEGACY_OFFSETS_KEY, nextOffsets));
       },
 
       setOverrides: (overrides) => {

@@ -14,11 +14,19 @@ export function ScheduleLoading() {
   );
 }
 
-export function ScheduleError({ message, onRetry }: { message: string; onRetry: () => void }) {
+export function ScheduleError({
+  message,
+  onRetry,
+  title = 'Failed to load the schedule.',
+}: {
+  message: string;
+  onRetry: () => void;
+  title?: string;
+}) {
   return (
     <div className="flex h-[50vh] items-center justify-center">
       <div className="max-w-sm rounded-lg border border-red-900/50 bg-red-900/20 p-6 text-center text-red-400">
-        <p>Failed to load the schedule.</p>
+        <p>{title}</p>
         <p className="mt-2 text-sm opacity-70">{message}</p>
         <button
           onClick={onRetry}

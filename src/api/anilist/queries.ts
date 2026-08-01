@@ -3,7 +3,12 @@ import { anilistRequest } from './client';
 import { MEDIA_CORE, MEDIA_FIELDS, MEDIA_FIELDS_FULL } from './fragments';
 import { MalResolvedMediaSchema, MediaSchema } from './schemas';
 import type { AnimeMedia, MalResolvedMedia } from './schemas';
-import { readJSON } from '../../stores/storage';
+
+/**
+ * Fetchers return AniList's data as-is. The simulcast offset and the injected
+ * CustomSource link are applied at read time by src/queries/offsets.ts, so what the
+ * cache holds stays user-independent.
+ */
 
 /** Hard cap for paginated walks (~600 shows) so no query can spiral. */
 const MAX_PAGES = 12;
@@ -27,48 +32,6 @@ const MalPageSchema = z.object({
       .transform((v) => v ?? []),
   }),
 });
-
-const OffsetsSchema = z.record(z.string(), z.number());
-
-/**
- * Boundary transform applied to every AnimeMedia result:
- * - injects the synthetic CustomSource external link (owner explicitly wants it —
- *   it is the region-availability escape hatch)
- * - shifts nextAiringEpisode by the user's per-show simulcast offset
- */
-function applyOffsets(mediaList: AnimeMedia[]): AnimeMedia[] {
-  const offsets = readJSON('senpai_simulcast_offsets', OffsetsSchema, {});
-
-  return mediaList.map((m) => {
-    const updatedLinks = [...m.externalLinks];
-    if (!updatedLinks.some((link) => link.site === 'CustomSource')) {
-      updatedLinks.push({
-        site: 'CustomSource',
-        url: `https://example.invalid/browse?keyword=${encodeURIComponent(
-          m.title.romaji || m.title.english || m.title.userPreferred || '',
-        )}`,
-        icon: '',
-        color: '#e85d04',
-      });
-    }
-
-    const newM = { ...m, externalLinks: updatedLinks };
-
-    const offsetMinutes = offsets[newM.id];
-    if (newM.nextAiringEpisode && offsetMinutes) {
-      const offsetSec = offsetMinutes * 60;
-      return {
-        ...newM,
-        nextAiringEpisode: {
-          ...newM.nextAiringEpisode,
-          airingAt: newM.nextAiringEpisode.airingAt + offsetSec,
-          timeUntilAiring: newM.nextAiringEpisode.timeUntilAiring + offsetSec,
-        },
-      };
-    }
-    return newM;
-  });
-}
 
 async function fetchPaginatedMedia(query: string, variables: Record<string, unknown>): Promise<AnimeMedia[]> {
   const results: AnimeMedia[] = [];
@@ -101,7 +64,7 @@ export async function fetchAnimeByIds(ids: number[]): Promise<AnimeMedia[]> {
     const data = await anilistRequest(query, { ids: batch }, MediaPageSchema);
     results.push(...data.Page.media);
   }
-  return applyOffsets(results);
+  return results;
 }
 
 /** Single Media by id, including `description` — used by the detail modal. */
@@ -112,12 +75,12 @@ export async function fetchMediaById(id: number): Promise<AnimeMedia> {
     }
   `;
   const data = await anilistRequest(query, { id }, z.object({ Media: MediaSchema }));
-  return applyOffsets([data.Media])[0];
+  return data.Media;
 }
 
 /**
  * Resolve MAL ids to reduced AniList records. Returns MalResolvedMedia — not
- * AnimeMedia — and does not run through applyOffsets.
+ * AnimeMedia — so it is deliberately outside the read-time media transform.
  */
 export async function fetchAnimeByMalIds(
   malIds: number[],
@@ -177,7 +140,7 @@ export async function fetchCurrentSeasonAnime(): Promise<AnimeMedia[]> {
     allMediaMap.set(anime.id, anime);
   }
 
-  return applyOffsets(Array.from(allMediaMap.values()));
+  return Array.from(allMediaMap.values());
 }
 
 export async function searchAnime(search: string): Promise<AnimeMedia[]> {
@@ -189,7 +152,7 @@ export async function searchAnime(search: string): Promise<AnimeMedia[]> {
     }
   `;
   const data = await anilistRequest(query, { search }, MediaPageSchema);
-  return applyOffsets(data.Page.media);
+  return data.Page.media;
 }
 
 export async function fetchAnimeBySeason(season: string, seasonYear: number): Promise<AnimeMedia[]> {
@@ -201,5 +164,5 @@ export async function fetchAnimeBySeason(season: string, seasonYear: number): Pr
       }
     }
   `;
-  return applyOffsets(await fetchPaginatedMedia(query, { season, seasonYear }));
+  return fetchPaginatedMedia(query, { season, seasonYear });
 }

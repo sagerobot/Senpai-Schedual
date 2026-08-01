@@ -1,81 +1,38 @@
 import { AnimatePresence } from 'motion/react';
 import { Save, Settings, Sparkles } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { NavLink, Outlet, useNavigate, useSearchParams } from 'react-router';
 import { toast } from 'sonner';
-import { z } from 'zod';
-import { fetchCurrentSeasonAnime, fetchMediaById } from '../api/anilist/queries';
-import { MediaSchema } from '../api/anilist/schemas';
 import { DataSyncModal } from '../features/data/DataSyncModal';
 import { ShowDetailModal } from '../features/show/ShowDetailModal';
 import { useEpisodeLog } from '../hooks/useEpisodeLog';
 import { useLibrary } from '../hooks/useLibrary';
-import { readJSON, writeJSON } from '../stores/storage';
+import { useCurrentSchedule, useMediaById } from '../queries/hooks';
 import { AnimeMedia } from '../types';
 import { cn } from '../lib/utils';
 import { NAV_ITEMS } from './nav';
 import { ScheduleContext } from './scheduleContext';
 import { SHOW_PARAM, parseShowId } from './showParam';
 
-const SCHEDULE_CACHE_KEY = 'senpai_cached_schedule_v2';
-const SCHEDULE_CACHE_TIME_KEY = 'senpai_cached_schedule_time_v2';
-const SCHEDULE_TTL_MS = 15 * 60 * 1000;
-const ScheduleCacheSchema = z.array(MediaSchema);
-
 export function RootLayout() {
-  const [animeList, setAnimeList] = useState<AnimeMedia[]>([]);
-  const [scheduleLoading, setScheduleLoading] = useState(true);
-  const [scheduleError, setScheduleError] = useState<string | null>(null);
   const [isDataSyncOpen, setIsDataSyncOpen] = useState(false);
 
   const { library, toggleFavorite, updateEntry, setLibraryBulk } = useLibrary();
   const { logs, setLogsBulk } = useEpisodeLog();
   const favorites = useMemo(() => library.filter((l) => l.status === 'watching').map((l) => l.showId), [library]);
 
-  const loadSchedule = useCallback(async (force = false) => {
-    try {
-      const cached = readJSON<AnimeMedia[]>(SCHEDULE_CACHE_KEY, ScheduleCacheSchema, []);
+  const schedule = useCurrentSchedule();
+  const animeList = useMemo(() => schedule.data ?? [], [schedule.data]);
+  const scheduleError = schedule.isError
+    ? schedule.error instanceof Error
+      ? schedule.error.message
+      : 'Failed to fetch anime data'
+    : null;
 
-      if (cached.length > 0 && !force) {
-        setAnimeList(cached);
-        setScheduleLoading(false);
-
-        const cachedAt = readJSON(SCHEDULE_CACHE_TIME_KEY, z.number(), 0);
-        if (Date.now() - cachedAt < SCHEDULE_TTL_MS) return;
-      } else if (cached.length === 0) {
-        setScheduleLoading(true);
-      }
-
-      const data = await fetchCurrentSeasonAnime();
-      writeJSON(SCHEDULE_CACHE_KEY, data);
-      writeJSON(SCHEDULE_CACHE_TIME_KEY, Date.now());
-      setAnimeList(data);
-      setScheduleError(null);
-    } catch (err) {
-      // A background refresh that fails on top of good data is not an error the
-      // user needs to see; only a cold failure has nothing to show.
-      setAnimeList((prev) => {
-        if (prev.length === 0) {
-          setScheduleError(err instanceof Error ? err.message : 'Failed to fetch anime data');
-        }
-        return prev;
-      });
-    } finally {
-      setScheduleLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadSchedule();
-    const interval = setInterval(() => void loadSchedule(true), SCHEDULE_TTL_MS);
-    return () => clearInterval(interval);
-  }, [loadSchedule]);
-
+  const refetchSchedule = schedule.refetch;
   const retrySchedule = useCallback(() => {
-    setScheduleError(null);
-    setScheduleLoading(true);
-    void loadSchedule(true);
-  }, [loadSchedule]);
+    void refetchSchedule();
+  }, [refetchSchedule]);
 
   // ---- Show detail modal, hosted on `?show=<id>` --------------------------
 
@@ -100,51 +57,30 @@ export function RootLayout() {
     if (rawShowParam !== null && showId === null) clearShowParam();
   }, [rawShowParam, showId, clearShowParam]);
 
-  const [fetchedShow, setFetchedShow] = useState<AnimeMedia | null>(null);
+  const fromList = useMemo(
+    () => (showId === null ? undefined : animeList.find((a) => a.id === showId)),
+    [showId, animeList],
+  );
 
-  // Both refs keep the fetch effect keyed on `showId` alone. `setSearchParams`
-  // (and so `clearShowParam`) gets a new identity on every search-param change,
-  // and `animeList` changes on every background refresh — either in the dep
-  // array would abort and restart an in-flight fetch.
-  const animeListRef = useRef(animeList);
-  animeListRef.current = animeList;
-  const clearShowParamRef = useRef(clearShowParam);
-  clearShowParamRef.current = clearShowParam;
+  // Anything the schedule already holds needs no request; everything else is
+  // resolved by id (batched, and shared with the Library/Watching lookups).
+  const fetchedShowQuery = useMediaById(fromList ? null : showId);
+  const fetchedShow = fetchedShowQuery.data ?? null;
 
+  // A link to an id AniList does not know resolves to `null`, not an error.
+  const showMissing = fetchedShowQuery.isError || (fetchedShowQuery.isSuccess && fetchedShow === null);
   useEffect(() => {
-    if (showId === null) {
-      setFetchedShow(null);
-      return;
-    }
-    // Already on screen from the season fetch — no request needed.
-    if (animeListRef.current.some((a) => a.id === showId)) {
-      setFetchedShow(null);
-      return;
-    }
-
-    let active = true;
-    setFetchedShow(null);
-    fetchMediaById(showId)
-      .then((media) => {
-        if (active) setFetchedShow(media);
-      })
-      .catch(() => {
-        if (!active) return;
-        toast.error("Couldn't load that show.");
-        clearShowParamRef.current();
-      });
-    return () => {
-      active = false;
-    };
-  }, [showId]);
+    if (fromList || showId === null || !showMissing) return;
+    toast.error("Couldn't load that show.");
+    clearShowParam();
+  }, [fromList, showId, showMissing, clearShowParam]);
 
   const modalShow: AnimeMedia | null = useMemo(() => {
     if (showId === null) return null;
-    const fromList = animeList.find((a) => a.id === showId);
     if (fromList) return fromList;
     // Guard against one frame of the previous show under a new `key`.
     return fetchedShow?.id === showId ? fetchedShow : null;
-  }, [showId, animeList, fetchedShow]);
+  }, [showId, fromList, fetchedShow]);
 
   const closeShow = useCallback(() => {
     // Back is the natural close when the previous entry is ours: it also steps
@@ -156,11 +92,11 @@ export function RootLayout() {
   }, [navigate, clearShowParam]);
 
   const openShowFromModal = useCallback(
-    (anime: AnimeMedia) => {
+    (show: { id: number }) => {
       setSearchParams(
         (prev) => {
           const next = new URLSearchParams(prev);
-          next.set(SHOW_PARAM, String(anime.id));
+          next.set(SHOW_PARAM, String(show.id));
           return next;
         },
         { preventScrollReset: true },
@@ -170,8 +106,8 @@ export function RootLayout() {
   );
 
   const outletContext: ScheduleContext = useMemo(
-    () => ({ animeList, scheduleLoading, scheduleError, retrySchedule }),
-    [animeList, scheduleLoading, scheduleError, retrySchedule],
+    () => ({ animeList, scheduleLoading: schedule.isPending, scheduleError, retrySchedule }),
+    [animeList, schedule.isPending, scheduleError, retrySchedule],
   );
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
