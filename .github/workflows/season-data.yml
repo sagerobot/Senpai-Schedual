@@ -1,0 +1,215 @@
+# Rebuild the season bundle and hand the Claude routine its summary work list.
+#
+# This job owns every step of the season refresh that needs the network, which
+# is all of them except writing the summaries themselves. The scheduled Claude
+# routine's sandbox cannot reach AniList or the Render server (see
+# docs/season-refresh.md), so the fetching lives here where egress is open, and
+# the routine is left with the one job only it can do: writing English.
+#
+# Files this job writes on the `data` branch:
+#   season.json   — the bundle (the routine merges summaries into it afterwards)
+#   missing.json  — the routine's work list, rebuilt fresh every cycle
+#   vibes.json    — only when the harvest found settled readings worth keeping
+#
+# It never touches vibe-work.json, and it never writes a summary.
+
+name: Season data
+
+on:
+  schedule:
+    # 00:20, 08:20, 16:20 UTC. Twenty past the hour keeps it clear of the
+    # top-of-hour rush, when GitHub's scheduler is at its most backed up.
+    - cron: '20 */8 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write # only to open "Season bundle refresh blocked"
+
+concurrency:
+  group: season-data
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DATA_DIR: ${{ runner.temp }}/data-branch
+      SERVER: https://senpai-schedual.onrender.com
+
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # A worktree rather than a second clone: it shares this repository's git
+      # config, so the credentials actions/checkout already set up cover the
+      # push without a token ever appearing in a URL.
+      - name: Put the data branch in a worktree
+        run: |
+          set -euo pipefail
+          if git fetch --depth=1 origin data; then
+            git worktree add --detach "$DATA_DIR" FETCH_HEAD
+          else
+            echo "No data branch yet — starting one."
+            git worktree add --detach "$DATA_DIR" HEAD
+            git -C "$DATA_DIR" checkout --orphan data
+            git -C "$DATA_DIR" rm -rf --quiet . || true
+          fi
+          if [ -f "$DATA_DIR/season.json" ]; then
+            cp "$DATA_DIR/season.json" "$RUNNER_TEMP/prev-season.json"
+          fi
+          ls -l "$DATA_DIR"
+
+      # No GEMINI_API_KEY, deliberately: summaries are the Claude routine's to
+      # write, and a key here would silently start metered billing instead.
+      # A missing --prev file is fine — the script warns and starts from scratch.
+      - name: Build the bundle
+        run: |
+          npm run data:build -- \
+            --prev "$RUNNER_TEMP/prev-season.json" \
+            --out "$RUNNER_TEMP/season.json" \
+            --emit-missing "$RUNNER_TEMP/missing.json"
+
+      # Everything a real visitor's request already paid for. Entirely optional:
+      # the endpoint may be down, may not exist on the deployed revision, or may
+      # hold nothing new. Every failure here exits the step green.
+      #
+      # The 30s timeout is not generous enough for a Render free instance waking
+      # from sleep, and that is fine — an instance that just woke has an empty
+      # cache, so the request we time out on had nothing to give us anyway.
+      - name: Harvest the server's AI cache
+        run: |
+          set -uo pipefail
+          if ! curl -sf --max-time 30 "$SERVER/api/cache-export" -o "$RUNNER_TEMP/export.json"; then
+            echo "cache-export unavailable — skipping the harvest."
+            exit 0
+          fi
+          if ! npx tsx scripts/harvest.ts \
+            --export "$RUNNER_TEMP/export.json" \
+            --season "$RUNNER_TEMP/season.json" \
+            --out-summaries "$RUNNER_TEMP/harvested-summaries.json" \
+            --out-vibes "$RUNNER_TEMP/harvested-vibes.json"; then
+            echo "harvest could not read the export — skipping it."
+            exit 0
+          fi
+          npm run data:merge -- \
+            --bundle "$RUNNER_TEMP/season.json" \
+            --summaries "$RUNNER_TEMP/harvested-summaries.json" || \
+            echo "summary merge refused the harvest; the bundle is unchanged."
+          exit 0
+
+      - name: Sanity gates
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TITLE: Season bundle refresh blocked
+        run: |
+          set -uo pipefail
+          if npx tsx scripts/check-gates.ts \
+            --new "$RUNNER_TEMP/season.json" \
+            --prev "$RUNNER_TEMP/prev-season.json" 2> "$RUNNER_TEMP/gate-error.txt"; then
+            exit 0
+          fi
+
+          cat "$RUNNER_TEMP/gate-error.txt"
+          echo "::error::$(tail -n 1 "$RUNNER_TEMP/gate-error.txt")"
+
+          {
+            echo "The season bundle was built but **not committed** — a sanity gate refused it."
+            echo
+            echo "The \`data\` branch is untouched, so the app is still serving the previous"
+            echo "bundle, or the live AniList path if there is none. Nothing is broken for"
+            echo "visitors; the schedule is just not getting any fresher."
+            echo
+            echo '```'
+            cat "$RUNNER_TEMP/gate-error.txt"
+            echo '```'
+            echo
+            echo "Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo
+            echo "See docs/season-refresh.md for what each gate is protecting."
+          } > "$RUNNER_TEMP/issue-body.md"
+
+          # One issue, not one per cycle: a broken build stays broken for hours.
+          # `gh issue list` rather than `--search`, because the search index lags
+          # by enough to open a second issue before the first is indexed.
+          #
+          # In a subshell that cannot take the step with it: failing to file the
+          # issue must not become the failure this job reports. The gate is.
+          (
+            set +e
+            OPEN=$(gh issue list --state open --limit 100 --json title \
+              | jq --arg title "$TITLE" '[.[] | select(.title == $title)] | length')
+            if [ "$OPEN" = "0" ]; then
+              gh issue create --title "$TITLE" --body-file "$RUNNER_TEMP/issue-body.md"
+            elif [ -z "$OPEN" ]; then
+              echo "Could not list issues, so not filing one blindly — a duplicate every"
+              echo "8 hours would be worse than none. The red run is the signal either way."
+            else
+              echo "An issue titled \"$TITLE\" is already open; not opening another."
+            fi
+          ) || echo "Could not file an issue — the gate failure above is the real problem."
+
+          exit 1
+
+      # Two attempts, and the second one *recomputes* rather than replaying: the
+      # worktree is reset to whatever landed on the branch meanwhile and the
+      # vibe merge runs again against the new file. A whole-file JSON rebase
+      # conflicts on principle; re-merging cannot, because the merge is additive
+      # and refuses to overwrite anything settled.
+      - name: Commit to the data branch
+        run: |
+          set -uo pipefail
+
+          attempt() {
+            cp "$RUNNER_TEMP/season.json" "$DATA_DIR/season.json" || return 1
+            cp "$RUNNER_TEMP/missing.json" "$DATA_DIR/missing.json" || return 1
+
+            if [ -s "$RUNNER_TEMP/harvested-vibes.json" ] && \
+               [ "$(jq 'length' "$RUNNER_TEMP/harvested-vibes.json")" != "0" ]; then
+              npm run vibes:merge -- \
+                --vibes "$DATA_DIR/vibes.json" \
+                --in "$RUNNER_TEMP/harvested-vibes.json" || \
+                echo "vibe merge refused the harvest; vibes.json is unchanged."
+            fi
+
+            git -C "$DATA_DIR" add -- season.json missing.json || return 1
+            if [ -f "$DATA_DIR/vibes.json" ]; then
+              git -C "$DATA_DIR" add -- vibes.json || return 1
+            fi
+
+            if git -C "$DATA_DIR" diff --cached --quiet; then
+              echo "Nothing changed — no commit. This is a normal no-op run."
+              return 0
+            fi
+
+            git -C "$DATA_DIR" commit -m "data: refresh $(date -u +%Y-%m-%dT%H:%M:%SZ)" || return 1
+            git -C "$DATA_DIR" push origin HEAD:data || return 1
+          }
+
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if attempt; then
+            exit 0
+          fi
+
+          echo "Push rejected — the hourly vibe writer got there first. Rebuilding on its tip."
+          # Fetched from inside the worktree on purpose: FETCH_HEAD is per-worktree,
+          # so fetching from the main checkout leaves this one unable to resolve it.
+          git -C "$DATA_DIR" fetch --depth=1 origin data
+          git -C "$DATA_DIR" reset --hard FETCH_HEAD
+          git -C "$DATA_DIR" clean -fd
+          set -e
+          attempt
+
+      - name: Clean up the worktree
+        if: always()
+        run: git worktree remove --force "$DATA_DIR" || true

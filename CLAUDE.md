@@ -26,7 +26,9 @@ React 19 SPA + a thin Express server. **All user data lives in `localStorage`** 
 
 `GET /api/vibes` relays the remembered r/anime episode sentiments from `VIBES_BUNDLE_URL` with a 10-min memory cache; `POST /api/community-vibe` consults it before the LRU, the budget, and Gemini. `GET /api/cache-export` dumps the harvestable cache for the scheduled routines. See `docs/vibes-refresh.md`.
 
-`GET /api/season` relays the precomputed season bundle from `SEASON_BUNDLE_URL` (optional `SEASON_BUNDLE_TOKEN` while the repo is private) with a 30-min memory cache, stale-on-error, and a 60s failure backoff. A 404 `{status:"unavailable"}` is a normal state, not an error — the client falls back to live AniList. The `data` branch holds two files with one scheduled-agent writer EACH: `season.json` (8h refresh, `npm run data:build` — see `docs/season-refresh.md`) and `vibes.json` (hourly vibe loop — see `docs/vibes-refresh.md`).
+`GET /api/season` relays the precomputed season bundle from `SEASON_BUNDLE_URL` (optional `SEASON_BUNDLE_TOKEN` while the repo is private) with a 30-min memory cache, stale-on-error, and a 60s failure backoff. A 404 `{status:"unavailable"}` is a normal state, not an error — the client falls back to live AniList.
+
+**The data pipeline is split by capability, not preference** (see the runbooks before touching it): GitHub Actions (`.github/workflows/season-data.yml`, `vibe-fetch.yml`) do ALL network fetching — AniList builds, cache harvest, reddit thread content — because the Claude cloud-routine sandbox has locked-down egress (git only; AniList/Render/reddit are unreachable from it, verified live). The scheduled Claude routines are pure WRITERS: summaries from `missing.json`, vibe sentiment from `vibe-work.json`, git in and git out. Ownership per `data`-branch file is tabled in `docs/season-refresh.md` / `docs/vibes-refresh.md` — do not "simplify" the split away.
 
 **The AI envelope** (`types.ts`) is the contract every AI route answers with, and the reason the client can tell degraded copy from data:
 

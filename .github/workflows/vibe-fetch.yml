@@ -1,0 +1,143 @@
+# Work out which episodes need a sentiment reading, and fetch the threads.
+#
+# The hourly Claude routine writes vibes.json, but its sandbox cannot reach
+# AniList or reddit (see docs/vibes-refresh.md). So this job does the looking —
+# what aired, which thread is the right one, what people actually wrote — and
+# leaves the result on the `data` branch as vibe-work.json. The routine reads
+# that packet, writes the sentiment, and deletes it.
+#
+# The packet is a handoff, not a record: this job OVERWRITES any packet the
+# routine has not consumed yet. Newest wins. Reprocessing is safe — a settled
+# entry is frozen against overwriting, and `vibes:prepare` skips anything read
+# in the last 45 minutes — so the only cost of a missed handoff is one hour of
+# staleness on a release-day reading.
+#
+# This job writes exactly one file on `data`: vibe-work.json. Never vibes.json.
+
+name: Vibe work
+
+on:
+  schedule:
+    - cron: '5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: vibe-fetch
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DATA_DIR: ${{ runner.temp }}/data-branch
+
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Put the data branch in a worktree
+        run: |
+          set -euo pipefail
+          if git fetch --depth=1 origin data; then
+            git worktree add --detach "$DATA_DIR" FETCH_HEAD
+          else
+            echo "No data branch yet — starting one."
+            git worktree add --detach "$DATA_DIR" HEAD
+            git -C "$DATA_DIR" checkout --orphan data
+            git -C "$DATA_DIR" rm -rf --quiet . || true
+          fi
+          if [ -f "$DATA_DIR/vibes.json" ]; then
+            cp "$DATA_DIR/vibes.json" "$RUNNER_TEMP/vibes.json"
+          else
+            echo '{"version":1,"entries":{}}' > "$RUNNER_TEMP/vibes.json"
+          fi
+
+      # An empty work list is the expected outcome most hours, and it exits 0.
+      # A non-zero exit here is AniList being down or rate-limiting; the run goes
+      # red, the next one picks it up, and nothing on the branch has moved.
+      - name: Work out what is due
+        id: work
+        run: |
+          set -euo pipefail
+          npm run vibes:prepare -- --vibes "$RUNNER_TEMP/vibes.json" --out "$RUNNER_TEMP/work.json"
+          echo "count=$(jq 'length' "$RUNNER_TEMP/work.json")" >> "$GITHUB_OUTPUT"
+
+      # Exit 2 means "no credentials, or reddit would not talk to us" — a skip,
+      # not a failure. Everything else non-zero is a real problem worth going red
+      # for. The script's own rule keeps the packet honest: an item it could not
+      # search is left out entirely rather than written as `thread: null`, which
+      # the writer would turn into a permanent "no thread exists".
+      - name: Read the threads
+        id: reddit
+        if: steps.work.outputs.count != '0'
+        env:
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+        run: |
+          set -uo pipefail
+          # The default step shell is `bash -e`, and exit 2 is a value we need to
+          # read rather than die on.
+          set +e
+          npx tsx scripts/fetch-reddit-threads.ts \
+            --work "$RUNNER_TEMP/work.json" \
+            --out "$RUNNER_TEMP/vibe-work.json"
+          CODE=$?
+          set -e
+
+          if [ "$CODE" = "2" ]; then
+            echo "No reddit credentials, skipping."
+            echo "items=0" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ "$CODE" != "0" ]; then
+            exit "$CODE"
+          fi
+
+          echo "items=$(jq 'length' "$RUNNER_TEMP/vibe-work.json")" >> "$GITHUB_OUTPUT"
+
+      - name: Hand the packet over
+        if: steps.reddit.outputs.items != '' && steps.reddit.outputs.items != '0'
+        run: |
+          set -uo pipefail
+
+          attempt() {
+            cp "$RUNNER_TEMP/vibe-work.json" "$DATA_DIR/vibe-work.json" || return 1
+            git -C "$DATA_DIR" add -- vibe-work.json || return 1
+            if git -C "$DATA_DIR" diff --cached --quiet; then
+              echo "The packet is byte-identical to the one already waiting — no commit."
+              return 0
+            fi
+            git -C "$DATA_DIR" commit -m "data: vibe work $(date -u +%Y-%m-%dT%H:%M:%SZ)" || return 1
+            git -C "$DATA_DIR" push origin HEAD:data || return 1
+          }
+
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if attempt; then
+            exit 0
+          fi
+
+          echo "Push rejected — another writer got there first. Rebuilding on its tip."
+          # Fetched from inside the worktree on purpose: FETCH_HEAD is per-worktree,
+          # so fetching from the main checkout leaves this one unable to resolve it.
+          git -C "$DATA_DIR" fetch --depth=1 origin data
+          git -C "$DATA_DIR" reset --hard FETCH_HEAD
+          git -C "$DATA_DIR" clean -fd
+          set -e
+          attempt
+
+      - name: Clean up the worktree
+        if: always()
+        run: git worktree remove --force "$DATA_DIR" || true
