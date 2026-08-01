@@ -3,6 +3,7 @@ import type { LoaderFunctionArgs } from 'react-router';
 import { HydrateFallback } from './HydrateFallback';
 import { NotFound } from './NotFound';
 import { RootLayout } from './RootLayout';
+import { RouteError } from './RouteError';
 import { currentSeasonPath, parseSeasonParams, seasonPath } from './season';
 import { SHOW_PARAM, parseShowId } from './showParam';
 
@@ -34,6 +35,9 @@ export const router = createBrowserRouter([
   {
     path: '/',
     Component: RootLayout,
+    // Catches everything the children throw — most importantly the stale-chunk
+    // failure after a deploy, which RouteError heals with a guarded reload.
+    ErrorBoundary: RouteError,
     HydrateFallback,
     children: [
       { index: true, loader: () => redirect('/schedule') },
