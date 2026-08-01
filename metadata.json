@@ -1,0 +1,6 @@
+{
+  "name": "Senpai Schedule",
+  "description": "Track upcoming anime releases, view daily schedules with countdowns, and manage your watchlist with local timezone support.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

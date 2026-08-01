@@ -1,0 +1,34 @@
+--- src/components/AnimeCard.tsx
++++ src/components/AnimeCard.tsx
+@@ -11,6 +11,8 @@
+   statusPill?: StatusPillType;
+   behindCount?: number;
+   userScore?: number | null;
++  titleOverride?: string;
++  onLinkToSeries?: (seriesId: number) => void;
+ }
+ 
+ export function AnimeCard({ 
+@@ -21,7 +23,9 @@
+   onClick,
+   progress,
+   statusPill,
+-  behindCount,
+-  userScore
++  behindCount,
++  userScore,
++  titleOverride,
++  onLinkToSeries
+ }: AnimeCardProps) {
+   const [now, setNow] = useState(Math.floor(Date.now() / 1000));
+@@ -101,8 +105,8 @@
+         
+         {/* Status / Countdown */}
+         <div className="absolute bottom-0 left-0 w-full p-3 sm:p-4">
+-          <h3 className="line-clamp-2 text-base sm:text-lg font-bold leading-tight text-white" title={anime.title.english || anime.title.userPreferred}>
+-            {anime.title.english || anime.title.userPreferred}
++          <h3 className="line-clamp-2 text-base sm:text-lg font-bold leading-tight text-white" title={titleOverride || anime.title.english || anime.title.userPreferred}>
++            {titleOverride || anime.title.english || anime.title.userPreferred}
+           </h3>
+           
+           <div className="mt-1.5 sm:mt-2 flex items-center space-x-2 text-xs sm:text-sm text-gray-300">

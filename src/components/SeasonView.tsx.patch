@@ -1,0 +1,23 @@
+--- src/components/SeasonView.tsx
++++ src/components/SeasonView.tsx
+@@ -7,10 +7,11 @@
+   favorites: number[];
+   onToggleFavorite: (id: number) => void;
+   onAnimeSelect: (anime: AnimeMedia) => void;
++  onLinkToSeries?: (id: number) => void;
+ }
+ 
+-export function SeasonView({ animeList, favorites, onToggleFavorite, onAnimeSelect }: SeasonViewProps) {
++export function SeasonView({ animeList, favorites, onToggleFavorite, onAnimeSelect, onLinkToSeries }: SeasonViewProps) {
+   const [search, setSearch] = useState('');
+ 
+   const filtered = useMemo(() => {
+@@ -37,6 +38,7 @@
+             anime={anime}
+             titleOverride={<SeriesTitle showId={anime.id} fallbackTitle={anime.title.english || anime.title.userPreferred} />}
+             isFavorite={favorites.includes(anime.id)}
+             onToggleFavorite={onToggleFavorite}
+             onClick={onAnimeSelect}
++            onLinkToSeries={onLinkToSeries}
+           />
+         ))}

@@ -1,0 +1,46 @@
+--- src/components/LibraryView.tsx
++++ src/components/LibraryView.tsx
+@@ -4,6 +4,8 @@
+ import { parseMalXml, MalEntry } from '../lib/malParser';
+ import { AnimeCard, StatusPillType } from './AnimeCard';
+ import { Loader2, Upload, FileText, Download } from 'lucide-react';
++import { useLibrarySeries } from '../hooks/useLibrarySeries';
++import { SeriesCard } from './SeriesCard';
+ import { cn } from '../lib/utils';
+ 
+@@ -29,6 +31,8 @@
+   const [loadedAnime, setLoadedAnime] = useState<Record<number, AnimeMedia>>({});
+   const [loadingIds, setLoadingIds] = useState(false);
+ 
++  const { graphs: seriesGraphs, resolving } = useLibrarySeries(library);
++
+   // Import state
+   const [importing, setImporting] = useState(false);
+   const [importProgress, setImportProgress] = useState<{ current: number, total: number } | null>(null);
+@@ -155,20 +159,48 @@
+   };
+ 
+   const displayEntries = useMemo(() => {
++    // Group library entries by series
++    const seriesMap = new Map<number, LibraryEntry[]>();
++    const standaloneMap = new Map<number, LibraryEntry>();
++    
+     return library
+-      .filter(l => l.status === activeTab)
+-      .map(l => ({ entry: l, anime: allAnimeDict[l.showId] }))
+-      .filter(x => x.anime != null)
+-      .filter(x => {
+-        if (!search) return true;
+-        const s = search.toLowerCase();
+-        return x.anime.title.english?.toLowerCase().includes(s) || x.anime.title.userPreferred.toLowerCase().includes(s);
+-      })
+-      .sort((a, b) => {
+-        if (sortOption === 'my-score') {
+-          return (b.entry.showScore || 0) - (a.entry.showScore || 0);
+-        } else if (sortOption === 'recently-updated') {
+-          return (b.entry.updatedAt || 0) - (a.entry.updatedAt || 0);
+-        } else {
+-          return (a.anime.title.english || a.anime.title.userPreferred).localeCompare(b.anime.title.english || b.anime.title.userPreferred);
+-        }
+-      });
+   }, [library, activeTab, sortOption, search, allAnimeDict, seriesGraphs]);
