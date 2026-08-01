@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { memo, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
 import { LibraryStatusMenu } from '../../components/LibraryStatusMenu';
-import { LowScoreMenu } from '../../components/LowScoreMenu';
+import { LowScoreButtons } from "../../components/LowScoreButtons";
 import { VibeChip } from '../../components/VibeChip';
 import { displayTitle } from '../../lib/displayTitle';
 import { WATCH_STATE_LABELS } from '../../lib/status';
@@ -30,7 +30,7 @@ interface Drop {
   userAvgScore: number | null;
 }
 
-/** The quick row; everything below 5 lives behind the LowScoreMenu. */
+/** The quick row; everything below 5 lives behind the LowScoreButtons expander. */
 const QUICK_SCORES = [5, 6, 7, 8, 9, 10];
 
 /**
@@ -303,7 +303,7 @@ const CheckInItem = memo(function CheckInItem({
             ))}
           </div>
 
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-2">
             <button
               type="button"
               onClick={() => handleRateAndWatch(null)}
@@ -312,12 +312,11 @@ const CheckInItem = memo(function CheckInItem({
             >
               Mark watched only <Info className="w-3.5 h-3.5" aria-hidden="true" />
             </button>
-            <LowScoreMenu
+            <LowScoreButtons
               episode={targetEp}
               onSelect={(score) => handleRateAndWatch(score)}
               triggerClassName="px-3 py-1 rounded-full border border-[#1e2336] bg-[#0f121d] text-[10px] sm:text-[11px] text-gray-400 hover:bg-[#1a1f35] hover:text-gray-200 after:absolute after:inset-x-0 after:top-1/2 after:h-11 after:-translate-y-1/2 after:content-['']"
-              menuClassName="bg-[#0a0c16] border border-[#1e2336]"
-              itemClassName="text-gray-300 hover:bg-[#1a1f35] hover:text-white border-b border-[#1e2336] last:border-0"
+              buttonClassName="h-7 min-w-7 px-1.5 rounded-md border border-[#1e2336] bg-[#0f121d] text-[11px] text-gray-300 hover:bg-[#1a1f35] hover:text-white"
             />
           </div>
 

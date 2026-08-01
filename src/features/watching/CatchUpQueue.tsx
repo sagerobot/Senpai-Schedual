@@ -1,7 +1,7 @@
 import { ChevronRight, Clock, History, Info, Link, Play, Zap } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useMemo, useState } from 'react';
-import { LowScoreMenu } from '../../components/LowScoreMenu';
+import { LowScoreButtons } from "../../components/LowScoreButtons";
 import { VibeChip } from '../../components/VibeChip';
 import { displayTitle } from '../../lib/displayTitle';
 import { cn } from '../../lib/utils';
@@ -338,17 +338,16 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
 
         {nextUnwatched !== undefined && (
           <div className="flex flex-col px-4 pb-4">
-            <div className="flex items-center justify-center gap-2 mb-3 mt-1">
+            <div className="flex flex-wrap items-center justify-center gap-2 mb-3 mt-1">
               <span className="flex items-center gap-1.5 text-[#b0a4ff] text-[13px] font-bold">
                 <Zap className="w-4 h-4 fill-current" aria-hidden="true" />
                 Rate Episode {nextUnwatched}
               </span>
-              <LowScoreMenu
+              <LowScoreButtons
                 episode={nextUnwatched}
                 onSelect={(score) => onLog(item.anime.id, nextUnwatched, score)}
                 triggerClassName="h-7 px-2 rounded-full border border-[#2e1d52] bg-[#05040a] text-[10px] font-bold text-gray-400 hover:bg-[#120e24] hover:text-gray-200 after:absolute after:inset-x-0 after:top-1/2 after:h-11 after:-translate-y-1/2 after:content-['']"
-                menuClassName="bg-[#0c0a15] border border-[#2e1d52]"
-                itemClassName="font-bold text-gray-300 hover:bg-[#120e24] hover:text-white border-b border-[#2e1d52] last:border-0"
+                buttonClassName="h-7 min-w-7 px-1.5 rounded-md border border-[#2e1d52] bg-[#05040a] text-[11px] font-bold text-gray-300 hover:bg-[#120e24] hover:text-white"
               />
             </div>
 
