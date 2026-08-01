@@ -3,7 +3,7 @@ import { AnimeMedia, EpisodeLog } from '../../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
 import { Clock, ChevronRight, History, Play, Link, Zap, Info } from 'lucide-react';
-import { getCachedSeriesGraph } from '../../utils/seriesResolution';
+import { useSeriesGraphs } from '../../series/useSeriesGraphs';
 import { displayTitle } from '../../lib/displayTitle';
 
 interface CatchUpQueueProps {
@@ -66,6 +66,20 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
     return { queue, totalBehind };
   }, [animeList, favorites, logs, sortBy]);
 
+  // One resolution pass for the whole queue. The old code called a
+  // localStorage-reading lookup once per item *and* once per relation edge
+  // inside the memo below — hundreds of JSON.parses on every keystroke-level
+  // re-render, and the app's main source of input lag.
+  const queueIds = useMemo(() => queueData.queue.map(item => item.anime.id), [queueData.queue]);
+  const { graphs } = useSeriesGraphs(queueIds);
+
+  const seriesIdByShow = useMemo(() => {
+    const map = new Map<number, number>();
+    for (const graph of Object.values(graphs)) {
+      for (const entry of graph.entries) map.set(entry.id, graph.seriesId);
+    }
+    return map;
+  }, [graphs]);
 
   const groupedQueue = useMemo(() => {
     if (!groupSeasons) {
@@ -73,21 +87,21 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
     }
 
     const groups = new Map<number, typeof queueData.queue>();
-    
-    // First, map everyone by their series ID, falling back to union-find if needed
-    // But since we have getCachedSeriesGraph, we can just use it directly!
+
+    // Group by resolved series id; a show whose graph has not resolved yet is
+    // its own root until it does.
     for (const item of queueData.queue) {
-      const graph = getCachedSeriesGraph(item.anime.id);
-      const rootId = graph ? graph.seriesId : item.anime.id;
-      
+      const rootId = seriesIdByShow.get(item.anime.id) ?? item.anime.id;
+
       if (!groups.has(rootId)) {
         groups.set(rootId, []);
       }
       groups.get(rootId)!.push(item);
     }
     
-    // Fallback: For any items that share relations but didn't have a cached series graph,
-    // let's union-find on the roots to be absolutely sure.
+    // Fallback for items whose graph is still resolving: union roots that are
+    // directly related to each other, so two seasons of one franchise do not
+    // render as two cards for the second or two it takes to resolve.
     const parent = new Map<number, number>();
     for (const root of groups.keys()) {
       parent.set(root, root);
@@ -112,12 +126,9 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
         if (!item.anime.relations?.edges) continue;
         for (const edge of item.anime.relations.edges) {
           if (edge.node.type === 'ANIME') {
-            const graphI = getCachedSeriesGraph(item.anime.id);
-            const graphJ = getCachedSeriesGraph(edge.node.id);
-            
-            const rootI = graphI ? graphI.seriesId : item.anime.id;
-            const rootJ = graphJ ? graphJ.seriesId : edge.node.id;
-            
+            const rootI = seriesIdByShow.get(item.anime.id) ?? item.anime.id;
+            const rootJ = seriesIdByShow.get(edge.node.id) ?? edge.node.id;
+
             if (parent.has(rootI) && parent.has(rootJ)) {
               union(rootI, rootJ);
             }
@@ -155,7 +166,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
       const minIndexB = Math.min(...groupB.map(item => originalOrder.get(item.anime.id) ?? 99999));
       return minIndexA - minIndexB;
     });
-  }, [queueData.queue, groupSeasons]);
+  }, [queueData.queue, groupSeasons, seriesIdByShow]);
 
   if (queueData.queue.length === 0) return null;
 

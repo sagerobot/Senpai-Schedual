@@ -12,7 +12,7 @@ import { runMigrations, USER_DATA_KEY } from './migrations';
  * by runMigrations() (see ./migrations.ts) before the store is created.
  *
  * Components consume it through the unchanged facade hooks (useLibrary,
- * useEpisodeLog, useSimulcastOffsets) and utils/seriesOverrides.
+ * useEpisodeLog, useSimulcastOffsets) and series/overrides.
  */
 
 export { USER_DATA_KEY };

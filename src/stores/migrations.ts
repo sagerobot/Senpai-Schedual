@@ -85,8 +85,17 @@ const RETIRED_CACHE_KEYS = [
   'senpai_cached_schedule_time_v2',
   'senpai_library_cache',
   'senpai_favorites_cache',
+  // The old series reverse map. Franchise graphs now live in the query cache,
+  // which knows how to expire them; `senpai_series_<id>` blobs never did.
+  'senpai_series_reverse_map',
 ];
-const RETIRED_CACHE_PREFIXES = ['anime_details_'];
+const RETIRED_CACHE_PREFIXES = ['anime_details_', 'senpai_series_'];
+
+/**
+ * `senpai_series_overrides` shares the retired `senpai_series_` prefix but is
+ * user data, and this cleanup runs *before* the migration that reads it.
+ */
+const PRESERVED_KEYS: ReadonlySet<string> = new Set(['senpai_series_overrides']);
 
 export function cleanupRetiredCacheKeys(): void {
   for (const key of RETIRED_CACHE_KEYS) removeKey(key);
@@ -99,6 +108,7 @@ export function cleanupRetiredCacheKeys(): void {
     return;
   }
   for (const key of keys) {
+    if (PRESERVED_KEYS.has(key)) continue;
     if (RETIRED_CACHE_PREFIXES.some((prefix) => key.startsWith(prefix))) removeKey(key);
   }
 }

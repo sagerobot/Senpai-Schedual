@@ -14,6 +14,13 @@ export const queryKeys = {
   media: (id: number) => ['media', id] as const,
   /** Jikan + Kitsu + AI summary + the full by-id record, for the detail modal. */
   showDetails: (id: number) => ['showDetails', id] as const,
+  /**
+   * One franchise graph, stored under *every* member id — this family is the
+   * series reverse map, which is why it is keyed by show and not by series.
+   */
+  seriesByShow: (showId: number) => ['series', 'byShow', showId] as const,
+  /** The whole family, for the wholesale invalidation an override edit forces. */
+  series: () => ['series'] as const,
 };
 
 /**
@@ -21,7 +28,13 @@ export const queryKeys = {
  * results are cheap to re-run, worthless on the next visit, and would other-
  * wise grow the persisted blob by one entry per keystroke-debounced term.
  */
-const PERSISTED_ROOTS: ReadonlySet<string> = new Set(['schedule', 'season', 'media', 'showDetails']);
+const PERSISTED_ROOTS: ReadonlySet<string> = new Set([
+  'schedule',
+  'season',
+  'media',
+  'showDetails',
+  'series',
+]);
 
 export function isPersistedKey(key: QueryKey): boolean {
   return typeof key[0] === 'string' && PERSISTED_ROOTS.has(key[0]);

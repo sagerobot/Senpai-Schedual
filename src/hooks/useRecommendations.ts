@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { z } from 'zod';
 import { AnimeMedia, LibraryEntry } from '../types';
 import { postEnvelope } from '../api/aiEnvelope';
+import { collapseLibraryToSeries } from '../features/for-you/scoring';
+import { useSeriesGraphs } from '../series/useSeriesGraphs';
 import { readJSON, writeJSON } from '../stores/storage';
-import { useLibrarySeries } from './useLibrarySeries';
 
 interface RecommendedShow {
   show: AnimeMedia;
@@ -117,7 +118,10 @@ export function useRecommendations(library: LibraryEntry[]) {
 
   const [status, setStatus] = useState<RecommendationsStatus>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { graphs: seriesGraphs, resolving } = useLibrarySeries(library);
+  // Shares the query cache with the Library view, so opening both resolves
+  // each franchise once rather than once per consumer.
+  const libraryIds = useMemo(() => library.map((entry) => entry.showId), [library]);
+  const { graphs: seriesGraphs, resolving } = useSeriesGraphs(libraryIds);
 
   // forceRecompute sets the flag and bumps the token so the effect below
   // re-runs and computes unconditionally — regardless of library size.
@@ -152,42 +156,13 @@ export function useRecommendations(library: LibraryEntry[]) {
     setStatus('loading');
     setErrorMessage(null);
     try {
-      // Collect all related IDs for exclusions
-      const excludeSet = new Set<number>();
-      Object.values(seriesGraphs).forEach(g => {
-        g.entries.forEach(e => excludeSet.add(e.id));
-      });
-
-      // Group top entries by series and compute average score
-      const seriesScores = new Map<number, { scoreSum: number, count: number }>();
-      scoredEntries.forEach(e => {
-        let sid = e.showId;
-        // Find series ID
-        for (const g of Object.values(seriesGraphs)) {
-          if (g.entries.some(ge => ge.id === e.showId)) {
-            sid = g.seriesId;
-            break;
-          }
-        }
-        if (!seriesScores.has(sid)) seriesScores.set(sid, { scoreSum: 0, count: 0 });
-        const curr = seriesScores.get(sid)!;
-        curr.scoreSum += e.showScore!;
-        curr.count += 1;
-      });
-
-      const topSeriesIds = Array.from(seriesScores.entries())
-        .map(([sid, stats]) => ({ showId: sid, showScore: stats.scoreSum / stats.count }))
-        .sort((a, b) => b.showScore - a.showScore)
-        .slice(0, 15);
-
-      // Exclude all things from the library graphs + not interested
-      const allLibraryIdsToExclude = Array.from(excludeSet);
+      const { topSeries, excludeIds } = collapseLibraryToSeries(library, seriesGraphs);
 
       const result = await postEnvelope(
         '/api/recommendations',
         {
-          libraryIds: allLibraryIdsToExclude,
-          topEntries: topSeriesIds,
+          libraryIds: excludeIds,
+          topEntries: topSeries,
           notInterestedIds: state.notInterestedIds
         },
         RecommendationsPayloadSchema,

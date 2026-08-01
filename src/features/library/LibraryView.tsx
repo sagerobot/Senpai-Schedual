@@ -7,9 +7,9 @@ import { parseMalXml } from '../../lib/malParser';
 import { displayTitle } from '../../lib/displayTitle';
 import { Loader2, Upload, FileText, Download } from 'lucide-react';
 import { cn } from '../../lib/utils';
-import { useLibrarySeries } from '../../hooks/useLibrarySeries';
+import { useSeriesGraphs } from '../../series/useSeriesGraphs';
 import { SeriesCard } from './SeriesCard';
-import { SeriesGraph } from '../../utils/seriesResolution';
+import { SeriesGraph } from '../../series/labeling';
 
 interface LibraryViewProps {
   library: LibraryEntry[];
@@ -30,7 +30,18 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
   const [searchParams] = useSearchParams();
   const [search, setSearch] = useState(() => searchParams.get('q') ?? '');
 
-  const { graphs: seriesGraphs, resolving } = useLibrarySeries(library);
+  // Shared with the recommendation pipeline through the query cache, so the two
+  // no longer resolve the same library independently.
+  const libraryIds = useMemo(() => library.map((l) => l.showId), [library]);
+  const { graphs: seriesGraphs, resolving } = useSeriesGraphs(libraryIds);
+
+  const graphByShow = useMemo(() => {
+    const map = new Map<number, SeriesGraph>();
+    for (const graph of Object.values(seriesGraphs)) {
+      for (const entry of graph.entries) map.set(entry.id, graph);
+    }
+    return map;
+  }, [seriesGraphs]);
 
   // Import state
   const [importing, setImporting] = useState(false);
@@ -156,14 +167,7 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
     library.forEach(entry => {
       if (processedIds.has(entry.showId)) return;
 
-      // Find series graph
-      let graph: SeriesGraph | null = null;
-      for (const g of Object.values(seriesGraphs) as SeriesGraph[]) {
-        if (g.entries.some(e => e.id === entry.showId)) {
-          graph = g;
-          break;
-        }
-      }
+      let graph: SeriesGraph | null = graphByShow.get(entry.showId) ?? null;
 
       if (!graph) {
         // Fallback to standalone series if not yet resolved
@@ -244,7 +248,7 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
         return a.series.title.localeCompare(b.series.title);
       }
     });
-  }, [library, seriesGraphs, activeTab, sortOption, search, allAnimeDict]);
+  }, [library, graphByShow, activeTab, sortOption, search, allAnimeDict]);
 
   const tabs: { id: LibraryStatus; label: string }[] = [
     { id: 'watching', label: 'Watching' },

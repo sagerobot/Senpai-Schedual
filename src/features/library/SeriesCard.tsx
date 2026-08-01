@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Star, ChevronDown, ChevronUp, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
-import { SeriesGraph, SeriesEntry } from '../../utils/seriesResolution';
+import { SeriesGraph, SeriesEntry } from '../../series/labeling';
 import { EpisodeLog, LibraryEntry, LibraryStatus } from '../../types';
 
 interface SeriesCardProps {

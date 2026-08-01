@@ -7,7 +7,7 @@ import { displayTitle } from '../../lib/displayTitle';
 import { useCommunityPulse } from './useCommunityPulse';
 import { useSimulcastOffsets } from '../../hooks/useSimulcastOffsets';
 import { formatTimeUntil, cn } from '../../lib/utils';
-import { splitFromSeries, mergeIntoSeries } from '../../utils/seriesOverrides';
+import { splitFromSeries, mergeIntoSeries } from '../../series/overrides';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface ShowDetailModalProps {

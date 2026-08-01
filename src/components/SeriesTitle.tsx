@@ -1,23 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { getCachedSeriesGraph, resolveSeriesGraph, SeriesGraph } from '../utils/seriesResolution';
-import { Loader2 } from 'lucide-react';
+import { useSeriesGraph } from '../series/useSeriesGraphs';
 
-export function SeriesTitle({ showId, fallbackTitle }: { showId: number, fallbackTitle: string }) {
-  const [graph, setGraph] = useState<SeriesGraph | null>(getCachedSeriesGraph(showId));
-  
-  useEffect(() => {
-    if (!graph) {
-      resolveSeriesGraph(showId).then(g => {
-        if (g) setGraph(g);
-      });
-    }
-  }, [showId, graph]);
+/**
+ * Renders a card title as franchise + season when the show turns out to be one
+ * season of something larger. While the graph resolves (or if it fails) the
+ * plain title stands in, so nothing ever renders empty.
+ */
+export function SeriesTitle({ showId, fallbackTitle }: { showId: number; fallbackTitle: string }) {
+  const { data: graph } = useSeriesGraph(showId);
 
   if (!graph) {
     return <>{fallbackTitle}</>;
   }
 
-  const entry = graph.entries.find(e => e.id === showId);
+  const entry = graph.entries.find((e) => e.id === showId);
   if (!entry) return <>{fallbackTitle}</>;
 
   if (entry.seasonLabel === graph.title || entry.seasonLabel === entry.title) {

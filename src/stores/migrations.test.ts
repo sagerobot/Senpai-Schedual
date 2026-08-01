@@ -229,4 +229,21 @@ describe('cleanupRetiredCacheKeys', () => {
 
     expect(store.getItem('anime_details_21')).toBeNull();
   });
+
+  it('drops the old series graphs but keeps the overrides that share their prefix', () => {
+    store.setItem('senpai_series_reverse_map', '{"21":21,"1535":1535}');
+    store.setItem('senpai_series_21', '{"seriesId":21}');
+    store.setItem('senpai_series_1535', '{"seriesId":1535}');
+    // Same prefix, but this is user data — and the cleanup runs before the
+    // migration that reads it, so sweeping it would lose every split and merge.
+    store.setItem('senpai_series_overrides', '{"merges":{},"splits":[77]}');
+
+    runMigrations();
+
+    expect(store.getItem('senpai_series_reverse_map')).toBeNull();
+    expect(store.getItem('senpai_series_21')).toBeNull();
+    expect(store.getItem('senpai_series_1535')).toBeNull();
+    expect(store.getItem('senpai_series_overrides')).toBe('{"merges":{},"splits":[77]}');
+    expect(JSON.parse(store.getItem(USER_DATA_KEY)!).state.overrides).toEqual({ merges: {}, splits: [77] });
+  });
 });
