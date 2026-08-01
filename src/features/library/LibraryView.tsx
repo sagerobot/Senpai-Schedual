@@ -1,12 +1,13 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router';
+import { toast } from 'sonner';
 import { AnimeMedia, LibraryEntry, EpisodeLog, LibraryStatus } from '../../types';
-import { fetchAnimeByMalIds } from '../../api/anilist/queries';
 import { useMediaByIds } from '../../queries/hooks';
-import { parseMalXml } from '../../lib/malParser';
+import { importMalFile } from '../../lib/malImport';
 import { displayTitle } from '../../lib/displayTitle';
-import { Loader2, Upload, FileText, Download } from 'lucide-react';
+import { Loader2, Upload, Download, BookmarkIcon, AlertCircle } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { LIBRARY_STATUS_LABELS, LIBRARY_STATUS_ORDER } from '../../lib/status';
 import { useSeriesGraphs } from '../../series/useSeriesGraphs';
 import { SeriesCard } from './SeriesCard';
 import { SeriesGraph } from '../../series/labeling';
@@ -20,10 +21,18 @@ interface LibraryViewProps {
   setLogsBulk: (logs: EpisodeLog[]) => void;
 }
 
-type TabType = LibraryStatus;
+type TabId = 'all' | LibraryStatus;
+
+interface GroupedSeries {
+  series: SeriesGraph;
+  derivedStatus: LibraryStatus;
+  entries: LibraryEntry[];
+  avgScore: number | null;
+  lastUpdated: number;
+}
 
 export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibraryBulk, setLogsBulk }: LibraryViewProps) {
-  const [activeTab, setActiveTab] = useState<TabType>('watching');
+  const [activeTab, setActiveTab] = useState<TabId>('all');
   const [sortOption, setSortOption] = useState<'my-score' | 'title' | 'recently-updated'>('recently-updated');
   // `?q=` seeds the box once so /library?q=... is linkable; typing after that is
   // local state and doesn't rewrite the URL.
@@ -44,13 +53,14 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
   }, [seriesGraphs]);
 
   // Import state
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [importing, setImporting] = useState(false);
   const [importProgress, setImportProgress] = useState<{ current: number, total: number } | null>(null);
   const [importResult, setImportResult] = useState<{ imported: number, failed: number } | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
 
   // Anything the schedule already carries is free; the rest is resolved by id.
-  // Ids AniList cannot resolve settle as `null` and stay settled, which is what
-  // the old effect-plus-localStorage arrangement could never do.
+  // Ids AniList cannot resolve settle as `null` and stay settled.
   const scheduleIds = useMemo(() => new Set(animeList.map((a) => a.id)), [animeList]);
   const missingIds = useMemo(
     () => library.map((l) => l.showId).filter((id) => !scheduleIds.has(id)),
@@ -67,81 +77,27 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.target.value = ''; // allow re-selecting the same file after a failure
     if (!file) return;
-    
+
     setImporting(true);
     setImportResult(null);
+    setImportError(null);
     setImportProgress(null);
-    
+
     try {
-      let text = '';
-      if (file.name.endsWith('.gz')) {
-        const ds = new DecompressionStream('gzip');
-        const decompressedStream = file.stream().pipeThrough(ds);
-        text = await new Response(decompressedStream).text();
-      } else {
-        text = await file.text();
-      }
-
-      const malEntries = parseMalXml(text);
-      setImportProgress({ current: 0, total: malEntries.length });
-
-      // Match MAL IDs to AniList IDs
-      const malIds = malEntries.map(e => e.series_animedb_id);
-      const matchedAnime = await fetchAnimeByMalIds(malIds, (current, total) => {
+      const result = await importMalFile(file, (current, total) => {
         setImportProgress({ current, total });
       });
-      const malToAnilist: Record<number, number> = {};
-      matchedAnime.forEach(a => {
-        if (a.idMal) malToAnilist[a.idMal] = a.id;
-      });
 
-      const newLibraryEntries: LibraryEntry[] = [];
-      const newLogs: EpisodeLog[] = [];
-      let failed = 0;
-
-      malEntries.forEach(entry => {
-        const aniId = malToAnilist[entry.series_animedb_id];
-        if (!aniId) {
-          failed++;
-          return;
-        }
-
-        let status: LibraryStatus = 'plan_to_watch';
-        if (entry.my_status === 1) status = 'watching';
-        else if (entry.my_status === 2) status = 'completed';
-        else if (entry.my_status === 3) status = 'on_hold';
-        else if (entry.my_status === 4) status = 'dropped';
-        else if (entry.my_status === 6) status = 'plan_to_watch';
-
-        newLibraryEntries.push({
-          showId: aniId,
-          idMal: entry.series_animedb_id,
-          status,
-          showScore: entry.my_score > 0 ? entry.my_score : null,
-          source: 'mal_import',
-          updatedAt: Date.now()
-        });
-
-        if (entry.my_watched_episodes > 0) {
-          for (let i = 1; i <= entry.my_watched_episodes; i++) {
-            newLogs.push({
-              showId: aniId,
-              episodeNumber: i,
-              watchedAt: Date.now(),
-              score: null
-            });
-          }
-        }
-      });
-
-      setLibraryBulk(newLibraryEntries);
-      setLogsBulk(newLogs);
-      setImportResult({ imported: newLibraryEntries.length, failed });
-
+      setLibraryBulk(result.entries);
+      setLogsBulk(result.logs);
+      setImportResult({ imported: result.entries.length, failed: result.failed });
+      toast.success(`Imported ${result.entries.length} shows from MAL`);
     } catch (err) {
       console.error(err);
-      alert('Failed to parse or import file.');
+      setImportError('Could not read that file. Export your list from MyAnimeList as XML (or .xml.gz) and try again.');
+      toast.error('MAL import failed');
     } finally {
       setImporting(false);
       setImportProgress(null);
@@ -159,9 +115,11 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
     URL.revokeObjectURL(url);
   };
 
-  const displaySeries = useMemo(() => {
+  // Group the whole library into franchises once; tab counts and the visible
+  // list both derive from this.
+  const groupedSeries = useMemo(() => {
     const libraryMap = new Map(library.map(l => [l.showId, l]));
-    const groupedSeries: { series: SeriesGraph; derivedStatus: LibraryStatus; entries: LibraryEntry[]; avgScore: number | null; lastUpdated: number }[] = [];
+    const grouped: GroupedSeries[] = [];
     const processedIds = new Set<number>();
 
     library.forEach(entry => {
@@ -191,7 +149,7 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
 
       if (graph) {
         graph.entries.forEach(e => processedIds.add(e.id));
-        
+
         let isWatching = false;
         let isCompleted = true;
         let latestUpdated = 0;
@@ -224,22 +182,38 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
         if (isWatching) derivedStatus = 'watching';
         else if (isCompleted && displaySeasons.length > 0) derivedStatus = 'completed';
 
-        if (derivedStatus === activeTab) {
-          // Check search
-          if (!search || graph.title.toLowerCase().includes(search.toLowerCase())) {
-            groupedSeries.push({
-              series: graph,
-              derivedStatus,
-              entries: seriesEntries,
-              avgScore: scoreCount > 0 ? scoreSum / scoreCount : null,
-              lastUpdated: latestUpdated
-            });
-          }
-        }
+        grouped.push({
+          series: graph,
+          derivedStatus,
+          entries: seriesEntries,
+          avgScore: scoreCount > 0 ? scoreSum / scoreCount : null,
+          lastUpdated: latestUpdated
+        });
       }
     });
 
-    return groupedSeries.sort((a, b) => {
+    return grouped;
+  }, [library, graphByShow, allAnimeDict]);
+
+  const tabCounts = useMemo(() => {
+    const counts: Record<TabId, number> = {
+      all: groupedSeries.length,
+      watching: 0,
+      plan_to_watch: 0,
+      completed: 0,
+      on_hold: 0,
+      dropped: 0,
+    };
+    groupedSeries.forEach(g => { counts[g.derivedStatus]++; });
+    return counts;
+  }, [groupedSeries]);
+
+  const displaySeries = useMemo(() => {
+    let result = groupedSeries;
+    if (activeTab !== 'all') result = result.filter(g => g.derivedStatus === activeTab);
+    if (search) result = result.filter(g => g.series.title.toLowerCase().includes(search.toLowerCase()));
+
+    return [...result].sort((a, b) => {
       if (sortOption === 'my-score') {
         return (b.avgScore || 0) - (a.avgScore || 0);
       } else if (sortOption === 'recently-updated') {
@@ -248,50 +222,49 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
         return a.series.title.localeCompare(b.series.title);
       }
     });
-  }, [library, graphByShow, activeTab, sortOption, search, allAnimeDict]);
+  }, [groupedSeries, activeTab, sortOption, search]);
 
-  const tabs: { id: LibraryStatus; label: string }[] = [
-    { id: 'watching', label: 'Watching' },
-    { id: 'completed', label: 'Completed' },
-    { id: 'on_hold', label: 'Shelved' },
-    { id: 'dropped', label: 'Dropped' },
-    { id: 'plan_to_watch', label: 'Plan to Watch' },
+  const tabs: { id: TabId; label: string }[] = [
+    { id: 'all', label: 'All' },
+    ...LIBRARY_STATUS_ORDER.map((id) => ({ id, label: LIBRARY_STATUS_LABELS[id] })),
   ];
 
   // The modal host resolves `?show=<id>` itself, so opening a row never needs
   // the record in hand first.
   const handleAnimeSelect = (id: number) => onAnimeSelect({ id });
 
-  const handleAddPlanToWatch = (id: number) => {
-    const newEntry: LibraryEntry = {
-      showId: id,
-      idMal: null,
-      status: 'plan_to_watch',
-      showScore: null,
-      source: 'manual',
-      updatedAt: Date.now()
-    };
-    setLibraryBulk([...library.filter(l => l.showId !== id), newEntry]);
-  };
+  const hasSearchMiss = displaySeries.length === 0 && search !== '' &&
+    groupedSeries.some(g => activeTab === 'all' || g.derivedStatus === activeTab);
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-white">All-Time Library</h2>
-          <p className="text-gray-400">Manage your entire watch history grouped by series</p>
+          <h2 className="text-2xl font-bold tracking-tight text-white">Library</h2>
+          <p className="text-gray-400">Everything you've watched, planned, and shelved — grouped by series</p>
         </div>
-        
+
         <div className="flex items-center gap-2">
-          <label className={cn(
-            "flex items-center gap-2 rounded-lg bg-[#2a2a2d] border border-gray-800 px-4 py-2 text-sm font-medium transition-colors cursor-pointer",
-            importing ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-800 hover:text-white text-gray-300"
-          )}>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".xml,.gz"
+            className="hidden"
+            onChange={handleFileUpload}
+            disabled={importing}
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={importing}
+            className={cn(
+              "flex items-center gap-2 rounded-lg bg-[#2a2a2d] border border-gray-800 px-4 py-2 text-sm font-medium transition-colors",
+              importing ? "opacity-50 cursor-not-allowed text-gray-300" : "hover:bg-gray-800 hover:text-white text-gray-300"
+            )}
+          >
             {importing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
             Import MAL (XML)
-            <input type="file" accept=".xml,.gz" className="hidden" onChange={handleFileUpload} disabled={importing} />
-          </label>
-          <button 
+          </button>
+          <button
             onClick={exportFullLibrary}
             className="flex items-center gap-2 rounded-lg bg-[#2a2a2d] border border-gray-800 px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
           >
@@ -308,14 +281,21 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
         </div>
       )}
 
-      {importProgress && (
+      {importError && (
+        <div className="flex items-start gap-3 rounded-lg bg-red-900/20 border border-red-500/30 p-4 text-red-300">
+          <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+          <p className="text-sm">{importError}</p>
+        </div>
+      )}
+
+      {importProgress && importProgress.total > 0 && (
         <div className="rounded-lg bg-[#2a2a2d] border border-gray-800 p-4">
           <div className="flex justify-between text-xs text-gray-400 mb-2">
             <span>Matching MAL entries to AniList ({importProgress.current} / {importProgress.total})...</span>
             <span>{Math.round((importProgress.current / importProgress.total) * 100)}%</span>
           </div>
           <div className="h-1.5 w-full bg-gray-800 rounded-full overflow-hidden">
-            <div 
+            <div
               className="h-full bg-accent-500 rounded-full transition-all duration-300"
               style={{ width: `${Math.min(100, (importProgress.current / importProgress.total) * 100)}%` }}
             />
@@ -330,11 +310,17 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
               key={t.id}
               onClick={() => setActiveTab(t.id)}
               className={cn(
-                "whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors",
+                "flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3.5 py-2 text-sm font-medium transition-colors",
                 activeTab === t.id ? "bg-[#2a2a2d] text-white shadow-sm" : "text-gray-400 hover:text-gray-200 hover:bg-[#2a2a2d]/50"
               )}
             >
               {t.label}
+              <span className={cn(
+                "rounded-full px-1.5 py-0.5 text-[10px] font-semibold",
+                activeTab === t.id ? "bg-accent-500/20 text-accent-300" : "bg-black/30 text-gray-500"
+              )}>
+                {tabCounts[t.id]}
+              </span>
             </button>
           ))}
         </div>
@@ -350,7 +336,7 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
           />
           <select
             value={sortOption}
-            onChange={(e) => setSortOption(e.target.value as any)}
+            onChange={(e) => setSortOption(e.target.value as 'my-score' | 'title' | 'recently-updated')}
             className="rounded-lg border border-gray-700 bg-[#2a2a2d] px-3 py-2 text-sm font-medium text-gray-300 focus:border-accent-500 focus:outline-none"
           >
             <option value="recently-updated">Recently Updated</option>
@@ -376,14 +362,29 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
               libraryEntries={item.entries}
               logs={logs}
               onAnimeSelect={handleAnimeSelect}
-              onAddPlanToWatch={handleAddPlanToWatch}
             />
           ))}
         </div>
+      ) : hasSearchMiss ? (
+        <div className="flex h-40 flex-col items-center justify-center rounded-xl border border-dashed border-gray-800 bg-[#1c1c1f]">
+          <p className="text-gray-400">No series match "{search}" here.</p>
+        </div>
       ) : (
-        <div className="flex h-64 flex-col items-center justify-center space-y-4 rounded-xl border border-dashed border-gray-800 bg-[#1c1c1f]">
-          <FileText className="h-10 w-10 text-gray-600" />
-          <p className="text-gray-400">No series found in this category.</p>
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-800 bg-[#1c1c1f] py-24 text-center px-6">
+          <BookmarkIcon className="mb-4 h-12 w-12 text-gray-700" />
+          <h3 className="text-xl font-bold text-white">Nothing here yet</h3>
+          <p className="mt-2 max-w-md text-gray-500">
+            Bookmark a show anywhere in the app and it lands in your library.
+            Already tracking on MyAnimeList? Bring your whole history over.
+          </p>
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={importing}
+            className="mt-6 flex items-center gap-2 rounded-lg bg-accent-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-500 disabled:opacity-50"
+          >
+            <Upload className="h-4 w-4" />
+            Import from MAL
+          </button>
         </div>
       )}
     </div>

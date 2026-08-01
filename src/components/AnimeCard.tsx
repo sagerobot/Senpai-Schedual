@@ -6,14 +6,17 @@ import { motion } from 'motion/react';
 import React, { useState, useEffect } from 'react';
 import { StatusBadge } from './StatusBadge';
 import { WatchState } from '../lib/status';
+import { LibraryStatusMenu } from './LibraryStatusMenu';
 
 export type StatusPillType = WatchState;
 
 interface AnimeCardProps {
   key?: React.Key;
   anime: AnimeMedia;
-  isFavorite: boolean;
-  onToggleFavorite: (id: number) => void;
+  /** @deprecated The bookmark reads the library store itself; this prop is ignored. */
+  isFavorite?: boolean;
+  /** @deprecated The bookmark uses LibraryStatusMenu; this prop is ignored. */
+  onToggleFavorite?: (id: number) => void;
   showCountdown?: boolean;
   onClick?: (anime: AnimeMedia) => void;
   progress?: { watched: number; aired: number };
@@ -25,8 +28,6 @@ interface AnimeCardProps {
 
 export function AnimeCard({
   anime,
-  isFavorite,
-  onToggleFavorite,
   showCountdown = true,
   onClick,
   progress,
@@ -102,18 +103,23 @@ export function AnimeCard({
           )}
         </div>
 
-        {/* Favorite Button */}
-        <button
-          onClick={(e) => { e.stopPropagation(); onToggleFavorite(anime.id); }}
-          className={cn(
-            "absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full backdrop-blur-md transition-colors",
-            isFavorite 
-              ? "bg-purple-600 text-white" 
-              : "bg-black/50 text-gray-300 hover:bg-black/80 hover:text-white"
+        {/* Library Bookmark: add when absent, status menu when present */}
+        <LibraryStatusMenu
+          showId={anime.id}
+          align="end"
+          renderTrigger={({ inLibrary }) => (
+            <button
+              className={cn(
+                "absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full backdrop-blur-md transition-colors",
+                inLibrary
+                  ? "bg-accent-600 text-white"
+                  : "bg-black/50 text-gray-300 hover:bg-black/80 hover:text-white"
+              )}
+            >
+              <Bookmark className="h-5 w-5" fill={inLibrary ? "currentColor" : "none"} />
+            </button>
           )}
-        >
-          <Bookmark className="h-5 w-5" fill={isFavorite ? "currentColor" : "none"} />
-        </button>
+        />
 
         {/* Status / Countdown */}
         <div className="absolute bottom-0 left-0 w-full p-3 sm:p-4">

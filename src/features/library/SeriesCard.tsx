@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
-import { Star, ChevronDown, ChevronUp, Plus } from 'lucide-react';
+import { Star, ChevronDown, ChevronUp, Plus, Bookmark } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { toast } from 'sonner';
 import { cn } from '../../lib/utils';
 import { SeriesGraph, SeriesEntry } from '../../series/labeling';
 import { EpisodeLog, LibraryEntry, LibraryStatus } from '../../types';
+import { LIBRARY_STATUS_LABELS, LIBRARY_STATUS_ORDER } from '../../lib/status';
+import { LibraryStatusMenu } from '../../components/LibraryStatusMenu';
+import { useUserData } from '../../stores/userData';
 
 interface SeriesCardProps {
   key?: React.Key;
@@ -11,10 +15,26 @@ interface SeriesCardProps {
   libraryEntries: LibraryEntry[];
   logs: EpisodeLog[];
   onAnimeSelect?: (id: number) => void;
-  onAddPlanToWatch?: (id: number) => void;
 }
 
-export function SeriesCard({ series, libraryEntries, logs, onAnimeSelect, onAddPlanToWatch }: SeriesCardProps) {
+/** Add a season as Planning, with Undo. Shared by the row button and the banner. */
+function addSeasonToLibrary(id: number) {
+  useUserData.getState().addToLibrary(id, 'plan_to_watch');
+  toast('Added to Library — Planning', {
+    action: { label: 'Undo', onClick: () => useUserData.getState().removeFromLibrary(id) },
+  });
+}
+
+function setSeasonStatus(entry: LibraryEntry, next: LibraryStatus) {
+  if (next === entry.status) return;
+  const previous = entry.status;
+  useUserData.getState().setStatus(entry.showId, next);
+  toast(`Moved to ${LIBRARY_STATUS_LABELS[next]}`, {
+    action: { label: 'Undo', onClick: () => useUserData.getState().setStatus(entry.showId, previous) },
+  });
+}
+
+export function SeriesCard({ series, libraryEntries, logs, onAnimeSelect }: SeriesCardProps) {
   const [expanded, setExpanded] = useState(false);
 
   // Filter out attachments unless they are in the library
@@ -71,18 +91,18 @@ export function SeriesCard({ series, libraryEntries, logs, onAnimeSelect, onAddP
   }
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className="flex flex-col overflow-hidden rounded-xl bg-[#1c1c1f] border border-gray-800 transition-all hover:border-gray-700"
     >
-      <div 
+      <div
         className="flex p-4 gap-4 cursor-pointer"
         onClick={() => setExpanded(!expanded)}
       >
         <div className="flex-1 min-w-0">
           <h3 className="truncate text-lg font-bold text-white mb-1">{series.title}</h3>
-          
+
           <div className="flex items-center gap-3 text-sm text-gray-400">
             {avgScore != null && (
               <div className="flex items-center gap-1 text-yellow-400 font-medium">
@@ -90,7 +110,7 @@ export function SeriesCard({ series, libraryEntries, logs, onAnimeSelect, onAddP
                 {avgScore.toFixed(1)}
               </div>
             )}
-            <span className="capitalize">{derivedStatus.replace(/_/g, ' ')}</span>
+            <span>{LIBRARY_STATUS_LABELS[derivedStatus]}</span>
             <span>•</span>
             <span>{displaySeasons.length} {displaySeasons.length === 1 ? 'Season' : 'Seasons'}</span>
             {totalAired > 0 && (
@@ -103,19 +123,22 @@ export function SeriesCard({ series, libraryEntries, logs, onAnimeSelect, onAddP
 
           {totalAired > 0 && (
             <div className="mt-3 h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-gray-800">
-              <div 
+              <div
                 className={cn(
                   "h-full transition-all duration-500",
-                  derivedStatus === 'completed' ? "bg-emerald-500" : "bg-purple-500"
+                  derivedStatus === 'completed' ? "bg-emerald-500" : "bg-accent-500"
                 )}
                 style={{ width: `${Math.min(100, progressPercent)}%` }}
               />
             </div>
           )}
         </div>
-        
+
         <div className="flex items-center">
-          <button className="p-2 text-gray-500 hover:text-white transition-colors">
+          <button
+            className="p-2 text-gray-500 hover:text-white transition-colors"
+            aria-label={expanded ? 'Collapse seasons' : 'Expand seasons'}
+          >
             {expanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
           </button>
         </div>
@@ -123,7 +146,7 @@ export function SeriesCard({ series, libraryEntries, logs, onAnimeSelect, onAddP
 
       <AnimatePresence>
         {expanded && (
-          <motion.div 
+          <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
@@ -135,26 +158,45 @@ export function SeriesCard({ series, libraryEntries, logs, onAnimeSelect, onAddP
                 return (
                   <div key={season.id} className="flex items-center justify-between py-2 px-2 hover:bg-gray-800/50 rounded-lg">
                     <div className="flex flex-col min-w-0 pr-4">
-                      <span 
-                        className="truncate text-sm font-medium text-gray-200 cursor-pointer hover:underline hover:text-purple-400"
+                      <span
+                        className="truncate text-sm font-medium text-gray-200 cursor-pointer hover:underline hover:text-accent-400"
                         onClick={(e) => { e.stopPropagation(); onAnimeSelect?.(season.id); }}
                       >
                         {season.seasonLabel}
                       </span>
                       <span className="text-xs text-gray-500 truncate">{season.title}</span>
                     </div>
-                    
-                    <div className="flex items-center gap-4 text-sm whitespace-nowrap">
+
+                    <div className="flex items-center gap-3 text-sm whitespace-nowrap">
                       {l ? (
                         <>
                           <span className="text-gray-400 w-16 text-right">{logs.filter(log => log.showId === l.showId).length} / {season.episodes || '?'}</span>
-                          <span className="capitalize text-gray-400 w-24">{l.status.replace(/_/g, ' ')}</span>
+                          <select
+                            value={l.status}
+                            aria-label={`Status for ${season.seasonLabel}`}
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) => setSeasonStatus(l, e.target.value as LibraryStatus)}
+                            className="h-8 rounded-md border border-edge bg-surface-3 px-2 text-xs font-medium text-gray-200 focus:border-accent-500 focus:outline-none"
+                          >
+                            {LIBRARY_STATUS_ORDER.map((s) => (
+                              <option key={s} value={s}>{LIBRARY_STATUS_LABELS[s]}</option>
+                            ))}
+                          </select>
                           <span className="w-8 text-right text-yellow-400">{l.showScore || '-'}</span>
+                          <LibraryStatusMenu
+                            showId={season.id}
+                            align="end"
+                            renderTrigger={({ inLibrary }) => (
+                              <button className="flex h-8 w-8 items-center justify-center rounded-md text-accent-400 hover:bg-accent-500/10 hover:text-accent-300 transition-colors">
+                                <Bookmark className="h-4 w-4" fill={inLibrary ? "currentColor" : "none"} />
+                              </button>
+                            )}
+                          />
                         </>
                       ) : (
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); onAddPlanToWatch?.(season.id); }}
-                          className="flex items-center gap-1 text-xs font-medium text-purple-400 hover:text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 px-2 py-1 rounded-md transition-colors"
+                        <button
+                          onClick={(e) => { e.stopPropagation(); addSeasonToLibrary(season.id); }}
+                          className="flex items-center gap-1 text-xs font-medium text-accent-400 hover:text-accent-300 bg-accent-500/10 hover:bg-accent-500/20 px-2 py-1 rounded-md transition-colors"
                         >
                           <Plus className="h-3.5 w-3.5" /> Add to List
                         </button>
@@ -164,18 +206,18 @@ export function SeriesCard({ series, libraryEntries, logs, onAnimeSelect, onAddP
                 );
               })}
             </div>
-            
+
             {nextAvailable && derivedStatus === 'completed' && (
-              <div className="p-3 m-2 mt-0 bg-purple-500/10 border border-purple-500/20 rounded-lg flex items-center justify-between">
+              <div className="p-3 m-2 mt-0 bg-accent-500/10 border border-accent-500/20 rounded-lg flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-purple-300">Next season available!</p>
-                  <p className="text-xs text-purple-400/70">{nextAvailable.seasonLabel}</p>
+                  <p className="text-sm font-medium text-accent-300">Next season available!</p>
+                  <p className="text-xs text-accent-400/70">{nextAvailable.seasonLabel}</p>
                 </div>
-                <button 
-                  onClick={() => onAddPlanToWatch?.(nextAvailable!.id)}
-                  className="px-3 py-1.5 bg-purple-600 text-white text-xs font-medium rounded-md hover:bg-purple-500 transition-colors"
+                <button
+                  onClick={() => addSeasonToLibrary(nextAvailable!.id)}
+                  className="px-3 py-1.5 bg-accent-600 text-white text-xs font-medium rounded-md hover:bg-accent-500 transition-colors"
                 >
-                  Add to Watchlist
+                  Add to Library
                 </button>
               </div>
             )}

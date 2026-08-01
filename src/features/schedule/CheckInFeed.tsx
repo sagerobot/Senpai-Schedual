@@ -4,17 +4,19 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Clock, Star, Play, Check, Bookmark, ChevronDown, CheckCircle2, Info, Zap } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { displayTitle } from '../../lib/displayTitle';
+import { LibraryStatusMenu } from '../../components/LibraryStatusMenu';
 
 interface CheckInFeedProps {
   animeList: AnimeMedia[];
   favorites: number[];
   logs: EpisodeLog[];
   onLog: (showId: number, episodeNumber: number, score: number | null) => void;
-  onToggleFavorite: (id: number) => void;
+  /** @deprecated The bookmark uses LibraryStatusMenu; this prop is ignored. */
+  onToggleFavorite?: (id: number) => void;
   onAnimeSelect?: (anime: AnimeMedia) => void;
 }
 
-export function CheckInFeed({ animeList, favorites, logs, onLog, onToggleFavorite, onAnimeSelect }: CheckInFeedProps) {
+export function CheckInFeed({ animeList, favorites, logs, onLog, onAnimeSelect }: CheckInFeedProps) {
   const drops = useMemo(() => {
     const recent: { anime: AnimeMedia; episode: number; airedAt: number; score: number | null, maxWatched: number, userAvgScore: number | null }[] = [];
     const now = Math.floor(Date.now() / 1000);
@@ -63,7 +65,6 @@ export function CheckInFeed({ animeList, favorites, logs, onLog, onToggleFavorit
               key={`${drop.anime.id}-${drop.episode}`}
               drop={drop}
               onLog={onLog}
-              onToggleFavorite={onToggleFavorite}
               onAnimeSelect={onAnimeSelect}
             />
           ))}
@@ -73,10 +74,9 @@ export function CheckInFeed({ animeList, favorites, logs, onLog, onToggleFavorit
   );
 }
 
-const CheckInItem = memo(function CheckInItem({ drop, onLog, onToggleFavorite, onAnimeSelect }: {
+const CheckInItem = memo(function CheckInItem({ drop, onLog, onAnimeSelect }: {
   drop: any;
   onLog: (showId: number, episodeNumber: number, score: number | null) => void;
-  onToggleFavorite: (id: number) => void;
   onAnimeSelect?: (anime: AnimeMedia) => void;
 }) {
   const anime = drop.anime;
@@ -171,12 +171,22 @@ const CheckInItem = memo(function CheckInItem({ drop, onLog, onToggleFavorite, o
           )}
         </div>
 
-        <button 
-          onClick={(e) => { e.stopPropagation(); onToggleFavorite(anime.id); }} 
-          className="absolute top-3 right-3 z-20 w-8 h-8 flex items-center justify-center bg-[#0a0c16]/80 backdrop-blur-md border border-gray-600/50 text-gray-300 hover:text-white rounded-full transition-colors"
-        >
-          <Bookmark className="w-4 h-4" />
-        </button>
+        <LibraryStatusMenu
+          showId={anime.id}
+          align="end"
+          renderTrigger={({ inLibrary }) => (
+            <button
+              className={cn(
+                "absolute top-3 right-3 z-20 w-8 h-8 flex items-center justify-center backdrop-blur-md border rounded-full transition-colors",
+                inLibrary
+                  ? "bg-accent-600/90 border-accent-500/50 text-white"
+                  : "bg-[#0a0c16]/80 border-gray-600/50 text-gray-300 hover:text-white"
+              )}
+            >
+              <Bookmark className="w-4 h-4" fill={inLibrary ? "currentColor" : "none"} />
+            </button>
+          )}
+        />
       </div>
 
       <div className="p-4 sm:p-5 flex flex-col flex-1 z-10">

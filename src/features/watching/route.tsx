@@ -1,9 +1,10 @@
-import { useMemo } from 'react';
+import { useCallback } from 'react';
+import { toast } from 'sonner';
 import { useEpisodeLog } from '../../hooks/useEpisodeLog';
 import { useLibrary } from '../../hooks/useLibrary';
 import { useScheduleContext } from '../../routes/scheduleContext';
 import { useOpenShow } from '../../routes/showParam';
-import { FavoritesView } from './FavoritesView';
+import { WatchingView } from './WatchingView';
 
 /**
  * Renders immediately: the view fills in anything the season fetch hasn't
@@ -12,22 +13,28 @@ import { FavoritesView } from './FavoritesView';
  */
 export function WatchingRoute() {
   const { animeList } = useScheduleContext();
-  const { library, toggleFavorite, updateEntry } = useLibrary();
-  const { logs, logEpisode } = useEpisodeLog();
+  const { library } = useLibrary();
+  const { logs, logEpisode, unlogEpisode } = useEpisodeLog();
   const openShow = useOpenShow();
 
-  const favorites = useMemo(() => library.filter((l) => l.status === 'watching').map((l) => l.showId), [library]);
+  // Logging is undoable everywhere it happens (PR 12 semantics).
+  const handleLog = useCallback(
+    (showId: number, episodeNumber: number, score: number | null) => {
+      logEpisode(showId, episodeNumber, score);
+      toast(`Logged episode ${episodeNumber}`, {
+        action: { label: 'Undo', onClick: () => unlogEpisode(showId, episodeNumber) },
+      });
+    },
+    [logEpisode, unlogEpisode],
+  );
 
   return (
-    <FavoritesView
+    <WatchingView
       animeList={animeList}
       library={library}
-      favorites={favorites}
-      onToggleFavorite={toggleFavorite}
-      onAnimeSelect={openShow}
       logs={logs}
-      onLog={logEpisode}
-      onUpdateEntry={updateEntry}
+      onLog={handleLog}
+      onAnimeSelect={openShow}
     />
   );
 }
