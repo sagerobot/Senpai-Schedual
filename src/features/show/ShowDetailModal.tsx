@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { AnimeMedia, LibraryEntry, LibraryStatus } from '../../types';
 import { useShowDetailsQuery } from '../../queries/hooks';
 import { useVibesIndex } from '../../queries/vibes';
+import { latestAiredEpisode } from '../../lib/aired';
 import { displayTitle } from '../../lib/displayTitle';
 import { asOfLabel, useCommunityPulse } from './useCommunityPulse';
 import { EpisodeTracker } from './EpisodeTracker';
@@ -29,7 +30,8 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
 
   // The vibe check's episode picker — deliberately its own state, fully
   // decoupled from the episode tracker. Defaults to the latest aired episode.
-  const latestEpisode = anime.nextAiringEpisode ? Math.max(1, anime.nextAiringEpisode.episode - 1) : anime.episodes || 1;
+  // Stale-proof latest aired episode (a passed airingAt counts as aired).
+  const latestEpisode = Math.max(1, latestAiredEpisode(anime, Math.floor(Date.now() / 1000))?.episode ?? anime.episodes ?? 1);
   const [selectedEpisode, setSelectedEpisode] = useState(latestEpisode);
   const vibes = useVibesIndex();
   const {
@@ -495,7 +497,7 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
             <div className="shrink-0 space-y-4 p-5 pt-0 md:p-6 md:pt-0">
               <div className="flex flex-wrap items-center gap-3">
                 <a
-                  href={`https://www.reddit.com/r/anime/search/?q=${encodeURIComponent(displayTitle(anime))}+episode+${anime.nextAiringEpisode ? anime.nextAiringEpisode.episode - 1 : 1}+discussion&restrict_sr=1`}
+                  href={`https://www.reddit.com/r/anime/search/?q=${encodeURIComponent(displayTitle(anime))}+episode+${latestEpisode}+discussion&restrict_sr=1`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex flex-1 items-center justify-center space-x-2 rounded-lg border border-gray-700 bg-transparent px-4 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"

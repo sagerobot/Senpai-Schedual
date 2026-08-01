@@ -51,7 +51,11 @@ export function AnimeCard({
   // If the next episode is airing on the same day of the week as today, 
   // but it's more than a day away, it means the episode for *today* already aired.
   const alreadyAiredToday = currentDay === airingDay && timeUntil !== null && timeUntil > 24 * 60 * 60;
-  
+
+  // Stale schedule data leaves airingAt in the past; that episode has aired
+  // (and the countdown would otherwise render negative).
+  const airedPerStaleData = timeUntil !== null && timeUntil <= 0;
+
   const displayEpisode = nextEp ? (alreadyAiredToday ? Math.max(1, nextEp.episode - 1) : nextEp.episode) : null;
 
   // Format local airing time
@@ -137,9 +141,9 @@ export function AnimeCard({
           <div className="mt-1.5 sm:mt-2 flex items-center space-x-2 text-xs sm:text-sm text-gray-300">
             {nextEp ? (
               <div className="flex items-center space-x-1 font-mono text-purple-400">
-                {alreadyAiredToday ? <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> : <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
+                {alreadyAiredToday || airedPerStaleData ? <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> : <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
                 <span>
-                  Ep {displayEpisode} {alreadyAiredToday ? '• Aired' : (showCountdown ? `in ${formatTimeUntil(timeUntil || 0)}` : '')}
+                  Ep {displayEpisode} {alreadyAiredToday || airedPerStaleData ? '• Aired' : (showCountdown ? `in ${formatTimeUntil(timeUntil || 0)}` : '')}
                 </span>
               </div>
             ) : (

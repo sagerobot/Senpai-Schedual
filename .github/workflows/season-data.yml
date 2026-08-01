@@ -35,10 +35,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      DATA_DIR: ${{ runner.temp }}/data-branch
       SERVER: https://senpai-schedual.onrender.com
 
     steps:
+      - name: Set DATA_DIR
+        run: echo "DATA_DIR=$RUNNER_TEMP/data-branch" >> "$GITHUB_ENV"
+
       - name: Check out main
         uses: actions/checkout@v4
 

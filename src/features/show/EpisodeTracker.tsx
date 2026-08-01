@@ -1,6 +1,7 @@
 import { Check } from 'lucide-react';
 import { useEffect, useMemo, useRef } from 'react';
 import { toast } from 'sonner';
+import { latestAiredEpisode } from '../../lib/aired';
 import { cn } from '../../lib/utils';
 import { selectLogsArray, useUserData } from '../../stores/userData';
 import type { AnimeMedia } from '../../types';
@@ -22,7 +23,8 @@ export function EpisodeTracker({ anime }: EpisodeTrackerProps) {
   const setLogsBulk = useUserData((s) => s.setLogsBulk);
 
   // Total: the known episode count, else how many have aired, else one chip.
-  const airedCount = anime.nextAiringEpisode ? anime.nextAiringEpisode.episode - 1 : null;
+  // (Stale-proof: a passed airingAt counts that episode as aired.)
+  const airedCount = latestAiredEpisode(anime, Math.floor(Date.now() / 1000))?.episode ?? null;
   const totalEpisodes = Math.max(1, anime.episodes ?? airedCount ?? 1);
 
   const showLogs = useMemo(() => logs.filter((log) => log.showId === anime.id), [logs, anime.id]);

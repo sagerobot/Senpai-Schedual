@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { LibraryStatusMenu } from '../../components/LibraryStatusMenu';
 import { LowScoreButtons } from "../../components/LowScoreButtons";
 import { VibeChip } from '../../components/VibeChip';
+import { latestAiredEpisode } from '../../lib/aired';
 import { displayTitle } from '../../lib/displayTitle';
 import { WATCH_STATE_LABELS } from '../../lib/status';
 import { cn } from '../../lib/utils';
@@ -47,23 +48,24 @@ export function CheckInFeed({ animeList, favorites, logs, onLog, onAnimeSelect }
     for (const anime of animeList) {
       if (!favorites.includes(anime.id)) continue;
 
-      if (anime.nextAiringEpisode && anime.nextAiringEpisode.episode > 1) {
-        // Estimate previous episode air time (assume 7 days)
-        const prevAirTime = anime.nextAiringEpisode.airingAt - 7 * 24 * 3600;
-        const timeSinceAir = now - prevAirTime;
+      // latestAiredEpisode is stale-proof: it recognizes a passed airingAt as
+      // "this episode aired" even when the 8-hourly bundle hasn't caught up,
+      // which is exactly the window in which a drop matters most.
+      const latest = latestAiredEpisode(anime, now);
+      if (latest === null) continue;
 
-        // If it aired within the last 24 hours
-        if (timeSinceAir >= 0 && timeSinceAir <= 24 * 3600) {
-          const episodeNum = anime.nextAiringEpisode.episode - 1;
-          const showLogs = logs.filter((l) => l.showId === anime.id);
-          const log = showLogs.find((l) => l.episodeNumber === episodeNum);
-          if (!log) {
-            const maxWatched = showLogs.length > 0 ? Math.max(...showLogs.map((l) => l.episodeNumber)) : 0;
-            const ratedLogs = showLogs.filter((l) => l.score !== null && l.score !== undefined);
-            const userAvgScore =
-              ratedLogs.length > 0 ? ratedLogs.reduce((acc, l) => acc + (l.score ?? 0), 0) / ratedLogs.length : null;
-            recent.push({ anime, episode: episodeNum, airedAt: prevAirTime, maxWatched, userAvgScore });
-          }
+      const timeSinceAir = now - latest.airedAt;
+      // Aired within the last 24 hours
+      if (timeSinceAir >= 0 && timeSinceAir <= 24 * 3600) {
+        const episodeNum = latest.episode;
+        const showLogs = logs.filter((l) => l.showId === anime.id);
+        const log = showLogs.find((l) => l.episodeNumber === episodeNum);
+        if (!log) {
+          const maxWatched = showLogs.length > 0 ? Math.max(...showLogs.map((l) => l.episodeNumber)) : 0;
+          const ratedLogs = showLogs.filter((l) => l.score !== null && l.score !== undefined);
+          const userAvgScore =
+            ratedLogs.length > 0 ? ratedLogs.reduce((acc, l) => acc + (l.score ?? 0), 0) / ratedLogs.length : null;
+          recent.push({ anime, episode: episodeNum, airedAt: latest.airedAt, maxWatched, userAvgScore });
         }
       }
     }

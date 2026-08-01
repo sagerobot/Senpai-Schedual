@@ -32,10 +32,10 @@ jobs:
   fetch:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    env:
-      DATA_DIR: ${{ runner.temp }}/data-branch
-
     steps:
+      - name: Set DATA_DIR
+        run: echo "DATA_DIR=$RUNNER_TEMP/data-branch" >> "$GITHUB_ENV"
+
       - name: Check out main
         uses: actions/checkout@v4
 

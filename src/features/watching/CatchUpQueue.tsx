@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useMemo, useState } from 'react';
 import { LowScoreButtons } from "../../components/LowScoreButtons";
 import { VibeChip } from '../../components/VibeChip';
+import { getAiredEpisodesCount } from '../../lib/aired';
 import { displayTitle } from '../../lib/displayTitle';
 import { cn } from '../../lib/utils';
 import { pickWatchLink } from '../../lib/watchLinks';
@@ -44,16 +45,8 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
   const [groupSeasons, setGroupSeasons] = useState(true);
   const vibes = useVibesIndex();
 
-  const getAiredEpisodesCount = (anime: AnimeMedia) => {
-    if (anime.nextAiringEpisode) {
-      return Math.max(0, anime.nextAiringEpisode.episode - 1);
-    } else if (anime.status === 'FINISHED' || anime.status === 'RELEASING') {
-      return anime.episodes || 0;
-    }
-    return 0;
-  };
-
   const queueData = useMemo(() => {
+    const now = Math.floor(Date.now() / 1000);
     let totalBehind = 0;
 
     const queue = favorites
@@ -61,7 +54,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
         const anime = animeList.find((a) => a.id === id);
         if (!anime) return null;
 
-        const airedCount = getAiredEpisodesCount(anime);
+        const airedCount = getAiredEpisodesCount(anime, now);
         if (airedCount === 0) return null;
 
         const watched = logs.filter((l) => l.showId === id).map((l) => l.episodeNumber);

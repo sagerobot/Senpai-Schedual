@@ -6,6 +6,7 @@ import { useMemo, useState } from 'react';
 import { useMediaByIds } from '../../queries/hooks';
 import { SeasonRecapModal } from './SeasonRecapModal';
 import { cn } from '../../lib/utils';
+import { getAiredEpisodesCount } from '../../lib/aired';
 import { displayTitle } from '../../lib/displayTitle';
 
 interface WatchingViewProps {
@@ -54,18 +55,10 @@ export function WatchingView({ animeList, library, logs, onLog, onAnimeSelect }:
     [fullAnimeList, watchingIds],
   );
 
-  const getAiredEpisodesCount = (anime: AnimeMedia) => {
-    if (anime.nextAiringEpisode) {
-      return Math.max(0, anime.nextAiringEpisode.episode - 1);
-    } else if (anime.status === 'FINISHED' || anime.status === 'RELEASING') {
-      return anime.episodes || 0;
-    }
-    return 0;
-  };
-
   const processedShows = useMemo(() => {
+    const now = Math.floor(Date.now() / 1000);
     return currentShows.map(anime => {
-      const airedCount = getAiredEpisodesCount(anime);
+      const airedCount = getAiredEpisodesCount(anime, now);
       const watchedLogs = logs.filter(l => l.showId === anime.id);
       const watchedCount = watchedLogs.length;
       const behindCount = Math.max(0, airedCount - watchedCount);
