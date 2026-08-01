@@ -1,0 +1,22 @@
+# Render blueprint — https://render.com/docs/blueprint-spec
+# On render.com: New + > Blueprint > connect this repo, and this file
+# configures the service. Auto-deploys on every push to main.
+services:
+  - type: web
+    name: senpai-schedule
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      # Prompted for in the Render dashboard (never committed):
+      - key: GEMINI_API_KEY
+        sync: false
+      # The precomputed data on the repo's `data` branch:
+      - key: SEASON_BUNDLE_URL
+        value: https://raw.githubusercontent.com/sagerobot/Senpai-Schedual/data/season.json
+      - key: VIBES_BUNDLE_URL
+        value: https://raw.githubusercontent.com/sagerobot/Senpai-Schedual/data/vibes.json
+      # Only needed while the GitHub repo is private (fine-grained PAT,
+      # read-only Contents on this repo). Delete if the repo is public.
+      - key: SEASON_BUNDLE_TOKEN
+        sync: false
