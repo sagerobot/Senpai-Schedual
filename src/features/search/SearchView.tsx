@@ -2,8 +2,9 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { AnimeMedia } from '../../types';
 import { useSearchQuery } from '../../queries/hooks';
-import { Search, Loader2, RefreshCw } from 'lucide-react';
+import { Search, Loader2, Sparkles } from 'lucide-react';
 import { AnimeCard } from '../../components/AnimeCard';
+import { ErrorState, errorDetail } from '../../components/ErrorState';
 
 interface SearchViewProps {
   favorites: number[];
@@ -13,6 +14,9 @@ interface SearchViewProps {
 
 const QUERY_PARAM = 'q';
 const DEBOUNCE_MS = 350;
+
+/** Something to tap before the user has anything in mind: genres + evergreens. */
+const SUGGESTED_SEARCHES = ['Action', 'Romance', 'Frieren', 'One Piece'];
 
 export function SearchView({ favorites, onToggleFavorite, onAnimeSelect }: SearchViewProps) {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -65,6 +69,13 @@ export function SearchView({ favorites, onToggleFavorite, onAnimeSelect }: Searc
     commit(query);
   };
 
+  // A suggestion writes both the input and the URL immediately — the URL→input
+  // sync effect skips values it already committed itself.
+  const applySuggestion = (value: string) => {
+    setQuery(value);
+    commit(value);
+  };
+
   return (
     <div className="space-y-6">
       <div className="mb-8">
@@ -93,25 +104,36 @@ export function SearchView({ favorites, onToggleFavorite, onAnimeSelect }: Searc
         </div>
       </form>
 
-      {loading ? (
+      {term.length === 0 ? (
+        // Pre-search: a prompt plus somewhere to tap, never a blank page.
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-edge bg-surface-0 px-6 py-16 text-center">
+          <Sparkles className="mb-4 h-8 w-8 text-accent-400" />
+          <p className="font-medium text-gray-200">Look up any anime, past or present.</p>
+          <p className="mt-1 text-sm text-gray-500">Try a genre or a title to get going:</p>
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+            {SUGGESTED_SEARCHES.map((suggestion) => (
+              <button
+                key={suggestion}
+                onClick={() => applySuggestion(suggestion)}
+                className="rounded-full border border-edge bg-surface-1 px-4 py-1.5 text-sm font-medium text-gray-300 transition-colors hover:border-accent-500/50 hover:bg-surface-2 hover:text-white"
+              >
+                {suggestion}
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : loading ? (
         <div className="flex h-64 items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
         </div>
       ) : search.isError ? (
         // A failed search and a search that found nothing are different answers.
-        <div className="flex h-64 flex-col items-center justify-center space-y-3 rounded-2xl border border-red-900/50 bg-red-900/20 px-6 text-center">
-          <p className="text-red-300">Search failed.</p>
-          <p className="text-sm text-red-400/70">
-            {search.error instanceof Error ? search.error.message : 'The request did not go through.'}
-          </p>
-          <button
-            onClick={() => void search.refetch()}
-            className="inline-flex items-center gap-2 rounded-lg border border-red-800/60 px-4 py-2 text-sm font-medium text-red-300 transition-colors hover:bg-red-900/30"
-          >
-            <RefreshCw className="h-4 w-4" />
-            Retry
-          </button>
-        </div>
+        <ErrorState
+          title="Search failed."
+          detail={errorDetail(search.error)}
+          onRetry={() => void search.refetch()}
+          className="min-h-64"
+        />
       ) : search.isSuccess && results.length === 0 ? (
         <div className="flex h-64 flex-col items-center justify-center rounded-2xl border border-dashed border-gray-800 bg-[#0a0c16]">
           <Search className="mb-4 h-8 w-8 text-gray-600" />

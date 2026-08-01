@@ -2,7 +2,7 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { currentSeasonPath, parseSeasonParams } from './season';
+import { currentSeasonPath, maxSeasonYear, parseSeasonParams } from './season';
 import { parseShowId } from './showParam';
 
 const COWBOY_BEBOP = {
@@ -68,9 +68,10 @@ describe('parseSeasonParams', () => {
     expect(parseSeasonParams(undefined, undefined, now)).toBeNull();
   });
 
-  it('clamps the archive to two years ahead', () => {
-    expect(parseSeasonParams('2028', 'winter', now)).not.toBeNull();
-    expect(parseSeasonParams('2029', 'winter', now)).toBeNull();
+  it('clamps the archive to one year ahead', () => {
+    expect(maxSeasonYear(now)).toBe(2027);
+    expect(parseSeasonParams('2027', 'winter', now)).not.toBeNull();
+    expect(parseSeasonParams('2028', 'winter', now)).toBeNull();
   });
 
   it('derives the current season path from the date', () => {
@@ -122,16 +123,24 @@ describe('router shell', () => {
         </QueryClientProvider>,
       );
     });
+    // The first import of a route chunk can outlast a fixed wait, so block on
+    // the router reporting the initial match resolved before settling renders.
+    await settle(() => router.state.initialized);
     await settle();
     return router;
   }
 
-  /** Let the route's lazy chunk (and the mocked schedule fetch) resolve. */
-  async function settle() {
-    for (let i = 0; i < 8; i++) {
+  /**
+   * Let the route's lazy chunk (and the mocked schedule fetch) resolve: a few
+   * ticks by default, or up to 100 when waiting on an explicit condition.
+   */
+  async function settle(until?: () => boolean) {
+    const limit = until === undefined ? 8 : 100;
+    for (let i = 0; i < limit; i++) {
       await act(async () => {
         await new Promise((resolve) => setTimeout(resolve, 5));
       });
+      if (until?.()) break;
     }
   }
 

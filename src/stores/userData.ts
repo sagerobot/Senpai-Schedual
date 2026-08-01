@@ -25,6 +25,8 @@ export interface SeriesOverrides {
 export interface UiPrefs {
   includeMovies: boolean;
   selectedSources: string[];
+  /** First-run hero on the schedule, closed by hand. Absent = never dismissed. */
+  welcomeDismissed?: boolean;
 }
 
 /** Everything removeFromLibrary takes away, so Undo can put it back. */

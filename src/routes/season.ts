@@ -9,6 +9,14 @@ export const SEASONS = ['WINTER', 'SPRING', 'SUMMER', 'FALL'] as const;
 /** Earliest year the archive pager will accept. AniList has nothing usable before this. */
 const MIN_SEASON_YEAR = 1940;
 
+/**
+ * Latest year the archive will page to. Announcements rarely reach further
+ * than a year out, so anything beyond this is guaranteed-empty pages.
+ */
+export function maxSeasonYear(date = new Date()): number {
+  return date.getFullYear() + 1;
+}
+
 export function currentSeason(date = new Date()): { year: number; season: SeasonSlug } {
   const month = date.getMonth();
   const season: SeasonSlug =
@@ -37,8 +45,7 @@ export function parseSeasonParams(
 ): { year: number; season: SeasonSlug } | null {
   const year = Number(yearParam);
   const slug = (seasonParam ?? '').toLowerCase();
-  const maxYear = date.getFullYear() + 2;
-  if (!Number.isInteger(year) || year < MIN_SEASON_YEAR || year > maxYear) return null;
+  if (!Number.isInteger(year) || year < MIN_SEASON_YEAR || year > maxSeasonYear(date)) return null;
   if (!isSeasonSlug(slug)) return null;
   return { year, season: slug };
 }

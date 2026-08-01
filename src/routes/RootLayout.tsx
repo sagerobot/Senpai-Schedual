@@ -1,6 +1,6 @@
 import { AnimatePresence } from 'motion/react';
 import { Save, Settings, Sparkles } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { NavLink, Outlet, useNavigate, useSearchParams } from 'react-router';
 import { toast } from 'sonner';
 import { DataSyncModal } from '../features/data/DataSyncModal';
@@ -22,7 +22,11 @@ export function RootLayout() {
   const favorites = useMemo(() => library.filter((l) => l.status === 'watching').map((l) => l.showId), [library]);
 
   const schedule = useCurrentSchedule();
-  const animeList = useMemo(() => schedule.data ?? [], [schedule.data]);
+  // Complete data wins; on a cold start the pages streamed so far paint early.
+  const animeList = useMemo(
+    () => schedule.data ?? schedule.partialData ?? [],
+    [schedule.data, schedule.partialData],
+  );
   const scheduleError = schedule.isError
     ? schedule.error instanceof Error
       ? schedule.error.message
@@ -33,6 +37,22 @@ export function RootLayout() {
   const retrySchedule = useCallback(() => {
     void refetchSchedule();
   }, [refetchSchedule]);
+
+  // A failed *background* refresh (cached data still on screen) is worth one
+  // toast, not a blocking error screen. The ref keeps the interval refetch
+  // from re-toasting every 15 minutes; a successful refresh re-arms it.
+  const refreshToastArmed = useRef(true);
+  const hasScheduleData = schedule.data !== undefined;
+  useEffect(() => {
+    if (schedule.isError && hasScheduleData) {
+      if (refreshToastArmed.current) {
+        refreshToastArmed.current = false;
+        toast.error("Couldn't refresh the schedule — showing cached data");
+      }
+    } else if (schedule.isSuccess) {
+      refreshToastArmed.current = true;
+    }
+  }, [schedule.isError, schedule.isSuccess, hasScheduleData]);
 
   // ---- Show detail modal, hosted on `?show=<id>` --------------------------
 
@@ -106,8 +126,14 @@ export function RootLayout() {
   );
 
   const outletContext: ScheduleContext = useMemo(
-    () => ({ animeList, scheduleLoading: schedule.isPending, scheduleError, retrySchedule }),
-    [animeList, schedule.isPending, scheduleError, retrySchedule],
+    () => ({
+      animeList,
+      scheduleLoading: schedule.isPending,
+      scheduleStreaming: schedule.isStreaming,
+      scheduleError,
+      retrySchedule,
+    }),
+    [animeList, schedule.isPending, schedule.isStreaming, scheduleError, retrySchedule],
   );
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>

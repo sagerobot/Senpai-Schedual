@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useSyncExternalStore } from 'react';
 import { useQueries, useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
 import {
   fetchAnimeBySeason,
@@ -20,20 +20,73 @@ const DAY = 24 * HOUR;
 const WEEK = 7 * DAY;
 
 /**
+ * Partial schedule pages, streamed *outside* the query cache.
+ *
+ * `queryClient.setQueryData` was considered and rejected: under React Query v5
+ * it dispatches a success action — `status` flips to `'success'` and
+ * `dataUpdatedAt` moves — so the throttled localStorage persister (which keeps
+ * anything with `status === 'success'`, see client.ts) could dehydrate a
+ * half-fetched season as if it were the real thing, and `isPending`/staleTime
+ * semantics would report a fetch that is still running as settled. A
+ * module-level store sidesteps all of that: the cache only ever sees the
+ * complete list the queryFn resolves with.
+ */
+let schedulePartial: AnimeMedia[] | null = null;
+const schedulePartialListeners = new Set<() => void>();
+
+function publishSchedulePartial(partial: AnimeMedia[] | null): void {
+  schedulePartial = partial;
+  for (const listener of schedulePartialListeners) listener();
+}
+
+function subscribeSchedulePartial(listener: () => void): () => void {
+  schedulePartialListeners.add(listener);
+  return () => schedulePartialListeners.delete(listener);
+}
+
+const getSchedulePartial = () => schedulePartial;
+
+/**
  * The current-season schedule. Refetches on a 15-minute interval so a tab left
  * open keeps its countdowns honest, and survives reloads for a day.
+ *
+ * On a cold start `partialData` carries the pages fetched so far (first one
+ * after a single round-trip); it is `null` as soon as complete data exists, so
+ * a background interval refetch never downgrades the list on screen.
  */
 export function useCurrentSchedule() {
   const { transformList } = useMediaTransform();
 
-  return useQuery({
+  const partialRaw = useSyncExternalStore(subscribeSchedulePartial, getSchedulePartial, getSchedulePartial);
+
+  const query = useQuery({
     queryKey: queryKeys.schedule(),
-    queryFn: fetchCurrentSeasonAnime,
+    queryFn: async () => {
+      try {
+        return await fetchCurrentSeasonAnime(publishSchedulePartial);
+      } finally {
+        publishSchedulePartial(null);
+      }
+    },
     select: transformList,
     staleTime: 15 * MINUTE,
     gcTime: DAY,
     refetchInterval: 15 * MINUTE,
   });
+
+  const hasComplete = query.data !== undefined;
+  const partialData = useMemo(
+    () => (partialRaw !== null && !hasComplete ? transformList(partialRaw) : null),
+    [partialRaw, hasComplete, transformList],
+  );
+
+  return {
+    ...query,
+    /** Cold-start pages streamed so far; `null` once the full list exists. */
+    partialData,
+    /** True while later pages are still arriving behind a partial first paint. */
+    isStreaming: partialData !== null,
+  };
 }
 
 /**

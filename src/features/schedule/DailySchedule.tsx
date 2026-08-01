@@ -1,7 +1,8 @@
 import { AnimeMedia, EpisodeLog } from '../../types';
 import { AnimeCard } from '../../components/AnimeCard';
 import { SeriesTitle } from '../../components/SeriesTitle';
-import { Search, Film } from 'lucide-react';
+import { WelcomeHero } from '../../components/WelcomeHero';
+import { Search, SearchX, Film, Loader2 } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { cn } from '../../lib/utils';
 import { displayTitle } from '../../lib/displayTitle';
@@ -15,11 +16,13 @@ interface DailyScheduleProps {
   onAnimeSelect: (anime: AnimeMedia) => void;
   logs: EpisodeLog[];
   onLog: (showId: number, episodeNumber: number, score: number | null) => void;
+  /** More schedule pages are still streaming in behind the first paint. */
+  isStreaming?: boolean;
 }
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-export function DailySchedule({ animeList, favorites, onToggleFavorite, onAnimeSelect, logs, onLog }: DailyScheduleProps) {
+export function DailySchedule({ animeList, favorites, onToggleFavorite, onAnimeSelect, logs, onLog, isStreaming = false }: DailyScheduleProps) {
   const [search, setSearch] = useState('');
 
   // Persisted state (userData store uiPrefs)
@@ -89,9 +92,19 @@ export function DailySchedule({ animeList, favorites, onToggleFavorite, onAnimeS
     ...DAYS.slice(0, todayIndex)
   ];
 
+  const visibleCount = DAYS.reduce((n, day) => n + schedule[day].length, 0);
+  const hasActiveFilters = search.trim().length > 0 || selectedSources.length > 0;
+
+  const clearFilters = () => {
+    setSearch('');
+    setUiPrefs({ selectedSources: [], includeMovies: false });
+  };
+
   return (
     <div className="space-y-8 pb-12">
-      <CheckInFeed 
+      <WelcomeHero />
+
+      <CheckInFeed
         animeList={animeList} 
         favorites={favorites} 
         logs={logs} 
@@ -106,6 +119,12 @@ export function DailySchedule({ animeList, favorites, onToggleFavorite, onAnimeS
             Daily Schedule
           </h2>
           <p className="text-gray-400 mt-1 text-sm">Upcoming episodes in your local timezone</p>
+          {isStreaming && (
+            <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-edge bg-surface-1 px-2.5 py-1 text-[11px] font-medium text-gray-400">
+              <Loader2 className="h-3 w-3 animate-spin text-accent-400" />
+              Loading more shows…
+            </span>
+          )}
         </div>
         
         <div className="flex flex-col sm:flex-row flex-wrap items-center gap-3 sm:gap-4 w-full 2xl:w-auto">
@@ -160,6 +179,26 @@ export function DailySchedule({ animeList, favorites, onToggleFavorite, onAnimeS
           </div>
         </div>
       </div>
+
+      {visibleCount === 0 && (
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-edge bg-surface-0 py-20 text-center">
+          <SearchX className="mb-4 h-8 w-8 text-gray-600" />
+          <p className="text-gray-300 font-medium">No shows match</p>
+          {hasActiveFilters ? (
+            <>
+              <p className="mt-1 text-sm text-gray-500">Your search and platform filters hid everything airing this week.</p>
+              <button
+                onClick={clearFilters}
+                className="mt-4 rounded-xl bg-accent-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent-500"
+              >
+                Clear filters
+              </button>
+            </>
+          ) : (
+            <p className="mt-1 text-sm text-gray-500">Nothing on the schedule has an announced next episode right now.</p>
+          )}
+        </div>
+      )}
 
       <div className="space-y-12">
         {orderedDays.map(day => {

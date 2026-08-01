@@ -9,10 +9,15 @@ import { AnimeMedia } from '../types';
  *
  * There is no global loading gate — `animeList` is `[]` until the fetch lands
  * and each route decides whether that is worth blocking on.
+ *
+ * On a cold start `animeList` fills progressively (first AniList page after
+ * one round-trip); `scheduleStreaming` is true while later pages are still
+ * arriving so views can show a "loading more" hint instead of a spinner.
  */
 export interface ScheduleContext {
   animeList: AnimeMedia[];
   scheduleLoading: boolean;
+  scheduleStreaming: boolean;
   scheduleError: string | null;
   retrySchedule: () => void;
 }

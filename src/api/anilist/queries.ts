@@ -33,12 +33,17 @@ const MalPageSchema = z.object({
   }),
 });
 
-async function fetchPaginatedMedia(query: string, variables: Record<string, unknown>): Promise<AnimeMedia[]> {
+async function fetchPaginatedMedia(
+  query: string,
+  variables: Record<string, unknown>,
+  onPage?: (pageMedia: AnimeMedia[]) => void,
+): Promise<AnimeMedia[]> {
   const results: AnimeMedia[] = [];
   let page = 1;
   for (;;) {
     const data = await anilistRequest(query, { ...variables, page }, MediaPageSchema);
     results.push(...data.Page.media);
+    onPage?.(data.Page.media);
     if (!data.Page.pageInfo?.hasNextPage) break;
     if (page >= MAX_PAGES) {
       console.warn(`[anilist] pagination capped at ${MAX_PAGES} pages; results truncated.`);
@@ -104,7 +109,15 @@ export async function fetchAnimeByMalIds(
   return results;
 }
 
-export async function fetchCurrentSeasonAnime(): Promise<AnimeMedia[]> {
+/**
+ * The whole current-season + releasing walk (up to ~2 x MAX_PAGES requests).
+ *
+ * `onPage` fires after every page with the cumulative, deduplicated list so
+ * far — the first call lands after a single round-trip, which is what lets the
+ * schedule paint before the remaining pages stream in. The returned promise
+ * still resolves with the complete list; only that goes into the query cache.
+ */
+export async function fetchCurrentSeasonAnime(onPage?: (partial: AnimeMedia[]) => void): Promise<AnimeMedia[]> {
   const date = new Date();
   const year = date.getFullYear();
   const month = date.getMonth();
@@ -133,12 +146,13 @@ export async function fetchCurrentSeasonAnime(): Promise<AnimeMedia[]> {
   `;
 
   const allMediaMap = new Map<number, AnimeMedia>();
-  for (const anime of await fetchPaginatedMedia(querySeason, { season, seasonYear: year })) {
-    allMediaMap.set(anime.id, anime);
-  }
-  for (const anime of await fetchPaginatedMedia(queryReleasing, {})) {
-    allMediaMap.set(anime.id, anime);
-  }
+  const absorb = (pageMedia: AnimeMedia[]) => {
+    for (const anime of pageMedia) allMediaMap.set(anime.id, anime);
+    onPage?.(Array.from(allMediaMap.values()));
+  };
+
+  await fetchPaginatedMedia(querySeason, { season, seasonYear: year }, absorb);
+  await fetchPaginatedMedia(queryReleasing, {}, absorb);
 
   return Array.from(allMediaMap.values());
 }
