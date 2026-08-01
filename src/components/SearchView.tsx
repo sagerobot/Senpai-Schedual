@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AnimeMedia } from '../types';
-import { searchAnime } from '../api/anilist';
+import { searchAnime } from '../api/anilist/queries';
 import { Search, Loader2 } from 'lucide-react';
 import { AnimeCard } from './AnimeCard';
 

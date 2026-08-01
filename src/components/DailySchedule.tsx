@@ -4,6 +4,7 @@ import { SeriesTitle } from './SeriesTitle';
 import { Search, Film } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { cn } from '../lib/utils';
+import { displayTitle } from '../lib/displayTitle';
 import { CheckInFeed } from './CheckInFeed';
 
 interface DailyScheduleProps {
@@ -65,8 +66,8 @@ export function DailySchedule({ animeList, favorites, onToggleFavorite, onAnimeS
     }
 
     if (search) {
-      filtered = filtered.filter(a => 
-        a.title.userPreferred.toLowerCase().includes(search.toLowerCase()) ||
+      filtered = filtered.filter(a =>
+        a.title.userPreferred?.toLowerCase().includes(search.toLowerCase()) ||
         a.title.english?.toLowerCase().includes(search.toLowerCase())
       );
     }
@@ -186,7 +187,7 @@ export function DailySchedule({ animeList, favorites, onToggleFavorite, onAnimeS
                   <AnimeCard
                     key={anime.id}
                     anime={anime}
-                    titleOverride={<SeriesTitle showId={anime.id} fallbackTitle={anime.title.english || anime.title.userPreferred} />}
+                    titleOverride={<SeriesTitle showId={anime.id} fallbackTitle={displayTitle(anime)} />}
                     isFavorite={favorites.includes(anime.id)}
                     onToggleFavorite={onToggleFavorite}
                     onClick={onAnimeSelect}

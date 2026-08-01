@@ -2,6 +2,7 @@ import React from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { AnimeMedia, EpisodeLog } from '../types';
 import { X, Trophy, Clock, TrendingUp } from 'lucide-react';
+import { displayTitle } from '../lib/displayTitle';
 
 interface SeasonRecapModalProps {
   isOpen: boolean;
@@ -73,7 +74,7 @@ export function SeasonRecapModal({ isOpen, onClose, logs, animeList, favorites }
                     <Trophy className="h-6 w-6 text-yellow-500" />
                   </div>
                   <span className="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1">Seasonal MVP</span>
-                  <span className="font-semibold text-white line-clamp-1">{recapData.mvp?.title.english || recapData.mvp?.title.userPreferred || 'None'}</span>
+                  <span className="font-semibold text-white line-clamp-1">{recapData.mvp ? displayTitle(recapData.mvp) : 'None'}</span>
                   {recapData.highestScore > 0 && <span className="text-yellow-400 text-sm mt-1">{recapData.highestScore.toFixed(1)} avg</span>}
                 </div>
                 
@@ -93,7 +94,7 @@ export function SeasonRecapModal({ isOpen, onClose, logs, animeList, favorites }
                   </div>
                   <div>
                     <div className="text-xs text-purple-300 font-semibold mb-0.5">Biggest Score Jump (+{recapData.biggestJump.jump})</div>
-                    <div className="text-sm text-white font-medium">{recapData.biggestJump.show.title.english || recapData.biggestJump.show.title.userPreferred}</div>
+                    <div className="text-sm text-white font-medium">{displayTitle(recapData.biggestJump.show)}</div>
                   </div>
                 </div>
               )}
@@ -105,7 +106,7 @@ export function SeasonRecapModal({ isOpen, onClose, logs, animeList, favorites }
                   {recapData.showStats.slice(0, 5).map(stat => (
                     <div key={stat.anime.id} className="flex flex-col gap-1">
                       <div className="flex justify-between text-xs">
-                        <span className="text-gray-300 font-medium truncate pr-2">{stat.anime.title.english || stat.anime.title.userPreferred}</span>
+                        <span className="text-gray-300 font-medium truncate pr-2">{displayTitle(stat.anime)}</span>
                         <span className="text-gray-500 shrink-0">{stat.avgScore.toFixed(1)}</span>
                       </div>
                       <div className="flex h-6 items-end gap-0.5 opacity-80 hover:opacity-100 transition-opacity">

@@ -4,7 +4,8 @@ import { AnimeCard } from './AnimeCard';
 import { SeriesTitle } from './SeriesTitle';
 import { Search, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
-import { fetchAnimeBySeason } from '../api/anilist';
+import { fetchAnimeBySeason } from '../api/anilist/queries';
+import { displayTitle } from '../lib/displayTitle';
 
 interface SeasonViewProps {
   animeList: AnimeMedia[]; // Initially current season
@@ -58,8 +59,8 @@ export function SeasonView({ animeList, favorites, onToggleFavorite, onAnimeSele
 
   const filtered = useMemo(() => {
     if (!search) return displayList;
-    return displayList.filter(a => 
-      a.title.userPreferred.toLowerCase().includes(search.toLowerCase()) ||
+    return displayList.filter(a =>
+      a.title.userPreferred?.toLowerCase().includes(search.toLowerCase()) ||
       a.title.english?.toLowerCase().includes(search.toLowerCase())
     );
   }, [displayList, search]);
@@ -127,7 +128,7 @@ export function SeasonView({ animeList, favorites, onToggleFavorite, onAnimeSele
               <AnimeCard
                 key={anime.id}
                 anime={anime}
-                titleOverride={<SeriesTitle showId={anime.id} fallbackTitle={anime.title.english || anime.title.userPreferred} />}
+                titleOverride={<SeriesTitle showId={anime.id} fallbackTitle={displayTitle(anime)} />}
                 isFavorite={favorites.includes(anime.id)}
                 onToggleFavorite={onToggleFavorite}
                 onClick={onAnimeSelect}

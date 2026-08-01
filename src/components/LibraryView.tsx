@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { AnimeMedia, LibraryEntry, EpisodeLog, LibraryStatus } from '../types';
-import { fetchAnimeByIds, fetchAnimeByMalIds } from '../api/anilist';
+import { fetchAnimeByIds, fetchAnimeByMalIds } from '../api/anilist/queries';
 import { parseMalXml } from '../lib/malParser';
+import { displayTitle } from '../lib/displayTitle';
 import { Loader2, Upload, FileText, Download } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useLibrarySeries } from '../hooks/useLibrarySeries';
@@ -183,15 +184,15 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
         if (anime) {
           graph = {
             seriesId: entry.showId,
-            title: anime.title.english || anime.title.userPreferred,
+            title: displayTitle(anime),
             entries: [{
               id: entry.showId,
-              title: anime.title.english || anime.title.userPreferred,
+              title: displayTitle(anime),
               seasonLabel: 'Season 1',
-              format: anime.status,
+              format: anime.status ?? '',
               isAttachment: false,
               startDate: anime.startDate,
-              episodes: anime.episodes
+              episodes: anime.episodes ?? undefined
             }]
           };
         }

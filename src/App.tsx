@@ -1,7 +1,7 @@
 import { AnimatePresence } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { Calendar, LayoutGrid, Bookmark, Loader2, Sparkles, Save, Search, Settings } from 'lucide-react';
-import { fetchCurrentSeasonAnime } from './api/anilist';
+import { fetchCurrentSeasonAnime } from './api/anilist/queries';
 import { AnimeMedia, ViewMode } from './types';
 import { useLibrary } from './hooks/useLibrary';
 import { useEpisodeLog } from './hooks/useEpisodeLog';

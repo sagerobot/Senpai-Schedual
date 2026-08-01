@@ -3,6 +3,7 @@ import { AnimeMedia, EpisodeLog } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { Clock, Star, Play, Check, Bookmark, ChevronDown, CheckCircle2, Info, Zap } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { displayTitle } from '../lib/displayTitle';
 
 interface CheckInFeedProps {
   animeList: AnimeMedia[];
@@ -184,7 +185,7 @@ const CheckInItem = memo(function CheckInItem({ drop, onLog, onToggleFavorite, o
             className="text-[17px] sm:text-[19px] font-bold text-white leading-tight line-clamp-1 cursor-pointer hover:text-purple-400 transition-colors"
             onClick={() => onAnimeSelect?.(anime)}
           >
-            {anime.title.english || anime.title.userPreferred}
+            {displayTitle(anime)}
           </h3>
           <div className="flex gap-1.5 mt-1 flex-col items-end sm:flex-row sm:items-center">
             <div className="text-[11px] text-gray-400 whitespace-nowrap flex-shrink-0 border border-gray-800 bg-[#0f121d] px-2 py-0.5 rounded-full">

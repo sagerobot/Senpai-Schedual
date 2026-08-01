@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import { Clock, ChevronRight, History, Play, Link, Zap, Info } from 'lucide-react';
 import { getCachedSeriesGraph } from '../utils/seriesResolution';
+import { displayTitle } from '../lib/displayTitle';
 
 interface CatchUpQueueProps {
   animeList: AnimeMedia[];
@@ -57,9 +58,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
     queue.sort((a, b) => {
       if (sortBy === 'soonest') return a.nextAiring - b.nextAiring;
       if (sortBy === 'alphabetical') {
-        const titleA = a.anime.title.english || a.anime.title.userPreferred;
-        const titleB = b.anime.title.english || b.anime.title.userPreferred;
-        return titleA.localeCompare(titleB);
+        return displayTitle(a.anime).localeCompare(displayTitle(b.anime));
       }
       return b.behindCount - a.behindCount;
     });
@@ -137,8 +136,8 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
     // Sort items within each group by start date
     for (const group of finalGroups.values()) {
       group.sort((a, b) => {
-        const dateA = (a.anime.startDate.year || 0) * 10000 + (a.anime.startDate.month || 0) * 100 + (a.anime.startDate.day || 0);
-        const dateB = (b.anime.startDate.year || 0) * 10000 + (b.anime.startDate.month || 0) * 100 + (b.anime.startDate.day || 0);
+        const dateA = (a.anime.startDate?.year || 0) * 10000 + (a.anime.startDate?.month || 0) * 100 + (a.anime.startDate?.day || 0);
+        const dateB = (b.anime.startDate?.year || 0) * 10000 + (b.anime.startDate?.month || 0) * 100 + (b.anime.startDate?.day || 0);
         return dateA - dateB;
       });
     }
@@ -147,8 +146,8 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
     const originalOrder = new Map(queueData.queue.map((item, i) => [item.anime.id, i]));
     return Array.from(finalGroups.values()).map(group => {
       return group.sort((a, b) => {
-        const dateA = (a.anime.startDate.year || 9999) * 10000 + (a.anime.startDate.month || 1) * 100 + (a.anime.startDate.day || 1);
-        const dateB = (b.anime.startDate.year || 9999) * 10000 + (b.anime.startDate.month || 1) * 100 + (b.anime.startDate.day || 1);
+        const dateA = (a.anime.startDate?.year || 9999) * 10000 + (a.anime.startDate?.month || 1) * 100 + (a.anime.startDate?.day || 1);
+        const dateB = (b.anime.startDate?.year || 9999) * 10000 + (b.anime.startDate?.month || 1) * 100 + (b.anime.startDate?.day || 1);
         return dateA - dateB;
       });
     }).sort((groupA, groupB) => {
@@ -163,7 +162,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
 
   const renderSeriesGroup = (group: typeof queueData.queue) => {
     const firstItem = group[0];
-    const seriesTitle = firstItem.anime.title.english || firstItem.anime.title.userPreferred;
+    const seriesTitle = displayTitle(firstItem.anime);
     
     const totalWatched = group.reduce((acc, item) => acc + item.watched.length, 0);
     const totalAired = group.reduce((acc, item) => acc + item.airedCount, 0);
@@ -393,7 +392,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
             <div className="flex justify-between items-start gap-2">
               <div className="min-w-0 flex-1">
                 <h3 className="font-bold text-gray-100 text-[14px] leading-snug line-clamp-2 group-hover/card:text-[#b0a4ff] transition-colors pr-2">
-                  {item.anime.title.english || item.anime.title.userPreferred}
+                  {displayTitle(item.anime)}
                 </h3>
                 
                 <div className="mt-1.5 flex items-center gap-2 text-[11px] text-gray-400 font-medium">

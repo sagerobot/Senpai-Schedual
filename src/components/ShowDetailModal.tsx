@@ -3,7 +3,8 @@ import { X, ExternalLink, Bookmark, MessageCircle, Loader2, Sparkles, RefreshCw 
 import { useState, useEffect } from 'react';
 import { AnimeMedia, LibraryEntry } from '../types';
 import { fetchShowDetails, ShowDetails } from '../api/showDetails';
-import { fetchAnimeByIds } from '../api/anilist';
+import { fetchAnimeByIds, fetchMediaById } from '../api/anilist/queries';
+import { displayTitle } from '../lib/displayTitle';
 import { useCommunityPulse } from '../hooks/useCommunityPulse';
 import { useSimulcastOffsets } from '../hooks/useSimulcastOffsets';
 import { formatTimeUntil, cn } from '../lib/utils';
@@ -24,34 +25,44 @@ type TabType = 'mal' | 'anilist' | 'kitsu';
 
 export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, onAnimeSelect, libraryEntry, onUpdateEntry }: ShowDetailModalProps) {
   const [details, setDetails] = useState<ShowDetails | null>(null);
+  // List queries no longer carry `description` (localStorage quota); the modal
+  // fetches the full record by id and uses the passed-in anime for immediate render.
+  const [fullMedia, setFullMedia] = useState<AnimeMedia | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabType>('mal');
   const [loadingRelationId, setLoadingRelationId] = useState<number | null>(null);
 
   const latestEpisode = anime.nextAiringEpisode ? Math.max(1, anime.nextAiringEpisode.episode - 1) : anime.episodes || 1;
   const [selectedEpisode, setSelectedEpisode] = useState(latestEpisode);
-  const { pulse, loading: pulseLoading, refresh: refreshPulse } = useCommunityPulse(anime.title.english || anime.title.userPreferred, selectedEpisode, anime.id);
+  const { pulse, loading: pulseLoading, refresh: refreshPulse } = useCommunityPulse(displayTitle(anime), selectedEpisode, anime.id);
   const { offsets, setOffset } = useSimulcastOffsets();
 
   useEffect(() => {
     let mounted = true;
     setLoading(true);
-    
-    fetchShowDetails(anime.idMal, anime.title.english || anime.title.romaji, anime.description, anime.id)
-      .then(data => {
-        if (mounted) {
-          setDetails(data);
-          
-          // Auto select best tab
-          if (!data.mal?.synopsis && anime.description) setActiveTab('anilist');
-          else if (!data.mal?.synopsis && !anime.description && data.kitsu?.synopsis) setActiveTab('kitsu');
-          
-          setLoading(false);
-        }
-      });
-      
+    setFullMedia(null);
+
+    Promise.all([
+      fetchShowDetails(anime.idMal, displayTitle(anime), anime.description ?? '', anime.id),
+      fetchMediaById(anime.id).catch(() => null),
+    ]).then(([data, full]) => {
+      if (mounted) {
+        setDetails(data);
+        setFullMedia(full);
+
+        // Auto select best tab
+        const anilistSynopsis = full?.description ?? anime.description;
+        if (!data.mal?.synopsis && anilistSynopsis) setActiveTab('anilist');
+        else if (!data.mal?.synopsis && !anilistSynopsis && data.kitsu?.synopsis) setActiveTab('kitsu');
+
+        setLoading(false);
+      }
+    });
+
     return () => { mounted = false; };
   }, [anime]);
+
+  const anilistDescription = fullMedia?.description ?? anime.description ?? null;
 
   const kitsuScore = details?.kitsu?.averageRating ? parseFloat(details.kitsu.averageRating) : null;
   const anilistScore = anime.averageScore;
@@ -76,7 +87,7 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
 
   const rawTabs = [
     { id: 'mal' as TabType, label: 'MyAnimeList', content: details?.mal?.synopsis },
-    { id: 'anilist' as TabType, label: 'AniList', content: anime.description },
+    { id: 'anilist' as TabType, label: 'AniList', content: anilistDescription },
     { id: 'kitsu' as TabType, label: 'Kitsu', content: details?.kitsu?.synopsis }
   ];
 
@@ -96,14 +107,14 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
             <div className="flex gap-4 p-5 md:p-6 pb-2">
               <div className="shrink-0">
                 <img 
-                  src={anime.coverImage.large} 
-                  alt={anime.title.userPreferred}
+                  src={anime.coverImage.large}
+                  alt={displayTitle(anime)}
                   className="h-32 w-24 rounded-lg object-cover shadow-md bg-gray-900"
                 />
               </div>
               <div className="flex flex-col justify-center py-1">
                 <Dialog.Title className="text-xl md:text-2xl font-bold tracking-tight text-white mb-3">
-                  {anime.title.english || anime.title.userPreferred}
+                  {displayTitle(anime)}
                 </Dialog.Title>
                 
                 <div className="flex flex-wrap gap-2 text-xs font-medium">
@@ -457,7 +468,7 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
             {/* Footer Actions */}
             <div className="flex flex-wrap items-center gap-3 p-5 md:p-6 shrink-0 pt-0">
               <a
-                href={`https://www.reddit.com/r/anime/search/?q=${encodeURIComponent(anime.title.english || anime.title.userPreferred)}+episode+${anime.nextAiringEpisode ? anime.nextAiringEpisode.episode - 1 : 1}+discussion&restrict_sr=1`}
+                href={`https://www.reddit.com/r/anime/search/?q=${encodeURIComponent(displayTitle(anime))}+episode+${anime.nextAiringEpisode ? anime.nextAiringEpisode.episode - 1 : 1}+discussion&restrict_sr=1`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex flex-1 items-center justify-center space-x-2 rounded-lg border border-gray-700 bg-transparent px-4 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"

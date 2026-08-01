@@ -3,9 +3,10 @@ import { AnimeCard, StatusPillType } from './AnimeCard';
 import { BookmarkIcon, Trophy, Calendar, Star, TrendingUp, PlaySquare, Archive, XCircle, Clock } from 'lucide-react';
 import { CatchUpQueue } from './CatchUpQueue';
 import React, { useMemo, useState, useEffect } from 'react';
-import { fetchAnimeByIds } from '../api/anilist';
+import { fetchAnimeByIds } from '../api/anilist/queries';
 import { SeasonRecapModal } from './SeasonRecapModal';
 import { cn } from '../lib/utils';
+import { displayTitle } from '../lib/displayTitle';
 
 interface FavoritesViewProps {
   animeList: AnimeMedia[];
@@ -98,7 +99,8 @@ export function FavoritesView({ animeList, library, favorites, onToggleFavorite,
         mvpId = Number(idStr);
       }
     });
-    const mvpTitle = mvpId ? animeList.find(a => a.id === mvpId)?.title.english || animeList.find(a => a.id === mvpId)?.title.userPreferred : '-';
+    const mvpAnime = mvpId !== null ? animeList.find(a => a.id === mvpId) : undefined;
+    const mvpTitle = mvpAnime ? displayTitle(mvpAnime) : '-';
 
     return { totalWatched, averageScore, mostWatchedDay, mvpTitle };
   }, [logs, favorites, animeList]);
@@ -140,7 +142,7 @@ export function FavoritesView({ animeList, library, favorites, onToggleFavorite,
         userScore,
         statusPill,
         nextAiringTime: anime.nextAiringEpisode?.timeUntilAiring ?? Infinity,
-        title: anime.title.english || anime.title.userPreferred
+        title: displayTitle(anime)
       };
     });
   }, [currentShows, logs]);

@@ -1,5 +1,6 @@
 import { AnimeMedia } from '../types';
 import { formatTimeUntil, cn } from '../lib/utils';
+import { displayTitle } from '../lib/displayTitle';
 import { Bookmark, Clock, PlayCircle, Star, CheckCircle2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import React, { useState, useEffect } from 'react';
@@ -81,8 +82,8 @@ export function AnimeCard({
       {/* Cover Image */}
       <div className="relative aspect-[3/4] w-full overflow-hidden">
         <img 
-          src={anime.coverImage.extraLarge || anime.coverImage.large} 
-          alt={anime.title.userPreferred}
+          src={anime.coverImage.extraLarge || anime.coverImage.large}
+          alt={displayTitle(anime)}
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
@@ -116,8 +117,8 @@ export function AnimeCard({
 
         {/* Status / Countdown */}
         <div className="absolute bottom-0 left-0 w-full p-3 sm:p-4">
-          <h3 className="line-clamp-2 text-base sm:text-lg font-bold leading-tight text-white" title={typeof titleOverride === 'string' ? titleOverride : (anime.title.english || anime.title.userPreferred)}>
-            {titleOverride || anime.title.english || anime.title.userPreferred}
+          <h3 className="line-clamp-2 text-base sm:text-lg font-bold leading-tight text-white" title={typeof titleOverride === 'string' ? titleOverride : displayTitle(anime)}>
+            {titleOverride || displayTitle(anime)}
           </h3>
           
           <div className="mt-1.5 sm:mt-2 flex items-center space-x-2 text-xs sm:text-sm text-gray-300">
