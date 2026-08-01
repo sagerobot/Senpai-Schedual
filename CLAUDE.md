@@ -22,7 +22,9 @@ React 19 SPA + a thin Express server. **All user data lives in `localStorage`** 
 
 ### Server (`server/`)
 
-`index.ts` (bootstrap, static serving, `/api/health`), `middleware.ts`, `cache.ts`, `budget.ts`, `schemas.ts`, `types.ts`, `routes/ai.ts`. Three AI routes: `/api/generate-summary`, `/api/community-vibe`, `/api/recommendations`. Model: `gemini-3.6-flash`.
+`index.ts` (bootstrap, static serving, `/api/health`), `middleware.ts`, `cache.ts`, `budget.ts`, `schemas.ts`, `types.ts`, `routes/ai.ts`, `routes/season.ts`. Three AI routes: `/api/generate-summary`, `/api/community-vibe`, `/api/recommendations`. Model: `gemini-3.6-flash`.
+
+`GET /api/season` relays the precomputed season bundle from `SEASON_BUNDLE_URL` (optional `SEASON_BUNDLE_TOKEN` while the repo is private) with a 30-min memory cache, stale-on-error, and a 60s failure backoff. A 404 `{status:"unavailable"}` is a normal state, not an error — the client falls back to live AniList. The bundle is produced by `npm run data:build` (`scripts/build-season-data.ts`) and lives ONLY on the `data` branch, written by exactly one scheduled agent — see `docs/season-refresh.md`.
 
 **The AI envelope** (`types.ts`) is the contract every AI route answers with, and the reason the client can tell degraded copy from data:
 
@@ -52,6 +54,8 @@ Never return a placeholder body as `ok` — that is exactly the bug the envelope
 ### The query layer (`src/queries/`)
 
 Every key is built in `keys.ts` and nowhere else, which is what lets the persistence allowlist be exhaustive by construction.
+
+`useCurrentSchedule` is **bundle-first**: it tries `/api/season` and uses the bundle when fresher than 24h, otherwise it runs the live progressive walk unchanged (`seasonBundle.ts`). Bundle shows are stripped of `description` before entering the query cache (same quota rule as `MEDIA_FIELDS`); the raw records stay in a module index that feeds the detail modal. `primeSeriesFromBundle` primes `['series','byShow',id]` for every member — but skips any graph a user override touches, so personal splits/merges always beat the shared bundle. Bundle summaries short-circuit `/api/generate-summary`.
 
 | Key | staleTime | Notes |
 | --- | --- | --- |

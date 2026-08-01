@@ -7,6 +7,9 @@ coverage/
 .env*
 !.env.example
 ai_summary_cache.json
+# The season bundle lives on the `data` branch only (docs/season-refresh.md);
+# a local `npm run data:build` must never land on a feature branch.
+/season.json
 *.tsbuildinfo
 .vscode/
 .idea/

@@ -5,6 +5,7 @@ import path from "node:path";
 import { anyExhausted } from "./budget";
 import { apiLimiter, apiNotFound, requestLogger, securityHeaders } from "./middleware";
 import { aiRouter } from "./routes/ai";
+import { seasonRouter } from "./routes/season";
 
 async function startServer(): Promise<void> {
   const app = express();
@@ -25,6 +26,9 @@ async function startServer(): Promise<void> {
     res.json({ ok: true, ai });
   });
 
+  // Not an AI route: no Gemini, no budget, no aiLimiter — the general 60/min
+  // /api limiter above is the only one that applies.
+  app.use("/api", seasonRouter);
   app.use("/api", aiRouter);
   app.all("/api/*", apiNotFound);
 

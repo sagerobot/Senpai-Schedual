@@ -42,6 +42,15 @@ vi.mock('../api/showDetails', () => ({
   fetchShowDetails: vi.fn(async () => ({ mal: null, kitsu: null, aiSummary: null })),
 }));
 
+// The schedule query asks the app server for the precomputed season bundle
+// before falling back to AniList. Stubbed to "no bundle" so the shell renders
+// off the mocked fetchers above and never reaches a real socket.
+vi.mock('../queries/seasonBundle', () => ({
+  loadScheduleFromBundle: vi.fn(async () => null),
+  getBundleShow: vi.fn(() => undefined),
+  getBundleSummary: vi.fn(() => undefined),
+}));
+
 describe('parseShowId', () => {
   it('accepts positive integers only', () => {
     expect(parseShowId('21')).toBe(21);

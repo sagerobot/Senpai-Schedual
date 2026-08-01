@@ -13,6 +13,7 @@ import { currentSeason, type SeasonSlug } from '../routes/season';
 import { queryKeys } from './keys';
 import { fetchMediaBatched } from './mediaBatcher';
 import { useMediaTransform } from './offsets';
+import { getBundleShow, getBundleSummary, loadScheduleFromBundle } from './seasonBundle';
 
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
@@ -50,9 +51,23 @@ const getSchedulePartial = () => schedulePartial;
  * The current-season schedule. Refetches on a 15-minute interval so a tab left
  * open keeps its countdowns honest, and survives reloads for a day.
  *
+ * Two ways this resolves, in order:
+ *
+ * 1. The precomputed bundle from `GET /api/season` — one same-origin request,
+ *    which also primes every franchise graph and every AI summary it carries.
+ * 2. The progressive AniList walk, unchanged, whenever the bundle is missing,
+ *    stale, or unusable. `loadScheduleFromBundle` returns `null` rather than
+ *    throwing for all of those, so the fallback is the ordinary path and not an
+ *    error path.
+ *
+ * Either way the value that lands in the cache is the same shape — a complete
+ * `AnimeMedia[]` with no synopses — so persistence, staleTime, and the read-time
+ * offset transform behave identically.
+ *
  * On a cold start `partialData` carries the pages fetched so far (first one
  * after a single round-trip); it is `null` as soon as complete data exists, so
- * a background interval refetch never downgrades the list on screen.
+ * a background interval refetch never downgrades the list on screen. The bundle
+ * path skips it entirely: there are no pages to stream, only one response.
  */
 export function useCurrentSchedule() {
   const { transformList } = useMediaTransform();
@@ -62,6 +77,9 @@ export function useCurrentSchedule() {
   const query = useQuery({
     queryKey: queryKeys.schedule(),
     queryFn: async () => {
+      const bundled = await loadScheduleFromBundle();
+      if (bundled !== null) return bundled;
+
       try {
         return await fetchCurrentSeasonAnime(publishSchedulePartial);
       } finally {
@@ -206,6 +224,12 @@ export interface ShowDetailsData {
  * kept and shown instantly, but the query is stale from birth so re-opening
  * the modal re-attempts the summary — the behaviour the old localStorage cache
  * implemented by hand.
+ *
+ * When the season bundle covers this show it supplies both of those for free —
+ * the by-id record (bundle shows are fetched with the same MEDIA_FIELDS_FULL
+ * selection) and the summary — so opening a modal costs Jikan and Kitsu only.
+ * The bundle's record is used raw, exactly as `fetchMediaById` returns it, so
+ * `select` applies the offset transform to it once and only once.
  */
 export function useShowDetailsQuery(anime: AnimeMedia) {
   const { transformMaybe } = useMediaTransform();
@@ -219,13 +243,15 @@ export function useShowDetailsQuery(anime: AnimeMedia) {
     queryKey: queryKeys.showDetails(anime.id),
     queryFn: async (): Promise<ShowDetailsData> => {
       // List records no longer carry `description`, so the AI summary's AniList
-      // synopsis comes from the by-id fetch. The promise (never the awaited
-      // value) is handed to fetchShowDetails so Jikan/Kitsu start immediately;
-      // only the synopsis assembly waits on it.
-      const fullPromise = fetchMediaById(anime.id).catch(() => null);
+      // synopsis comes from the by-id fetch (or the bundle). The promise (never
+      // the awaited value) is handed to fetchShowDetails so Jikan/Kitsu start
+      // immediately; only the synopsis assembly waits on it.
+      const bundledShow = getBundleShow(anime.id);
+      const fullPromise: Promise<AnimeMedia | null> =
+        bundledShow !== undefined ? Promise.resolve(bundledShow) : fetchMediaById(anime.id).catch(() => null);
       const synopsisPromise = fullPromise.then((m) => m?.description ?? anime.description ?? '');
       const [details, full] = await Promise.all([
-        fetchShowDetails(anime.idMal, displayTitle(anime), synopsisPromise, anime.id),
+        fetchShowDetails(anime.idMal, displayTitle(anime), synopsisPromise, anime.id, getBundleSummary(anime.id)),
         fullPromise,
       ]);
       return { details, full };
