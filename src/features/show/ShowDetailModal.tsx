@@ -7,10 +7,9 @@ import { useShowDetailsQuery } from '../../queries/hooks';
 import { displayTitle } from '../../lib/displayTitle';
 import { useCommunityPulse } from './useCommunityPulse';
 import { EpisodeTracker } from './EpisodeTracker';
-import { useSimulcastOffsets } from '../../hooks/useSimulcastOffsets';
+import { ShowAdvancedPanel } from './ShowAdvancedPanel';
 import { cn } from '../../lib/utils';
 import { LIBRARY_STATUS_LABELS, LIBRARY_STATUS_ORDER } from '../../lib/status';
-import { splitFromSeries, mergeIntoSeries } from '../../series/overrides';
 import { useUserData } from '../../stores/userData';
 
 interface ShowDetailModalProps {
@@ -33,7 +32,6 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
   const latestEpisode = anime.nextAiringEpisode ? Math.max(1, anime.nextAiringEpisode.episode - 1) : anime.episodes || 1;
   const [selectedEpisode, setSelectedEpisode] = useState(latestEpisode);
   const { pulse, state: pulseState, load: loadPulse } = useCommunityPulse(displayTitle(anime), selectedEpisode, anime.id);
-  const { offsets, setOffset } = useSimulcastOffsets();
 
   const setShowScore = useUserData((s) => s.setShowScore);
 
@@ -449,45 +447,11 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
                   </button>
                 </div>
               )}
+
+              {/* Advanced: simulcast delay + series split/merge */}
+              <ShowAdvancedPanel anime={anime} />
             </div>
 
-                        {/* Advanced Overrides */}
-            <div className="px-5 md:px-6 mb-4 flex flex-wrap gap-3 items-center">
-              <button 
-                onClick={() => {
-                  splitFromSeries(anime.id);
-                  alert('Show marked as standalone series.');
-                }}
-                className="text-xs text-gray-500 hover:text-white underline"
-              >
-                Split from series
-              </button>
-              <button 
-                onClick={() => {
-                  const target = prompt('Enter the AniList ID of the series to merge into:');
-                  if (target && !isNaN(parseInt(target))) {
-                    mergeIntoSeries(anime.id, parseInt(target));
-                    alert('Show merged into target series.');
-                  }
-                }}
-                className="text-xs text-gray-500 hover:text-white underline"
-              >
-                Merge into series
-              </button>
-              <button 
-                onClick={() => {
-                  const current = offsets[anime.id] || 0;
-                  const res = prompt('Enter simulcast delay in minutes (e.g. 30 for half an hour later):', current.toString());
-                  if (res !== null && !isNaN(parseInt(res))) {
-                    // Applied at read time — every countdown repaints on the next render.
-                    setOffset(anime.id, parseInt(res));
-                  }
-                }}
-                className="text-xs text-gray-500 hover:text-white underline"
-              >
-                Adjust simulcast time
-              </button>
-            </div>
             {/* Footer Actions */}
             <div className="shrink-0 space-y-4 p-5 pt-0 md:p-6 md:pt-0">
               <div className="flex flex-wrap items-center gap-3">
