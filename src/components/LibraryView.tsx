@@ -337,7 +337,7 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
           </div>
           <div className="h-1.5 w-full bg-gray-800 rounded-full overflow-hidden">
             <div 
-              className="h-full bg-indigo-500 rounded-full transition-all duration-300"
+              className="h-full bg-accent-500 rounded-full transition-all duration-300"
               style={{ width: `${Math.min(100, (importProgress.current / importProgress.total) * 100)}%` }}
             />
           </div>
@@ -345,7 +345,7 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
       )}
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#1c1c1f] p-2 rounded-xl border border-gray-800">
-        <div className="flex space-x-1 overflow-x-auto pb-2 md:pb-0 hide-scrollbar">
+        <div className="flex space-x-1 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
           {tabs.map(t => (
             <button
               key={t.id}
@@ -367,12 +367,12 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
             placeholder="Search series..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="rounded-lg border border-gray-700 bg-[#2a2a2d] px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-indigo-500 focus:outline-none w-full md:w-48"
+            className="rounded-lg border border-gray-700 bg-[#2a2a2d] px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-accent-500 focus:outline-none w-full md:w-48"
           />
           <select
             value={sortOption}
             onChange={(e) => setSortOption(e.target.value as any)}
-            className="rounded-lg border border-gray-700 bg-[#2a2a2d] px-3 py-2 text-sm font-medium text-gray-300 focus:border-indigo-500 focus:outline-none"
+            className="rounded-lg border border-gray-700 bg-[#2a2a2d] px-3 py-2 text-sm font-medium text-gray-300 focus:border-accent-500 focus:outline-none"
           >
             <option value="recently-updated">Recently Updated</option>
             <option value="title">A-Z</option>
@@ -383,7 +383,7 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
 
       {loadingIds ? (
         <div className="flex h-32 items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-indigo-500" />
+          <Loader2 className="h-6 w-6 animate-spin text-accent-500" />
         </div>
       ) : displaySeries.length > 0 ? (
         <div className="flex flex-col gap-3">

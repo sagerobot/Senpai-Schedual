@@ -3,8 +3,10 @@ import { formatTimeUntil, cn } from '../lib/utils';
 import { Bookmark, Clock, PlayCircle, Star, CheckCircle2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import React, { useState, useEffect } from 'react';
+import { StatusBadge } from './StatusBadge';
+import { WatchState } from '../lib/status';
 
-export type StatusPillType = 'caught-up' | 'behind' | 'airing-soon' | 'finished' | 'not-started';
+export type StatusPillType = WatchState;
 
 interface AnimeCardProps {
   key?: React.Key;
@@ -94,25 +96,8 @@ export function AnimeCard({
               {userScore.toFixed(1)}
             </div>
           )}
-          {statusPill === 'caught-up' && (
-            <div className="rounded-full bg-emerald-500/20 px-2 py-1 text-[10px] font-semibold text-emerald-300 border border-emerald-500/30 backdrop-blur-md">
-              Caught up
-            </div>
-          )}
-          {statusPill === 'behind' && (
-            <div className="rounded-full bg-purple-500/20 px-2 py-1 text-[10px] font-semibold text-purple-300 border border-purple-500/30 backdrop-blur-md">
-              {behindCount} behind
-            </div>
-          )}
-          {statusPill === 'airing-soon' && (
-            <div className="rounded-full bg-indigo-500/20 px-2 py-1 text-[10px] font-semibold text-indigo-300 border border-indigo-500/30 backdrop-blur-md flex items-center gap-1">
-              <Clock className="h-3 w-3" /> Airing soon
-            </div>
-          )}
-          {statusPill === 'finished' && (
-            <div className="rounded-full bg-blue-500/20 px-2 py-1 text-[10px] font-semibold text-blue-300 border border-blue-500/30 backdrop-blur-md">
-              Finished
-            </div>
+          {statusPill && statusPill !== 'not-started' && (
+            <StatusBadge state={statusPill} behindCount={behindCount} />
           )}
         </div>
 

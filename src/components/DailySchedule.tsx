@@ -122,7 +122,7 @@ export function DailySchedule({ animeList, favorites, onToggleFavorite, onAnimeS
           <div className="flex items-center bg-[#0a0c16] border border-[#1e2336] rounded-xl p-1 shrink-0 w-full sm:w-auto justify-center sm:justify-start">
             <button
               onClick={() => setIncludeMovies(!includeMovies)}
-              className={cn("px-4 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5", includeMovies ? "bg-indigo-600 text-white shadow-md" : "text-gray-400 hover:text-gray-200")}
+              className={cn("px-4 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5", includeMovies ? "bg-accent-600 text-white shadow-md" : "text-gray-400 hover:text-gray-200")}
             >
               <Film className="w-3.5 h-3.5" />
               Movies

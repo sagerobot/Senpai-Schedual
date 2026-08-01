@@ -383,7 +383,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
               {item.behindCount}
             </div>
             {seasonIndex !== undefined && (
-              <div className="absolute -top-2 -left-2 min-w-[20px] h-5 px-1 rounded-md bg-[#0c102b] border border-[#b0a4ff]/80 text-[#b0a4ff] text-[10px] font-bold flex items-center justify-center z-10 shadow-sm shadow-indigo-900/20 backdrop-blur-sm">
+              <div className="absolute -top-2 -left-2 min-w-[20px] h-5 px-1 rounded-md bg-[#0c102b] border border-[#b0a4ff]/80 text-[#b0a4ff] text-[10px] font-bold flex items-center justify-center z-10 shadow-sm shadow-purple-900/20 backdrop-blur-sm">
                 S{seasonIndex + 1}
               </div>
             )}

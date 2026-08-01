@@ -1,9 +1,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
+@import "tw-animate-css";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Surface scale — the only backgrounds the app uses.
+     0 = page, 1 = card, 2 = raised card/modal, 3 = hover/input. */
+  --color-surface-0: #0b0b0e;
+  --color-surface-1: #17171b;
+  --color-surface-2: #1f1f24;
+  --color-surface-3: #2a2a30;
+  --color-edge: #26262c;
+
+  /* Single accent: purple. Do not introduce indigo or raw hex accents. */
+  --color-accent-300: var(--color-purple-300);
+  --color-accent-400: var(--color-purple-400);
+  --color-accent-500: var(--color-purple-500);
+  --color-accent-600: var(--color-purple-600);
+  --color-accent-700: var(--color-purple-700);
 }
 
 body {
@@ -12,6 +28,13 @@ body {
 
 h1, h2, h3, h4, h5, h6, .tracking-tight {
   font-family: "Space Grotesk", var(--font-sans);
+}
+
+@utility scrollbar-hide {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .custom-scrollbar::-webkit-scrollbar {

@@ -108,7 +108,7 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
                 
                 <div className="flex flex-wrap gap-2 text-xs font-medium">
                   {anime.nextAiringEpisode && (
-                    <div className="rounded-full bg-indigo-50 px-3 py-1.5 text-indigo-700">
+                    <div className="rounded-full bg-accent-500/20 border border-accent-500/30 px-3 py-1.5 text-accent-300">
                       Ep {anime.nextAiringEpisode.episode} · {new Intl.DateTimeFormat('en-US', {
                         weekday: 'short',
                         hour: 'numeric',
@@ -144,7 +144,7 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
                     <div className="flex-1 h-[70px] animate-pulse rounded-xl bg-[#2a2a2d]"></div>
                     <div className="flex-1 h-[70px] animate-pulse rounded-xl bg-[#2a2a2d]"></div>
                     <div className="flex-1 h-[70px] animate-pulse rounded-xl bg-[#2a2a2d]"></div>
-                    <div className="flex-1 h-[70px] animate-pulse rounded-xl bg-indigo-50/50"></div>
+                    <div className="flex-1 h-[70px] animate-pulse rounded-xl bg-[#2a2a2d]"></div>
                   </>
                 ) : (
                   <>
@@ -160,9 +160,9 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
                       <span className="text-[10px] font-semibold uppercase text-gray-500">Kitsu</span>
                       <span className="text-2xl font-bold text-white">{kitsuScore ? `${kitsuScore}%` : '-'}</span>
                     </div>
-                    <div className="flex flex-1 flex-col justify-center rounded-xl bg-indigo-50 py-3 shadow-sm">
-                      <span className="text-[10px] font-semibold uppercase text-indigo-500">Average</span>
-                      <span className="text-2xl font-bold text-indigo-900">{normalizedAverage || '-'}</span>
+                    <div className="flex flex-1 flex-col justify-center rounded-xl bg-accent-600/20 border border-accent-500/30 py-3">
+                      <span className="text-[10px] font-semibold uppercase text-accent-400">Average</span>
+                      <span className="text-2xl font-bold text-white">{normalizedAverage || '-'}</span>
                     </div>
                   </>
                 )}
@@ -180,7 +180,7 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
                         href={`https://anilist.co/${sourceNode?.type?.toLowerCase()}/${sourceNode?.id}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm font-semibold text-indigo-400 hover:underline"
+                        className="text-sm font-semibold text-accent-400 hover:underline"
                       >
                         {sourceNode?.type === 'MANGA' ? 'Manga' : sourceNode?.type === 'NOVEL' ? 'Light Novel' : 'Source'}
                         {sourceScore && `: ${sourceScore}`}
@@ -223,13 +223,13 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
                             }
                           }
                         }}
-                        className="flex items-center gap-2 rounded-lg bg-[#2a2a2d] px-3 py-2 text-left transition-colors hover:bg-indigo-500/20 hover:border-indigo-500/50 border border-transparent disabled:opacity-50"
+                        className="flex items-center gap-2 rounded-lg bg-[#2a2a2d] px-3 py-2 text-left transition-colors hover:bg-accent-500/20 hover:border-accent-500/50 border border-transparent disabled:opacity-50"
                       >
                         <div className="flex flex-col">
-                          <span className="text-[10px] font-semibold uppercase text-indigo-400">{e.relationType.replace('_', ' ')}</span>
+                          <span className="text-[10px] font-semibold uppercase text-accent-400">{e.relationType.replace('_', ' ')}</span>
                           <span className="text-xs font-medium text-white line-clamp-1">{e.node.title.userPreferred}</span>
                         </div>
-                        {loadingRelationId === e.node.id && <Loader2 className="w-4 h-4 animate-spin text-indigo-400" />}
+                        {loadingRelationId === e.node.id && <Loader2 className="w-4 h-4 animate-spin text-accent-400" />}
                       </button>
                     ))}
                   </div>
@@ -263,8 +263,8 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
                           onClick={() => setActiveTab(tab.id)}
                           className={cn(
                             "rounded-full px-3 py-1 text-[11px] font-medium transition-colors",
-                            activeTab === tab.id 
-                              ? "bg-indigo-50 text-indigo-900" 
+                            activeTab === tab.id
+                              ? "bg-accent-600/20 border border-accent-500/40 text-accent-300"
                               : "border border-gray-700 text-gray-400 hover:text-gray-200"
                           )}
                         >
@@ -280,14 +280,14 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
               {/* AI Summary */}
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-8 rounded-xl border border-gray-800 bg-[#2a2a2d]/50">
-                  <Loader2 className="h-6 w-6 animate-spin text-indigo-400" />
+                  <Loader2 className="h-6 w-6 animate-spin text-accent-400" />
                   <p className="mt-2 text-sm text-gray-400">Analyzing synopses...</p>
                 </div>
               ) : details?.aiSummary ? (
-                <div className="relative rounded-xl border border-indigo-500/30 bg-[#242436] p-4">
+                <div className="relative rounded-xl border border-accent-500/30 bg-[#242436] p-4">
                   <div className="mb-2 flex items-center space-x-2">
-                    <Sparkles className="h-4 w-4 text-indigo-400" />
-                    <span className="text-xs font-semibold text-indigo-400">AI summary</span>
+                    <Sparkles className="h-4 w-4 text-accent-400" />
+                    <span className="text-xs font-semibold text-accent-400">AI summary</span>
                     <span className="rounded-full bg-emerald-950 px-2 py-0.5 text-[10px] font-semibold text-emerald-300">Spoiler-free</span>
                   </div>
                   <p className="text-sm leading-relaxed text-gray-200">
@@ -305,7 +305,7 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-medium text-gray-300">Episodes</h3>
                 </div>
-                <div className="flex space-x-2 overflow-x-auto pb-2 hide-scrollbar">
+                <div className="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
                   {Array.from({ length: latestEpisode }, (_, i) => i + 1).map(ep => (
                     <button
                       key={ep}
@@ -313,7 +313,7 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
                       className={cn(
                         "shrink-0 flex items-center justify-center h-8 min-w-[2rem] px-2 rounded-lg text-xs font-medium transition-colors",
                         selectedEpisode === ep
-                          ? "bg-indigo-600 text-white"
+                          ? "bg-accent-600 text-white"
                           : "bg-[#2a2a2d] text-gray-400 hover:text-white hover:bg-gray-700"
                       )}
                     >
@@ -357,7 +357,7 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
                         pulse.indicator === 'negative' ? "text-rose-400" : 
                         "text-pink-400"
                       )}>Community vibe (Ep {selectedEpisode})</span>
-                      <span className="rounded-full bg-indigo-950 px-2 py-0.5 text-[10px] font-semibold text-indigo-300">Spoiler-free</span>
+                      <span className="rounded-full bg-purple-950 px-2 py-0.5 text-[10px] font-semibold text-accent-300">Spoiler-free</span>
                     </div>
                     <div className={cn("flex items-center space-x-3 text-xs", 
                         pulse.indicator === 'positive' ? "text-emerald-300/80" : 
@@ -483,7 +483,7 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
                   <select
                     value={libraryEntry.status}
                     onChange={(e) => onUpdateEntry(anime.id, { status: e.target.value as any })}
-                    className="rounded-lg border border-gray-700 bg-[#2a2a2d] px-3 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:border-gray-600 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="rounded-lg border border-gray-700 bg-[#2a2a2d] px-3 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:border-gray-600 focus:outline-none focus:ring-1 focus:ring-accent-500"
                   >
                     <option value="watching">Watching</option>
                     <option value="plan_to_watch">Plan to Watch</option>
@@ -496,8 +496,8 @@ export function ShowDetailModal({ anime, onClose, isFavorite, onToggleFavorite, 
                   onClick={() => onToggleFavorite(anime.id)}
                   className={cn(
                     "flex items-center justify-center rounded-lg p-2.5 transition-colors border",
-                    isFavorite 
-                      ? "bg-indigo-50 border-indigo-50 text-indigo-900" 
+                    isFavorite
+                      ? "bg-accent-600 border-accent-600 text-white"
                       : "bg-transparent border-gray-700 text-gray-400 hover:text-white hover:bg-gray-800"
                   )}
                   title={isFavorite ? "Remove from watching" : "Add to watching"}
