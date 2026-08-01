@@ -14,7 +14,8 @@
     "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\"",
     "lint": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
-    "data:build": "tsx scripts/build-season-data.ts"
+    "data:build": "tsx scripts/build-season-data.ts",
+    "data:merge": "tsx scripts/merge-summaries.ts"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

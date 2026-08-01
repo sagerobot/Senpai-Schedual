@@ -404,30 +404,34 @@ async function loadPrevious(path: string | null): Promise<SeasonBundle | null> {
 interface Args {
   out: string;
   prev: string | null;
+  /** Write the shows still lacking a summary here, for an agent to write them. */
+  emitMissing: string | null;
 }
 
 function parseArgs(argv: string[]): Args {
   let out = DEFAULT_OUT;
   let prev: string | null = null;
+  let emitMissing: string | null = null;
 
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
-    if (arg === '--out' || arg === '--prev') {
+    if (arg === '--out' || arg === '--prev' || arg === '--emit-missing') {
       const value = argv[i + 1];
       if (value === undefined || value.startsWith('--')) {
         throw new Error(`${arg} needs a path`);
       }
       if (arg === '--out') out = value;
-      else prev = value;
+      else if (arg === '--prev') prev = value;
+      else emitMissing = value;
       i++;
       continue;
     }
-    throw new Error(`Unknown argument "${arg}". Usage: data:build [--out path] [--prev path]`);
+    throw new Error(`Unknown argument "${arg}". Usage: data:build [--out path] [--prev path] [--emit-missing path]`);
   }
 
   // Default: refresh in place. The scheduled task passes --prev explicitly, but
   // a local re-run should not silently discard the summaries it already paid for.
-  return { out, prev: prev ?? out };
+  return { out, prev: prev ?? out, emitMissing };
 }
 
 async function main(): Promise<void> {
@@ -463,6 +467,22 @@ async function main(): Promise<void> {
   }
 
   const summaries = await buildSummaries(shows, previous);
+
+  // The summaries themselves are written by whoever runs this — the scheduled
+  // Claude agent writes them directly (subscription-covered, no metered API)
+  // and folds them in with scripts/merge-summaries.ts. This emits its work list.
+  if (args.emitMissing !== null) {
+    const missing = shows
+      .filter((s) => summaries.summaries[String(s.id)] === undefined && (s.description ?? '').trim() !== '')
+      .map((s) => ({
+        id: s.id,
+        title: s.title.userPreferred ?? s.title.english ?? s.title.romaji ?? `#${s.id}`,
+        description: s.description,
+      }));
+    const emitPath = resolve(args.emitMissing);
+    await writeFile(emitPath, `${JSON.stringify(missing, null, 2)}\n`, 'utf8');
+    console.log(`[data] ${missing.length} show(s) need a summary — list written to ${emitPath}`);
+  }
 
   const bundle: SeasonBundle = {
     version: SEASON_BUNDLE_VERSION,
