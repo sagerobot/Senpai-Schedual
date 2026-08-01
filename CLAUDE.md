@@ -73,9 +73,9 @@ Every key is built in `keys.ts` and nowhere else, which is what lets the persist
 
 `client.ts` persists to `senpai.queryCache.v1`: success-only, allowlisted roots, versioned `BUSTER`, `removeOldestQuery` under quota pressure.
 
-**`offsets.ts` is a read-time `select` transform, not a fetch-time mutation.** Caches store raw AniList data; the user's simulcast offset and the injected CustomSource link are applied on the way *out*. Changing an offset repaints every countdown from the existing cache — no refetch, no invalidation, no "please refresh". Keep new fetchers on this path.
+**`offsets.ts` is a read-time `select` transform, not a fetch-time mutation.** Caches store raw AniList data; the user's simulcast offset and their custom watch-source link are applied on the way *out*. Changing either repaints every affected card from the existing cache — no refetch, no invalidation, no "please refresh". Keep new fetchers on this path.
 
-**The owner requires the CustomSource link kept** (region-availability escape hatch). `INJECT_CUSTOM_LINK` in `offsets.ts` is its single switch. Deep-link research verdict: CustomSource detail pages are `/anime/info/<opaque token>` bearing no relation to the AniList id, MAL id, or title, so a direct link cannot be constructed — `browse?keyword=<romaji>` is the deepest link possible. Don't re-litigate this, and don't remove the link.
+**The custom watch source is user-supplied and stays that way.** `uiPrefs.customSource` (`{ name, urlTemplate }`, `{title}` substituted at read time) exists so a user can attach a source the app doesn't list — their own media server, a regional service. The app ships **no presets and no suggestions** for it; that neutrality is deliberate and load-bearing, so never add a default, an autocomplete, or docs naming any specific site. Templates must be absolute http(s) URLs (`isInjectableTemplate`) so a hostile value can't render as a `javascript:` link.
 
 ### The series graph (`src/series/`)
 

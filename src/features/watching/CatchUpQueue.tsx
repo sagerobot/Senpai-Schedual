@@ -8,6 +8,7 @@ import { displayTitle } from '../../lib/displayTitle';
 import { cn } from '../../lib/utils';
 import { pickWatchLink } from '../../lib/watchLinks';
 import { useVibesIndex } from '../../queries/vibes';
+import { useUserData } from '../../stores/userData';
 import { useSeriesGraphs } from '../../series/useSeriesGraphs';
 import { AnimeMedia, EpisodeLog } from '../../types';
 
@@ -44,6 +45,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
   const [sortBy, setSortBy] = useState<SortOption>('soonest');
   const [groupSeasons, setGroupSeasons] = useState(true);
   const vibes = useVibesIndex();
+  const customSite = useUserData((s) => s.uiPrefs.customSource?.name);
 
   const queueData = useMemo(() => {
     const now = Math.floor(Date.now() / 1000);
@@ -215,7 +217,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
     const info = seriesInfoByShow.get(item.anime.id);
     const progress = item.airedCount > 0 ? (item.watched.length / item.airedCount) * 100 : 0;
     const nextUnwatched = nextUnwatchedEp(item);
-    const watchLink = pickWatchLink(item.anime.externalLinks);
+    const watchLink = pickWatchLink(item.anime.externalLinks, customSite);
     const openShow = () => onAnimeSelect(item.anime);
 
     return (
@@ -411,7 +413,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
     const currentItem = group[currentIndex];
     const nextEpisode = nextUnwatchedEp(currentItem);
     const currentLabel = seasonLabelFor(currentItem);
-    const watchLink = pickWatchLink(currentItem.anime.externalLinks);
+    const watchLink = pickWatchLink(currentItem.anime.externalLinks, customSite);
 
     return (
       <motion.div

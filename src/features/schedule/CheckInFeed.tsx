@@ -133,7 +133,8 @@ const CheckInItem = memo(function CheckInItem({
 
   const timeStr = new Date(drop.airedAt * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 
-  const watchLink = pickWatchLink(anime.externalLinks);
+  const customSite = useUserData((s) => s.uiPrefs.customSource?.name);
+  const watchLink = pickWatchLink(anime.externalLinks, customSite);
 
   const isCaughtUp = maxWatched >= todayEp - 1;
   const nextEp = isCaughtUp ? todayEp : maxWatched + 1;

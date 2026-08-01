@@ -14,6 +14,7 @@ import { cn } from '../../lib/utils';
 import { LIBRARY_STATUS_LABELS, LIBRARY_STATUS_ORDER } from '../../lib/status';
 import { useUserData } from '../../stores/userData';
 import { LibraryStatusMenu } from '../../components/LibraryStatusMenu';
+import { filterWatchLinks } from '../../lib/watchLinks';
 
 interface ShowDetailModalProps {
   anime: AnimeMedia;
@@ -50,6 +51,8 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
   const asOfLine = remembered !== null ? asOfLabel(remembered) : null;
 
   const setShowScore = useUserData((s) => s.setShowScore);
+  const customSite = useUserData((s) => s.uiPrefs.customSource?.name);
+  const watchEntry = filterWatchLinks(anime.externalLinks, customSite)[0];
 
   const handleRate = (score: number) => {
     if (!libraryEntry) return;
@@ -150,9 +153,9 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                       }).format(new Date(anime.nextAiringEpisode.airingAt * 1000))}
                     </div>
                   )}
-                  {anime.externalLinks.find(l => ['Crunchyroll', 'Netflix', 'HiDive', 'Hulu', 'Amazon', 'CustomSource'].some(s => l.site.toLowerCase().includes(s.toLowerCase()))) && (
+                  {watchEntry && (
                     <div className="rounded-full bg-[#323236] px-3 py-1.5 text-gray-300">
-                      {anime.externalLinks.find(l => ['Crunchyroll', 'Netflix', 'HiDive', 'Hulu', 'Amazon', 'CustomSource'].some(s => l.site.toLowerCase().includes(s.toLowerCase())))!.site}
+                      {watchEntry.site}
                     </div>
                   )}
                   {anime.genres && anime.genres.length > 0 && (
@@ -506,15 +509,15 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                   <span>Episode discussion</span>
                 </a>
 
-                {anime.externalLinks.find(l => ['Crunchyroll', 'Netflix', 'HiDive', 'Hulu', 'Amazon', 'CustomSource'].some(s => l.site.toLowerCase().includes(s.toLowerCase()))) && (
+                {watchEntry && (
                   <a
-                    href={anime.externalLinks.find(l => ['Crunchyroll', 'Netflix', 'HiDive', 'Hulu', 'Amazon', 'CustomSource'].some(s => l.site.toLowerCase().includes(s.toLowerCase())))!.url}
+                    href={watchEntry.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex flex-1 items-center justify-center space-x-2 rounded-lg border border-gray-700 bg-transparent px-4 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
                   >
                     <ExternalLink className="h-4 w-4" />
-                    <span>Watch on {anime.externalLinks.find(l => ['Crunchyroll', 'Netflix', 'HiDive', 'Hulu', 'Amazon', 'CustomSource'].some(s => l.site.toLowerCase().includes(s.toLowerCase())))!.site}</span>
+                    <span>Watch on {watchEntry.site}</span>
                   </a>
                 )}
 

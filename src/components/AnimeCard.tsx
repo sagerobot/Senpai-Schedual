@@ -7,6 +7,8 @@ import React, { useState, useEffect } from 'react';
 import { StatusBadge } from './StatusBadge';
 import { WatchState } from '../lib/status';
 import { LibraryStatusMenu } from './LibraryStatusMenu';
+import { filterWatchLinks } from '../lib/watchLinks';
+import { useUserData } from '../stores/userData';
 
 export type StatusPillType = WatchState;
 
@@ -67,11 +69,8 @@ export function AnimeCard({
       }).format(new Date(nextEp.airingAt * 1000))
     : 'Finished or Unknown';
 
-  // Filter useful streaming links (Crunchyroll, Netflix, HiDive, Hulu, Amazon)
-  const streamingSites = ['Crunchyroll', 'Netflix', 'HiDive', 'Hulu', 'Amazon', 'CustomSource'];
-  const streamingLinks = anime.externalLinks.filter(link =>
-    streamingSites.some(s => link.site.toLowerCase().includes(s.toLowerCase()))
-  );
+  const customSite = useUserData((state) => state.uiPrefs.customSource?.name);
+  const streamingLinks = filterWatchLinks(anime.externalLinks, customSite);
 
   const titleText = typeof titleOverride === 'string' ? titleOverride : displayTitle(anime);
 

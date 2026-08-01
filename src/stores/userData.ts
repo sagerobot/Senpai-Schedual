@@ -22,11 +22,24 @@ export interface SeriesOverrides {
   splits: number[]; // showIds that should be standalone
 }
 
+/**
+ * A watch source the user added themselves — a media server, a regional
+ * service, anything we don't list. Lives only in this browser; the app ships
+ * no presets. `{title}` in the template is replaced with the show's title at
+ * read time (src/queries/offsets.ts).
+ */
+export interface CustomWatchSource {
+  name: string;
+  urlTemplate: string;
+}
+
 export interface UiPrefs {
   includeMovies: boolean;
   selectedSources: string[];
   /** First-run hero on the schedule, closed by hand. Absent = never dismissed. */
   welcomeDismissed?: boolean;
+  /** Absent = the user never added one. */
+  customSource?: CustomWatchSource;
 }
 
 /** Everything removeFromLibrary takes away, so Undo can put it back. */

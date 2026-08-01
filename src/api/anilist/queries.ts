@@ -5,9 +5,9 @@ import { MalResolvedMediaSchema, MediaSchema } from './schemas';
 import type { AnimeMedia, MalResolvedMedia } from './schemas';
 
 /**
- * Fetchers return AniList's data as-is. The simulcast offset and the injected
- * CustomSource link are applied at read time by src/queries/offsets.ts, so what the
- * cache holds stays user-independent.
+ * Fetchers return AniList's data as-is. The simulcast offset and the user's
+ * custom watch-source link are applied at read time by src/queries/offsets.ts,
+ * so what the cache holds stays user-independent.
  */
 
 /** Hard cap for paginated walks (~600 shows) so no query can spiral. */

@@ -1,9 +1,10 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { AlertTriangle, CheckCircle2, Download, FileUp, Library, Trash2, X } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Download, FileUp, Library, Link2, Trash2, X } from 'lucide-react';
 import React, { useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { toast } from 'sonner';
 import { queryClient } from '../../queries/client';
+import { isInjectableTemplate } from '../../queries/offsets';
 import { QUERY_CACHE_KEY, removeKey } from '../../stores/storage';
 import { selectLibraryArray, selectLogsArray, useUserData } from '../../stores/userData';
 import { buildExport, exportFileName, parseBackup, type ParsedBackup } from './backup';
@@ -40,16 +41,40 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
   const library = useUserData(selectLibraryArray);
   const logs = useUserData(selectLogsArray);
+  const customSource = useUserData((s) => s.uiPrefs.customSource);
+  const setUiPrefs = useUserData((s) => s.setUiPrefs);
+  const [sourceName, setSourceName] = useState('');
+  const [sourceTemplate, setSourceTemplate] = useState('');
 
   // Closing is a clean slate: no stale preview or banner on the next open.
   const handleOpenChange = (next: boolean) => {
-    if (!next) {
+    if (next) {
+      // Seed the form from what is saved, so editing starts from the truth.
+      setSourceName(customSource?.name ?? '');
+      setSourceTemplate(customSource?.urlTemplate ?? '');
+    } else {
       setBanner(null);
       setPending(null);
       setDangerOpen(false);
       setConfirmText('');
     }
     onOpenChange(next);
+  };
+
+  const templateInvalid = sourceTemplate.trim() !== '' && !isInjectableTemplate(sourceTemplate);
+  const canSaveSource = sourceName.trim() !== '' && isInjectableTemplate(sourceTemplate);
+
+  const handleSaveSource = () => {
+    if (!canSaveSource) return;
+    setUiPrefs({ customSource: { name: sourceName.trim(), urlTemplate: sourceTemplate.trim() } });
+    toast.success('Custom watch source saved');
+  };
+
+  const handleRemoveSource = () => {
+    setUiPrefs({ customSource: undefined });
+    setSourceName('');
+    setSourceTemplate('');
+    toast.success('Custom watch source removed');
   };
 
   const handleExport = () => {
@@ -219,6 +244,56 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   <Library className="h-4 w-4" aria-hidden="true" />
                   Library
                 </Link>
+              </section>
+
+              {/* Custom watch source */}
+              <section className="rounded-xl border border-edge bg-surface-0 p-4">
+                <h3 className="text-sm font-semibold text-gray-200">Custom watch source</h3>
+                <p className="mt-0.5 text-[11px] text-gray-400">
+                  Add a watch source we don&apos;t list — your own media server, a regional service.{' '}
+                  <code className="rounded bg-surface-2 px-1">{'{title}'}</code> in the URL becomes the show&apos;s
+                  title. Stored in this browser only.
+                </p>
+
+                <div className="mt-3 space-y-2">
+                  <input
+                    value={sourceName}
+                    onChange={(e) => setSourceName(e.target.value)}
+                    autoComplete="off"
+                    aria-label="Source name"
+                    placeholder="Source name"
+                    className="h-11 w-full rounded-lg border border-edge bg-surface-2 px-3 text-sm text-white placeholder-gray-500 focus:border-accent-500 focus:outline-none"
+                  />
+                  <input
+                    value={sourceTemplate}
+                    onChange={(e) => setSourceTemplate(e.target.value)}
+                    autoComplete="off"
+                    aria-label="URL template"
+                    placeholder="https://example.com/search?q={title}"
+                    className="h-11 w-full rounded-lg border border-edge bg-surface-2 px-3 text-sm text-white placeholder-gray-500 focus:border-accent-500 focus:outline-none"
+                  />
+                  {templateInvalid && (
+                    <p className="text-[11px] text-red-300">The URL must start with http:// or https://</p>
+                  )}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleSaveSource}
+                      disabled={!canSaveSource}
+                      className="flex h-11 flex-1 items-center justify-center gap-2 rounded-lg bg-accent-600 text-sm font-semibold text-white transition-colors hover:bg-accent-500 disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      <Link2 className="h-4 w-4" aria-hidden="true" />
+                      {customSource ? 'Update source' : 'Add source'}
+                    </button>
+                    {customSource && (
+                      <button
+                        onClick={handleRemoveSource}
+                        className="h-11 flex-1 rounded-lg border border-edge text-sm font-medium text-gray-300 transition-colors hover:bg-surface-3 hover:text-white"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                </div>
               </section>
 
               {/* Danger zone */}

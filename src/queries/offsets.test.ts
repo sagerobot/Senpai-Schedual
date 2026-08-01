@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import type { AnimeMedia, ExternalLink } from '../api/anilist/schemas';
-import { INJECT_CUSTOM_LINK, customSourceUrl, transformMedia, transformMediaList } from './offsets';
+import type { AnimeMedia } from '../api/anilist/schemas';
+import { customSourceUrl, isInjectableTemplate, transformMedia, transformMediaList } from './offsets';
+import type { CustomWatchSource } from './offsets';
 
 function media(overrides: Partial<AnimeMedia> = {}): AnimeMedia {
   return {
@@ -21,7 +22,7 @@ function media(overrides: Partial<AnimeMedia> = {}): AnimeMedia {
   } as AnimeMedia;
 }
 
-const customLinks = (links: ExternalLink[]) => links.filter((l) => l.site === 'CustomSource');
+const source: CustomWatchSource = { name: 'My Server', urlTemplate: 'https://example.test/search?q={title}' };
 
 describe('simulcast offset transform', () => {
   it('shifts airingAt and timeUntilAiring by minutes * 60', () => {
@@ -46,7 +47,7 @@ describe('simulcast offset transform', () => {
 
   it('does not mutate the cached record', () => {
     const original = media();
-    transformMedia(original, { 21: 30 });
+    transformMedia(original, { 21: 30 }, source);
     expect(original.nextAiringEpisode?.airingAt).toBe(1_700_000_000);
     expect(original.externalLinks).toEqual([]);
   });
@@ -60,39 +61,55 @@ describe('simulcast offset transform', () => {
   });
 });
 
-describe('CustomSource link injection', () => {
-  it('adds exactly one link, and does not add a second on a re-transform', () => {
-    const once = transformMedia(media(), {});
-    expect(customLinks(once.externalLinks)).toHaveLength(1);
-
-    const twice = transformMedia(once, { 21: 30 });
-    expect(customLinks(twice.externalLinks)).toHaveLength(1);
+describe('custom watch-source injection', () => {
+  it('is absent by default: no source means the cached object comes back as-is', () => {
+    const original = media();
+    expect(transformMedia(original, {})).toBe(original);
   });
 
-  it('keeps the links AniList supplied', () => {
+  it('adds exactly one link, and does not add a second on a re-transform', () => {
+    const once = transformMedia(media(), {}, source);
+    expect(once.externalLinks.filter((l) => l.site === 'My Server')).toHaveLength(1);
+
+    const twice = transformMedia(once, { 21: 30 }, source);
+    expect(twice.externalLinks.filter((l) => l.site === 'My Server')).toHaveLength(1);
+  });
+
+  it('keeps the links AniList supplied, appending after them', () => {
     const withCrunchyroll = media({
       externalLinks: [{ url: 'https://crunchyroll.test/one-piece', site: 'Crunchyroll', icon: null, color: null }],
     });
-    const result = transformMedia(withCrunchyroll, {});
+    const result = transformMedia(withCrunchyroll, {}, source);
 
     expect(result.externalLinks).toHaveLength(2);
     expect(result.externalLinks[0].site).toBe('Crunchyroll');
+    expect(result.externalLinks[1].url).toBe('https://example.test/search?q=One%20Piece');
   });
 
-  it('searches by romaji, falling through to english then userPreferred', () => {
-    expect(customSourceUrl(media())).toBe('https://example.invalid/browse?keyword=One%20Piece');
-    expect(
-      customSourceUrl(media({ title: { romaji: null, english: 'Attack on Titan', userPreferred: 'Shingeki' } })),
-    ).toBe('https://example.invalid/browse?keyword=Attack%20on%20Titan');
-    expect(customSourceUrl(media({ title: { romaji: null, english: null, userPreferred: 'Bleach' } }))).toBe(
-      'https://example.invalid/browse?keyword=Bleach',
+  it('substitutes every {title} occurrence, encoded, preferring romaji then english then userPreferred', () => {
+    expect(customSourceUrl(media(), 'https://x.test/{title}?q={title}')).toBe(
+      'https://x.test/One%20Piece?q=One%20Piece',
     );
+    expect(
+      customSourceUrl(
+        media({ title: { romaji: null, english: 'Attack on Titan', userPreferred: 'Shingeki' } }),
+        'https://x.test/?q={title}',
+      ),
+    ).toBe('https://x.test/?q=Attack%20on%20Titan');
+    expect(
+      customSourceUrl(media({ title: { romaji: null, english: null, userPreferred: 'Bleach' } }), 'https://x.test/?q={title}'),
+    ).toBe('https://x.test/?q=Bleach');
   });
 
-  it('is gated behind the injection flag', () => {
-    // The flag is a build-time constant; this asserts the wiring rather than
-    // toggling it, so flipping it to false localises the change to one line.
-    const links = transformMedia(media(), {}).externalLinks;
-    expect(customLinks(links)).toHaveLength(INJECT_CUSTOM_LINK ? 1 : 0);
+  it('refuses templates that are not absolute http(s) URLs, and blank names', () => {
+    expect(isInjectableTemplate('https://example.test/{title}')).toBe(true);
+    expect(isInjectableTemplate('HTTP://example.test/{title}')).toBe(true);
+    expect(isInjectableTemplate('javascript:alert(1)')).toBe(false);
+    expect(isInjectableTemplate('example.test/{title}')).toBe(false);
+    expect(isInjectableTemplate('')).toBe(false);
+
+    const original = media();
+    expect(transformMedia(original, {}, { name: 'X', urlTemplate: 'javascript:alert(1)' })).toBe(original);
+    expect(transformMedia(original, {}, { name: '   ', urlTemplate: 'https://example.test/' })).toBe(original);
   });
 });
