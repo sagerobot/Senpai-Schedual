@@ -54,8 +54,25 @@ async function startServer(): Promise<void> {
       !fs.existsSync(cwdClient) && typeof __dirname !== "undefined"
         ? path.join(__dirname, "client")
         : cwdClient;
-    app.use(express.static(clientDir));
+    app.use(
+      express.static(clientDir, {
+        // Documents go through the catch-all below so they always carry
+        // no-cache; only real files are served here.
+        index: false,
+        setHeaders(res, filePath) {
+          // Vite emits content-hashed filenames under /assets — a returning
+          // visitor's browser can keep them for a year without ever asking the
+          // (possibly spun-down) server again.
+          if (filePath.includes(`${path.sep}assets${path.sep}`)) {
+            res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+          }
+        },
+      }),
+    );
     app.get("*", (_req, res) => {
+      // The HTML must revalidate on every load so new deploys (with new asset
+      // hashes) are picked up immediately.
+      res.setHeader("Cache-Control", "no-cache");
       res.sendFile(path.join(clientDir, "index.html"));
     });
   }
