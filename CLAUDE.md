@@ -22,9 +22,11 @@ React 19 SPA + a thin Express server. **All user data lives in `localStorage`** 
 
 ### Server (`server/`)
 
-`index.ts` (bootstrap, static serving, `/api/health`), `middleware.ts`, `cache.ts`, `budget.ts`, `schemas.ts`, `types.ts`, `routes/ai.ts`, `routes/season.ts`. Three AI routes: `/api/generate-summary`, `/api/community-vibe`, `/api/recommendations`. Model: `gemini-3.6-flash`.
+`index.ts` (bootstrap, static serving, `/api/health`), `middleware.ts`, `cache.ts`, `budget.ts`, `schemas.ts`, `types.ts`, `routes/ai.ts`, `routes/season.ts`, `routes/vibes.ts`, `routes/export.ts`. Three AI routes: `/api/generate-summary`, `/api/community-vibe`, `/api/recommendations`. Model: `gemini-3.6-flash`.
 
-`GET /api/season` relays the precomputed season bundle from `SEASON_BUNDLE_URL` (optional `SEASON_BUNDLE_TOKEN` while the repo is private) with a 30-min memory cache, stale-on-error, and a 60s failure backoff. A 404 `{status:"unavailable"}` is a normal state, not an error — the client falls back to live AniList. The bundle is produced by `npm run data:build` (`scripts/build-season-data.ts`) and lives ONLY on the `data` branch, written by exactly one scheduled agent — see `docs/season-refresh.md`.
+`GET /api/vibes` relays the remembered r/anime episode sentiments from `VIBES_BUNDLE_URL` with a 10-min memory cache; `POST /api/community-vibe` consults it before the LRU, the budget, and Gemini. `GET /api/cache-export` dumps the harvestable cache for the scheduled routines. See `docs/vibes-refresh.md`.
+
+`GET /api/season` relays the precomputed season bundle from `SEASON_BUNDLE_URL` (optional `SEASON_BUNDLE_TOKEN` while the repo is private) with a 30-min memory cache, stale-on-error, and a 60s failure backoff. A 404 `{status:"unavailable"}` is a normal state, not an error — the client falls back to live AniList. The `data` branch holds two files with one scheduled-agent writer EACH: `season.json` (8h refresh, `npm run data:build` — see `docs/season-refresh.md`) and `vibes.json` (hourly vibe loop — see `docs/vibes-refresh.md`).
 
 **The AI envelope** (`types.ts`) is the contract every AI route answers with, and the reason the client can tell degraded copy from data:
 
@@ -65,6 +67,7 @@ Every key is built in `keys.ts` and nowhere else, which is what lets the persist
 | `['media',id]` | 1 h | via the `id_in` micro-batcher |
 | `['showDetails',id]` | 24 h if `aiStatus==='ok'`, else `0` | degraded AI re-attempts on reopen |
 | `['series','byShow',showId]` | 7 d | stored under *every* member id |
+| `['vibes']` | 10 min | **not persisted** — served hot from server memory, rewritten hourly |
 
 `client.ts` persists to `senpai.queryCache.v1`: success-only, allowlisted roots, versioned `BUSTER`, `removeOldestQuery` under quota pressure.
 

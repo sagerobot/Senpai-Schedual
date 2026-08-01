@@ -2,6 +2,7 @@
 import { act, type ReactElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { vibeEntrySchema, type VibeEntry } from '../lib/vibesFile';
 import type { AnimeMedia } from '../types';
 import { EpisodeCard } from './EpisodeCard';
 
@@ -26,6 +27,25 @@ const ANIME: AnimeMedia = {
   externalLinks: [],
   genres: ['Action'],
 };
+
+function vibe(overrides: Record<string, unknown> = {}): VibeEntry {
+  return vibeEntrySchema.parse({
+    showId: 1,
+    episode: 4,
+    airedAt: 1_780_000_000,
+    asOf: '2026-07-31T12:00:00.000Z',
+    settled: true,
+    status: 'found',
+    summary: 'The thread was overwhelmingly positive. Most of it was about the fight.',
+    goods: ['The fight'],
+    bads: [],
+    indicator: 'positive',
+    upvotes: 5100,
+    comments: 2400,
+    url: 'https://www.reddit.com/r/anime/comments/abc/x/',
+    ...overrides,
+  });
+}
 
 describe('EpisodeCard', () => {
   let container: HTMLDivElement;
@@ -139,5 +159,44 @@ describe('EpisodeCard', () => {
       click(container.querySelector('button[aria-label="Open Cowboy Bebop"]'));
     });
     expect(onOpen).toHaveBeenCalledOnce();
+  });
+
+  it('renders the sentiment chip in words and numbers, never colour alone', async () => {
+    await render(
+      <EpisodeCard anime={ANIME} progress={{ watched: 3, aired: 12 }} onOpen={() => {}} vibe={vibe()} />,
+    );
+
+    const chip = container.querySelector('button[aria-label^="Episode 4 community vibe"]');
+    expect(chip).not.toBeNull();
+    expect(chip?.textContent).toContain('Positive');
+    expect(chip?.textContent).toContain('2.4k');
+    expect(chip?.getAttribute('title')).toBe('The thread was overwhelmingly positive.');
+  });
+
+  it('opens the modal from the chip', async () => {
+    const onOpen = vi.fn();
+    await render(
+      <EpisodeCard anime={ANIME} progress={{ watched: 3, aired: 12 }} onOpen={onOpen} vibe={vibe()} />,
+    );
+
+    await act(async () => {
+      click(container.querySelector('button[aria-label^="Episode 4 community vibe"]'));
+    });
+    expect(onOpen).toHaveBeenCalledOnce();
+  });
+
+  it('shows no chip without a vibe, or for an episode with no thread', async () => {
+    await render(<EpisodeCard anime={ANIME} progress={{ watched: 3, aired: 12 }} onOpen={() => {}} />);
+    expect(container.textContent).not.toContain('Positive');
+
+    await render(
+      <EpisodeCard
+        anime={ANIME}
+        progress={{ watched: 3, aired: 12 }}
+        onOpen={() => {}}
+        vibe={vibe({ status: 'not_found' })}
+      />,
+    );
+    expect(container.querySelector('button[aria-label^="Episode 4 community vibe"]')).toBeNull();
   });
 });

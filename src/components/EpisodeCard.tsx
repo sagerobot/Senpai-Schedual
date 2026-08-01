@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { displayTitle } from '../lib/displayTitle';
 import type { WatchState } from '../lib/status';
 import { cn } from '../lib/utils';
+import type { VibeEntry } from '../lib/vibesFile';
 import type { AnimeMedia } from '../types';
 import { LibraryStatusMenu } from './LibraryStatusMenu';
 import { StatusBadge } from './StatusBadge';
@@ -24,6 +25,12 @@ export interface EpisodeCardProps {
   airsInfo?: string;
   /** The viewer's average episode score for this show. */
   userAvgScore?: number | null;
+  /**
+   * The remembered r/anime sentiment for the episode this row is about, if the
+   * vibes file has one. Containers read it from `useVibesIndex()`; a `not_found`
+   * entry renders nothing — an absent chip already says "no signal".
+   */
+  vibe?: VibeEntry;
   watchLink?: string;
   ctaLabel?: string;
   onOpen: () => void;
@@ -32,6 +39,25 @@ export interface EpisodeCardProps {
 }
 
 const SCORES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+/** Sentiment is spelled out, never colour alone. */
+const SENTIMENT = {
+  positive: { label: 'Positive', chip: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300', dot: 'bg-emerald-400' },
+  mixed: { label: 'Mixed', chip: 'border-pink-500/40 bg-pink-500/10 text-pink-300', dot: 'bg-pink-400' },
+  negative: { label: 'Negative', chip: 'border-rose-500/40 bg-rose-500/10 text-rose-300', dot: 'bg-rose-400' },
+} as const;
+
+function compactCount(value: number): string {
+  if (value < 1000) return String(value);
+  const thousands = value / 1000;
+  return `${thousands < 10 ? thousands.toFixed(1) : Math.round(thousands)}k`;
+}
+
+/** Enough of the summary to be worth hovering, without a paragraph in a tooltip. */
+function firstSentence(summary: string): string {
+  const end = summary.search(/[.!?](\s|$)/);
+  return end === -1 ? summary : summary.slice(0, end + 1);
+}
 
 /**
  * The one horizontal media card (PR 15). Today's Drops and both Catch-Up Queue
@@ -52,6 +78,7 @@ export function EpisodeCard({
   nextEpisodeToWatch,
   airsInfo,
   userAvgScore,
+  vibe,
   watchLink,
   ctaLabel,
   onOpen,
@@ -61,6 +88,29 @@ export function EpisodeCard({
   const titleText = displayTitle(anime);
   const cover = anime.coverImage.extraLarge ?? anime.coverImage.large;
   const pct = progress.aired > 0 ? Math.min(100, Math.max(0, (progress.watched / progress.aired) * 100)) : 0;
+
+  const tone = vibe?.status === 'found' ? SENTIMENT[vibe.indicator] : null;
+  const vibeChip =
+    vibe?.status === 'found' && tone !== null ? (
+      <button
+        type="button"
+        onClick={onOpen}
+        title={firstSentence(vibe.summary)}
+        aria-label={`Episode ${vibe.episode} community vibe: ${tone.label}${vibe.comments > 0 ? `, ${vibe.comments} comments` : ''}. Open ${titleText}`}
+        className={cn(
+          'relative flex shrink-0 items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px] font-bold transition-colors',
+          // The chip stays small so it cannot crowd the card, but the touch
+          // target does not: the overlay gives it the 44px height the rest of
+          // the app's controls have without taking that much room.
+          "after:absolute after:inset-x-0 after:top-1/2 after:h-11 after:-translate-y-1/2 after:content-['']",
+          tone.chip,
+        )}
+      >
+        <span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', tone.dot)} aria-hidden="true" />
+        {tone.label}
+        {vibe.comments > 0 && <span className="font-semibold opacity-80">· {compactCount(vibe.comments)}</span>}
+      </button>
+    ) : null;
 
   const actionRow =
     nextEpisodeToWatch !== undefined && onLog !== undefined ? (
@@ -176,8 +226,9 @@ export function EpisodeCard({
             </span>
           </div>
 
-          {(airsInfo || userAvgScore != null) && (
+          {(airsInfo || userAvgScore != null || vibeChip) && (
             <div className="flex items-center gap-2 text-[11px] text-gray-500">
+              {vibeChip}
               {airsInfo && <span className="line-clamp-1">{airsInfo}</span>}
               {userAvgScore != null && (
                 <span className="ml-auto flex shrink-0 items-center gap-1 font-semibold text-accent-300">

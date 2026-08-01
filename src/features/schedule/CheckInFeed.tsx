@@ -3,6 +3,7 @@ import { useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
 import { EpisodeCard } from '../../components/EpisodeCard';
 import { pickWatchLink } from '../../lib/watchLinks';
+import { useVibesIndex } from '../../queries/vibes';
 import { useUserData } from '../../stores/userData';
 import { AnimeMedia, EpisodeLog } from '../../types';
 
@@ -20,6 +21,8 @@ interface CheckInFeedProps {
  * eligibility heuristic lives here, the card is the shared EpisodeCard.
  */
 export function CheckInFeed({ animeList, favorites, logs, onLog, onAnimeSelect }: CheckInFeedProps) {
+  const vibes = useVibesIndex();
+
   const drops = useMemo(() => {
     const recent: { anime: AnimeMedia; episode: number; airedAt: number; maxWatched: number; userAvgScore: number | null }[] = [];
     const now = Math.floor(Date.now() / 1000);
@@ -103,6 +106,7 @@ export function CheckInFeed({ animeList, favorites, logs, onLog, onAnimeSelect }
                   nextEpisodeToWatch={nextEp}
                   airsInfo={`Episode ${todayEp} aired today • ${timeStr}`}
                   userAvgScore={userAvgScore}
+                  vibe={vibes.get(anime.id, todayEp)}
                   watchLink={pickWatchLink(anime.externalLinks)}
                   ctaLabel={isCaughtUp ? `Watch Episode ${todayEp}` : `Continue Episode ${nextEp}`}
                   onOpen={() => onAnimeSelect?.(anime)}

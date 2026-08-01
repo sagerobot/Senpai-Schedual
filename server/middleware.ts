@@ -55,6 +55,16 @@ export const aiLimiter = rateLimit({
   handler: rateLimited,
 });
 
+/** /api/cache-export (a multi-megabyte dump meant to be read a few times a
+ * day, not per visitor): 10 req/min/IP. */
+export const cacheExportLimiter = rateLimit({
+  windowMs: 60_000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: rateLimited,
+});
+
 /** /api/recommendations (the Gemini fan-out route): 5 req/10min/IP. */
 export const recommendationsLimiter = rateLimit({
   windowMs: 600_000,

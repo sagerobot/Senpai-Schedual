@@ -51,6 +51,12 @@ vi.mock('../queries/seasonBundle', () => ({
   getBundleSummary: vi.fn(() => undefined),
 }));
 
+// Sentiment chips and the modal's vibe card read the remembered-vibes file from
+// the app server. Stubbed empty for the same reason as the bundle above.
+vi.mock('../queries/vibes', () => ({
+  useVibesIndex: () => ({ get: () => undefined, size: 0 }),
+}));
+
 describe('parseShowId', () => {
   it('accepts positive integers only', () => {
     expect(parseShowId('21')).toBe(21);

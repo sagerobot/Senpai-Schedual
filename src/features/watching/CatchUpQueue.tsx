@@ -5,6 +5,7 @@ import { EpisodeCard } from '../../components/EpisodeCard';
 import { displayTitle } from '../../lib/displayTitle';
 import { cn } from '../../lib/utils';
 import { pickWatchLink } from '../../lib/watchLinks';
+import { useVibesIndex } from '../../queries/vibes';
 import { useSeriesGraphs } from '../../series/useSeriesGraphs';
 import { AnimeMedia, EpisodeLog } from '../../types';
 
@@ -35,6 +36,7 @@ type SortOption = 'soonest' | 'most_behind' | 'alphabetical';
 export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect }: CatchUpQueueProps) {
   const [sortBy, setSortBy] = useState<SortOption>('soonest');
   const [groupSeasons, setGroupSeasons] = useState(true);
+  const vibes = useVibesIndex();
 
   const getAiredEpisodesCount = (anime: AnimeMedia) => {
     if (anime.nextAiringEpisode) {
@@ -205,6 +207,10 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
       ? `Next episode in ${Math.ceil(item.anime.nextAiringEpisode.timeUntilAiring / 3600)}h`
       : undefined;
 
+  // The chip is about the episode the row is asking you to watch next, not the
+  // most recent one — that is the decision the row exists to help with.
+  const vibeFor = (item: QueueItem) => vibes.get(item.anime.id, nextUnwatchedEp(item) ?? item.airedCount);
+
   const renderItem = (item: QueueItem) => {
     const info = seriesInfoByShow.get(item.anime.id);
     return (
@@ -224,6 +230,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
           progress={{ watched: item.watched.length, aired: item.airedCount }}
           nextEpisodeToWatch={nextUnwatchedEp(item)}
           airsInfo={airsInfoFor(item)}
+          vibe={vibeFor(item)}
           watchLink={pickWatchLink(item.anime.externalLinks)}
           onOpen={() => onAnimeSelect(item.anime)}
           onLog={(ep, score) => onLog(item.anime.id, ep, score)}
@@ -292,6 +299,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
               progress={{ watched: item.watched.length, aired: item.airedCount }}
               nextEpisodeToWatch={idx === currentIndex ? nextUnwatchedEp(item) : undefined}
               airsInfo={airsInfoFor(item)}
+              vibe={vibeFor(item)}
               watchLink={pickWatchLink(item.anime.externalLinks)}
               onOpen={() => onAnimeSelect(item.anime)}
               onLog={(ep, score) => onLog(item.anime.id, ep, score)}

@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { AnimeMedia, LibraryEntry, LibraryStatus } from '../../types';
 import { useShowDetailsQuery } from '../../queries/hooks';
+import { useVibesIndex } from '../../queries/vibes';
 import { displayTitle } from '../../lib/displayTitle';
-import { useCommunityPulse } from './useCommunityPulse';
+import { asOfLabel, useCommunityPulse } from './useCommunityPulse';
 import { EpisodeTracker } from './EpisodeTracker';
 import { ShowAdvancedPanel } from './ShowAdvancedPanel';
 import { cn } from '../../lib/utils';
@@ -30,7 +31,21 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
   // decoupled from the episode tracker. Defaults to the latest aired episode.
   const latestEpisode = anime.nextAiringEpisode ? Math.max(1, anime.nextAiringEpisode.episode - 1) : anime.episodes || 1;
   const [selectedEpisode, setSelectedEpisode] = useState(latestEpisode);
-  const { pulse, state: pulseState, load: loadPulse } = useCommunityPulse(displayTitle(anime), selectedEpisode, anime.id);
+  const vibes = useVibesIndex();
+  const {
+    pulse,
+    state: pulseState,
+    load: loadPulse,
+    remembered,
+  } = useCommunityPulse(displayTitle(anime), selectedEpisode, anime.id, vibes.get(anime.id, selectedEpisode));
+
+  // r/anime episode discussion threads barely exist before about 2013, so for
+  // an older show the button is a paid search with a known answer. Anything the
+  // refresh routine has already remembered still displays — this only removes
+  // the offer to go looking.
+  const startYear = anime.startDate?.year ?? null;
+  const preDiscussionEra = startYear !== null && startYear < 2013;
+  const asOfLine = remembered !== null ? asOfLabel(remembered) : null;
 
   const setShowScore = useUserData((s) => s.setShowScore);
 
@@ -306,7 +321,7 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
               {/* Community Pulse Section */}
               <div className="mt-2 flex items-center justify-between gap-3">
                 <h3 className="text-sm font-medium text-gray-300">Community vibe</h3>
-                {pulseState !== 'idle' && (
+                {(pulseState !== 'idle' || preDiscussionEra) && (
                   <select
                     value={selectedEpisode}
                     onChange={(e) => setSelectedEpisode(Number(e.target.value))}
@@ -319,7 +334,15 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                   </select>
                 )}
               </div>
-              {pulseState === 'idle' ? (
+              {pulseState === 'idle' && preDiscussionEra ? (
+                <p className="rounded-xl border border-gray-800 bg-[#2a2a2d]/50 p-5 text-center text-sm text-gray-400">
+                  r/anime episode discussions only go back to about 2013 — there is nothing to read for a show this old.
+                </p>
+              ) : pulseState === 'not_found' ? (
+                <p className="rounded-xl border border-gray-800 bg-[#2a2a2d]/50 p-5 text-center text-sm text-gray-400">
+                  No discussion thread found for episode {selectedEpisode}.
+                </p>
+              ) : pulseState === 'idle' ? (
                 <div className="flex flex-col items-center space-y-2 rounded-xl border border-gray-800 bg-[#2a2a2d]/50 p-5">
                   <div className="flex flex-wrap items-center justify-center gap-2">
                     <select
@@ -403,7 +426,16 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                   <p className={cn("text-sm leading-relaxed text-gray-200", (pulse.goods?.length || pulse.bads?.length) ? "mb-3" : "")}>
                     {pulse.summary}
                   </p>
-                  
+
+                  {/* An unsettled reading is deliberately partial — the thread was
+                      still filling up. Say when it was taken rather than imply it
+                      is the last word. */}
+                  {asOfLine && (
+                    <p className="-mt-1 mb-1 text-[11px] text-gray-400">
+                      Early read, {asOfLine} — refreshed hourly for the first day.
+                    </p>
+                  )}
+
                   {((pulse.goods && pulse.goods.length > 0) || (pulse.bads && pulse.bads.length > 0)) && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 pt-3 border-t border-gray-700/50">
                       {pulse.goods && pulse.goods.length > 0 && (

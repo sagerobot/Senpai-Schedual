@@ -21,12 +21,17 @@ export const queryKeys = {
   seriesByShow: (showId: number) => ['series', 'byShow', showId] as const,
   /** The whole family, for the wholesale invalidation an override edit forces. */
   series: () => ['series'] as const,
+  /** Every remembered r/anime episode sentiment, in one relayed file. */
+  vibes: () => ['vibes'] as const,
 };
 
 /**
  * Query families written to localStorage. Search is deliberately absent:
  * results are cheap to re-run, worthless on the next visit, and would other-
  * wise grow the persisted blob by one entry per keystroke-debounced term.
+ * Vibes are absent for the same reason from the other direction: the file is
+ * served hot from the server's own memory, it is rewritten hourly, and it is
+ * the largest single payload the app fetches.
  */
 const PERSISTED_ROOTS: ReadonlySet<string> = new Set([
   'schedule',

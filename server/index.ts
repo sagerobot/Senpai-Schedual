@@ -5,7 +5,9 @@ import path from "node:path";
 import { anyExhausted } from "./budget";
 import { apiLimiter, apiNotFound, requestLogger, securityHeaders } from "./middleware";
 import { aiRouter } from "./routes/ai";
+import { exportRouter } from "./routes/export";
 import { seasonRouter } from "./routes/season";
+import { vibesRouter } from "./routes/vibes";
 
 async function startServer(): Promise<void> {
   const app = express();
@@ -26,9 +28,11 @@ async function startServer(): Promise<void> {
     res.json({ ok: true, ai });
   });
 
-  // Not an AI route: no Gemini, no budget, no aiLimiter — the general 60/min
-  // /api limiter above is the only one that applies.
+  // Not AI routes: no Gemini, no budget, no aiLimiter — the general 60/min
+  // /api limiter above applies, plus cache-export's own modest one.
   app.use("/api", seasonRouter);
+  app.use("/api", vibesRouter);
+  app.use("/api", exportRouter);
   app.use("/api", aiRouter);
   app.all("/api/*", apiNotFound);
 

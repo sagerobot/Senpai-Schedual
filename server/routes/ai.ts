@@ -1,5 +1,6 @@
 import { ApiError, GoogleGenAI, Type } from "@google/genai";
 import { Router, type Response } from "express";
+import { isRedditUrl, isVibeServable, redditSearchUrl, vibePayload } from "../../src/lib/vibesFile";
 import { isExhausted, secondsToUtcMidnight, tryConsume } from "../budget";
 import {
   getRecReason,
@@ -22,6 +23,7 @@ import {
   type VibeData,
 } from "../schemas";
 import type { AiEnvelope } from "../types";
+import { getStoredVibe } from "./vibes";
 
 const GEMINI_MODEL = "gemini-3.6-flash";
 const GEMINI_TIMEOUT_MS = 30_000;
@@ -141,14 +143,25 @@ const VIBE_RESPONSE_SCHEMA = {
 const NO_THREADS_SUMMARY =
   "No discussion threads found yet. The episode may not have aired, or the community hasn't started discussing it.";
 
-function ensureRedditUrl(url: string, fallback: string): string {
-  try {
-    const host = new URL(url).hostname.toLowerCase();
-    if (host === "reddit.com" || host === "www.reddit.com") return url;
-  } catch {
-    // not a valid absolute URL
-  }
-  return fallback;
+/**
+ * A *settled* not-found is a different statement from the live one above: the
+ * episode certainly aired, and no thread appeared in the two days after it. The
+ * shared prefix keeps both readable to anything matching on it.
+ */
+const NO_THREADS_SETTLED_SUMMARY =
+  "No discussion threads found. r/anime never had one for this episode.";
+
+/** The remembered-vibes answer for an episode with no thread, in payload shape. */
+function noThreadsPayload(searchUrl: string): VibeData {
+  return {
+    summary: NO_THREADS_SETTLED_SUMMARY,
+    goods: [],
+    bads: [],
+    indicator: "mixed",
+    upvotes: 0,
+    comments: 0,
+    url: searchUrl,
+  };
 }
 
 aiRouter.post("/community-vibe", aiLimiter, async (req, res) => {
@@ -158,14 +171,30 @@ aiRouter.post("/community-vibe", aiLimiter, async (req, res) => {
     if (!parsed.success) return badRequest(res, firstIssueMessage(parsed.error));
     const { showId, episodeNumber, title } = parsed.data;
 
+    const searchUrl = redditSearchUrl(title, episodeNumber);
+
+    // The remembered reading comes first — before the LRU, before the budget.
+    // A settled entry is final, and an unsettled one inside its refresh window
+    // is about to be rewritten by the hourly routine anyway, so there is nothing
+    // a grounded search could add that we would keep.
+    const stored = await getStoredVibe(showId, episodeNumber);
+    if (stored?.status === "found" && isVibeServable(stored)) {
+      return ok(res, true, vibePayload(stored));
+    }
+    // A *settled* not-found is a permanent fact, not a gap: r/anime episode
+    // threads barely exist before ~2013, and a thread that never appeared in the
+    // 48h after airing never will. An unsettled not-found falls through — the
+    // thread may still be going up.
+    if (stored?.status === "not_found" && stored.settled) {
+      return ok(res, true, noThreadsPayload(searchUrl));
+    }
+
     const cached = getVibe(showId, episodeNumber);
     if (cached !== undefined) return ok(res, true, cached);
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return noKey(res);
     if (!tryConsume("grounded")) return resting(res);
-
-    const searchUrl = `https://www.reddit.com/r/anime/search?q=${encodeURIComponent(`${title} episode ${episodeNumber}`)}`;
 
     const prompt = `Search the web for the Reddit discussion thread of the anime titled <user_data>${title}</user_data> Episode ${episodeNumber} on r/anime. The show title appears between <user_data> tags. ${USER_DATA_RULE}
 Read the community reactions and summarize the overall sentiment and tone.
@@ -216,7 +245,10 @@ Return the result STRICTLY as a JSON object matching this schema, DO NOT wrap it
     const output = vibeOutputSchema.safeParse(raw);
     if (!output.success) return upstreamError(res, "AI returned an unusable vibe response");
 
-    const data: VibeData = { ...output.data, url: ensureRedditUrl(output.data.url, searchUrl) };
+    const data: VibeData = {
+      ...output.data,
+      url: isRedditUrl(output.data.url) ? output.data.url : searchUrl,
+    };
 
     // "Nothing found" is a negative result — cache it briefly (the thread may
     // simply not exist *yet*) instead of freezing it for the full vibe TTL.
