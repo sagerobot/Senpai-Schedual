@@ -519,8 +519,10 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
 
                 {hasFranchise && (
                   <Link
+                    // No onClose here: navigating away drops `?show=`, which is
+                    // what closes the modal. Calling onClose too fires the
+                    // modal's navigate(-1) and it races this Link's navigation.
                     to={`/series/${anime.id}`}
-                    onClick={onClose}
                     className="flex flex-1 items-center justify-center space-x-2 rounded-lg border border-gray-700 bg-transparent px-4 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
                   >
                     <Layers className="h-4 w-4" />
