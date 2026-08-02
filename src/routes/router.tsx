@@ -31,6 +31,11 @@ function showRedirectLoader({ params }: LoaderFunctionArgs) {
   return redirect(`/schedule?${SHOW_PARAM}=${id}`);
 }
 
+/** `/series/:id` takes any member's id; junk ids land on the schedule. */
+function seriesPageLoader({ params }: LoaderFunctionArgs) {
+  return parseShowId(params.id ?? null) === null ? redirect('/schedule') : null;
+}
+
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -68,6 +73,11 @@ export const router = createBrowserRouter([
         lazy: async () => ({ Component: (await import('../features/for-you/route')).ForYouRoute }),
       },
       { path: 'show/:id', loader: showRedirectLoader },
+      {
+        path: 'series/:id',
+        loader: seriesPageLoader,
+        lazy: async () => ({ Component: (await import('../features/series/route')).SeriesRoute }),
+      },
       { path: '*', Component: NotFound },
     ],
   },

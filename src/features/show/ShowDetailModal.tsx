@@ -1,5 +1,5 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { X, ExternalLink, Bookmark, MessageCircle, Loader2, Sparkles } from 'lucide-react';
+import { X, ExternalLink, Bookmark, Layers, MessageCircle, Loader2, Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { AnimeMedia, LibraryEntry, LibraryStatus } from '../../types';
@@ -16,6 +16,8 @@ import { LIBRARY_STATUS_LABELS, LIBRARY_STATUS_ORDER } from '../../lib/status';
 import { useUserData } from '../../stores/userData';
 import { LibraryStatusMenu } from '../../components/LibraryStatusMenu';
 import { filterWatchLinks } from '../../lib/watchLinks';
+import { Link } from 'react-router';
+import { useSeriesGraph } from '../../series/useSeriesGraphs';
 
 interface ShowDetailModalProps {
   anime: AnimeMedia;
@@ -54,6 +56,9 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
   const setShowScore = useUserData((s) => s.setShowScore);
   const customSite = useUserData((s) => s.uiPrefs.customSource?.name);
   const watchEntry = filterWatchLinks(anime.externalLinks, customSite)[0];
+  // Same 7-day-cached query the advanced panel resolves; a solo show gets no link.
+  const seriesGraph = useSeriesGraph(anime.id);
+  const hasFranchise = (seriesGraph.data?.entries.length ?? 0) > 1;
 
   const handleRate = (score: number) => {
     if (!libraryEntry) return;
@@ -511,6 +516,17 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                   <MessageCircle className="h-4 w-4" />
                   <span>Episode discussion</span>
                 </a>
+
+                {hasFranchise && (
+                  <Link
+                    to={`/series/${anime.id}`}
+                    onClick={onClose}
+                    className="flex flex-1 items-center justify-center space-x-2 rounded-lg border border-gray-700 bg-transparent px-4 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
+                  >
+                    <Layers className="h-4 w-4" />
+                    <span>Series page</span>
+                  </Link>
+                )}
 
                 {watchEntry && (
                   <a
