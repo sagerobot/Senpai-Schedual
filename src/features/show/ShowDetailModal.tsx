@@ -53,6 +53,13 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
   const preDiscussionEra = startYear !== null && startYear < 2013;
   const asOfLine = remembered !== null ? asOfLabel(remembered) : null;
 
+  // The remembered reading carries the real thread URL; the r/anime search is
+  // only the fallback for episodes nothing has read yet.
+  const discussionIsThread = pulseState === 'ok' && pulse !== null && pulse.url.includes('/comments/');
+  const discussionUrl = discussionIsThread
+    ? pulse.url
+    : `https://www.reddit.com/r/anime/search/?q=${encodeURIComponent(displayTitle(anime))}+episode+${selectedEpisode}+discussion&restrict_sr=1`;
+
   const setShowScore = useUserData((s) => s.setShowScore);
   const customSite = useUserData((s) => s.uiPrefs.customSource?.name);
   const watchEntry = filterWatchLinks(anime.externalLinks, customSite)[0];
@@ -508,13 +515,13 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
             <div className="shrink-0 space-y-4 p-5 pt-0 md:p-6 md:pt-0">
               <div className="flex flex-wrap items-center gap-3">
                 <a
-                  href={`https://www.reddit.com/r/anime/search/?q=${encodeURIComponent(displayTitle(anime))}+episode+${latestEpisode}+discussion&restrict_sr=1`}
+                  href={discussionUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex flex-1 items-center justify-center space-x-2 rounded-lg border border-gray-700 bg-transparent px-4 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
                 >
                   <MessageCircle className="h-4 w-4" />
-                  <span>Episode discussion</span>
+                  <span>{discussionIsThread ? 'Discussion thread' : 'Find the discussion'}</span>
                 </a>
 
                 {hasFranchise && (
