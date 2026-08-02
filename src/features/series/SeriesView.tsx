@@ -3,8 +3,11 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import type { AnimeMedia, EpisodeLog, LibraryEntry } from '../../types';
 import type { SeriesEntry, SeriesGraph } from '../../series/labeling';
+import { useShowDetailsQuery } from '../../queries/hooks';
+import { useVibesIndex } from '../../queries/vibes';
 import { SHOW_PARAM } from '../../routes/showParam';
 import { cn } from '../../lib/utils';
+import { EpisodeGrid } from './EpisodeGrid';
 import { franchiseRollup, memberRollup } from './rollups';
 
 /**
@@ -23,13 +26,32 @@ interface SeriesViewProps {
   media: AnimeMedia[];
   logs: EpisodeLog[];
   library: LibraryEntry[];
+  onOpenEpisode: (memberId: number, episode: number) => void;
 }
 
 function year(entry: SeriesEntry): string {
   return entry.startDate?.year ? String(entry.startDate.year) : '—';
 }
 
-export function SeriesView({ graph, media, logs, library }: SeriesViewProps) {
+/** AI summary first, MAL/Kitsu synopsis as fallback, raw description last. */
+function SeasonSynopsis({ media }: { media: AnimeMedia }) {
+  const details = useShowDetailsQuery(media);
+  if (details.isPending) {
+    return <div className="mt-4 h-16 animate-pulse rounded-lg bg-surface-2" aria-hidden="true" />;
+  }
+  const raw =
+    details.data?.details.aiSummary ??
+    details.data?.details.mal?.synopsis ??
+    details.data?.details.kitsu?.synopsis ??
+    details.data?.full?.description ??
+    null;
+  if (raw === null || raw.trim() === '') return null;
+  const text = raw.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  return <p className="mt-4 text-sm leading-relaxed text-gray-300 line-clamp-4">{text}</p>;
+}
+
+export function SeriesView({ graph, media, logs, library, onOpenEpisode }: SeriesViewProps) {
+  const vibes = useVibesIndex();
   const mediaById = useMemo(() => new Map(media.map((m) => [m.id, m])), [media]);
   const seasons = useMemo(() => graph.entries.filter((e) => !e.isAttachment), [graph.entries]);
   const extras = useMemo(() => graph.entries.filter((e) => e.isAttachment), [graph.entries]);
@@ -172,14 +194,28 @@ export function SeriesView({ graph, media, logs, library }: SeriesViewProps) {
               </p>
             )}
 
+            {selectedMedia && <SeasonSynopsis media={selectedMedia} />}
+
             <Link
               to={`?${SHOW_PARAM}=${selected.id}`}
               preventScrollReset
-              className="mt-4 inline-flex h-11 items-center rounded-lg bg-accent-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-accent-500"
+              className="mt-4 inline-flex h-11 items-center rounded-lg border border-edge px-4 text-sm font-medium text-gray-300 transition-colors hover:bg-surface-2 hover:text-white"
             >
-              Episodes &amp; details
+              Quick view &amp; bulk logging
             </Link>
           </div>
+        </section>
+      )}
+
+      {/* Episodes: each cell is a door to that episode's own view. */}
+      {selected && selectedMedia && (
+        <section className="mt-4">
+          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-gray-400">Episodes</h2>
+          <EpisodeGrid
+            media={selectedMedia}
+            vibes={vibes}
+            onOpenEpisode={(episode) => onOpenEpisode(selected.id, episode)}
+          />
         </section>
       )}
 

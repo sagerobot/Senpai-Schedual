@@ -1,9 +1,10 @@
-import { useMemo } from 'react';
-import { Link, useParams } from 'react-router';
+import { useCallback, useMemo } from 'react';
+import { Link, useParams, useSearchParams } from 'react-router';
 import { useMediaByIds } from '../../queries/hooks';
 import { parseShowId } from '../../routes/showParam';
 import { useSeriesGraph } from '../../series/useSeriesGraphs';
 import { selectLibraryArray, selectLogsArray, useUserData } from '../../stores/userData';
+import { EpisodeView } from './EpisodeView';
 import { SeriesView } from './SeriesView';
 
 /**
@@ -11,7 +12,21 @@ import { SeriesView } from './SeriesView';
  * graph resolves the franchise from whichever member the link carried, so
  * every season's id is a valid address for the whole. The router's loader has
  * already redirected junk ids, so the param parses here by construction.
+ *
+ * Episodes live on `?ep=<memberId>-<n>`, mirroring the `?show=` pattern: Back
+ * closes the episode view, and the URL is a shareable episode permalink.
  */
+
+const EP_PARAM = 'ep';
+const EP_SHAPE = /^(\d{1,10})-(\d{1,4})$/;
+
+function parseEpParam(value: string | null): { memberId: number; episode: number } | null {
+  if (value === null) return null;
+  const match = EP_SHAPE.exec(value);
+  if (match === null) return null;
+  return { memberId: Number(match[1]), episode: Number(match[2]) };
+}
+
 export function SeriesRoute() {
   const params = useParams();
   const showId = parseShowId(params.id ?? null) ?? 0;
@@ -22,6 +37,34 @@ export function SeriesRoute() {
 
   const logs = useUserData(selectLogsArray);
   const library = useUserData(selectLibraryArray);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const epTarget = parseEpParam(searchParams.get(EP_PARAM));
+
+  const openEpisode = useCallback(
+    (memberId: number, episode: number) => {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.set(EP_PARAM, `${memberId}-${episode}`);
+          return next;
+        },
+        { preventScrollReset: true },
+      );
+    },
+    [setSearchParams],
+  );
+
+  const closeEpisode = useCallback(() => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete(EP_PARAM);
+        return next;
+      },
+      { replace: true, preventScrollReset: true },
+    );
+  }, [setSearchParams]);
 
   if (graph.isPending) {
     return (
@@ -48,5 +91,21 @@ export function SeriesRoute() {
     );
   }
 
-  return <SeriesView graph={graph.data} media={media} logs={logs} library={library} />;
+  const epMember = epTarget !== null ? graph.data.entries.find((e) => e.id === epTarget.memberId) : undefined;
+
+  return (
+    <>
+      <SeriesView graph={graph.data} media={media} logs={logs} library={library} onOpenEpisode={openEpisode} />
+      {epTarget !== null && epMember !== undefined && (
+        <EpisodeView
+          key={`${epTarget.memberId}-${epTarget.episode}`}
+          seriesTitle={graph.data.title}
+          member={epMember}
+          media={media.find((m) => m.id === epTarget.memberId)}
+          episode={epTarget.episode}
+          onClose={closeEpisode}
+        />
+      )}
+    </>
+  );
 }
