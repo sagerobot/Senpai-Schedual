@@ -42,9 +42,16 @@ def log(msg: str) -> None:
         f.write(f"[{stamp}] {msg}\n")
 
 
+# The scheduled task runs this under pythonw (no console). Without this flag,
+# every console-subsystem child (git, npm's cmd, node) briefly CREATES its own
+# console window — a blank cmd window flashing every ~30s for the whole sweep.
+NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+
+
 def run(cmd, cwd=REPO, timeout=300):
     return subprocess.run(cmd, cwd=str(cwd), capture_output=True, text=True,
-                          encoding="utf-8", errors="replace", timeout=timeout)
+                          encoding="utf-8", errors="replace", timeout=timeout,
+                          creationflags=NO_WINDOW)
 
 
 def main() -> int:
@@ -76,7 +83,7 @@ def main() -> int:
     out_dir = run_dir / "out"
     worker = subprocess.run(
         [sys.executable, str(Path(__file__).with_name("worker.py")), str(work_path), str(out_dir), str(LOG)],
-        cwd=str(WORKDIR), timeout=3 * 3600,
+        cwd=str(WORKDIR), timeout=3 * 3600, creationflags=NO_WINDOW,
     )
     if worker.returncode != 0:
         log("worker aborted; keeping whatever it collected")

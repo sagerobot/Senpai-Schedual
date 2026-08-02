@@ -24,6 +24,10 @@ from pathlib import Path
 
 CODEX = shutil.which("codex") or r"C:\Users\sager\AppData\Roaming\npm\codex.cmd"
 
+# Under a windowless parent (pythonw via the scheduled task), console children
+# would each flash a blank cmd window without this.
+NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+
 PROMPT = (
     "Use web search. TASK: find the r/anime episode discussion thread for EXACTLY this anime episode and report community sentiment. "
     "TARGET SHOW (AniList romaji title): {title}. TARGET EPISODE: {episode}. AIRED: {aired} UTC. "
@@ -64,12 +68,14 @@ def run_item(item: dict, cwd: Path) -> str:
          "-c", "model_reasoning_effort=low", "--skip-git-repo-check", prompt],
         stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
         text=True, encoding="utf-8", errors="replace", cwd=str(cwd),
+        creationflags=NO_WINDOW,
     )
     sep = chr(10)
     try:
         out, err = proc.communicate(timeout=300)
     except subprocess.TimeoutExpired:
-        subprocess.run(["taskkill", "/F", "/T", "/PID", str(proc.pid)], capture_output=True)
+        subprocess.run(["taskkill", "/F", "/T", "/PID", str(proc.pid)], capture_output=True,
+                       creationflags=NO_WINDOW)
         try:
             out, err = proc.communicate(timeout=15)
         except subprocess.TimeoutExpired:
