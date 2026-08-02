@@ -9,6 +9,7 @@ import { latestAiredEpisode } from '../../lib/aired';
 import { displayTitle } from '../../lib/displayTitle';
 import { asOfLabel, useCommunityPulse } from './useCommunityPulse';
 import { EpisodeTracker } from './EpisodeTracker';
+import { VibeFlagButton } from './VibeFlagButton';
 import { ShowAdvancedPanel } from './ShowAdvancedPanel';
 import { cn } from '../../lib/utils';
 import { LIBRARY_STATUS_LABELS, LIBRARY_STATUS_ORDER } from '../../lib/status';
@@ -471,6 +472,8 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                       )}
                     </div>
                   )}
+
+                  <VibeFlagButton showId={anime.id} episode={selectedEpisode} />
                 </div>
               ) : pulseState === 'resting' ? (
                 <div className="rounded-xl border border-gray-800 bg-[#2a2a2d]/50 p-5 text-center text-sm text-gray-400">

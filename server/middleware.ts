@@ -65,6 +65,15 @@ export const cacheExportLimiter = rateLimit({
   handler: rateLimited,
 });
 
+/** /api/vibe-flag: honest use is a couple of clicks, ever. 10 req/10min/IP. */
+export const flagLimiter = rateLimit({
+  windowMs: 600_000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: rateLimited,
+});
+
 /** /api/recommendations (the Gemini fan-out route): 5 req/10min/IP. */
 export const recommendationsLimiter = rateLimit({
   windowMs: 600_000,

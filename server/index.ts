@@ -6,6 +6,7 @@ import { anyExhausted } from "./budget";
 import { apiLimiter, apiNotFound, requestLogger, securityHeaders } from "./middleware";
 import { aiRouter } from "./routes/ai";
 import { exportRouter } from "./routes/export";
+import { flagsRouter } from "./routes/flags";
 import { seasonRouter } from "./routes/season";
 import { vibesRouter } from "./routes/vibes";
 
@@ -32,6 +33,7 @@ async function startServer(): Promise<void> {
   // /api limiter above applies, plus cache-export's own modest one.
   app.use("/api", seasonRouter);
   app.use("/api", vibesRouter);
+  app.use("/api", flagsRouter);
   app.use("/api", exportRouter);
   app.use("/api", aiRouter);
   app.all("/api/*", apiNotFound);

@@ -90,6 +90,7 @@ export const vibeAspectsSchema = z.object({
   story: aspectTone.optional(),
   pacing: aspectTone.optional(),
   characters: aspectTone.optional(),
+  sound: aspectTone.optional(),
 });
 
 export type VibeAspects = z.infer<typeof vibeAspectsSchema>;

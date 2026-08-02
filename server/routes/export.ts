@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { exportableEntries } from "../cache";
 import { cacheExportLimiter } from "../middleware";
+import { exportableFlags } from "./flags";
 
 /**
  * GET /api/cache-export — the in-memory AI cache, for harvesting.
@@ -25,5 +26,7 @@ export const exportRouter = Router();
 
 exportRouter.get("/cache-export", cacheExportLimiter, (_req, res) => {
   const entries = exportableEntries();
-  res.json({ exportedAt: new Date().toISOString(), entries });
+  // Rider, not entry data: visitor flags on stored vibes, for the review pass.
+  // Additive — the harvest scripts read `entries` and ignore unknown fields.
+  res.json({ exportedAt: new Date().toISOString(), entries, vibeFlags: exportableFlags() });
 });
