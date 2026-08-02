@@ -76,6 +76,24 @@ const commonFields = {
   settled: z.boolean(),
 };
 
+const aspectTone = z.enum(['positive', 'mixed', 'negative']);
+
+/**
+ * Per-dimension sentiment, where the thread actually discussed that dimension.
+ * Every field optional on purpose: absence means "the comments didn't say",
+ * never "neutral". Settled entries are frozen, so this shape exists from the
+ * season backfill onward even though the UI doesn't render it yet — capturing
+ * it later would mean re-reading threads that no longer surface in search.
+ */
+export const vibeAspectsSchema = z.object({
+  animation: aspectTone.optional(),
+  story: aspectTone.optional(),
+  pacing: aspectTone.optional(),
+  characters: aspectTone.optional(),
+});
+
+export type VibeAspects = z.infer<typeof vibeAspectsSchema>;
+
 export const vibeFoundSchema = z.object({
   ...commonFields,
   status: z.literal('found'),
@@ -83,6 +101,8 @@ export const vibeFoundSchema = z.object({
   goods: clampedBullets,
   bads: clampedBullets,
   indicator: z.enum(['positive', 'mixed', 'negative']).catch('mixed'),
+  /** Malformed aspects drop to "didn't say" rather than costing the entry. */
+  aspects: vibeAspectsSchema.optional().catch(undefined),
   upvotes: z.coerce.number().int().nonnegative().catch(0),
   comments: z.coerce.number().int().nonnegative().catch(0),
   url: z.string().refine(isRedditUrl, { message: 'url must be on reddit.com' }),

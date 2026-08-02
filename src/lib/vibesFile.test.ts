@@ -94,6 +94,19 @@ describe('vibeEntrySchema', () => {
     expect(parsed.status === 'found' && parsed.goods[0].length).toBe(120);
   });
 
+  it('keeps per-dimension aspects, and treats their absence as "the comments did not say"', () => {
+    const withAspects = vibeEntrySchema.parse(found({ aspects: { animation: 'positive', pacing: 'mixed' } }));
+    expect(withAspects.status === 'found' && withAspects.aspects).toEqual({ animation: 'positive', pacing: 'mixed' });
+
+    const without = vibeEntrySchema.parse(found());
+    expect(without.status === 'found' && without.aspects).toBeUndefined();
+  });
+
+  it('drops malformed aspects rather than costing the entry', () => {
+    const junk = vibeEntrySchema.parse(found({ aspects: { animation: 'AMAZING', pacing: 42 } }));
+    expect(junk.status === 'found' && junk.aspects).toBeUndefined();
+  });
+
   it('falls back to mixed for an unknown indicator, and to 0 for junk counts', () => {
     const parsed = vibeEntrySchema.parse(found({ indicator: 'ecstatic', upvotes: -12, comments: 'lots' }));
     expect(parsed.status === 'found' && parsed.indicator).toBe('mixed');
