@@ -35,8 +35,27 @@ interface Drop {
 const QUICK_SCORES = [5, 6, 7, 8, 9, 10];
 
 /**
+ * Admission pins: showId -> the latest-aired episode a drop card is up for.
+ * The drops memo only re-runs when logs/animeList/favorites change, and it
+ * reads the clock when it does — so without pins, a card that crossed the
+ * 24h line while sitting on screen vanishes on exactly the recompute that a
+ * catch-up rating triggers, looking like the rating logged today's episode.
+ * The window therefore only gates *admission*; an admitted card stays until
+ * today's episode is logged or a newer episode replaces it. Module-level so
+ * a route hop doesn't reset it; a reload does, which is fine.
+ */
+const admittedDrops = new Map<number, number>();
+
+/** Test hook. */
+export function resetAdmittedDrops() {
+  admittedDrops.clear();
+}
+
+/**
  * "Today's Drops": watching shows whose latest episode aired within the last
  * 24 hours and hasn't been logged yet, drawn as the big cinematic banner card.
+ * A card already on screen outlives the window (see admittedDrops), so rating
+ * catch-up episodes advances it instead of dismissing it.
  */
 export function CheckInFeed({ animeList, favorites, logs, onLog, onAnimeSelect }: CheckInFeedProps) {
   const vibes = useVibesIndex();
@@ -54,20 +73,20 @@ export function CheckInFeed({ animeList, favorites, logs, onLog, onAnimeSelect }
       const latest = latestAiredEpisode(anime, now);
       if (latest === null) continue;
 
+      const episodeNum = latest.episode;
       const timeSinceAir = now - latest.airedAt;
-      // Aired within the last 24 hours
-      if (timeSinceAir >= 0 && timeSinceAir <= 24 * 3600) {
-        const episodeNum = latest.episode;
-        const showLogs = logs.filter((l) => l.showId === anime.id);
-        const log = showLogs.find((l) => l.episodeNumber === episodeNum);
-        if (!log) {
-          const maxWatched = showLogs.length > 0 ? Math.max(...showLogs.map((l) => l.episodeNumber)) : 0;
-          const ratedLogs = showLogs.filter((l) => l.score !== null && l.score !== undefined);
-          const userAvgScore =
-            ratedLogs.length > 0 ? ratedLogs.reduce((acc, l) => acc + (l.score ?? 0), 0) / ratedLogs.length : null;
-          recent.push({ anime, episode: episodeNum, airedAt: latest.airedAt, maxWatched, userAvgScore });
-        }
-      }
+      const inWindow = timeSinceAir >= 0 && timeSinceAir <= 24 * 3600;
+      if (!inWindow && admittedDrops.get(anime.id) !== episodeNum) continue;
+
+      const showLogs = logs.filter((l) => l.showId === anime.id);
+      if (showLogs.some((l) => l.episodeNumber === episodeNum)) continue;
+
+      admittedDrops.set(anime.id, episodeNum);
+      const maxWatched = showLogs.length > 0 ? Math.max(...showLogs.map((l) => l.episodeNumber)) : 0;
+      const ratedLogs = showLogs.filter((l) => l.score !== null && l.score !== undefined);
+      const userAvgScore =
+        ratedLogs.length > 0 ? ratedLogs.reduce((acc, l) => acc + (l.score ?? 0), 0) / ratedLogs.length : null;
+      recent.push({ anime, episode: episodeNum, airedAt: latest.airedAt, maxWatched, userAvgScore });
     }
     return recent.sort((a, b) => b.airedAt - a.airedAt);
   }, [animeList, favorites, logs]);
@@ -111,6 +130,29 @@ export function CheckInFeed({ animeList, favorites, logs, onLog, onAnimeSelect }
         </AnimatePresence>
       </div>
     </div>
+  );
+}
+
+/**
+ * Slides the old value up and the new one in from below whenever it changes —
+ * the "logged, here's the next one" feedback for numbers that advance in place.
+ */
+function Ticker({ value }: { value: string | number }) {
+  return (
+    <span className="relative inline-flex overflow-hidden">
+      <AnimatePresence mode="popLayout" initial={false}>
+        <motion.span
+          key={value}
+          initial={{ y: '105%', opacity: 0 }}
+          animate={{ y: '0%', opacity: 1 }}
+          exit={{ y: '-105%', opacity: 0 }}
+          transition={{ type: 'spring', stiffness: 500, damping: 38, mass: 0.8 }}
+          className="inline-block whitespace-nowrap"
+        >
+          {value}
+        </motion.span>
+      </AnimatePresence>
+    </span>
   );
 }
 
@@ -251,7 +293,7 @@ const CheckInItem = memo(function CheckInItem({
           </h3>
           <div className="flex gap-1.5 mt-1 flex-col items-end sm:flex-row sm:items-center">
             <div className="text-[11px] text-gray-400 whitespace-nowrap flex-shrink-0 border border-gray-800 bg-[#0f121d] px-2 py-0.5 rounded-full">
-              {seasonText} • {maxWatched}/{totalEpisodes} watched
+              {seasonText} • <Ticker value={maxWatched} />/{totalEpisodes} watched
             </div>
             {userAvgScore !== null && (
               <div className="text-[11px] font-semibold text-accent-300 whitespace-nowrap flex-shrink-0 border border-accent-500/30 bg-[#1a0f2e] px-2 py-0.5 rounded-full flex items-center gap-1 shadow-[0_0_10px_rgba(168,85,247,0.15)]">
@@ -284,7 +326,7 @@ const CheckInItem = memo(function CheckInItem({
           <div className="flex items-center gap-2 mb-4">
             <Zap className="w-4 h-4 text-accent-500 fill-accent-500" aria-hidden="true" />
             <span className="text-[14px] text-gray-200 font-medium">
-              {isCaughtUp ? "Rate today's episode" : `Rate Episode ${nextEp}`}
+              <Ticker value={isCaughtUp ? "Rate today's episode" : `Rate Episode ${nextEp}`} />
             </span>
           </div>
 
@@ -294,15 +336,16 @@ const CheckInItem = memo(function CheckInItem({
             className="flex gap-2 w-full justify-between mb-4 px-1"
           >
             {QUICK_SCORES.map((s) => (
-              <button
+              <motion.button
                 key={s}
                 type="button"
+                whileTap={{ scale: 0.88 }}
                 onClick={() => handleRateAndWatch(s)}
                 aria-label={`Rate episode ${targetEp} a ${s} and mark watched`}
                 className="flex-1 h-11 sm:h-[46px] bg-[#0a0c16] text-gray-200 border border-[#1e2336] rounded-lg text-[16px] sm:text-[18px] font-medium hover:bg-accent-600 hover:border-accent-500 hover:text-white hover:shadow-[0_0_15px_rgba(168,85,247,0.5)] transition-all"
               >
                 {s}
-              </button>
+              </motion.button>
             ))}
           </div>
 
@@ -327,70 +370,88 @@ const CheckInItem = memo(function CheckInItem({
         </div>
 
         <div className="mt-auto">
-          {isCaughtUp ? (
-            <div className="relative w-full h-[52px] mt-1">
-              <div className="absolute top-2.5 left-4 right-4 h-[3px] bg-accent-600 rounded-full" aria-hidden="true" />
-              <div className="absolute inset-0 flex justify-between items-start">
-                <div className="flex flex-col items-center w-24 -ml-4">
-                  <div className="w-5 h-5 rounded-full bg-accent-600 flex items-center justify-center z-10 ring-[3px] ring-[#0a0c16]">
-                    <Check className="w-3 h-3 text-white stroke-[3]" aria-hidden="true" />
-                  </div>
-                  <div className="text-[10px] text-gray-400 mt-1.5 text-center leading-tight">
-                    Caught up through
-                    <br />
-                    Ep. {Math.max(0, todayEp - 1)}
-                  </div>
-                </div>
+          <div className="relative w-full h-[52px] mt-1">
+            <AnimatePresence initial={false}>
+              {isCaughtUp ? (
+                <motion.div
+                  key="caught-up"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.3, ease: 'easeOut' }}
+                  className="absolute inset-0"
+                >
+                  <div className="absolute top-2.5 left-4 right-4 h-[3px] bg-accent-600 rounded-full" aria-hidden="true" />
+                  <div className="absolute inset-0 flex justify-between items-start">
+                    <div className="flex flex-col items-center w-24 -ml-4">
+                      <div className="w-5 h-5 rounded-full bg-accent-600 flex items-center justify-center z-10 ring-[3px] ring-[#0a0c16]">
+                        <Check className="w-3 h-3 text-white stroke-[3]" aria-hidden="true" />
+                      </div>
+                      <div className="text-[10px] text-gray-400 mt-1.5 text-center leading-tight">
+                        Caught up through
+                        <br />
+                        Ep. {Math.max(0, todayEp - 1)}
+                      </div>
+                    </div>
 
-                <div className="flex flex-col items-center w-20 -mr-2">
-                  <div className="w-5 h-5 rounded-full border-2 border-accent-500 bg-[#0a0c16] flex items-center justify-center z-10 ring-[3px] ring-[#0a0c16]">
-                    <Star className="w-2.5 h-2.5 text-accent-400 fill-current" aria-hidden="true" />
+                    <div className="flex flex-col items-center w-20 -mr-2">
+                      <div className="w-5 h-5 rounded-full border-2 border-accent-500 bg-[#0a0c16] flex items-center justify-center z-10 ring-[3px] ring-[#0a0c16]">
+                        <Star className="w-2.5 h-2.5 text-accent-400 fill-current" aria-hidden="true" />
+                      </div>
+                      <div className="text-[10px] text-gray-400 mt-1.5 text-center leading-tight">Today: Ep. {todayEp}</div>
+                    </div>
                   </div>
-                  <div className="text-[10px] text-gray-400 mt-1.5 text-center leading-tight">Today: Ep. {todayEp}</div>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="relative w-full h-[52px] mt-1">
-              <div className="absolute top-2.5 left-4 right-4 flex items-center" aria-hidden="true">
-                <div className="h-[3px] bg-accent-600 rounded-full w-[45%]" />
-                <div className="h-[3px] border-t-2 border-dashed border-gray-700 flex-1 ml-1" />
-              </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="behind"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.3, ease: 'easeOut' }}
+                  className="absolute inset-0"
+                >
+                  <div className="absolute top-2.5 left-4 right-4 flex items-center" aria-hidden="true">
+                    <div className="h-[3px] bg-accent-600 rounded-full w-[45%]" />
+                    <div className="h-[3px] border-t-2 border-dashed border-gray-700 flex-1 ml-1" />
+                  </div>
 
-              <div className="absolute inset-0 flex justify-between items-start">
-                <div className="flex flex-col items-center w-24 -ml-4">
-                  <div className="w-5 h-5 rounded-full bg-accent-600 flex items-center justify-center z-10 ring-[3px] ring-[#0a0c16]">
-                    <Check className="w-3 h-3 text-white stroke-[3]" aria-hidden="true" />
-                  </div>
-                  <div className="text-[10px] text-gray-400 mt-1.5 text-center leading-tight">
-                    Watched through
-                    <br />
-                    Ep. {maxWatched}
-                  </div>
-                </div>
+                  <div className="absolute inset-0 flex justify-between items-start">
+                    <div className="flex flex-col items-center w-24 -ml-4">
+                      <div className="w-5 h-5 rounded-full bg-accent-600 flex items-center justify-center z-10 ring-[3px] ring-[#0a0c16]">
+                        <Check className="w-3 h-3 text-white stroke-[3]" aria-hidden="true" />
+                      </div>
+                      <div className="text-[10px] text-gray-400 mt-1.5 text-center leading-tight">
+                        Watched through
+                        <br />
+                        Ep. <Ticker value={maxWatched} />
+                      </div>
+                    </div>
 
-                <div className="flex flex-col items-center w-20 absolute left-[45%] -translate-x-1/2">
-                  <div className="w-5 h-5 rounded-full border-2 border-accent-500 bg-[#0a0c16] flex items-center justify-center z-10 ring-[3px] ring-[#0a0c16]">
-                    <div className="w-2 h-2 rounded-full bg-accent-400" aria-hidden="true" />
-                  </div>
-                  <div className="text-[10px] text-gray-300 mt-1.5 text-center leading-tight font-medium">
-                    Next: Ep. {nextEp}
-                  </div>
-                </div>
+                    <div className="flex flex-col items-center w-20 absolute left-[45%] -translate-x-1/2">
+                      <div className="w-5 h-5 rounded-full border-2 border-accent-500 bg-[#0a0c16] flex items-center justify-center z-10 ring-[3px] ring-[#0a0c16]">
+                        <div className="w-2 h-2 rounded-full bg-accent-400" aria-hidden="true" />
+                      </div>
+                      <div className="text-[10px] text-gray-300 mt-1.5 text-center leading-tight font-medium">
+                        Next: Ep. <Ticker value={nextEp} />
+                      </div>
+                    </div>
 
-                <div className="flex flex-col items-center w-20 -mr-2">
-                  <div className="w-5 h-5 rounded-full border-2 border-gray-600 bg-[#0a0c16] flex items-center justify-center z-10 ring-[3px] ring-[#0a0c16]">
-                    <Star className="w-2.5 h-2.5 text-gray-500 fill-current" aria-hidden="true" />
+                    <div className="flex flex-col items-center w-20 -mr-2">
+                      <div className="w-5 h-5 rounded-full border-2 border-gray-600 bg-[#0a0c16] flex items-center justify-center z-10 ring-[3px] ring-[#0a0c16]">
+                        <Star className="w-2.5 h-2.5 text-gray-500 fill-current" aria-hidden="true" />
+                      </div>
+                      <div className="text-[10px] text-gray-400 mt-1.5 text-center leading-tight">Today: Ep. {todayEp}</div>
+                    </div>
                   </div>
-                  <div className="text-[10px] text-gray-400 mt-1.5 text-center leading-tight">Today: Ep. {todayEp}</div>
-                </div>
-              </div>
 
-              <div className="absolute top-[16px] left-[72.5%] transform -translate-x-1/2 -translate-y-1/2 border border-[#1e2336] bg-[#0a0c16] rounded-full px-2 py-0.5 text-[9px] text-gray-400 whitespace-nowrap z-10 shadow-sm">
-                {todayEp - nextEp} episodes to today
-              </div>
-            </div>
-          )}
+                  <div className="absolute top-[16px] left-[72.5%] transform -translate-x-1/2 -translate-y-1/2 border border-[#1e2336] bg-[#0a0c16] rounded-full px-2 py-0.5 text-[9px] text-gray-400 whitespace-nowrap z-10 shadow-sm">
+                    <Ticker value={todayEp - nextEp} /> episodes to today
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
           {watchLink ? (
             <a
@@ -400,7 +461,7 @@ const CheckInItem = memo(function CheckInItem({
               className="w-full h-11 sm:h-12 flex items-center justify-center gap-2 rounded-xl font-medium text-[14px] sm:text-[15px] transition-all mt-6 bg-[#0a0c16] border border-accent-600 text-accent-400 hover:bg-accent-600 hover:text-white shadow-[0_0_15px_rgba(147,51,234,0.2)] hover:shadow-[0_0_20px_rgba(147,51,234,0.4)]"
             >
               <Play className="w-4 h-4 fill-current" aria-hidden="true" />
-              {isCaughtUp ? `Watch Episode ${todayEp}` : `Continue Episode ${nextEp}`}
+              <Ticker value={isCaughtUp ? `Watch Episode ${todayEp}` : `Continue Episode ${nextEp}`} />
             </a>
           ) : (
             <p className="w-full h-11 sm:h-12 flex items-center justify-center gap-2 rounded-xl font-medium text-[14px] sm:text-[15px] mt-6 bg-[#1e2336] text-gray-400">
