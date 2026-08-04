@@ -14,12 +14,13 @@ import {
   redditSearchUrl,
   vibeEntrySchema,
   vibeKey,
+  VIBE_REFRESH_RUNGS_MS,
   type VibeEntry,
 } from '../src/lib/vibesFile';
 
 const HOUR_MS = 60 * 60 * 1000;
 
-/** Under this age an episode's sentiment is refreshed every run. */
+/** Under this age an episode is eligible for rung-ladder update reads. */
 export const UPDATE_WINDOW_MS = 24 * HOUR_MS;
 /** Past this age nothing is read again — the settle pass has had its chance. */
 export const SETTLE_WINDOW_MS = 48 * HOUR_MS;
@@ -43,7 +44,11 @@ export interface AiredEpisode {
 /**
  * - `first`  — aired and never read. Included the moment it airs: partial
  *              release-day sentiment is exactly what a release-day viewer wants.
- * - `update` — under 24h old and not settled. The hourly refresh.
+ * - `update` — under 24h old, not settled, and the episode's age has crossed a
+ *              refresh rung (`VIBE_REFRESH_RUNGS_MS`) since it was last read.
+ *              Between rungs nothing is re-read: sentiment moves fast in the
+ *              first hours and barely at all after, so a flat every-run
+ *              refresh paid ~13 reads for the story six can tell.
  * - `settle` — 24-48h old. The last read this episode will ever get.
  */
 export type WorkKind = 'first' | 'update' | 'settle';
@@ -75,8 +80,14 @@ function kindFor(entry: VibeEntry | undefined, ageMs: number, now: number): Work
     if (entry === undefined) return 'first';
     const asOf = Date.parse(entry.asOf);
     // An unparseable asOf means we cannot tell how old the reading is; refresh it.
-    if (!Number.isNaN(asOf) && now - asOf < MIN_REFRESH_GAP_MS) return null;
-    return 'update';
+    if (Number.isNaN(asOf)) return 'update';
+    if (now - asOf < MIN_REFRESH_GAP_MS) return null;
+    // The ladder: due only when the episode's age has crossed a rung the last
+    // reading predates. Ages come from the schedule's air time, not the
+    // entry's own airedAt, so a slightly-off stored value cannot stall a rung.
+    const airTime = now - ageMs;
+    const lastReadAge = asOf - airTime;
+    return VIBE_REFRESH_RUNGS_MS.some((rung) => lastReadAge < rung && ageMs >= rung) ? 'update' : null;
   }
 
   if (ageMs <= SETTLE_WINDOW_MS) return 'settle';

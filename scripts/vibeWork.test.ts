@@ -43,14 +43,23 @@ describe('classifyVibeWork', () => {
     ]);
   });
 
-  it('re-reads an unsettled entry under 24h old', () => {
-    const work = classifyVibeWork(index(entry()), [aired()], NOW);
+  it('re-reads an unsettled entry once the episode crosses the next refresh rung', () => {
+    // Read at age 1h, episode now 5h old: the 2h and 4h rungs have passed.
+    const readEarly = entry({ airedAt: hoursAgo(5), asOf: new Date(NOW - 4 * HOUR).toISOString() });
+    const work = classifyVibeWork(index(readEarly), [aired({ airedAt: hoursAgo(5) })], NOW);
     expect(work.items.map((i) => i.kind)).toEqual(['update']);
   });
 
-  it('leaves an entry the previous run just wrote alone', () => {
-    const fresh = entry({ asOf: new Date(NOW - 10 * 60 * 1000).toISOString() });
-    expect(classifyVibeWork(index(fresh), [aired()], NOW).items).toEqual([]);
+  it('waits between rungs — a reading taken after the last rung holds until the next', () => {
+    // Read at age 4.2h, episode now 5h old: 4h rung already covered, 8h not reached.
+    const current = entry({ airedAt: hoursAgo(5), asOf: new Date(NOW - 0.8 * HOUR).toISOString() });
+    expect(classifyVibeWork(index(current), [aired({ airedAt: hoursAgo(5) })], NOW).items).toEqual([]);
+  });
+
+  it('leaves an entry the previous run just wrote alone, even across a rung', () => {
+    // Age 2.2h and the 2h rung crossed since the read — but the read is 10min old.
+    const fresh = entry({ airedAt: hoursAgo(2.2), asOf: new Date(NOW - 10 * 60 * 1000).toISOString() });
+    expect(classifyVibeWork(index(fresh), [aired({ airedAt: hoursAgo(2.2) })], NOW).items).toEqual([]);
   });
 
   it('sends a 24-48h old episode to the settle pass, entry or not', () => {

@@ -271,9 +271,13 @@ hours, cross-references the file, and emits at most 30 work items — the bound 
 how long an unattended hourly run can take. Each item carries a `kind`:
 
 - **`first`** — aired, never read. Emitted the moment it airs.
-- **`update`** — under 24h old, already read, not settled. The hourly refresh.
-  An entry written less than 45 minutes ago is skipped, so a manual run right
-  after a scheduled one does not repeat it.
+- **`update`** — under 24h old, already read, not settled, and due on the
+  refresh ladder: a re-read happens only when the episode's age crosses a rung
+  (2h, 4h, 8h, 16h, 24h — `VIBE_REFRESH_RUNGS_MS`) that the last reading
+  predates. Between rungs nothing is re-read; a flat every-run refresh paid
+  ~13 reads per episode for the story six can tell. An entry written less than
+  45 minutes ago is always skipped, so a manual run right after a scheduled
+  one does not repeat it.
 - **`settle`** — 24-48h old. The last read this episode will ever get.
 
 When more than 30 items are eligible, **settle items are taken first**. They

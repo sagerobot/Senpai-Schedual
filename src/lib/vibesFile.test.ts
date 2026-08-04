@@ -166,12 +166,20 @@ describe('isVibeServable', () => {
     expect(isVibeServable(vibeEntrySchema.parse(found({ settled: true })), NOW + 30 * 24 * 3600_000)).toBe(true);
   });
 
-  it('serves an unsettled entry inside the refresh window', () => {
-    expect(isVibeServable(vibeEntrySchema.parse(found()), NOW + 60 * 60 * 1000)).toBe(true);
+  it('serves an unsettled entry until the next refresh rung', () => {
+    // found() reads at age 3h; at age 3.5h the 4h rung is still ahead.
+    expect(isVibeServable(vibeEntrySchema.parse(found()), NOW + 0.5 * 60 * 60 * 1000)).toBe(true);
   });
 
-  it('refuses an unsettled entry the hourly routine should have replaced', () => {
-    expect(isVibeServable(vibeEntrySchema.parse(found()), NOW + 3 * 60 * 60 * 1000)).toBe(false);
+  it('refuses an unsettled entry once a rung has passed — the pipeline is about to replace it', () => {
+    // Read at age 3h, asked at age 5h: the 4h rung passed unread.
+    expect(isVibeServable(vibeEntrySchema.parse(found()), NOW + 2 * 60 * 60 * 1000)).toBe(false);
+  });
+
+  it('falls back to the flat freshness window when the air time is unknown', () => {
+    const harvested = vibeEntrySchema.parse(found({ airedAt: 0 }));
+    expect(isVibeServable(harvested, NOW + 60 * 60 * 1000)).toBe(true);
+    expect(isVibeServable(harvested, NOW + 3 * 60 * 60 * 1000)).toBe(false);
   });
 });
 

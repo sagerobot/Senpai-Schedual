@@ -13,9 +13,10 @@ import { z } from 'zod';
  *
  * The lifecycle of one entry, and why `settled` exists:
  *
- * - An episode that aired **under 24h ago** is refreshed hourly. Release-day
- *   viewers want a read *now*, and accept that an hour-old thread is partial —
- *   which is what `asOf` lets the UI say out loud.
+ * - An episode that aired **under 24h ago** is re-read on the decaying rung
+ *   ladder (`VIBE_REFRESH_RUNGS_MS`): first read at airing, then again as its
+ *   age crosses 2h, 4h, 8h, 16h. Sentiment moves fast in the first hours and
+ *   barely at all after — which is what `asOf` lets the UI say out loud.
  * - At **24-48h** one final "settle" pass runs and sets `settled: true`.
  * - A settled entry is **frozen forever**. Sentiment on a two-day-old thread
  *   does not move, and re-reading it costs a grounded search for nothing.
@@ -30,6 +31,17 @@ export const VIBES_FILE_VERSION = 1;
 
 /** How long an unsettled reading is served as-is before a refresh is due. */
 export const VIBE_FRESH_WINDOW_MS = 2 * 60 * 60 * 1000;
+
+/**
+ * The refresh ladder: an unsettled entry is re-read only when the episode's
+ * age crosses the next rung after the age it was last read at. Reading every
+ * cycle instead cost ~13 reads per episode in day one for a sentiment that
+ * mostly stops moving after the first few hours; the ladder keeps the same
+ * story arc — release-day read, early corrections, a final look entering the
+ * settle window — in about six. The 24h rung exists so an entry last read
+ * mid-day-one still gets refreshed once it is old enough to settle.
+ */
+export const VIBE_REFRESH_RUNGS_MS: readonly number[] = [2, 4, 8, 16, 24].map((h) => h * 60 * 60 * 1000);
 
 /** The map key for one episode's vibe. Built here and nowhere else. */
 export function vibeKey(showId: number, episode: number): string {
@@ -200,14 +212,20 @@ export function emptyVibesFile(): VibesFile {
 
 /**
  * May this reading be served without a fresh search? Settled entries always
- * can; an unsettled one only while it is inside the refresh window, because
- * the hourly routine is about to replace it anyway.
+ * can; an unsettled one only until the refresh ladder says a re-read is due —
+ * the pipeline is about to replace it, so a grounded search would pay for the
+ * same refresh twice. Entries without a known air time (harvested ones) fall
+ * back to the flat freshness window, having no age to measure rungs against.
  */
 export function isVibeServable(entry: VibeEntry, now = Date.now(), windowMs = VIBE_FRESH_WINDOW_MS): boolean {
   if (entry.settled) return true;
   const asOf = Date.parse(entry.asOf);
   if (Number.isNaN(asOf)) return false;
-  return now - asOf < windowMs;
+  if (entry.airedAt <= 0) return now - asOf < windowMs;
+  const airMs = entry.airedAt * 1000;
+  const ageNow = now - airMs;
+  const lastReadAge = asOf - airMs;
+  return !VIBE_REFRESH_RUNGS_MS.some((rung) => lastReadAge < rung && ageNow >= rung);
 }
 
 /** The seven fields the `/api/community-vibe` payload carries. */
