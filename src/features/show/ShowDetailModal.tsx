@@ -7,6 +7,7 @@ import { useShowDetailsQuery } from '../../queries/hooks';
 import { useVibesIndex } from '../../queries/vibes';
 import { latestAiredEpisode } from '../../lib/aired';
 import { displayTitle } from '../../lib/displayTitle';
+import { isJustAired } from '../../lib/vibesFile';
 import { asOfLabel, useCommunityPulse } from './useCommunityPulse';
 import { EpisodeTracker } from './EpisodeTracker';
 import { VibeFlagButton } from './VibeFlagButton';
@@ -43,6 +44,7 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
     state: pulseState,
     load: loadPulse,
     remembered,
+    quiet,
   } = useCommunityPulse(displayTitle(anime), selectedEpisode, anime.id, vibes.get(anime.id, selectedEpisode));
 
   // r/anime episode discussion threads barely exist before about 2013, so for
@@ -53,12 +55,14 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
   const preDiscussionEra = startYear !== null && startYear < 2013;
   const asOfLine = remembered !== null ? asOfLabel(remembered) : null;
 
-  // The remembered reading carries the real thread URL; the r/anime search is
-  // only the fallback for episodes nothing has read yet.
+  // The remembered reading carries the real thread URL — a quiet entry too;
+  // the r/anime search is only the fallback for episodes nothing has read yet.
   const discussionIsThread = pulseState === 'ok' && pulse !== null && pulse.url.includes('/comments/');
   const discussionUrl = discussionIsThread
     ? pulse.url
-    : `https://www.reddit.com/r/anime/search/?q=${encodeURIComponent(displayTitle(anime))}+episode+${selectedEpisode}+discussion&restrict_sr=1`;
+    : quiet !== null
+      ? quiet.url
+      : `https://www.reddit.com/r/anime/search/?q=${encodeURIComponent(displayTitle(anime))}+episode+${selectedEpisode}+discussion&restrict_sr=1`;
 
   const setShowScore = useUserData((s) => s.setShowScore);
   const customSite = useUserData((s) => s.uiPrefs.customSource?.name);
@@ -356,6 +360,25 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                 <p className="rounded-xl border border-gray-800 bg-[#2a2a2d]/50 p-5 text-center text-sm text-gray-400">
                   r/anime episode discussions only go back to about 2013 — there is nothing to read for a show this old.
                 </p>
+              ) : pulseState === 'quiet' && quiet !== null ? (
+                isJustAired(quiet) ? (
+                  <p className="rounded-xl border border-sky-500/30 bg-sky-950/20 p-5 text-center text-sm text-sky-200">
+                    Just released — the{' '}
+                    <a href={quiet.url} target="_blank" rel="noreferrer" className="underline underline-offset-2">
+                      discussion thread
+                    </a>{' '}
+                    is still filling up. Check back soon.
+                  </p>
+                ) : (
+                  <p className="rounded-xl border border-zinc-500/30 bg-[#2a2a2d]/50 p-5 text-center text-sm text-gray-400">
+                    The{' '}
+                    <a href={quiet.url} target="_blank" rel="noreferrer" className="underline underline-offset-2 text-gray-300">
+                      discussion thread
+                    </a>{' '}
+                    for episode {selectedEpisode} is quiet — only {quiet.comments} comment
+                    {quiet.comments === 1 ? '' : 's'}, not enough for a sentiment read.
+                  </p>
+                )
               ) : pulseState === 'not_found' ? (
                 <p className="rounded-xl border border-gray-800 bg-[#2a2a2d]/50 p-5 text-center text-sm text-gray-400">
                   No discussion thread found for episode {selectedEpisode}.

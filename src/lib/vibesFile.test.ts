@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   emptyVibesFile,
+  isJustAired,
   isRedditUrl,
   isVibeServable,
   parseVibesFile,
@@ -186,5 +187,42 @@ describe('vibePayload', () => {
       'upvotes',
       'url',
     ]);
+  });
+});
+
+describe('quiet entries', () => {
+  const quiet = (overrides: Record<string, unknown> = {}) => ({
+    showId: 303,
+    episode: 2,
+    airedAt: Math.floor((NOW - 30 * 60 * 60 * 1000) / 1000),
+    asOf: new Date(NOW).toISOString(),
+    settled: true,
+    status: 'quiet',
+    upvotes: 3,
+    comments: 2,
+    url: 'https://www.reddit.com/r/anime/comments/q1/x/',
+    ...overrides,
+  });
+
+  it('round-trips a quiet entry — thread verified, no sentiment fields', () => {
+    const parsed = vibeEntrySchema.parse(quiet());
+    expect(parsed.status).toBe('quiet');
+    expect(parsed.status === 'quiet' && parsed.comments).toBe(2);
+    expect(parsed).not.toHaveProperty('summary');
+  });
+
+  it('rejects a quiet entry with an off-reddit url', () => {
+    expect(vibeEntrySchema.safeParse(quiet({ url: 'https://example.com/x' })).success).toBe(false);
+  });
+
+  it('isJustAired flips at the two-hour window and never fires on an unknown air time', () => {
+    const justAired = vibeEntrySchema.parse(
+      quiet({ airedAt: Math.floor((NOW - 1 * 60 * 60 * 1000) / 1000), settled: false }),
+    );
+    const stale = vibeEntrySchema.parse(quiet());
+    const unknown = vibeEntrySchema.parse(quiet({ airedAt: 0 }));
+    expect(isJustAired(justAired, NOW)).toBe(true);
+    expect(isJustAired(stale, NOW)).toBe(false);
+    expect(isJustAired(unknown, NOW)).toBe(false);
   });
 });

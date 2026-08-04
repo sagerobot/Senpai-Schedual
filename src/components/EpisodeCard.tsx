@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { displayTitle } from '../lib/displayTitle';
 import type { WatchState } from '../lib/status';
 import { cn } from '../lib/utils';
-import type { VibeEntry } from '../lib/vibesFile';
+import { isJustAired, type VibeEntry } from '../lib/vibesFile';
 import type { AnimeMedia } from '../types';
 import { LibraryStatusMenu } from './LibraryStatusMenu';
 import { StatusBadge } from './StatusBadge';
@@ -40,11 +40,13 @@ export interface EpisodeCardProps {
 
 const SCORES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-/** Sentiment is spelled out, never colour alone. */
+/** Sentiment is spelled out, never colour alone. Vocabulary mirrors VibeChip. */
 const SENTIMENT = {
   positive: { label: 'Positive', chip: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300', dot: 'bg-emerald-400' },
   mixed: { label: 'Mixed', chip: 'border-pink-500/40 bg-pink-500/10 text-pink-300', dot: 'bg-pink-400' },
   negative: { label: 'Negative', chip: 'border-rose-500/40 bg-rose-500/10 text-rose-300', dot: 'bg-rose-400' },
+  quiet: { label: 'Zzz', chip: 'border-zinc-500/40 bg-zinc-500/10 text-zinc-400', dot: 'bg-zinc-500' },
+  new: { label: 'New', chip: 'border-sky-500/40 bg-sky-500/10 text-sky-300', dot: 'bg-sky-400' },
 } as const;
 
 function compactCount(value: number): string {
@@ -89,27 +91,67 @@ export function EpisodeCard({
   const cover = anime.coverImage.extraLarge ?? anime.coverImage.large;
   const pct = progress.aired > 0 ? Math.min(100, Math.max(0, (progress.watched / progress.aired) * 100)) : 0;
 
-  const tone = vibe?.status === 'found' ? SENTIMENT[vibe.indicator] : null;
+  // Same three states as VibeChip: sentiment (+ a "New" companion inside the
+  // first two hours), "New" alone for a just-aired quiet thread, grey "Zzz"
+  // with the count for a thread that never filled up.
+  const justAired = vibe !== undefined && vibe.status !== 'not_found' && isJustAired(vibe);
+  const tone =
+    vibe === undefined || vibe.status === 'not_found'
+      ? null
+      : vibe.status === 'quiet'
+        ? justAired
+          ? SENTIMENT.new
+          : SENTIMENT.quiet
+        : SENTIMENT[vibe.indicator];
+  const chipTitle =
+    vibe === undefined || vibe.status === 'not_found'
+      ? ''
+      : vibe.status === 'quiet'
+        ? justAired
+          ? 'Just released — the discussion thread is still filling up'
+          : `Only ${vibe.comments} comment${vibe.comments === 1 ? '' : 's'} — not enough for a sentiment read`
+        : firstSentence(vibe.summary);
+  const chipStatus =
+    vibe === undefined || vibe.status === 'not_found'
+      ? ''
+      : vibe.status === 'quiet'
+        ? justAired
+          ? 'just released, discussion forming'
+          : `discussion is quiet, ${vibe.comments} comments`
+        : `community vibe: ${tone?.label ?? ''}${vibe.comments > 0 ? `, ${vibe.comments} comments` : ''}${justAired ? ', just released' : ''}`;
   const vibeChip =
-    vibe?.status === 'found' && tone !== null ? (
-      <button
-        type="button"
-        onClick={onOpen}
-        title={firstSentence(vibe.summary)}
-        aria-label={`Episode ${vibe.episode} community vibe: ${tone.label}${vibe.comments > 0 ? `, ${vibe.comments} comments` : ''}. Open ${titleText}`}
-        className={cn(
-          'relative flex shrink-0 items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px] font-bold transition-colors',
-          // The chip stays small so it cannot crowd the card, but the touch
-          // target does not: the overlay gives it the 44px height the rest of
-          // the app's controls have without taking that much room.
-          "after:absolute after:inset-x-0 after:top-1/2 after:h-11 after:-translate-y-1/2 after:content-['']",
-          tone.chip,
+    vibe !== undefined && vibe.status !== 'not_found' && tone !== null ? (
+      <span className="flex shrink-0 items-center gap-1">
+        {justAired && vibe.status === 'found' && (
+          <span
+            className={cn(
+              'flex shrink-0 items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px] font-bold',
+              SENTIMENT.new.chip,
+            )}
+          >
+            <span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', SENTIMENT.new.dot)} aria-hidden="true" />
+            {SENTIMENT.new.label}
+          </span>
         )}
-      >
-        <span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', tone.dot)} aria-hidden="true" />
-        {tone.label}
-        {vibe.comments > 0 && <span className="font-semibold opacity-80">· {compactCount(vibe.comments)}</span>}
-      </button>
+        <button
+          type="button"
+          onClick={onOpen}
+          title={chipTitle}
+          aria-label={`Episode ${vibe.episode} ${chipStatus}. Open ${titleText}`}
+          className={cn(
+            'relative flex shrink-0 items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px] font-bold transition-colors',
+            // The chip stays small so it cannot crowd the card, but the touch
+            // target does not: the overlay gives it the 44px height the rest of
+            // the app's controls have without taking that much room.
+            "after:absolute after:inset-x-0 after:top-1/2 after:h-11 after:-translate-y-1/2 after:content-['']",
+            tone.chip,
+          )}
+        >
+          <span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', tone.dot)} aria-hidden="true" />
+          {tone.label}
+          {vibe.comments > 0 && <span className="font-semibold opacity-80">· {compactCount(vibe.comments)}</span>}
+        </button>
+      </span>
     ) : null;
 
   const actionRow =

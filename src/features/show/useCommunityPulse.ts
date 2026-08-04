@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
 import { postEnvelope } from '../../api/aiEnvelope';
-import { vibePayload, type VibeEntry, type VibeFoundEntry } from '../../lib/vibesFile';
+import { vibePayload, type VibeEntry, type VibeFoundEntry, type VibeQuietEntry } from '../../lib/vibesFile';
 
 /** Mirrors the server's vibeOutputSchema (server/schemas.ts). */
 const VibeCheckSchema = z.object({
@@ -16,7 +16,7 @@ const VibeCheckSchema = z.object({
 
 export type VibeCheck = z.infer<typeof VibeCheckSchema>;
 
-export type PulseState = 'idle' | 'loading' | 'ok' | 'not_found' | 'no_key' | 'resting' | 'error';
+export type PulseState = 'idle' | 'loading' | 'ok' | 'quiet' | 'not_found' | 'no_key' | 'resting' | 'error';
 
 /** How long ago, in words, relative to a reference point. */
 function gapLabel(fromMs: number, toMs: number): string {
@@ -102,9 +102,14 @@ export function useCommunityPulse(
   // after the modal has already mounted, and a `stored` entry that arrives late
   // must still replace the idle prompt without a second render pass.
   const remembered: VibeFoundEntry | null = stored?.status === 'found' ? stored : null;
+  // A quiet entry means the thread was verified and holds too few comments for
+  // a sentiment read — offering a paid search would re-run a question with a
+  // known answer, so it displays as its own state instead of the idle prompt.
+  const quiet: VibeQuietEntry | null = stored?.status === 'quiet' ? stored : null;
   const settledMiss = stored?.status === 'not_found' && stored.settled;
 
-  const displayState: PulseState = remembered !== null ? 'ok' : settledMiss ? 'not_found' : state;
+  const displayState: PulseState =
+    remembered !== null ? 'ok' : quiet !== null ? 'quiet' : settledMiss ? 'not_found' : state;
 
   return {
     pulse: remembered !== null ? vibePayload(remembered) : pulse,
@@ -113,5 +118,7 @@ export function useCommunityPulse(
     retryAfterSeconds,
     /** Set when the displayed pulse came from the vibes file rather than a fetch. */
     remembered,
+    /** Set when the thread exists but is too quiet to read a sentiment from. */
+    quiet,
   };
 }

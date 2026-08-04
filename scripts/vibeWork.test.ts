@@ -200,3 +200,64 @@ describe('mergeVibeEntries', () => {
     expect(result.rejected).toHaveLength(2);
   });
 });
+
+describe('mergeVibeEntries: quiet', () => {
+  const incomingQuiet = (overrides: Record<string, unknown> = {}) => ({
+    showId: 1,
+    episode: 1,
+    airedAt: hoursAgo(30),
+    status: 'quiet',
+    upvotes: 3,
+    comments: 2,
+    url: 'https://www.reddit.com/r/anime/comments/qt/x/',
+    title: 'Test Show',
+    kind: 'settle',
+    ...overrides,
+  });
+
+  it('stores a quiet entry, settled by kind like any other', () => {
+    const result = mergeVibeEntries({}, [incomingQuiet()], NOW);
+    const stored = result.entries['1:1'];
+    expect(stored.status).toBe('quiet');
+    expect(stored.settled).toBe(true);
+    expect(stored.status === 'quiet' && stored.comments).toBe(2);
+  });
+
+  it('never trades a found reading down for a quiet one', () => {
+    const existing = index(entry({ settled: false }));
+    const result = mergeVibeEntries(existing, [incomingQuiet()], NOW);
+    expect(result.entries['1:1'].status).toBe('found');
+    expect(result.rejected.map((r) => r.reason)).toEqual(['quiet cannot replace a found reading']);
+  });
+
+  it('upgrades a quiet entry to a found reading', () => {
+    const quietFirst = mergeVibeEntries({}, [incomingQuiet({ kind: 'first' })], NOW);
+    const result = mergeVibeEntries(quietFirst.entries, [incomingFoundLike()], NOW);
+    expect(result.entries['1:1'].status).toBe('found');
+  });
+
+  it('rejects a quiet entry without a verified thread url — there is no search-URL repair', () => {
+    const result = mergeVibeEntries({}, [incomingQuiet({ url: 'https://example.com/thread' })], NOW);
+    expect(result.entries['1:1']).toBeUndefined();
+    expect(result.rejected[0].reason).toContain('verified reddit thread URL');
+  });
+});
+
+/** A found item shaped like the writer emits, for the quiet-upgrade case. */
+function incomingFoundLike(): Record<string, unknown> {
+  return {
+    showId: 1,
+    episode: 1,
+    airedAt: hoursAgo(30),
+    status: 'found',
+    summary: 'Late discussion filled in positive, centered on the production values.',
+    goods: [],
+    bads: [],
+    indicator: 'positive',
+    upvotes: 40,
+    comments: 12,
+    url: 'https://www.reddit.com/r/anime/comments/up/x/',
+    title: 'Test Show',
+    kind: 'update',
+  };
+}

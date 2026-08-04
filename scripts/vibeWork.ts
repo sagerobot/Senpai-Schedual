@@ -231,6 +231,22 @@ export function mergeVibeEntries(
       }
     }
 
+    if (raw.status === 'quiet') {
+      // "Quiet" asserts a thread EXISTS with too few comments — an unverified
+      // URL would make that claim baseless, so unlike `found` there is no
+      // search-URL repair. And a full reading is never traded down for a
+      // comment count: comments only accumulate, so a quiet arriving over a
+      // found entry means the incoming item is stale or wrong.
+      if (!isRedditUrl(typeof raw.url === 'string' ? raw.url : '')) {
+        rejected.push({ key, reason: 'quiet entry without a verified reddit thread URL' });
+        continue;
+      }
+      if (entries[key]?.status === 'found') {
+        rejected.push({ key, reason: 'quiet cannot replace a found reading' });
+        continue;
+      }
+    }
+
     const parsed = vibeEntrySchema.safeParse(candidate);
     if (!parsed.success) {
       const issue = parsed.error.issues[0];

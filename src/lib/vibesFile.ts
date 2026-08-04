@@ -114,11 +114,44 @@ export const vibeNotFoundSchema = z.object({
   status: z.literal('not_found'),
 });
 
-export const vibeEntrySchema = z.discriminatedUnion('status', [vibeFoundSchema, vibeNotFoundSchema]);
+/**
+ * The thread exists — URL verified — but holds too few comments to read a
+ * sentiment from. Distinct from `not_found` (no thread) and from `found`
+ * (enough discussion to summarize): the UI renders it as "quiet" with the
+ * comment count, or as "just released" while the episode is under
+ * `VIBE_NEW_WINDOW_MS` old and discussion is still forming.
+ */
+export const vibeQuietSchema = z.object({
+  ...commonFields,
+  status: z.literal('quiet'),
+  upvotes: z.coerce.number().int().nonnegative().catch(0),
+  comments: z.coerce.number().int().nonnegative().catch(0),
+  url: z.string().refine(isRedditUrl, { message: 'url must be on reddit.com' }),
+});
+
+export const vibeEntrySchema = z.discriminatedUnion('status', [
+  vibeFoundSchema,
+  vibeNotFoundSchema,
+  vibeQuietSchema,
+]);
 
 export type VibeFoundEntry = z.infer<typeof vibeFoundSchema>;
 export type VibeNotFoundEntry = z.infer<typeof vibeNotFoundSchema>;
+export type VibeQuietEntry = z.infer<typeof vibeQuietSchema>;
 export type VibeEntry = z.infer<typeof vibeEntrySchema>;
+
+/** Under this age an episode counts as "just released" — its thread is still filling up. */
+export const VIBE_NEW_WINDOW_MS = 2 * 60 * 60 * 1000;
+
+/**
+ * Did this episode air under two hours ago? The thread's own creation time is
+ * not stored; the r/anime bot posts at airing, so `airedAt` is the honest
+ * proxy. Drives the blue "New" badge — alone for a quiet thread, alongside the
+ * sentiment for a found one.
+ */
+export function isJustAired(entry: VibeEntry, now = Date.now()): boolean {
+  return entry.airedAt > 0 && now - entry.airedAt * 1000 < VIBE_NEW_WINDOW_MS;
+}
 
 export interface VibesFile {
   version: number;

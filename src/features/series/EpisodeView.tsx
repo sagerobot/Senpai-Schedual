@@ -6,6 +6,7 @@ import type { SeriesEntry } from '../../series/labeling';
 import { asOfLabel, useCommunityPulse } from '../show/useCommunityPulse';
 import { VibeFlagButton } from '../show/VibeFlagButton';
 import { useVibesIndex } from '../../queries/vibes';
+import { isJustAired } from '../../lib/vibesFile';
 import { logKey, useUserData } from '../../stores/userData';
 import { cn } from '../../lib/utils';
 
@@ -44,7 +45,7 @@ interface EpisodeViewProps {
 export function EpisodeView({ seriesTitle, member, media, episode, onClose }: EpisodeViewProps) {
   const vibes = useVibesIndex();
   const stored = vibes.get(member.id, episode);
-  const { pulse, state, load, remembered } = useCommunityPulse(member.title, episode, member.id, stored);
+  const { pulse, state, load, remembered, quiet } = useCommunityPulse(member.title, episode, member.id, stored);
   const asOfLine = remembered !== null ? asOfLabel(remembered) : null;
   const aspects = stored?.status === 'found' ? stored.aspects : undefined;
 
@@ -238,6 +239,25 @@ export function EpisodeView({ seriesTitle, member, media, episode, onClose }: Ep
                   <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                   Reading the community vibe…
                 </div>
+              ) : state === 'quiet' && quiet !== null ? (
+                isJustAired(quiet) ? (
+                  <div className="rounded-xl border border-sky-500/30 bg-sky-950/20 p-5 text-center text-sm text-sky-200">
+                    Just released — the{' '}
+                    <a href={quiet.url} target="_blank" rel="noreferrer" className="underline underline-offset-2">
+                      discussion thread
+                    </a>{' '}
+                    is still filling up. Check back soon.
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-zinc-500/30 bg-surface-0 p-5 text-center text-sm text-gray-400">
+                    The{' '}
+                    <a href={quiet.url} target="_blank" rel="noreferrer" className="underline underline-offset-2 text-gray-300">
+                      discussion thread
+                    </a>{' '}
+                    is quiet — only {quiet.comments} comment{quiet.comments === 1 ? '' : 's'}, not enough for a
+                    sentiment read.
+                  </div>
+                )
               ) : state === 'not_found' ? (
                 <div className="rounded-xl border border-edge bg-surface-0 p-5 text-center text-sm text-gray-400">
                   r/anime never had a discussion thread for this episode.

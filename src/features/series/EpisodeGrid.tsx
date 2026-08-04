@@ -13,7 +13,10 @@ import { cn } from '../../lib/utils';
  * tint plus a glyph, never color alone.
  */
 
-const TONE_GLYPH = { positive: '▲', mixed: '◆', negative: '▼' } as const;
+// `quiet` is the thread-exists-but-empty state; the grid keeps a single grey
+// treatment for it (the New/Zzz age split lives on the schedule cards, where
+// a just-aired episode is actually news).
+const TONE_GLYPH = { positive: '▲', mixed: '◆', negative: '▼', quiet: 'z' } as const;
 
 interface EpisodeGridProps {
   media: AnimeMedia;
@@ -37,18 +40,21 @@ export function EpisodeGrid({ media, vibes, onOpenEpisode }: EpisodeGridProps) {
     <div className="grid grid-cols-[repeat(auto-fill,minmax(2.75rem,1fr))] gap-1.5">
       {episodes.map((episode) => {
         const entry = vibes.get(media.id, episode);
-        const tone = entry?.status === 'found' ? entry.indicator : null;
+        const tone = entry?.status === 'found' ? entry.indicator : entry?.status === 'quiet' ? 'quiet' : null;
         const isWatched = watched.has(episode);
         return (
           <button
             key={episode}
             onClick={() => onOpenEpisode(episode)}
-            aria-label={`Episode ${episode}${isWatched ? ', watched' : ''}${tone ? `, ${tone} reception` : ''}`}
+            aria-label={`Episode ${episode}${isWatched ? ', watched' : ''}${
+              tone === 'quiet' ? ', quiet discussion' : tone ? `, ${tone} reception` : ''
+            }`}
             className={cn(
               'relative flex h-11 items-center justify-center rounded-lg border text-sm font-medium transition-colors',
               tone === 'positive' && 'border-emerald-500/40 bg-emerald-500/10 text-emerald-200 hover:bg-emerald-500/20',
               tone === 'mixed' && 'border-amber-500/40 bg-amber-500/10 text-amber-200 hover:bg-amber-500/20',
               tone === 'negative' && 'border-rose-500/40 bg-rose-500/10 text-rose-200 hover:bg-rose-500/20',
+              tone === 'quiet' && 'border-zinc-500/40 bg-zinc-500/10 text-zinc-400 hover:bg-zinc-500/20',
               tone === null && 'border-edge text-gray-300 hover:bg-surface-2 hover:text-white',
             )}
           >
