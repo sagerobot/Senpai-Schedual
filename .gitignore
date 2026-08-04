@@ -13,3 +13,4 @@ ai_summary_cache.json
 *.tsbuildinfo
 .vscode/
 .idea/
+__pycache__/

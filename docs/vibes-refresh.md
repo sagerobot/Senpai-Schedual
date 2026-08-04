@@ -84,11 +84,19 @@ touched by either schedule.
 | `missing.json` | the 8-hourly Action, rebuilt fresh every cycle | the 8-hourly Claude routine |
 | `vibes.json` | **this routine**; the 8-hourly Action may also fold in harvested readings | the server, via `GET /api/vibes` |
 | `vibe-work.json` | the hourly Action creates it; **this routine deletes it** once consumed | this routine |
+| `thread-index.json` | the owner's local tools only: `index_task.py` probes per show, the sweeps fold in confirmed URLs | the local sweeps, to skip unthreaded shows and read known thread URLs |
 
 The Action's contribution to `vibes.json` is safe precisely because it can only
 ever add: `vibes:merge` never deletes an entry and never overwrites a settled
 one, and the entries it folds in are for episodes the hourly window will never
 see. It does not decide anything about an entry's lifecycle — that stays here.
+
+Entries come in three statuses. `found` carries a sentiment reading; `not_found`
+records that no thread exists; `quiet` records a **verified** thread with too
+few comments to read sentiment from (the UI shows it as a blue "New" badge
+inside the episode's first two hours, then a grey "Zzz" with the comment
+count). A quiet entry upgrades to `found` when discussion arrives, but
+`vibes:merge` never trades a found reading down for a quiet one.
 
 ## The handoff protocol
 

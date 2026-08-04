@@ -25,6 +25,8 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+from threadindex import INDEX_FILE, dump_index, is_skippable, known_url, load_index, note_found
+
 REPO = Path(__file__).resolve().parents[2]
 WORKDIR = Path(os.environ.get("LOCALAPPDATA", str(REPO / ".local"))) / "senpai-vibes"
 LOG = WORKDIR / "fresh.log"
@@ -79,6 +81,29 @@ def main() -> int:
         return 0
     log(f"{len(work)} episodes due")
 
+    # 2b. The thread index turns discovery into lookup: shows a fresh probe
+    # called unthreaded are skipped outright (a no-thread show used to be
+    # re-searched every cycle for its whole 48h window), and episodes whose
+    # thread URL is already known are read directly instead of searched for.
+    index = load_index(REPO)
+    kept = []
+    skipped = 0
+    for w in work:
+        if is_skippable(index, w["showId"]):
+            skipped += 1
+            continue
+        url = known_url(index, w["showId"], w["episode"])
+        if url:
+            w["thread_url"] = url
+        kept.append(w)
+    if skipped:
+        log(f"{skipped} episode(s) skipped - unthreaded show per index")
+    work = kept
+    if not work:
+        log("nothing left after index skips - clean no-op")
+        return 0
+    work_path.write_text(json.dumps(work), encoding="utf-8")
+
     # 3. Codex collection (per-run output dir so refreshed episodes re-read).
     out_dir = run_dir / "out"
     worker = subprocess.run(
@@ -103,25 +128,42 @@ def main() -> int:
             r = json.loads(m.group(0))
         except json.JSONDecodeError:
             continue
-        if not r.get("found") or r.get("confidence") != "high" or (r.get("comments_read") or 0) < 5:
+        if not r.get("found") or r.get("confidence") != "high":
             continue
         th = r.get("thread") or {}
         url = th.get("url") or ""
         if "/comments/" not in url:
             continue
-        items.append({
+        item = {
             "key": w["key"], "showId": w["showId"], "episode": w["episode"],
             "title": w["title"], "airedAt": w.get("airedAt", 0), "kind": w.get("kind", "first"),
             "thread": {"title": th.get("title", ""), "url": url,
                        "score": th.get("score") or 0, "num_comments": th.get("num_comments") or 0},
-            "comments_read": r.get("comments_read"), "opinions": r.get("opinions", []),
-            "aspects": r.get("aspects") or {}, "notes": (r.get("notes") or "")[:300],
-        })
+        }
+        if (r.get("comments_read") or 0) >= 5 and r.get("opinions"):
+            item.update({
+                "comments_read": r.get("comments_read"), "opinions": r.get("opinions", []),
+                "aspects": r.get("aspects") or {}, "notes": (r.get("notes") or "")[:300],
+            })
+        else:
+            # A verified thread with too few comments is a fact worth keeping:
+            # the writer stores it as a `quiet` entry (grey Zzz / blue New in
+            # the UI) instead of the episode showing nothing at all.
+            item["status"] = "quiet"
+        items.append(item)
     if not items:
         log("nothing passed the gate this cycle")
         return 0
 
-    # 5. Hand the packet to the cloud writer via the data branch.
+    # 5. Hand the packet to the cloud writer via the data branch. The index is
+    # re-loaded from a fresh origin/data and this run's finds re-applied, so a
+    # concurrent index write (index_task, the season sweep) is never clobbered.
+    run([GIT, "fetch", "origin", "data"])
+    index = load_index(REPO)
+    index_changed = False
+    for it in items:
+        index_changed = note_found(index, it["showId"], it["episode"], it["thread"]["url"],
+                                   it["thread"]["title"], title=it["title"]) or index_changed
     packet_name = f"packet-fresh-{stamp}.json"
     wt = WORKDIR / "data-wt"
     run([GIT, "worktree", "remove", "--force", str(wt)])
@@ -131,6 +173,9 @@ def main() -> int:
         (wt / "backfill").mkdir(exist_ok=True)
         (wt / "backfill" / packet_name).write_text(json.dumps(items, indent=1), encoding="utf-8")
         run([GIT, "add", "backfill"], cwd=wt)
+        if index_changed:
+            (wt / INDEX_FILE).write_text(dump_index(index), encoding="utf-8")
+            run([GIT, "add", INDEX_FILE], cwd=wt)
         run([GIT, "-c", "user.name=senpai-fresh-task", "-c", "user.email=fresh-task@local",
              "commit", "-m", f"data: fresh vibe packet {stamp} ({len(items)} readings)"], cwd=wt)
         if run([GIT, "push", "origin", "HEAD:data"], cwd=wt).returncode != 0:
