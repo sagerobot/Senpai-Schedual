@@ -1,0 +1,93 @@
+[
+ {
+  "key": "135865:5",
+  "showId": 135865,
+  "episode": 5,
+  "title": "Youjo Senki II",
+  "airedAt": 1785933000,
+  "kind": "settle",
+  "thread": {
+   "title": "Saga of Tanya the Evil Season 2 \u2022 Youjo Senki II - Episode 5 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vg7h5b/saga_of_tanya_the_evil_season_2_youjo_senki_ii/",
+   "score": 0,
+   "num_comments": 27
+  },
+  "comments_read": 27,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many commenters enjoyed Tanya\u2019s exaggerated reactions and comedic performance amid the episode\u2019s otherwise grim tone."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters found the military and political tension engaging, especially the sense of escalating pressure and strategic uncertainty."
+   },
+   {
+    "tone": "mixed",
+    "point": "Tanya remains a major source of entertainment, but some viewers disliked her being portrayed as goofier this season than in the first season."
+   },
+   {
+    "tone": "negative",
+    "point": "Some viewers felt the operation setup was reckless and poorly managed, with leadership decisions undermining the military situation."
+   },
+   {
+    "tone": "negative",
+    "point": "A commenter felt the battle animation and CGI looked less polished than season one, while scene transitions were occasionally rough."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers thought the episode moved too quickly and required rewinding, while others enjoyed its rapid escalation."
+   }
+  ],
+  "aspects": {
+   "animation": "mixed",
+   "story": "mixed",
+   "pacing": "mixed",
+   "characters": "mixed"
+  },
+  "notes": "The title and episode label explicitly identify Saga of Tanya the Evil Season 2 / Youjo Senki II, episode 5. I could retrieve the thread page and 27 visible user comments, but Reddit did not expose a reliable post score or definitive total comment count; score is reported as 0 because it was unavail"
+ },
+ {
+  "key": "198946:5",
+  "showId": 198946,
+  "episode": 5,
+  "title": "Clevatess II: Majuu no Ou to Itsuwari no Yuusha Denshou",
+  "airedAt": 1785931200,
+  "kind": "settle",
+  "thread": {
+   "title": "Clevatess Season 2 \u2022 Clevatess II: Majuu no Ou to Akago to Shikabane no Yuusha Denshou - Episode 5 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vg5e7l/clevatess_season_2_clevatess_ii_majuu_no_ou_to/",
+   "score": 1093,
+   "num_comments": 0
+  },
+  "comments_read": 120,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many commenters found the episode highly engaging and praised its escalating tension and strong setup for what follows."
+   },
+   {
+    "tone": "positive",
+    "point": "Alicia was the clear favorite, with repeated appreciation for her resilience, development, and increasingly compelling characterization."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the character dynamics, especially Clevatess\u2019s relationships with Alicia, Luna, and the wider cast."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers thought the school-arc premise initially seemed predictable, but felt this episode made the direction considerably more interesting."
+   },
+   {
+    "tone": "negative",
+    "point": "A small group of commenters criticized Crunchyroll\u2019s missing subtitles, describing the viewing experience as frustrating."
+   }
+  ],
+  "aspects": {
+   "story": "positive",
+   "pacing": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The title and page metadata clearly identify Clevatess II, Season 2, Episode 5. Reddit exposed the post score and comments but did not provide a reliable numeric comment count in the retrieved page, so num_comments is null. Sentiment is paraphrased and spoiler-free; plot-specific discussion was used"
+ }
+]
