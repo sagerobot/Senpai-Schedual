@@ -1,0 +1,49 @@
+[
+ {
+  "key": "171110:17",
+  "showId": 171110,
+  "episode": 17,
+  "title": "Honzuki no Gekokujou: Ryoushu no Youjo",
+  "airedAt": 1786177800,
+  "kind": "update",
+  "thread": {
+   "title": "Ascendance of a Bookworm: Adopted Daughter of an Archduke \u2022 Honzuki no Gekokujou: Shisho ni Naru Tame ni wa Shudan wo Erandeiraremasen - Ryushu no Youjo - Episode 17 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1virkq3/ascendance_of_a_bookworm_adopted_daughter_of_an/",
+   "score": 113,
+   "num_comments": 32
+  },
+  "comments_read": 32,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many commenters found the talking sword and related character interactions especially funny."
+   },
+   {
+    "tone": "positive",
+    "point": "Several enjoyed the grandfather character\u2019s comedic behavior and affection."
+   },
+   {
+    "tone": "positive",
+    "point": "Some appreciated the family-focused material and the brief return of familiar supporting characters."
+   },
+   {
+    "tone": "mixed",
+    "point": "A number of viewers liked the deliberate visual repetition as comedy, while one commenter found the reused shots distracting."
+   },
+   {
+    "tone": "negative",
+    "point": "One commenter criticized the episode\u2019s animation as stiff and noticeably budget-conscious."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers enjoyed the adaptation overall but wished certain material had received more attention."
+   }
+  ],
+  "aspects": {
+   "animation": "mixed",
+   "story": "positive",
+   "characters": "positive"
+  },
+  "notes": "The indexed Reddit discussion clearly identifies the show, Season 4, and episode 17. I could retrieve the thread title, score, and comment text through web search, but Reddit\u2019s direct page and JSON endpoint were unavailable, so the comment count is based on the indexed discussion material and may be"
+ }
+]
