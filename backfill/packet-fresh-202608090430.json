@@ -1,0 +1,103 @@
+[
+ {
+  "key": "188388:42",
+  "showId": 188388,
+  "episode": 42,
+  "title": "DIGIMON BEATBREAK",
+  "airedAt": 1786233600,
+  "kind": "first",
+  "thread": {
+   "title": "Digimon Beatbreak - Episode 42 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vjeo63/digimon_beatbreak_episode_42_discussion/",
+   "score": 5,
+   "num_comments": 4
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "202957:28",
+  "showId": 202957,
+  "episode": 28,
+  "title": "Meitantei Precure!",
+  "airedAt": 1786231800,
+  "kind": "update",
+  "thread": {
+   "title": "Meitantei Precure \u2022 Star Detective Precure! - Episode 28 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vjcx6i/meitantei_precure_star_detective_precure_episode/",
+   "score": 1,
+   "num_comments": 6
+  },
+  "comments_read": 6,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the character designs, playful interactions, and affectionate comedic moments."
+   },
+   {
+    "tone": "positive",
+    "point": "The introduction of the new antagonist and related developments generated curiosity and anticipation."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers wanted clearer explanations from Luluka, while others remained interested in her direction."
+   },
+   {
+    "tone": "mixed",
+    "point": "A few commenters noted disappointment that the ending theme had not changed yet, despite a new eyecatch appearing."
+   }
+  ],
+  "aspects": {
+   "characters": "positive",
+   "story": "mixed"
+  },
+  "notes": "The thread title explicitly identifies Meitantei Precure!/Star Detective Precure and episode 28. Six substantive comments were retrievable; no spoiler details are included."
+ },
+ {
+  "key": "186863:7",
+  "showId": 186863,
+  "episode": 7,
+  "title": "Neko to Ryuu",
+  "airedAt": 1786190400,
+  "kind": "update",
+  "thread": {
+   "title": "The Cat and the Dragon \u2022 Neko to Ryuu - Episode 7 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vivh4n/the_cat_and_the_dragon_neko_to_ryuu_episode_7/",
+   "score": 0,
+   "num_comments": 42
+  },
+  "comments_read": 42,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "The episode was widely viewed as heartwarming, cute, emotionally effective, and among the show's strongest so far."
+   },
+   {
+    "tone": "positive",
+    "point": "Many commenters enjoyed the relaxed atmosphere and humorous family interactions."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters praised the mother-and-son relationship and wanted more time with these characters."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some felt the emotional material worked well, while others thought the reunion was briefer or more casual than expected."
+   },
+   {
+    "tone": "negative",
+    "point": "A number of commenters felt the episode was too short and ended before enough interaction could happen."
+   },
+   {
+    "tone": "mixed",
+    "point": "Multiple commenters found the series' timeline and character ages confusing, especially regarding apparent generations and longevity."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "pacing": "mixed",
+   "characters": "positive",
+   "sound": "positive"
+  },
+  "notes": "The page title and metadata explicitly identify Neko to Ryuu, episode 7. Community reactions were paraphrased and kept spoiler-free. Reddit's rendered page did not expose reliable post score or an authoritative total comment count, so score is reported as 0 and num_comments reflects the 42 comments "
+ }
+]
