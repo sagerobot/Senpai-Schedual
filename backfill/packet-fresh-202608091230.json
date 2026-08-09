@@ -1,0 +1,106 @@
+[
+ {
+  "key": "204060:6",
+  "showId": 204060,
+  "episode": 6,
+  "title": "Tetsunabe no Jan!",
+  "airedAt": 1786264200,
+  "kind": "update",
+  "thread": {
+   "title": "Iron Wok Jan! \u2022 Tetsunabe no Jan! - Episode 6 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vjl07z/iron_wok_jan_tetsunabe_no_jan_episode_6_discussion/",
+   "score": 31,
+   "num_comments": 10
+  },
+  "comments_read": 10,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several viewers enjoyed the over-the-top cooking-show presentation and theatrical chef personas."
+   },
+   {
+    "tone": "positive",
+    "point": "Some commenters found the episode nostalgic and compared its food-battle atmosphere favorably to classic cooking anime."
+   },
+   {
+    "tone": "positive",
+    "point": "Viewers appreciated the dramatic competition and felt the judging broadly recognized the stronger dish."
+   },
+   {
+    "tone": "mixed",
+    "point": "One discussion questioned whether the flashy skewer concept was an effective culinary choice, while another defended it as fitting the chef's style."
+   },
+   {
+    "tone": "negative",
+    "point": "A few comments criticized the apparent reliance on spectacle and gimmicks rather than substance."
+   },
+   {
+    "tone": "positive",
+    "point": "Some viewers enjoyed the character comedy, especially the reactions of the judges and contestants."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The thread title explicitly identifies Iron Wok Jan!/Tetsunabe no Jan! episode 6. I retrieved 10 comments from this thread; opinions are paraphrased and plot details are omitted."
+ },
+ {
+  "key": "200230:6",
+  "showId": 200230,
+  "episode": 6,
+  "title": "Let's Go Kaikigumi",
+  "airedAt": 1786260600,
+  "kind": "update",
+  "thread": {
+   "title": "Let's Go Kaikigumi - Episode 6 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vjkh8z/lets_go_kaikigumi_episode_6_discussion/",
+   "score": 24,
+   "num_comments": 3
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "186863:7",
+  "showId": 186863,
+  "episode": 7,
+  "title": "Neko to Ryuu",
+  "airedAt": 1786190400,
+  "kind": "settle",
+  "thread": {
+   "title": "The Cat and the Dragon \u2022 Neko to Ryuu - Episode 7 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vivh4n/the_cat_and_the_dragon_neko_to_ryuu_episode_7/",
+   "score": 265,
+   "num_comments": 50
+  },
+  "comments_read": 50,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "The reunion and family emotions were widely viewed as heartwarming, touching, and tear-inducing."
+   },
+   {
+    "tone": "positive",
+    "point": "Many commenters praised the show's cozy, calm atmosphere and its cute humor."
+   },
+   {
+    "tone": "positive",
+    "point": "The mother-and-sons interactions were considered especially funny and believable."
+   },
+   {
+    "tone": "mixed",
+    "point": "Several commenters enjoyed the episode but found the timeline and character ages confusing."
+   },
+   {
+    "tone": "negative",
+    "point": "Some felt the episode was too short and wanted more time devoted to the central interactions."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "pacing": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The thread title and metadata explicitly identify Neko to Ryuu episode 7. Community sentiment was strongly positive overall; criticism centered on unclear chronology and brevity. Opinions are paraphrased and spoiler-free."
+ }
+]
