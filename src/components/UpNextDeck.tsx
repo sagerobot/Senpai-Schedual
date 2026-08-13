@@ -1,6 +1,6 @@
 import { Info, Play, Star, Zap } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { memo } from 'react';
+import { memo, type CSSProperties } from 'react';
 import { LowScoreButtons } from './LowScoreButtons';
 import { displayTitle } from '../lib/displayTitle';
 import { UpNextCandidate, UpNextReasonKind } from '../lib/upNext';
@@ -75,16 +75,24 @@ export function UpNextDeck({ candidates, onLog, onSkip, onAnimeSelect }: UpNextD
   );
 }
 
-const UpNextCard = memo(function UpNextCard({
+/**
+ * One deck card. Exported standalone so CheckInFeed can deal deck cards into
+ * the Today's Drops grid (the merged row); `style` carries explicit grid
+ * coordinates there. The art area grows, so next to the taller drop cards the
+ * extra height becomes key art, not dead space.
+ */
+export const UpNextCard = memo(function UpNextCard({
   candidate,
   onLog,
   onSkip,
   onAnimeSelect,
+  style,
 }: {
   candidate: UpNextCandidate;
   onLog: (showId: number, episodeNumber: number, score: number | null) => void;
   onSkip: (showId: number) => void;
   onAnimeSelect: (anime: AnimeMedia) => void;
+  style?: CSSProperties;
 }) {
   const { anime, reason, nextEpisode, behindCount, airedCount, userAvgScore } = candidate;
   const customSite = useUserData((s) => s.uiPrefs.customSource?.name);
@@ -112,12 +120,13 @@ const UpNextCard = memo(function UpNextCard({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
+      style={style}
       className={cn(
         'group flex h-full flex-col rounded-2xl border bg-[#0a0c16] shadow-2xl transition-all',
         isBinge ? 'border-emerald-500/40 shadow-[0_0_20px_rgba(52,211,153,0.15)]' : 'border-[#1e2336]',
       )}
     >
-      <div className="relative h-36 w-full shrink-0 overflow-hidden rounded-t-2xl bg-[#0a0c16]">
+      <div className="relative min-h-36 w-full grow overflow-hidden rounded-t-2xl bg-[#0a0c16]">
         <button
           type="button"
           onClick={openShow}
@@ -161,7 +170,7 @@ const UpNextCard = memo(function UpNextCard({
         </div>
       </div>
 
-      <div className="z-10 flex flex-1 flex-col p-4">
+      <div className="z-10 flex flex-col p-4">
         <h3 className="min-w-0">
           <button
             type="button"

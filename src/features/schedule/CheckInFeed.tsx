@@ -1,10 +1,12 @@
 import { Bookmark, Check, CheckCircle2, Clock, Info, Play, Star, Zap } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { memo, useCallback, useMemo } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { toast } from 'sonner';
 import { LibraryStatusMenu } from '../../components/LibraryStatusMenu';
 import { LowScoreButtons } from "../../components/LowScoreButtons";
+import { UpNextCard } from '../../components/UpNextDeck';
 import { VibeChip } from '../../components/VibeChip';
+import type { UpNextCandidate } from '../../lib/upNext';
 import { latestAiredEpisode } from '../../lib/aired';
 import { displayTitle } from '../../lib/displayTitle';
 import { WATCH_STATE_LABELS } from '../../lib/status';
@@ -15,12 +17,43 @@ import { useVibesIndex } from '../../queries/vibes';
 import { useUserData } from '../../stores/userData';
 import { AnimeMedia, EpisodeLog } from '../../types';
 
+/** The Up Next deck, dealt into this grid's leftover columns (the merged row). */
+export interface CheckInFeedUpNext {
+  candidates: UpNextCandidate[];
+  /** Pre-wrapped with the host's undo toast. */
+  onLog: (showId: number, episodeNumber: number, score: number | null) => void;
+  onSkip: (showId: number) => void;
+  onSelect: (anime: AnimeMedia) => void;
+}
+
 interface CheckInFeedProps {
   animeList: AnimeMedia[];
   favorites: number[];
   logs: EpisodeLog[];
   onLog: (showId: number, episodeNumber: number, score: number | null) => void;
   onAnimeSelect?: (anime: AnimeMedia) => void;
+  upNext?: CheckInFeedUpNext;
+}
+
+/**
+ * Live column count of the drops grid, mirroring its Tailwind breakpoints
+ * (md:2 lg:3 xl:4). The merged row needs it to know how many deck cards
+ * complete the final row on the screen actually being looked at.
+ */
+function useGridColumns(): number {
+  const [cols, setCols] = useState(1);
+  useEffect(() => {
+    const tiers = [
+      { mq: window.matchMedia('(min-width: 1280px)'), cols: 4 },
+      { mq: window.matchMedia('(min-width: 1024px)'), cols: 3 },
+      { mq: window.matchMedia('(min-width: 768px)'), cols: 2 },
+    ];
+    const update = () => setCols(tiers.find((t) => t.mq.matches)?.cols ?? 1);
+    update();
+    tiers.forEach((t) => t.mq.addEventListener('change', update));
+    return () => tiers.forEach((t) => t.mq.removeEventListener('change', update));
+  }, []);
+  return cols;
 }
 
 interface Drop {
@@ -94,8 +127,9 @@ export function computeDrops(animeList: AnimeMedia[], favorites: number[], logs:
  * A card already on screen outlives the window (see admittedDrops), so rating
  * catch-up episodes advances it instead of dismissing it.
  */
-export function CheckInFeed({ animeList, favorites, logs, onLog, onAnimeSelect }: CheckInFeedProps) {
+export function CheckInFeed({ animeList, favorites, logs, onLog, onAnimeSelect, upNext }: CheckInFeedProps) {
   const vibes = useVibesIndex();
+  const cols = useGridColumns();
 
   const drops = useMemo(() => computeDrops(animeList, favorites, logs), [animeList, favorites, logs]);
 
@@ -114,6 +148,34 @@ export function CheckInFeed({ animeList, favorites, logs, onLog, onAnimeSelect }
 
   if (drops.length === 0) return null;
 
+  // The merged row: deck cards complete the final drops row instead of the
+  // page waiting for every drop to be logged. Single-column screens skip it —
+  // there is no leftover column to fill. A behind drop show is also a ranked
+  // deck candidate, so filter by drop id or a show could appear twice in the
+  // same row.
+  const dropIds = new Set(drops.map((d) => d.anime.id));
+  const available = upNext ? upNext.candidates.filter((c) => !dropIds.has(c.anime.id)) : [];
+  const fillCount = cols > 1 ? Math.min((cols - (drops.length % cols)) % cols, available.length) : 0;
+  const fillers = available.slice(0, fillCount);
+  const deckRemaining = available.length - fillers.length;
+  const merged = fillers.length > 0;
+
+  // In merged mode everything is explicitly placed, because the drops surface
+  // is painted into the same grid cells behind the cards — auto-placed items
+  // would flow around those cells instead of over them.
+  const place = (index: number): CSSProperties => ({
+    gridColumn: (index % cols) + 1,
+    gridRow: Math.floor(index / cols) + 1,
+    zIndex: 1,
+  });
+  const fullDropRows = Math.floor(drops.length / cols);
+  const dropRemainder = drops.length % cols;
+  const trays: { col: string; row: number }[] = [];
+  if (merged) {
+    for (let row = 0; row < fullDropRows; row++) trays.push({ col: '1 / -1', row: row + 1 });
+    if (dropRemainder > 0) trays.push({ col: `1 / ${dropRemainder + 1}`, row: fullDropRows + 1 });
+  }
+
   return (
     <div className="mb-12">
       <h2 className="mb-6 text-xl font-bold tracking-tight text-white flex items-center gap-3">
@@ -122,20 +184,44 @@ export function CheckInFeed({ animeList, favorites, logs, onLog, onAnimeSelect }
           <span className="relative inline-flex rounded-full h-4 w-4 bg-accent-500"></span>
         </span>
         Today's Drops
+        {merged && deckRemaining > 0 && (
+          <span className="ml-auto text-[11px] font-normal tracking-normal text-gray-500">
+            +{deckRemaining} more in the deck
+          </span>
+        )}
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         <AnimatePresence>
-          {drops.map((drop) => (
+          {drops.map((drop, i) => (
             <CheckInItem
               key={`${drop.anime.id}-${drop.episode}`}
               drop={drop}
               vibe={vibes.get(drop.anime.id, drop.episode)}
               onLog={handleLog}
               onAnimeSelect={onAnimeSelect}
+              style={merged ? place(i) : undefined}
+            />
+          ))}
+          {fillers.map((candidate, j) => (
+            <UpNextCard
+              key={`up-${candidate.anime.id}`}
+              candidate={candidate}
+              onLog={upNext!.onLog}
+              onSkip={upNext!.onSkip}
+              onAnimeSelect={upNext!.onSelect}
+              style={place(drops.length + j)}
             />
           ))}
         </AnimatePresence>
+        {trays.map((tray) => (
+          <div
+            key={`tray-${tray.row}`}
+            aria-hidden="true"
+            className="pointer-events-none rounded-2xl border border-accent-500/25 bg-gradient-to-b from-accent-500/10 to-accent-500/[0.03] shadow-[inset_0_0_30px_rgba(139,92,246,0.06)]"
+            style={{ gridColumn: tray.col, gridRow: tray.row, margin: '-12px', zIndex: 0 }}
+          />
+        ))}
       </div>
     </div>
   );
@@ -169,11 +255,14 @@ const CheckInItem = memo(function CheckInItem({
   vibe,
   onLog,
   onAnimeSelect,
+  style,
 }: {
   drop: Drop;
   vibe: VibeEntry | undefined;
   onLog: (showId: number, episodeNumber: number, score: number | null) => void;
   onAnimeSelect?: (anime: AnimeMedia) => void;
+  /** Explicit grid coordinates when the feed renders the merged row. */
+  style?: CSSProperties;
 }) {
   const { anime, maxWatched, userAvgScore, episode: todayEp } = drop;
   const title = displayTitle(anime);
@@ -211,6 +300,7 @@ const CheckInItem = memo(function CheckInItem({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
+      style={style}
       className={cn(
         'flex flex-col rounded-2xl bg-[#0a0c16] shadow-2xl h-full group border transition-all',
         isCaughtUp ? 'border-accent-500/40 shadow-[0_0_20px_rgba(168,85,247,0.15)]' : 'border-[#1e2336]',

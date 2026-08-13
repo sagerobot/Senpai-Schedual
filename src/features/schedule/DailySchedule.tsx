@@ -143,6 +143,12 @@ export function DailySchedule({ animeList, favorites, onAnimeSelect, logs, onLog
         logs={logs}
         onLog={onLog}
         onAnimeSelect={onAnimeSelect}
+        upNext={{
+          candidates: upNextCandidates,
+          onLog: handleDeckLog,
+          onSkip: skipUpNext,
+          onSelect: onAnimeSelect,
+        }}
       />
 
       {activeDropCount === 0 && upNextCandidates.length > 0 && (
