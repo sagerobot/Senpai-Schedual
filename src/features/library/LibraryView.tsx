@@ -189,6 +189,7 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
       all: groupedSeries.length,
       watching: 0,
       plan_to_watch: 0,
+      stacking: 0,
       completed: 0,
       on_hold: 0,
       dropped: 0,

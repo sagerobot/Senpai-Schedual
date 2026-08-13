@@ -52,6 +52,43 @@ export function resetAdmittedDrops() {
 }
 
 /**
+ * The drops the feed would draw right now. Exported so DailySchedule can tell
+ * when the feed has gone quiet (the Up Next handoff moment). Idempotent for a
+ * given input set — re-admitting an already-admitted episode is a no-op — so
+ * the component and the host may both call it in one render.
+ */
+export function computeDrops(animeList: AnimeMedia[], favorites: number[], logs: EpisodeLog[]): Drop[] {
+  const recent: Drop[] = [];
+  const now = Math.floor(Date.now() / 1000);
+
+  for (const anime of animeList) {
+    if (!favorites.includes(anime.id)) continue;
+
+    // latestAiredEpisode is stale-proof: it recognizes a passed airingAt as
+    // "this episode aired" even when the 8-hourly bundle hasn't caught up,
+    // which is exactly the window in which a drop matters most.
+    const latest = latestAiredEpisode(anime, now);
+    if (latest === null) continue;
+
+    const episodeNum = latest.episode;
+    const timeSinceAir = now - latest.airedAt;
+    const inWindow = timeSinceAir >= 0 && timeSinceAir <= 24 * 3600;
+    if (!inWindow && admittedDrops.get(anime.id) !== episodeNum) continue;
+
+    const showLogs = logs.filter((l) => l.showId === anime.id);
+    if (showLogs.some((l) => l.episodeNumber === episodeNum)) continue;
+
+    admittedDrops.set(anime.id, episodeNum);
+    const maxWatched = showLogs.length > 0 ? Math.max(...showLogs.map((l) => l.episodeNumber)) : 0;
+    const ratedLogs = showLogs.filter((l) => l.score !== null && l.score !== undefined);
+    const userAvgScore =
+      ratedLogs.length > 0 ? ratedLogs.reduce((acc, l) => acc + (l.score ?? 0), 0) / ratedLogs.length : null;
+    recent.push({ anime, episode: episodeNum, airedAt: latest.airedAt, maxWatched, userAvgScore });
+  }
+  return recent.sort((a, b) => b.airedAt - a.airedAt);
+}
+
+/**
  * "Today's Drops": watching shows whose latest episode aired within the last
  * 24 hours and hasn't been logged yet, drawn as the big cinematic banner card.
  * A card already on screen outlives the window (see admittedDrops), so rating
@@ -60,36 +97,7 @@ export function resetAdmittedDrops() {
 export function CheckInFeed({ animeList, favorites, logs, onLog, onAnimeSelect }: CheckInFeedProps) {
   const vibes = useVibesIndex();
 
-  const drops = useMemo(() => {
-    const recent: Drop[] = [];
-    const now = Math.floor(Date.now() / 1000);
-
-    for (const anime of animeList) {
-      if (!favorites.includes(anime.id)) continue;
-
-      // latestAiredEpisode is stale-proof: it recognizes a passed airingAt as
-      // "this episode aired" even when the 8-hourly bundle hasn't caught up,
-      // which is exactly the window in which a drop matters most.
-      const latest = latestAiredEpisode(anime, now);
-      if (latest === null) continue;
-
-      const episodeNum = latest.episode;
-      const timeSinceAir = now - latest.airedAt;
-      const inWindow = timeSinceAir >= 0 && timeSinceAir <= 24 * 3600;
-      if (!inWindow && admittedDrops.get(anime.id) !== episodeNum) continue;
-
-      const showLogs = logs.filter((l) => l.showId === anime.id);
-      if (showLogs.some((l) => l.episodeNumber === episodeNum)) continue;
-
-      admittedDrops.set(anime.id, episodeNum);
-      const maxWatched = showLogs.length > 0 ? Math.max(...showLogs.map((l) => l.episodeNumber)) : 0;
-      const ratedLogs = showLogs.filter((l) => l.score !== null && l.score !== undefined);
-      const userAvgScore =
-        ratedLogs.length > 0 ? ratedLogs.reduce((acc, l) => acc + (l.score ?? 0), 0) / ratedLogs.length : null;
-      recent.push({ anime, episode: episodeNum, airedAt: latest.airedAt, maxWatched, userAvgScore });
-    }
-    return recent.sort((a, b) => b.airedAt - a.airedAt);
-  }, [animeList, favorites, logs]);
+  const drops = useMemo(() => computeDrops(animeList, favorites, logs), [animeList, favorites, logs]);
 
   // This surface's onLog arrives raw from schedule/route.tsx, so the undo
   // toast lives here — same pattern as watching/route.tsx (which already

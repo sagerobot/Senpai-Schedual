@@ -574,15 +574,34 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
 
                 <div className="flex items-center gap-2">
                   {libraryEntry && onUpdateEntry && (
-                    <select
-                      value={libraryEntry.status}
-                      onChange={(e) => onUpdateEntry(anime.id, { status: e.target.value as LibraryStatus })}
-                      className="rounded-lg border border-gray-700 bg-[#2a2a2d] px-3 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:border-gray-600 focus:outline-none focus:ring-1 focus:ring-accent-500"
-                    >
-                      {LIBRARY_STATUS_ORDER.map((status) => (
-                        <option key={status} value={status}>{LIBRARY_STATUS_LABELS[status]}</option>
-                      ))}
-                    </select>
+                    <>
+                      <select
+                        value={libraryEntry.status}
+                        onChange={(e) => onUpdateEntry(anime.id, { status: e.target.value as LibraryStatus })}
+                        className="rounded-lg border border-gray-700 bg-[#2a2a2d] px-3 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:border-gray-600 focus:outline-none focus:ring-1 focus:ring-accent-500"
+                      >
+                        {LIBRARY_STATUS_ORDER.map((status) => (
+                          <option key={status} value={status}>{LIBRARY_STATUS_LABELS[status]}</option>
+                        ))}
+                      </select>
+                      {libraryEntry.status === 'stacking' && (
+                        <select
+                          value={libraryEntry.stackWakeCount ?? ''}
+                          onChange={(e) =>
+                            onUpdateEntry(anime.id, {
+                              stackWakeCount: e.target.value === '' ? undefined : Number(e.target.value),
+                            })
+                          }
+                          aria-label="Binge-ready when"
+                          className="rounded-lg border border-gray-700 bg-[#2a2a2d] px-3 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:border-gray-600 focus:outline-none focus:ring-1 focus:ring-accent-500"
+                        >
+                          <option value="">Wake: season end</option>
+                          {[4, 6, 8, 12].map((n) => (
+                            <option key={n} value={n}>Wake: {n} eps</option>
+                          ))}
+                        </select>
+                      )}
+                    </>
                   )}
                   <LibraryStatusMenu
                     showId={anime.id}

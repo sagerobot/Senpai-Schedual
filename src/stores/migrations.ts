@@ -22,6 +22,7 @@ const VALID_STATUSES: readonly LibraryStatus[] = [
   'on_hold',
   'dropped',
   'plan_to_watch',
+  'stacking',
 ];
 
 function hasKey(key: string): boolean {
@@ -49,6 +50,7 @@ export function normalizeLibraryEntry(raw: unknown): LibraryEntry | null {
   };
   if (typeof e.updatedAt === 'number') entry.updatedAt = e.updatedAt;
   if (typeof e.simulcastOffset === 'number') entry.simulcastOffset = e.simulcastOffset;
+  if (typeof e.stackWakeCount === 'number') entry.stackWakeCount = e.stackWakeCount;
   return entry;
 }
 

@@ -1,9 +1,11 @@
 import { AnimeMedia, EpisodeLog, LibraryEntry } from '../../types';
 import { AnimeCard, StatusPillType } from '../../components/AnimeCard';
+import { UpNextDeck } from '../../components/UpNextDeck';
 import { BookmarkIcon, TrendingUp, Loader2 } from 'lucide-react';
 import { CatchUpQueue } from './CatchUpQueue';
 import { useMemo, useState } from 'react';
 import { useMediaByIds } from '../../queries/hooks';
+import { useUpNext } from '../../hooks/useUpNext';
 import { SeasonRecapModal } from './SeasonRecapModal';
 import { cn } from '../../lib/utils';
 import { getAiredEpisodesCount } from '../../lib/aired';
@@ -54,6 +56,10 @@ export function WatchingView({ animeList, library, logs, onLog, onAnimeSelect }:
     () => fullAnimeList.filter((a) => watchingIds.includes(a.id)),
     [fullAnimeList, watchingIds],
   );
+
+  // The deck resolves stacking shows itself; fullAnimeList just spares it the
+  // ids this view already fetched. onLog arrives pre-wrapped with undo toasts.
+  const { candidates: upNextCandidates, skip: skipUpNext } = useUpNext(fullAnimeList);
 
   const processedShows = useMemo(() => {
     const now = Math.floor(Date.now() / 1000);
@@ -132,6 +138,13 @@ export function WatchingView({ animeList, library, logs, onLog, onAnimeSelect }:
           </button>
         )}
       </div>
+
+      <UpNextDeck
+        candidates={upNextCandidates}
+        onLog={onLog}
+        onSkip={skipUpNext}
+        onAnimeSelect={onAnimeSelect}
+      />
 
       <CatchUpQueue
         animeList={fullAnimeList}

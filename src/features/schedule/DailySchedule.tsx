@@ -1,13 +1,17 @@
 import { AnimeMedia, EpisodeLog } from '../../types';
 import { AnimeCard } from '../../components/AnimeCard';
 import { SeriesTitle } from '../../components/SeriesTitle';
+import { UpNextDeck } from '../../components/UpNextDeck';
 import { WelcomeHero } from '../../components/WelcomeHero';
 import { Search, SearchX, Film, Loader2 } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
+import { toast } from 'sonner';
 import { cn } from '../../lib/utils';
 import { displayTitle } from '../../lib/displayTitle';
-import { CheckInFeed } from './CheckInFeed';
+import { latestAiredEpisode } from '../../lib/aired';
+import { CheckInFeed, computeDrops } from './CheckInFeed';
 import { STREAMING_SITES } from '../../lib/watchLinks';
+import { useUpNext } from '../../hooks/useUpNext';
 import { useUserData } from '../../stores/userData';
 
 interface DailyScheduleProps {
@@ -24,6 +28,37 @@ const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 
 
 export function DailySchedule({ animeList, favorites, onAnimeSelect, logs, onLog, isStreaming = false }: DailyScheduleProps) {
   const [search, setSearch] = useState('');
+
+  // The handoff: once the drops feed is quiet, the page deals the Up Next deck
+  // instead of just stopping. computeDrops is idempotent, so calling it here
+  // alongside CheckInFeed's own memo is safe.
+  const { candidates: upNextCandidates, skip: skipUpNext } = useUpNext(animeList);
+  const activeDropCount = useMemo(
+    () => computeDrops(animeList, favorites, logs).length,
+    [animeList, favorites, logs],
+  );
+  // "You're done for today" only means something if there was a today: at least
+  // one tracked episode aired in the last 24h and its log exists.
+  const clearedDropsToday = useMemo(() => {
+    const now = Math.floor(Date.now() / 1000);
+    return animeList.some((anime) => {
+      if (!favorites.includes(anime.id)) return false;
+      const latest = latestAiredEpisode(anime, now);
+      if (latest === null || now - latest.airedAt > 24 * 3600) return false;
+      return logs.some((l) => l.showId === anime.id && l.episodeNumber === latest.episode);
+    });
+  }, [animeList, favorites, logs]);
+
+  // Same undo-toast contract as CheckInFeed's handleLog — the deck never toasts.
+  const handleDeckLog = useCallback(
+    (showId: number, episodeNumber: number, score: number | null) => {
+      onLog(showId, episodeNumber, score);
+      toast(`Logged episode ${episodeNumber}`, {
+        action: { label: 'Undo', onClick: () => useUserData.getState().unlogEpisode(showId, episodeNumber) },
+      });
+    },
+    [onLog],
+  );
 
   // Persisted state (userData store uiPrefs)
   const includeMovies = useUserData(s => s.uiPrefs.includeMovies);
@@ -109,6 +144,30 @@ export function DailySchedule({ animeList, favorites, onAnimeSelect, logs, onLog
         onLog={onLog}
         onAnimeSelect={onAnimeSelect}
       />
+
+      {activeDropCount === 0 && upNextCandidates.length > 0 && (
+        <div>
+          {clearedDropsToday && (
+            <div className="mb-8 flex items-center gap-3.5 text-[13px] font-semibold text-emerald-300">
+              <span
+                className="h-px flex-1 bg-gradient-to-r from-transparent via-emerald-500/35 to-transparent"
+                aria-hidden="true"
+              />
+              You're done for today
+              <span
+                className="h-px flex-1 bg-gradient-to-r from-transparent via-emerald-500/35 to-transparent"
+                aria-hidden="true"
+              />
+            </div>
+          )}
+          <UpNextDeck
+            candidates={upNextCandidates}
+            onLog={handleDeckLog}
+            onSkip={skipUpNext}
+            onAnimeSelect={onAnimeSelect}
+          />
+        </div>
+      )}
 
       <div className="flex flex-col 2xl:flex-row gap-6 items-start 2xl:items-center justify-between mb-8 bg-[#05060b]/50 border border-[#1e2336]/60 p-4 sm:p-5 rounded-2xl shadow-sm backdrop-blur-sm">
         <div>

@@ -4,6 +4,7 @@ import { LibraryStatus } from '../types';
 export const LIBRARY_STATUS_LABELS: Record<LibraryStatus, string> = {
   watching: 'Watching',
   plan_to_watch: 'Planning',
+  stacking: 'Stacking',
   completed: 'Completed',
   on_hold: 'Shelved',
   dropped: 'Dropped',
@@ -12,6 +13,7 @@ export const LIBRARY_STATUS_LABELS: Record<LibraryStatus, string> = {
 export const LIBRARY_STATUS_ORDER: LibraryStatus[] = [
   'watching',
   'plan_to_watch',
+  'stacking',
   'completed',
   'on_hold',
   'dropped',
