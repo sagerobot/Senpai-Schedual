@@ -1,0 +1,55 @@
+[
+ {
+  "key": "203880:7",
+  "showId": 203880,
+  "episode": 7,
+  "title": "Reiwa no Dara-san",
+  "airedAt": 1786624200,
+  "kind": "update",
+  "thread": {
+   "title": "Dara-san of Reiwa \u2022 Reiwa no Dara-san - Episode 7 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vn9dpw/darasan_of_reiwa_reiwa_no_darasan_episode_7/",
+   "score": 0,
+   "num_comments": 21
+  },
+  "comments_read": 21,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the show's blend of unsettling horror, comedy, and sudden tonal shifts."
+   },
+   {
+    "tone": "positive",
+    "point": "The central characters were widely found entertaining and emotionally engaging, especially Dara-san's personality and the family reactions."
+   },
+   {
+    "tone": "positive",
+    "point": "Commenters appreciated the episode's emotional weight and humorous reversals without considering them inconsistent with the series' identity."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some discussion expressed concern that the remaining backstory may need careful pacing to fit within the cour."
+   }
+  ],
+  "aspects": {
+   "story": "positive",
+   "characters": "positive"
+  },
+  "notes": "The title and body explicitly identify Reiwa no Dara-san, episode 7. Comments were retrieved from this thread only and paraphrased without plot details. The page did not expose reliable score metadata, so score is reported as 0."
+ },
+ {
+  "key": "213666:6",
+  "showId": 213666,
+  "episode": 6,
+  "title": "Perfect Addiction",
+  "airedAt": 1786539600,
+  "kind": "settle",
+  "thread": {
+   "title": "Perfect Addiction - Episode 6 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vmdo9x/perfect_addiction_episode_6_discussion/",
+   "score": 5,
+   "num_comments": 3
+  },
+  "status": "quiet"
+ }
+]
