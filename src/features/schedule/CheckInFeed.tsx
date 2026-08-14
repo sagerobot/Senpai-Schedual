@@ -1,9 +1,10 @@
 import { Bookmark, Check, CheckCircle2, Clock, Info, Play, Star, Zap } from 'lucide-react';
-import { AnimatePresence, motion, useIsPresent } from 'motion/react';
-import { memo, useCallback, useEffect, useMemo, useState, type CSSProperties, type Ref } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
+import { memo, useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { toast } from 'sonner';
 import { LibraryStatusMenu } from '../../components/LibraryStatusMenu';
 import { LowScoreButtons } from "../../components/LowScoreButtons";
+import { SwipeCell, useSwapSlots } from '../../components/SwipeCell';
 import { UpNextCard } from '../../components/UpNextDeck';
 import { VibeChip } from '../../components/VibeChip';
 import type { UpNextCandidate } from '../../lib/upNext';
@@ -146,8 +147,6 @@ export function CheckInFeed({ animeList, favorites, logs, onLog, onAnimeSelect, 
     [onLog],
   );
 
-  if (drops.length === 0) return null;
-
   // The merged row: deck cards complete the final drops row instead of the
   // page waiting for every drop to be logged. Single-column screens skip it —
   // there is no leftover column to fill. A behind drop show is also a ranked
@@ -157,6 +156,19 @@ export function CheckInFeed({ animeList, favorites, logs, onLog, onAnimeSelect, 
   const available = upNext ? upNext.candidates.filter((c) => !dropIds.has(c.anime.id)) : [];
   const fillCount = cols > 1 ? Math.min((cols - (drops.length % cols)) % cols, available.length) : 0;
   const fillers = available.slice(0, fillCount);
+
+  // Sticky slots make the swap happen in place: a logged drop's slot is taken
+  // over by the arriving deck card (SwipeCell's gallery swipe) instead of the
+  // newcomer appending at the end while every card shifts. Display order
+  // therefore drifts from rank/recency order over time — that trade is the
+  // point. Runs before the empty-drops return so the hook order is stable and
+  // slots reset when the feed goes quiet.
+  const dropByKey = new Map(drops.map((d) => [`drop-${d.anime.id}-${d.episode}`, d]));
+  const fillerByKey = new Map(fillers.map((c) => [`up-${c.anime.id}`, c]));
+  const slots = useSwapSlots([...dropByKey.keys(), ...fillerByKey.keys()]);
+
+  if (drops.length === 0) return null;
+
   const deckRemaining = available.length - fillers.length;
   const merged = fillers.length > 0;
 
@@ -168,12 +180,25 @@ export function CheckInFeed({ animeList, favorites, logs, onLog, onAnimeSelect, 
     gridRow: Math.floor(index / cols) + 1,
     zIndex: 1,
   });
-  const fullDropRows = Math.floor(drops.length / cols);
-  const dropRemainder = drops.length % cols;
-  const trays: { col: string; row: number }[] = [];
+  // Trays tint the drop cells. Swaps interleave deck cards among drops, so a
+  // row can hold several runs of drop cells; keys are per-run so a span change
+  // animates instead of remounting.
+  const trays: { col: string; row: number; key: string }[] = [];
   if (merged) {
-    for (let row = 0; row < fullDropRows; row++) trays.push({ col: '1 / -1', row: row + 1 });
-    if (dropRemainder > 0) trays.push({ col: `1 / ${dropRemainder + 1}`, row: fullDropRows + 1 });
+    const rowCount = Math.ceil(slots.length / cols);
+    for (let row = 0; row < rowCount; row++) {
+      let start = -1;
+      let run = 0;
+      for (let col = 0; col <= cols; col++) {
+        const slot = slots[row * cols + col];
+        const isDrop = col < cols && slot !== undefined && slot.key.startsWith('drop-');
+        if (isDrop && start === -1) start = col;
+        if (!isDrop && start !== -1) {
+          trays.push({ row: row + 1, col: `${start + 1} / ${col + 1}`, key: `tray-${row}-${run++}` });
+          start = -1;
+        }
+      }
+    }
   }
 
   return (
@@ -191,33 +216,38 @@ export function CheckInFeed({ animeList, favorites, logs, onLog, onAnimeSelect, 
         )}
       </h2>
 
-      {/* relative: popLayout absolutely positions exiting cards against this grid. */}
+      {/* relative: popLayout absolutely positions exiting cells against this grid. */}
       <div className="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         <AnimatePresence mode="popLayout">
-          {drops.map((drop, i) => (
-            <CheckInItem
-              key={`${drop.anime.id}-${drop.episode}`}
-              drop={drop}
-              vibe={vibes.get(drop.anime.id, drop.episode)}
-              onLog={handleLog}
-              onAnimeSelect={onAnimeSelect}
-              style={merged ? place(i) : undefined}
-            />
-          ))}
-          {fillers.map((candidate, j) => (
-            <UpNextCard
-              key={`up-${candidate.anime.id}`}
-              candidate={candidate}
-              onLog={upNext!.onLog}
-              onSkip={upNext!.onSkip}
-              onAnimeSelect={upNext!.onSelect}
-              style={place(drops.length + j)}
-            />
-          ))}
+          {slots.map((slot, i) => {
+            const drop = dropByKey.get(slot.key);
+            const filler = fillerByKey.get(slot.key);
+            return (
+              <SwipeCell key={slot.slotId} occupantKey={slot.key} style={merged ? place(i) : undefined}>
+                {drop ? (
+                  <CheckInItem
+                    drop={drop}
+                    vibe={vibes.get(drop.anime.id, drop.episode)}
+                    onLog={handleLog}
+                    onAnimeSelect={onAnimeSelect}
+                  />
+                ) : filler ? (
+                  <UpNextCard
+                    candidate={filler}
+                    onLog={upNext!.onLog}
+                    onSkip={upNext!.onSkip}
+                    onAnimeSelect={upNext!.onSelect}
+                  />
+                ) : null}
+              </SwipeCell>
+            );
+          })}
         </AnimatePresence>
         {trays.map((tray) => (
-          <div
-            key={`tray-${tray.row}`}
+          <motion.div
+            key={tray.key}
+            layout
+            transition={{ layout: { duration: 0.32, ease: [0.32, 0.72, 0.28, 1] } }}
             aria-hidden="true"
             className="pointer-events-none rounded-2xl border border-accent-500/25 bg-gradient-to-b from-accent-500/10 to-accent-500/[0.03] shadow-[inset_0_0_30px_rgba(139,92,246,0.06)]"
             style={{ gridColumn: tray.col, gridRow: tray.row, margin: '-12px', zIndex: 0 }}
@@ -256,22 +286,12 @@ const CheckInItem = memo(function CheckInItem({
   vibe,
   onLog,
   onAnimeSelect,
-  style,
-  ref,
 }: {
   drop: Drop;
   vibe: VibeEntry | undefined;
   onLog: (showId: number, episodeNumber: number, score: number | null) => void;
   onAnimeSelect?: (anime: AnimeMedia) => void;
-  /** Explicit grid coordinates when the feed renders the merged row. */
-  style?: CSSProperties;
-  /** Attached by AnimatePresence popLayout so it can measure exiting cards. */
-  ref?: Ref<HTMLDivElement>;
 }) {
-  // popLayout makes exiting cards position:absolute; explicit gridColumn/gridRow
-  // must go with presence, or the grid area becomes the containing block and the
-  // injected top/left land the card at double its offset.
-  const isPresent = useIsPresent();
   const { anime, maxWatched, userAvgScore, episode: todayEp } = drop;
   const title = displayTitle(anime);
   const hasBanner = !!(anime.bannerImage || anime.trailer?.thumbnail);
@@ -303,20 +323,7 @@ const CheckInItem = memo(function CheckInItem({
   const infoLine = [genresStr, formatStr, 'Today', timeStr, studio, ratingStr].filter(Boolean).join(' • ');
 
   return (
-    <motion.div
-      ref={ref}
-      layout
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.18, ease: 'easeIn' } }}
-      // Tween for layout moves: the default layout spring overshoots the slot
-      // and visibly bounces off the neighboring card.
-      transition={{
-        layout: { duration: 0.32, ease: [0.32, 0.72, 0.28, 1] },
-        opacity: { duration: 0.3, ease: 'easeOut' },
-        scale: { duration: 0.3, ease: 'easeOut' },
-      }}
-      style={isPresent ? style : { zIndex: style?.zIndex }}
+    <div
       className={cn(
         'flex flex-col rounded-2xl bg-[#0a0c16] shadow-2xl h-full group border transition-all',
         isCaughtUp ? 'border-accent-500/40 shadow-[0_0_20px_rgba(168,85,247,0.15)]' : 'border-[#1e2336]',
@@ -584,6 +591,6 @@ const CheckInItem = memo(function CheckInItem({
           )}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 });

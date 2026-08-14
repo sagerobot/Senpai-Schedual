@@ -1,7 +1,8 @@
 import { Info, Play, Star, Zap } from 'lucide-react';
-import { AnimatePresence, motion, useIsPresent } from 'motion/react';
-import { memo, type CSSProperties, type Ref } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
+import { memo } from 'react';
 import { LowScoreButtons } from './LowScoreButtons';
+import { SwipeCell, useSwapSlots } from './SwipeCell';
 import { displayTitle } from '../lib/displayTitle';
 import { UpNextCandidate, UpNextReasonKind } from '../lib/upNext';
 import { cn } from '../lib/utils';
@@ -39,10 +40,16 @@ const REASON_CHIP: Record<UpNextReasonKind, { chip: string; dot: string }> = {
  * remaining reasons to press play.
  */
 export function UpNextDeck({ candidates, onLog, onSkip, onAnimeSelect }: UpNextDeckProps) {
-  if (candidates.length === 0) return null;
-
   const visible = candidates.slice(0, DECK_SIZE);
   const remaining = candidates.length - visible.length;
+
+  // Sticky slots: a skipped card's slot is taken over by the next candidate
+  // (SwipeCell's in-place gallery swipe) instead of the row re-flowing. Hook
+  // runs before the empty return so the hook order is stable.
+  const byKey = new Map(visible.map((c) => [`up-${c.anime.id}`, c]));
+  const slots = useSwapSlots([...byKey.keys()]);
+
+  if (candidates.length === 0) return null;
 
   return (
     <section aria-label="Up next for you" className="mb-12">
@@ -58,17 +65,18 @@ export function UpNextDeck({ candidates, onLog, onSkip, onAnimeSelect }: UpNextD
         )}
       </div>
 
-      {/* relative: popLayout absolutely positions exiting cards against this grid. */}
+      {/* relative: popLayout absolutely positions exiting cells against this grid. */}
       <div className="relative grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <AnimatePresence mode="popLayout">
-          {visible.map((candidate) => (
-            <UpNextCard
-              key={candidate.anime.id}
-              candidate={candidate}
-              onLog={onLog}
-              onSkip={onSkip}
-              onAnimeSelect={onAnimeSelect}
-            />
+          {slots.map((slot) => (
+            <SwipeCell key={slot.slotId} occupantKey={slot.key}>
+              <UpNextCard
+                candidate={byKey.get(slot.key)!}
+                onLog={onLog}
+                onSkip={onSkip}
+                onAnimeSelect={onAnimeSelect}
+              />
+            </SwipeCell>
           ))}
         </AnimatePresence>
       </div>
@@ -78,30 +86,21 @@ export function UpNextDeck({ candidates, onLog, onSkip, onAnimeSelect }: UpNextD
 
 /**
  * One deck card. Exported standalone so CheckInFeed can deal deck cards into
- * the Today's Drops grid (the merged row); `style` carries explicit grid
- * coordinates there. The art area grows, so next to the taller drop cards the
- * extra height becomes key art, not dead space.
+ * the Today's Drops grid (the merged row). Animation belongs to the hosting
+ * SwipeCell, not the card. The art area grows, so next to the taller drop
+ * cards the extra height becomes key art, not dead space.
  */
 export const UpNextCard = memo(function UpNextCard({
   candidate,
   onLog,
   onSkip,
   onAnimeSelect,
-  style,
-  ref,
 }: {
   candidate: UpNextCandidate;
   onLog: (showId: number, episodeNumber: number, score: number | null) => void;
   onSkip: (showId: number) => void;
   onAnimeSelect: (anime: AnimeMedia) => void;
-  style?: CSSProperties;
-  /** Attached by AnimatePresence popLayout so it can measure exiting cards. */
-  ref?: Ref<HTMLDivElement>;
 }) {
-  // popLayout makes exiting cards position:absolute; explicit gridColumn/gridRow
-  // must go with presence, or the grid area becomes the containing block and the
-  // injected top/left land the card at double its offset.
-  const isPresent = useIsPresent();
   const { anime, reason, nextEpisode, behindCount, airedCount, userAvgScore } = candidate;
   const customSite = useUserData((s) => s.uiPrefs.customSource?.name);
 
@@ -123,20 +122,7 @@ export const UpNextCard = memo(function UpNextCard({
   const openShow = () => onAnimeSelect(anime);
 
   return (
-    <motion.div
-      ref={ref}
-      layout
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.18, ease: 'easeIn' } }}
-      // Tween for layout moves: the default layout spring overshoots the slot
-      // and visibly bounces off the neighboring card.
-      transition={{
-        layout: { duration: 0.32, ease: [0.32, 0.72, 0.28, 1] },
-        opacity: { duration: 0.3, ease: 'easeOut' },
-        scale: { duration: 0.3, ease: 'easeOut' },
-      }}
-      style={isPresent ? style : { zIndex: style?.zIndex }}
+    <div
       className={cn(
         'group flex h-full flex-col rounded-2xl border bg-[#0a0c16] shadow-2xl transition-all',
         isBinge ? 'border-emerald-500/40 shadow-[0_0_20px_rgba(52,211,153,0.15)]' : 'border-[#1e2336]',
@@ -298,6 +284,6 @@ export const UpNextCard = memo(function UpNextCard({
           </button>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 });
