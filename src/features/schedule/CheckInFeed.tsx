@@ -308,7 +308,14 @@ const CheckInItem = memo(function CheckInItem({
       layout
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9 }}
+      exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.18, ease: 'easeIn' } }}
+      // Tween for layout moves: the default layout spring overshoots the slot
+      // and visibly bounces off the neighboring card.
+      transition={{
+        layout: { duration: 0.32, ease: [0.32, 0.72, 0.28, 1] },
+        opacity: { duration: 0.3, ease: 'easeOut' },
+        scale: { duration: 0.3, ease: 'easeOut' },
+      }}
       style={isPresent ? style : { zIndex: style?.zIndex }}
       className={cn(
         'flex flex-col rounded-2xl bg-[#0a0c16] shadow-2xl h-full group border transition-all',
