@@ -1,6 +1,6 @@
 import { Bookmark, Check, CheckCircle2, Clock, Info, Play, Star, Zap } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
-import { memo, useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { AnimatePresence, motion, useIsPresent } from 'motion/react';
+import { memo, useCallback, useEffect, useMemo, useState, type CSSProperties, type Ref } from 'react';
 import { toast } from 'sonner';
 import { LibraryStatusMenu } from '../../components/LibraryStatusMenu';
 import { LowScoreButtons } from "../../components/LowScoreButtons";
@@ -191,8 +191,9 @@ export function CheckInFeed({ animeList, favorites, logs, onLog, onAnimeSelect, 
         )}
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <AnimatePresence>
+      {/* relative: popLayout absolutely positions exiting cards against this grid. */}
+      <div className="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <AnimatePresence mode="popLayout">
           {drops.map((drop, i) => (
             <CheckInItem
               key={`${drop.anime.id}-${drop.episode}`}
@@ -256,6 +257,7 @@ const CheckInItem = memo(function CheckInItem({
   onLog,
   onAnimeSelect,
   style,
+  ref,
 }: {
   drop: Drop;
   vibe: VibeEntry | undefined;
@@ -263,7 +265,13 @@ const CheckInItem = memo(function CheckInItem({
   onAnimeSelect?: (anime: AnimeMedia) => void;
   /** Explicit grid coordinates when the feed renders the merged row. */
   style?: CSSProperties;
+  /** Attached by AnimatePresence popLayout so it can measure exiting cards. */
+  ref?: Ref<HTMLDivElement>;
 }) {
+  // popLayout makes exiting cards position:absolute; explicit gridColumn/gridRow
+  // must go with presence, or the grid area becomes the containing block and the
+  // injected top/left land the card at double its offset.
+  const isPresent = useIsPresent();
   const { anime, maxWatched, userAvgScore, episode: todayEp } = drop;
   const title = displayTitle(anime);
   const hasBanner = !!(anime.bannerImage || anime.trailer?.thumbnail);
@@ -296,11 +304,12 @@ const CheckInItem = memo(function CheckInItem({
 
   return (
     <motion.div
+      ref={ref}
       layout
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
-      style={style}
+      style={isPresent ? style : { zIndex: style?.zIndex }}
       className={cn(
         'flex flex-col rounded-2xl bg-[#0a0c16] shadow-2xl h-full group border transition-all',
         isCaughtUp ? 'border-accent-500/40 shadow-[0_0_20px_rgba(168,85,247,0.15)]' : 'border-[#1e2336]',

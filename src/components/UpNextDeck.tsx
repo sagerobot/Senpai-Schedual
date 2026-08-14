@@ -1,6 +1,6 @@
 import { Info, Play, Star, Zap } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
-import { memo, type CSSProperties } from 'react';
+import { AnimatePresence, motion, useIsPresent } from 'motion/react';
+import { memo, type CSSProperties, type Ref } from 'react';
 import { LowScoreButtons } from './LowScoreButtons';
 import { displayTitle } from '../lib/displayTitle';
 import { UpNextCandidate, UpNextReasonKind } from '../lib/upNext';
@@ -58,8 +58,9 @@ export function UpNextDeck({ candidates, onLog, onSkip, onAnimeSelect }: UpNextD
         )}
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        <AnimatePresence>
+      {/* relative: popLayout absolutely positions exiting cards against this grid. */}
+      <div className="relative grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <AnimatePresence mode="popLayout">
           {visible.map((candidate) => (
             <UpNextCard
               key={candidate.anime.id}
@@ -87,13 +88,20 @@ export const UpNextCard = memo(function UpNextCard({
   onSkip,
   onAnimeSelect,
   style,
+  ref,
 }: {
   candidate: UpNextCandidate;
   onLog: (showId: number, episodeNumber: number, score: number | null) => void;
   onSkip: (showId: number) => void;
   onAnimeSelect: (anime: AnimeMedia) => void;
   style?: CSSProperties;
+  /** Attached by AnimatePresence popLayout so it can measure exiting cards. */
+  ref?: Ref<HTMLDivElement>;
 }) {
+  // popLayout makes exiting cards position:absolute; explicit gridColumn/gridRow
+  // must go with presence, or the grid area becomes the containing block and the
+  // injected top/left land the card at double its offset.
+  const isPresent = useIsPresent();
   const { anime, reason, nextEpisode, behindCount, airedCount, userAvgScore } = candidate;
   const customSite = useUserData((s) => s.uiPrefs.customSource?.name);
 
@@ -116,11 +124,12 @@ export const UpNextCard = memo(function UpNextCard({
 
   return (
     <motion.div
+      ref={ref}
       layout
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
-      style={style}
+      style={isPresent ? style : { zIndex: style?.zIndex }}
       className={cn(
         'group flex h-full flex-col rounded-2xl border bg-[#0a0c16] shadow-2xl transition-all',
         isBinge ? 'border-emerald-500/40 shadow-[0_0_20px_rgba(52,211,153,0.15)]' : 'border-[#1e2336]',
