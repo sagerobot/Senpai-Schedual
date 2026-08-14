@@ -153,8 +153,11 @@ export const UpNextCard = memo(function UpNextCard({
               />
             </>
           )}
+          {/* transform-gpu + srgb: the scrim must rasterize as its own layer with
+              the plain gradient path, or GPUs draw seam lines through its alpha
+              range while the swipe animates the subtree. */}
           <span
-            className="pointer-events-none absolute -inset-1 top-0 bg-gradient-to-t from-[#0a0c16] via-[#0a0c16]/50 to-transparent"
+            className="pointer-events-none absolute -inset-1 top-0 transform-gpu will-change-transform bg-linear-to-t/srgb from-[#0a0c16] via-[#0a0c16]/50 to-transparent"
             aria-hidden="true"
           />
         </button>

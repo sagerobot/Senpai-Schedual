@@ -361,8 +361,11 @@ const CheckInItem = memo(function CheckInItem({
             )}
             aria-hidden="true"
           />
+          {/* transform-gpu + srgb: the scrim must rasterize as its own layer with
+              the plain gradient path, or GPUs draw seam lines through its alpha
+              range while the swipe animates the subtree. */}
           <span
-            className="absolute -inset-1 top-0 bg-gradient-to-t from-[#0a0c16] via-[#0a0c16]/60 to-transparent pointer-events-none"
+            className="absolute -inset-1 top-0 transform-gpu will-change-transform bg-linear-to-t/srgb from-[#0a0c16] via-[#0a0c16]/60 to-transparent pointer-events-none"
             aria-hidden="true"
           />
         </button>
