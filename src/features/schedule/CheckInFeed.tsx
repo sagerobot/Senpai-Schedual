@@ -157,15 +157,17 @@ export function CheckInFeed({ animeList, favorites, logs, onLog, onAnimeSelect, 
   const fillCount = cols > 1 ? Math.min((cols - (drops.length % cols)) % cols, available.length) : 0;
   const fillers = available.slice(0, fillCount);
 
-  // Sticky slots make the swap happen in place: a logged drop's slot is taken
-  // over by the arriving deck card (SwipeCell's gallery swipe) instead of the
-  // newcomer appending at the end while every card shifts. Display order
-  // therefore drifts from rank/recency order over time — that trade is the
-  // point. Runs before the empty-drops return so the hook order is stable and
-  // slots reset when the feed goes quiet.
+  // Two sticky slot groups, drops always ahead of fillers: replacements swap
+  // in place only within a group — a skipped filler's slot is retaken by the
+  // next candidate, a day-rollover episode swaps into its show's slot — but a
+  // logged drop compacts away, so deck cards only ever extend the tail of the
+  // last row and never take a drop's place mid-grid. Hooks run before the
+  // empty-drops return so their order is stable and slots reset when the feed
+  // goes quiet.
   const dropByKey = new Map(drops.map((d) => [`drop-${d.anime.id}-${d.episode}`, d]));
   const fillerByKey = new Map(fillers.map((c) => [`up-${c.anime.id}`, c]));
-  const slots = useSwapSlots([...dropByKey.keys(), ...fillerByKey.keys()]);
+  const dropSlots = useSwapSlots([...dropByKey.keys()]);
+  const fillerSlots = useSwapSlots([...fillerByKey.keys()]);
 
   if (drops.length === 0) return null;
 
@@ -180,24 +182,16 @@ export function CheckInFeed({ animeList, favorites, logs, onLog, onAnimeSelect, 
     gridRow: Math.floor(index / cols) + 1,
     zIndex: 1,
   });
-  // Trays tint the drop cells. Swaps interleave deck cards among drops, so a
-  // row can hold several runs of drop cells; keys are per-run so a span change
-  // animates instead of remounting.
+  // Trays tint the drop cells, which the group split keeps contiguous at the
+  // front; per-row keys survive a full row becoming the remainder row, so the
+  // span change animates instead of remounting.
   const trays: { col: string; row: number; key: string }[] = [];
   if (merged) {
-    const rowCount = Math.ceil(slots.length / cols);
-    for (let row = 0; row < rowCount; row++) {
-      let start = -1;
-      let run = 0;
-      for (let col = 0; col <= cols; col++) {
-        const slot = slots[row * cols + col];
-        const isDrop = col < cols && slot !== undefined && slot.key.startsWith('drop-');
-        if (isDrop && start === -1) start = col;
-        if (!isDrop && start !== -1) {
-          trays.push({ row: row + 1, col: `${start + 1} / ${col + 1}`, key: `tray-${row}-${run++}` });
-          start = -1;
-        }
-      }
+    const fullDropRows = Math.floor(drops.length / cols);
+    const dropRemainder = drops.length % cols;
+    for (let row = 0; row < fullDropRows; row++) trays.push({ col: '1 / -1', row: row + 1, key: `tray-${row}` });
+    if (dropRemainder > 0) {
+      trays.push({ col: `1 / ${dropRemainder + 1}`, row: fullDropRows + 1, key: `tray-${fullDropRows}` });
     }
   }
 
@@ -219,29 +213,29 @@ export function CheckInFeed({ animeList, favorites, logs, onLog, onAnimeSelect, 
       {/* relative: popLayout absolutely positions exiting cells against this grid. */}
       <div className="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         <AnimatePresence mode="popLayout">
-          {slots.map((slot, i) => {
-            const drop = dropByKey.get(slot.key);
-            const filler = fillerByKey.get(slot.key);
+          {dropSlots.map((slot, i) => {
+            const drop = dropByKey.get(slot.key)!;
             return (
-              <SwipeCell key={slot.slotId} occupantKey={slot.key} style={merged ? place(i) : undefined}>
-                {drop ? (
-                  <CheckInItem
-                    drop={drop}
-                    vibe={vibes.get(drop.anime.id, drop.episode)}
-                    onLog={handleLog}
-                    onAnimeSelect={onAnimeSelect}
-                  />
-                ) : filler ? (
-                  <UpNextCard
-                    candidate={filler}
-                    onLog={upNext!.onLog}
-                    onSkip={upNext!.onSkip}
-                    onAnimeSelect={upNext!.onSelect}
-                  />
-                ) : null}
+              <SwipeCell key={`d${slot.slotId}`} occupantKey={slot.key} style={merged ? place(i) : undefined}>
+                <CheckInItem
+                  drop={drop}
+                  vibe={vibes.get(drop.anime.id, drop.episode)}
+                  onLog={handleLog}
+                  onAnimeSelect={onAnimeSelect}
+                />
               </SwipeCell>
             );
           })}
+          {fillerSlots.map((slot, j) => (
+            <SwipeCell key={`u${slot.slotId}`} occupantKey={slot.key} style={place(dropSlots.length + j)}>
+              <UpNextCard
+                candidate={fillerByKey.get(slot.key)!}
+                onLog={upNext!.onLog}
+                onSkip={upNext!.onSkip}
+                onAnimeSelect={upNext!.onSelect}
+              />
+            </SwipeCell>
+          ))}
         </AnimatePresence>
         {trays.map((tray) => (
           <motion.div
