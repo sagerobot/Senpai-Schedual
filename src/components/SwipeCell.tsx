@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useIsPresent } from 'motion/react';
+import { AnimatePresence, motion, useIsPresent, type Transition } from 'motion/react';
 import { useRef, useState, type CSSProperties, type ReactNode, type Ref } from 'react';
 import { cn } from '../lib/utils';
 
@@ -6,6 +6,27 @@ export interface SwapSlot {
   slotId: number;
   key: string;
 }
+
+/**
+ * Cell keys registered to exit through the portal — slide off screen left —
+ * instead of the quick fade. The exit variant resolves against this set when
+ * the exit starts, which is how a cell whose exit style is only known at
+ * removal time (its props are frozen by then) still picks the right one.
+ * Keys are generation-unique, so entries never need removing.
+ */
+const PORTAL_EXITS = new Set<string>();
+
+/**
+ * Host grids call this when a cell is about to remount one row up (the wrap
+ * during compaction): the old instance slides off screen left while its
+ * replacement — mounted with `portalEnter` — rides in from the right, so the
+ * card reads as passing through a portal instead of flying diagonally.
+ */
+export function portalExitCell(cellKey: string): void {
+  PORTAL_EXITS.add(cellKey);
+}
+
+const PORTAL_X: Transition = { duration: 0.45, ease: [0.4, 0, 0.2, 1] };
 
 /**
  * Sticky slot assignment for a card grid that swaps in place: a key keeps its
@@ -41,11 +62,17 @@ export function useSwapSlots(keys: string[]): SwapSlot[] {
  */
 export function SwipeCell({
   occupantKey,
+  cellKey,
+  portalEnter = false,
   style,
   ref,
   children,
 }: {
   occupantKey: string;
+  /** This cell's React key again — the exit variant needs it to check PORTAL_EXITS. */
+  cellKey?: string;
+  /** Mount as a portal arrival: slide in from off screen right instead of the fade+scale. */
+  portalEnter?: boolean;
   /** Explicit grid coordinates when the host grid places cells manually. */
   style?: CSSProperties;
   /** Attached by the host grid's AnimatePresence popLayout to measure exits. */
@@ -69,15 +96,26 @@ export function SwipeCell({
     <motion.div
       ref={ref}
       layout
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, transition: { duration: 0.18, ease: 'easeIn' } }}
+      initial={portalEnter ? { x: '130%', opacity: 0, scale: 1 } : { opacity: 0, scale: 0.95 }}
+      animate={{ x: 0, opacity: 1, scale: 1 }}
+      variants={{
+        exit: () =>
+          cellKey !== undefined && PORTAL_EXITS.has(cellKey)
+            ? {
+                x: '-130%',
+                opacity: 0,
+                transition: { x: PORTAL_X, opacity: { duration: 0.45, ease: 'easeIn' } },
+              }
+            : { opacity: 0, transition: { duration: 0.18, ease: 'easeIn' } },
+      }}
+      exit="exit"
       // Tween for layout moves: the default layout spring overshoots the slot
       // and visibly bounces off the neighboring card.
       transition={{
         layout: { duration: 0.32, ease: [0.32, 0.72, 0.28, 1] },
         opacity: { duration: 0.3, ease: 'easeOut' },
         scale: { duration: 0.3, ease: 'easeOut' },
+        x: PORTAL_X,
       }}
       style={isPresent ? style : { zIndex: style?.zIndex }}
       // Always relative: the swap's exit measurement runs before a same-render

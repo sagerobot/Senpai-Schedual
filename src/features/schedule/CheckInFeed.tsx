@@ -1,10 +1,10 @@
 import { Bookmark, Check, CheckCircle2, Clock, Info, Play, Star, Zap } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { memo, useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { toast } from 'sonner';
 import { LibraryStatusMenu } from '../../components/LibraryStatusMenu';
 import { LowScoreButtons } from "../../components/LowScoreButtons";
-import { SwipeCell, useSwapSlots } from '../../components/SwipeCell';
+import { SwipeCell, portalExitCell, useSwapSlots } from '../../components/SwipeCell';
 import { UpNextCard } from '../../components/UpNextDeck';
 import { VibeChip } from '../../components/VibeChip';
 import type { UpNextCandidate } from '../../lib/upNext';
@@ -169,6 +169,35 @@ export function CheckInFeed({ animeList, favorites, logs, onLog, onAnimeSelect, 
   const dropSlots = useSwapSlots([...dropByKey.keys()]);
   const fillerSlots = useSwapSlots([...fillerByKey.keys()]);
 
+  // The portal move: when compaction wraps a cell to the previous row (always
+  // column 1 up to the last column of the row above), a diagonal layout slide
+  // would drag the card across the whole grid. Instead the cell's key gets a
+  // new generation, remounting it — the old instance slides off screen left
+  // (registered in portalExitCell), the new one rides in from the right. A
+  // cols change reflows every row at once, so it updates rows without
+  // portaling. Ref mutations are idempotent for StrictMode re-renders.
+  const cellGens = useRef(new Map<string, { row: number; gen: number; enterKey: string | null }>());
+  const colsChanged = useRef(cols);
+  const colsDidChange = colsChanged.current !== cols;
+  colsChanged.current = cols;
+  const resolveCell = (id: string, index: number): { key: string; portalEnter: boolean } => {
+    const row = Math.floor(index / cols);
+    let entry = cellGens.current.get(id);
+    if (!entry) {
+      entry = { row, gen: 0, enterKey: null };
+      cellGens.current.set(id, entry);
+    } else if (entry.row !== row) {
+      if (!colsDidChange && cols > 1 && row < entry.row) {
+        portalExitCell(`${id}g${entry.gen}`);
+        entry.gen += 1;
+        entry.enterKey = `${id}g${entry.gen}`;
+      }
+      entry.row = row;
+    }
+    const key = `${id}g${entry.gen}`;
+    return { key, portalEnter: entry.enterKey === key };
+  };
+
   if (drops.length === 0) return null;
 
   const deckRemaining = available.length - fillers.length;
@@ -215,8 +244,15 @@ export function CheckInFeed({ animeList, favorites, logs, onLog, onAnimeSelect, 
         <AnimatePresence mode="popLayout">
           {dropSlots.map((slot, i) => {
             const drop = dropByKey.get(slot.key)!;
+            const cell = resolveCell(`d${slot.slotId}`, i);
             return (
-              <SwipeCell key={`d${slot.slotId}`} occupantKey={slot.key} style={merged ? place(i) : undefined}>
+              <SwipeCell
+                key={cell.key}
+                cellKey={cell.key}
+                portalEnter={cell.portalEnter}
+                occupantKey={slot.key}
+                style={merged ? place(i) : undefined}
+              >
                 <CheckInItem
                   drop={drop}
                   vibe={vibes.get(drop.anime.id, drop.episode)}
@@ -226,16 +262,25 @@ export function CheckInFeed({ animeList, favorites, logs, onLog, onAnimeSelect, 
               </SwipeCell>
             );
           })}
-          {fillerSlots.map((slot, j) => (
-            <SwipeCell key={`u${slot.slotId}`} occupantKey={slot.key} style={place(dropSlots.length + j)}>
-              <UpNextCard
-                candidate={fillerByKey.get(slot.key)!}
-                onLog={upNext!.onLog}
-                onSkip={upNext!.onSkip}
-                onAnimeSelect={upNext!.onSelect}
-              />
-            </SwipeCell>
-          ))}
+          {fillerSlots.map((slot, j) => {
+            const cell = resolveCell(`u${slot.slotId}`, dropSlots.length + j);
+            return (
+              <SwipeCell
+                key={cell.key}
+                cellKey={cell.key}
+                portalEnter={cell.portalEnter}
+                occupantKey={slot.key}
+                style={place(dropSlots.length + j)}
+              >
+                <UpNextCard
+                  candidate={fillerByKey.get(slot.key)!}
+                  onLog={upNext!.onLog}
+                  onSkip={upNext!.onSkip}
+                  onAnimeSelect={upNext!.onSelect}
+                />
+              </SwipeCell>
+            );
+          })}
         </AnimatePresence>
         {trays.map((tray) => (
           <motion.div
