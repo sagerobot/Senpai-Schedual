@@ -31,6 +31,20 @@ export function latestAiredEpisode(anime: AnimeMedia, nowSec: number): LatestAir
   return null;
 }
 
+/**
+ * Has the season's final episode aired? FINISHED status is trusted outright;
+ * before AniList flips it, only an exact airing signal counts — the estimated
+ * branch of latestAiredEpisode can fabricate a "finale" when an episode count
+ * is wrong, so it doesn't. Returns false for shows with no episode count
+ * (long-runners graduate by wake count, never by finale).
+ */
+export function seasonFullyAired(anime: AnimeMedia, nowSec: number): boolean {
+  if (anime.status === 'FINISHED') return true;
+  if (anime.episodes === null) return false;
+  const latest = latestAiredEpisode(anime, nowSec);
+  return latest !== null && !latest.estimated && latest.episode >= anime.episodes;
+}
+
 /** Aired-episode count for progress/behind math, same staleness rule. */
 export function getAiredEpisodesCount(anime: AnimeMedia, nowSec: number): number {
   const latest = latestAiredEpisode(anime, nowSec);

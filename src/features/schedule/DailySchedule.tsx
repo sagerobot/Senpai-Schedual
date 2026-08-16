@@ -17,6 +17,8 @@ import { useUserData } from '../../stores/userData';
 interface DailyScheduleProps {
   animeList: AnimeMedia[];
   favorites: number[];
+  /** Stacking-status show ids — drop material only on their finale's day. */
+  stacking?: number[];
   onAnimeSelect: (anime: AnimeMedia) => void;
   logs: EpisodeLog[];
   onLog: (showId: number, episodeNumber: number, score: number | null) => void;
@@ -26,35 +28,48 @@ interface DailyScheduleProps {
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-export function DailySchedule({ animeList, favorites, onAnimeSelect, logs, onLog, isStreaming = false }: DailyScheduleProps) {
+// Stable empty default — an inline `= []` would re-trigger every downstream
+// memo (including CheckInFeed's clock-reading drops memo) on each render.
+const NO_STACKING: number[] = [];
+
+export function DailySchedule({ animeList, favorites, stacking = NO_STACKING, onAnimeSelect, logs, onLog, isStreaming = false }: DailyScheduleProps) {
   const [search, setSearch] = useState('');
 
   // The handoff: once the drops feed is quiet, the page deals the Up Next deck
   // instead of just stopping. computeDrops is idempotent, so calling it here
   // alongside CheckInFeed's own memo is safe.
   const { candidates: upNextCandidates, skip: skipUpNext } = useUpNext(animeList);
+  // The drops source: the schedule list plus the deck's resolved media. The
+  // deck resolves stacking shows the season list doesn't carry (a two-cour
+  // show tagged to a past season, most importantly) — without the merge, that
+  // show's finale could never graduate into the drops row.
+  const dropSource = useMemo(() => {
+    const merged = new Map(animeList.map((a) => [a.id, a]));
+    for (const c of upNextCandidates) if (!merged.has(c.anime.id)) merged.set(c.anime.id, c.anime);
+    return Array.from(merged.values());
+  }, [animeList, upNextCandidates]);
   const activeDropCount = useMemo(
-    () => computeDrops(animeList, favorites, logs).length,
-    [animeList, favorites, logs],
+    () => computeDrops(dropSource, favorites, logs, stacking).length,
+    [dropSource, favorites, logs, stacking],
   );
   // The standalone deck applies the same fresh-clock guard as the merged row:
   // a candidate whose episode just aired belongs to the drops feed, and the
   // memos above may not have re-run since the airing. Un-memoized on purpose.
   const deckNowSec = Math.floor(Date.now() / 1000);
   const deckCandidates = upNextCandidates.filter(
-    (c) => !wouldBeDrop(c.anime, favorites, logs, deckNowSec),
+    (c) => !wouldBeDrop(c.anime, favorites, logs, deckNowSec, stacking),
   );
   // "You're done for today" only means something if there was a today: at least
   // one tracked episode aired in the last 24h and its log exists.
   const clearedDropsToday = useMemo(() => {
     const now = Math.floor(Date.now() / 1000);
-    return animeList.some((anime) => {
-      if (!favorites.includes(anime.id)) return false;
+    return dropSource.some((anime) => {
+      if (!favorites.includes(anime.id) && !stacking.includes(anime.id)) return false;
       const latest = latestAiredEpisode(anime, now);
       if (latest === null || now - latest.airedAt > 24 * 3600) return false;
       return logs.some((l) => l.showId === anime.id && l.episodeNumber === latest.episode);
     });
-  }, [animeList, favorites, logs]);
+  }, [dropSource, favorites, stacking, logs]);
 
   // Same undo-toast contract as CheckInFeed's handleLog — the deck never toasts.
   const handleDeckLog = useCallback(
@@ -145,8 +160,9 @@ export function DailySchedule({ animeList, favorites, onAnimeSelect, logs, onLog
       <WelcomeHero />
 
       <CheckInFeed
-        animeList={animeList}
+        animeList={dropSource}
         favorites={favorites}
+        stacking={stacking}
         logs={logs}
         onLog={onLog}
         onAnimeSelect={onAnimeSelect}

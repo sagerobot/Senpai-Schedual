@@ -48,6 +48,26 @@ function episodeSixShow(id: number, airsInSec: number): AnimeMedia {
   };
 }
 
+/**
+ * A 12-episode show whose finale aired `airedHoursAgo` ago, in the stale
+ * signal shape the drops rely on: nextAiringEpisode still points AT the
+ * finale with its airingAt in the past.
+ */
+function finaleShow(id: number, airedHoursAgo: number): AnimeMedia {
+  return {
+    ...show(0),
+    id,
+    idMal: id,
+    title: { romaji: `Show ${id}`, english: `Show ${id}`, userPreferred: `Show ${id}` },
+    episodes: 12,
+    nextAiringEpisode: {
+      airingAt: NOW - airedHoursAgo * 3600,
+      timeUntilAiring: -airedHoursAgo * 3600,
+      episode: 12,
+    },
+  };
+}
+
 const watchingEntry = (showId: number): LibraryEntry => ({
   showId,
   idMal: showId,
@@ -162,6 +182,55 @@ describe('CheckInFeed drop admission', () => {
     expect(container.textContent).toContain('Show 3');
     expect(container.textContent).not.toContain('Show 2');
   });
+
+  it("admits a stacking show's finale as a graduation drop", async () => {
+    await render(
+      <CheckInFeed
+        animeList={[finaleShow(4, 2)]}
+        favorites={[]}
+        stacking={[4]}
+        logs={logsThrough(2, 4)}
+        onLog={() => {}}
+        onAnimeSelect={() => {}}
+      />,
+    );
+    expect(container.textContent).toContain('Stack complete');
+    expect(container.textContent).toContain('Finale aired today');
+    expect(container.textContent).toContain('Start the binge — Episode 3');
+    expect(container.textContent).toContain('Finale: Ep. 12');
+  });
+
+  it("keeps a stacking show's mid-season episode out of the drops", async () => {
+    // Episode 6 of 26 just aired — stacked on purpose, so no drop card.
+    await render(
+      <CheckInFeed
+        animeList={[episodeSixShow(5, -300)]}
+        favorites={[]}
+        stacking={[5]}
+        logs={[]}
+        onLog={() => {}}
+        onAnimeSelect={() => {}}
+      />,
+    );
+    expect(container.textContent).not.toContain("Today's Drops");
+  });
+
+  it('keeps an admitted graduation card up after AniList clears the airing signal', async () => {
+    const aired = finaleShow(6, 2);
+    const props = { favorites: [], stacking: [6], onLog: () => {}, onAnimeSelect: () => {} };
+    await render(<CheckInFeed animeList={[aired]} logs={logsThrough(2, 6)} {...props} />);
+    expect(container.textContent).toContain('Stack complete');
+
+    // The post-finale refresh nulls nextAiringEpisode and flips the status;
+    // the admission pin carries the card through it.
+    const refreshed = { ...aired, nextAiringEpisode: null, status: 'FINISHED' };
+    await render(<CheckInFeed animeList={[refreshed]} logs={logsThrough(2, 6)} {...props} />);
+    expect(container.textContent).toContain('Stack complete');
+
+    // Logging the finale is what resolves it.
+    await render(<CheckInFeed animeList={[refreshed]} logs={logsThrough(12, 6)} {...props} />);
+    expect(container.textContent).not.toContain("Today's Drops");
+  });
 });
 
 describe('wouldBeDrop', () => {
@@ -185,5 +254,11 @@ describe('wouldBeDrop', () => {
 
   it('ignores a show past the 24h drops window', () => {
     expect(wouldBeDrop(episodeSixShow(2, -25 * 3600), [2], logs, NOW)).toBe(false);
+  });
+
+  it('claims a stacking show for its finale and nothing else', () => {
+    expect(wouldBeDrop(finaleShow(7, 2), [], [], NOW, [7])).toBe(true);
+    expect(wouldBeDrop(episodeSixShow(7, -300), [], [], NOW, [7])).toBe(false);
+    expect(wouldBeDrop(finaleShow(7, 2), [], [], NOW)).toBe(false);
   });
 });

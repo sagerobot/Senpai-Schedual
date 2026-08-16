@@ -202,6 +202,13 @@ describe('rankUpNext stacking', () => {
     expect(isBingeReady(entry(1, 'stacking', 8), anime, NOW)).toBe(true);
     expect(isBingeReady(entry(1, 'watching', 8), anime, NOW)).toBe(false);
   });
+
+  it('wakes a no-wake-count stack the moment the finale airs, before FINISHED lands', () => {
+    // The stale-signal shape the drop cards live by: nextAiringEpisode still
+    // points AT the finale with its airingAt in the past.
+    const anime = show({ id: 1, aired: 11, nextIn: -3600, episodes: 12 });
+    expect(isBingeReady(entry(1, 'stacking'), anime, NOW)).toBe(true);
+  });
 });
 
 describe('rankUpNext ordering', () => {
