@@ -40,6 +40,7 @@ export function ScheduleRoute() {
   const openShow = useOpenShow();
 
   const favorites = useMemo(() => library.filter((l) => l.status === 'watching').map((l) => l.showId), [library]);
+  const stacking = useMemo(() => library.filter((l) => l.status === 'stacking').map((l) => l.showId), [library]);
 
   // Only a total absence of data blocks the view; a partial first page renders
   // below, and a failed background refresh keeps the cached list on screen.
@@ -54,6 +55,7 @@ export function ScheduleRoute() {
     <DailySchedule
       animeList={animeList}
       favorites={favorites}
+      stacking={stacking}
       onAnimeSelect={openShow}
       logs={logs}
       onLog={logEpisode}

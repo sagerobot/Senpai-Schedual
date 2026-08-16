@@ -1,5 +1,5 @@
 import { AnimeMedia, EpisodeLog, LibraryEntry } from '../types';
-import { getAiredEpisodesCount } from './aired';
+import { getAiredEpisodesCount, seasonFullyAired } from './aired';
 
 /**
  * The momentum score behind the Up Next deck: rank "what should I watch right
@@ -53,10 +53,15 @@ interface Signal extends UpNextReason {
   points: number;
 }
 
-/** A stacking show is binge-ready when its wake condition has come true. */
+/**
+ * A stacking show is binge-ready when its wake condition has come true.
+ * seasonFullyAired (not just FINISHED status) so the graduation lands the
+ * moment the finale airs, not on AniList's next status refresh — the same
+ * staleness rule the drop cards live by.
+ */
 export function isBingeReady(entry: LibraryEntry, anime: AnimeMedia, nowSec: number): boolean {
   if (entry.status !== 'stacking') return false;
-  if (anime.status === 'FINISHED') return true;
+  if (seasonFullyAired(anime, nowSec)) return true;
   if (entry.stackWakeCount === undefined) return false;
   return getAiredEpisodesCount(anime, nowSec) >= entry.stackWakeCount;
 }
@@ -100,7 +105,7 @@ export function rankUpNext({ animeList, library, logs, nowSec }: UpNextInput): U
         kind: 'binge-ready',
         points: 2000 + Math.min(behindCount, 20),
         text:
-          anime.status === 'FINISHED'
+          seasonFullyAired(anime, nowSec)
             ? `Season complete · ${behindCount} episodes ready`
             : `${behindCount} episodes stacked — ready to binge`,
       });

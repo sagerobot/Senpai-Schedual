@@ -1,4 +1,4 @@
-import { Bookmark, Check, CheckCircle2, Clock, Info, Play, Star, Zap } from 'lucide-react';
+import { Bookmark, Check, CheckCircle2, Clock, Info, Layers, Play, Star, Zap } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { memo, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { toast } from 'sonner';
@@ -30,6 +30,8 @@ export interface CheckInFeedUpNext {
 interface CheckInFeedProps {
   animeList: AnimeMedia[];
   favorites: number[];
+  /** Stacking-status show ids — drop material only on their finale's day. */
+  stacking?: number[];
   logs: EpisodeLog[];
   onLog: (showId: number, episodeNumber: number, score: number | null) => void;
   onAnimeSelect?: (anime: AnimeMedia) => void;
@@ -63,10 +65,19 @@ interface Drop {
   airedAt: number;
   maxWatched: number;
   userAvgScore: number | null;
+  /** A stacking show's finale — the card wears the binge-ready graduation. */
+  graduation: boolean;
 }
 
 /** The quick row; everything below 5 lives behind the LowScoreButtons expander. */
 const QUICK_SCORES = [5, 6, 7, 8, 9, 10];
+
+/**
+ * Stable empty default for the stacking prop — an inline `= []` would be a
+ * fresh identity every render and make the drops memo recompute each time,
+ * reading a fresh clock and defeating the admission-pin design.
+ */
+const NO_STACKING: number[] = [];
 
 /** Admission window: an episode is drop material for 24h after it airs. */
 const DROP_WINDOW_SEC = 24 * 3600;
@@ -80,8 +91,12 @@ const DROP_WINDOW_SEC = 24 * 3600;
  * The window therefore only gates *admission*; an admitted card stays until
  * today's episode is logged or a newer episode replaces it. Module-level so
  * a route hop doesn't reset it; a reload does, which is fine.
+ *
+ * airedAt rides along because a finale's airing signal is the one AniList
+ * later deletes — the post-finale refresh nulls nextAiringEpisode — so a
+ * pinned finale card falls back to its pin instead of vanishing mid-window.
  */
-const admittedDrops = new Map<number, number>();
+const admittedDrops = new Map<number, { episode: number; airedAt: number }>();
 
 /** Test hook. */
 export function resetAdmittedDrops() {
@@ -94,33 +109,59 @@ export function resetAdmittedDrops() {
  * given input set — re-admitting an already-admitted episode is a no-op — so
  * the component and the host may both call it in one render.
  */
-export function computeDrops(animeList: AnimeMedia[], favorites: number[], logs: EpisodeLog[]): Drop[] {
+export function computeDrops(
+  animeList: AnimeMedia[],
+  favorites: number[],
+  logs: EpisodeLog[],
+  stacking: number[] = [],
+): Drop[] {
   const recent: Drop[] = [];
   const now = Math.floor(Date.now() / 1000);
 
   for (const anime of animeList) {
-    if (!favorites.includes(anime.id)) continue;
+    const isStacking = stacking.includes(anime.id);
+    if (!favorites.includes(anime.id) && !isStacking) continue;
 
     // latestAiredEpisode is stale-proof: it recognizes a passed airingAt as
     // "this episode aired" even when the 8-hourly bundle hasn't caught up,
-    // which is exactly the window in which a drop matters most.
+    // which is exactly the window in which a drop matters most. When the
+    // signal is gone entirely (a finale's nextAiringEpisode nulled by the
+    // post-airing refresh), an existing pin carries the card instead.
     const latest = latestAiredEpisode(anime, now);
-    if (latest === null) continue;
+    const pin = admittedDrops.get(anime.id);
+    const current = latest ?? pin ?? null;
+    if (current === null) continue;
 
-    const episodeNum = latest.episode;
-    const timeSinceAir = now - latest.airedAt;
+    const episodeNum = current.episode;
+    // A stacking show only ever drops for its finale — the graduation moment.
+    // Exact signal only: the estimated branch can fabricate a finale when an
+    // episode count is wrong (pins were admitted on an exact signal already).
+    if (
+      isStacking &&
+      !(anime.episodes !== null && episodeNum >= anime.episodes && (latest === null || !latest.estimated))
+    )
+      continue;
+
+    const timeSinceAir = now - current.airedAt;
     const inWindow = timeSinceAir >= 0 && timeSinceAir <= DROP_WINDOW_SEC;
-    if (!inWindow && admittedDrops.get(anime.id) !== episodeNum) continue;
+    if (!inWindow && pin?.episode !== episodeNum) continue;
 
     const showLogs = logs.filter((l) => l.showId === anime.id);
     if (showLogs.some((l) => l.episodeNumber === episodeNum)) continue;
 
-    admittedDrops.set(anime.id, episodeNum);
+    admittedDrops.set(anime.id, { episode: episodeNum, airedAt: current.airedAt });
     const maxWatched = showLogs.length > 0 ? Math.max(...showLogs.map((l) => l.episodeNumber)) : 0;
     const ratedLogs = showLogs.filter((l) => l.score !== null && l.score !== undefined);
     const userAvgScore =
       ratedLogs.length > 0 ? ratedLogs.reduce((acc, l) => acc + (l.score ?? 0), 0) / ratedLogs.length : null;
-    recent.push({ anime, episode: episodeNum, airedAt: latest.airedAt, maxWatched, userAvgScore });
+    recent.push({
+      anime,
+      episode: episodeNum,
+      airedAt: current.airedAt,
+      maxWatched,
+      userAvgScore,
+      graduation: isStacking,
+    });
   }
   return recent.sort((a, b) => b.airedAt - a.airedAt);
 }
@@ -139,10 +180,15 @@ export function wouldBeDrop(
   favorites: number[],
   logs: EpisodeLog[],
   nowSec: number,
+  stacking: number[] = [],
 ): boolean {
-  if (!favorites.includes(anime.id)) return false;
+  const isStacking = stacking.includes(anime.id);
+  if (!favorites.includes(anime.id) && !isStacking) return false;
   const latest = latestAiredEpisode(anime, nowSec);
   if (latest === null) return false;
+  if (isStacking && !(anime.episodes !== null && latest.episode >= anime.episodes && !latest.estimated)) {
+    return false;
+  }
   const timeSinceAir = nowSec - latest.airedAt;
   if (timeSinceAir < 0 || timeSinceAir > DROP_WINDOW_SEC) return false;
   return !logs.some((l) => l.showId === anime.id && l.episodeNumber === latest.episode);
@@ -154,11 +200,22 @@ export function wouldBeDrop(
  * A card already on screen outlives the window (see admittedDrops), so rating
  * catch-up episodes advances it instead of dismissing it.
  */
-export function CheckInFeed({ animeList, favorites, logs, onLog, onAnimeSelect, upNext }: CheckInFeedProps) {
+export function CheckInFeed({
+  animeList,
+  favorites,
+  stacking = NO_STACKING,
+  logs,
+  onLog,
+  onAnimeSelect,
+  upNext,
+}: CheckInFeedProps) {
   const vibes = useVibesIndex();
   const cols = useGridColumns();
 
-  const drops = useMemo(() => computeDrops(animeList, favorites, logs), [animeList, favorites, logs]);
+  const drops = useMemo(
+    () => computeDrops(animeList, favorites, logs, stacking),
+    [animeList, favorites, logs, stacking],
+  );
 
   // This surface's onLog arrives raw from schedule/route.tsx, so the undo
   // toast lives here — same pattern as watching/route.tsx (which already
@@ -184,7 +241,7 @@ export function CheckInFeed({ animeList, favorites, logs, onLog, onAnimeSelect, 
   const nowSec = Math.floor(Date.now() / 1000);
   const available = upNext
     ? upNext.candidates.filter(
-        (c) => !dropIds.has(c.anime.id) && !wouldBeDrop(c.anime, favorites, logs, nowSec),
+        (c) => !dropIds.has(c.anime.id) && !wouldBeDrop(c.anime, favorites, logs, nowSec, stacking),
       )
     : [];
   const fillCount = cols > 1 ? Math.min((cols - (drops.length % cols)) % cols, available.length) : 0;
@@ -364,7 +421,8 @@ const CheckInItem = memo(function CheckInItem({
   onLog: (showId: number, episodeNumber: number, score: number | null) => void;
   onAnimeSelect?: (anime: AnimeMedia) => void;
 }) {
-  const { anime, maxWatched, userAvgScore, episode: todayEp } = drop;
+  const { anime, maxWatched, userAvgScore, episode: todayEp, graduation: isGraduation } = drop;
+  const stackedCount = todayEp - maxWatched;
   const title = displayTitle(anime);
   const hasBanner = !!(anime.bannerImage || anime.trailer?.thumbnail);
   const bgImage = anime.bannerImage || anime.trailer?.thumbnail || anime.coverImage.extraLarge || anime.coverImage.large;
@@ -394,11 +452,15 @@ const CheckInItem = memo(function CheckInItem({
   const ratingStr = anime.averageScore ? `Global ${(anime.averageScore / 10).toFixed(1)}` : '';
   const infoLine = [genresStr, formatStr, 'Today', timeStr, studio, ratingStr].filter(Boolean).join(' • ');
 
-  return (
+  const card = (
     <div
       className={cn(
         'flex flex-col rounded-2xl bg-[#0a0c16] shadow-2xl h-full group border transition-all',
-        isCaughtUp ? 'border-accent-500/40 shadow-[0_0_20px_rgba(168,85,247,0.15)]' : 'border-[#1e2336]',
+        isGraduation
+          ? 'border-emerald-500/40 shadow-[0_0_20px_rgba(52,211,153,0.15)]'
+          : isCaughtUp
+            ? 'border-accent-500/40 shadow-[0_0_20px_rgba(168,85,247,0.15)]'
+            : 'border-[#1e2336]',
       )}
     >
       <div className="relative w-full h-48 sm:h-52 bg-[#0a0c16] shrink-0 overflow-hidden rounded-t-2xl">
@@ -429,7 +491,7 @@ const CheckInItem = memo(function CheckInItem({
           <span
             className={cn(
               'absolute inset-0 pointer-events-none transition-colors',
-              isCaughtUp ? 'bg-accent-500/10' : 'bg-black/20',
+              isGraduation ? 'bg-emerald-500/10' : isCaughtUp ? 'bg-accent-500/10' : 'bg-black/20',
             )}
             aria-hidden="true"
           />
@@ -443,7 +505,12 @@ const CheckInItem = memo(function CheckInItem({
         </button>
 
         <div className="absolute top-3 left-3 z-20 flex flex-wrap items-center gap-1.5">
-          {isCaughtUp ? (
+          {isGraduation ? (
+            <div className="flex items-center gap-1.5 bg-emerald-950/75 backdrop-blur-md border border-emerald-400/50 text-emerald-100 text-[11px] font-semibold px-2.5 py-1 rounded-full shadow-lg">
+              <Layers className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
+              {WATCH_STATE_LABELS['stack-complete']}
+            </div>
+          ) : isCaughtUp ? (
             <div className="flex items-center gap-1.5 bg-[#0a0c16]/80 backdrop-blur-md border border-accent-500/30 text-purple-100 text-[11px] font-semibold px-2.5 py-1 rounded-full shadow-lg">
               <CheckCircle2 className="w-3.5 h-3.5 text-accent-400" aria-hidden="true" />
               {WATCH_STATE_LABELS['caught-up']}
@@ -501,13 +568,30 @@ const CheckInItem = memo(function CheckInItem({
         </div>
 
         <div className="flex justify-between items-center mb-1 gap-2">
-          <div className="text-[13px] text-gray-300 line-clamp-1">Episode {todayEp}</div>
-          <div className="flex items-center gap-1.5 text-[11px] sm:text-[12px] text-accent-400 flex-shrink-0">
+          <div className="text-[13px] text-gray-300 line-clamp-1">
+            Episode {todayEp}
+            {isGraduation && ' — Finale'}
+          </div>
+          <div
+            className={cn(
+              'flex items-center gap-1.5 text-[11px] sm:text-[12px] flex-shrink-0',
+              isGraduation ? 'text-emerald-300' : 'text-accent-400',
+            )}
+          >
             <span
-              className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-accent-500 shadow-[0_0_8px_rgba(168,85,247,0.8)]"
+              className={cn(
+                'w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full',
+                isGraduation
+                  ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]'
+                  : 'bg-accent-500 shadow-[0_0_8px_rgba(168,85,247,0.8)]',
+              )}
               aria-hidden="true"
             />
-            {isCaughtUp ? 'New episode today' : `Episode ${todayEp} aired today`}
+            {isGraduation
+              ? 'Finale aired today'
+              : isCaughtUp
+                ? 'New episode today'
+                : `Episode ${todayEp} aired today`}
           </div>
         </div>
 
@@ -515,7 +599,10 @@ const CheckInItem = memo(function CheckInItem({
 
         <div className="border border-[#1e2336] rounded-xl p-4 bg-[#080a14] flex flex-col items-center mb-5 relative">
           <div
-            className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent-500/20 to-transparent"
+            className={cn(
+              'absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent to-transparent',
+              isGraduation ? 'via-emerald-500/20' : 'via-accent-500/20',
+            )}
             aria-hidden="true"
           />
 
@@ -538,7 +625,12 @@ const CheckInItem = memo(function CheckInItem({
                 whileTap={{ scale: 0.88 }}
                 onClick={() => handleRateAndWatch(s)}
                 aria-label={`Rate episode ${targetEp} a ${s} and mark watched`}
-                className="flex-1 h-11 sm:h-[46px] bg-[#0a0c16] text-gray-200 border border-[#1e2336] rounded-lg text-[16px] sm:text-[18px] font-medium hover:bg-accent-600 hover:border-accent-500 hover:text-white hover:shadow-[0_0_15px_rgba(168,85,247,0.5)] transition-all"
+                className={cn(
+                  'flex-1 h-11 sm:h-[46px] bg-[#0a0c16] text-gray-200 border border-[#1e2336] rounded-lg text-[16px] sm:text-[18px] font-medium hover:text-white transition-all',
+                  isGraduation
+                    ? 'hover:bg-emerald-600 hover:border-emerald-500 hover:shadow-[0_0_15px_rgba(52,211,153,0.45)]'
+                    : 'hover:bg-accent-600 hover:border-accent-500 hover:shadow-[0_0_15px_rgba(168,85,247,0.5)]',
+                )}
               >
                 {s}
               </motion.button>
@@ -568,7 +660,53 @@ const CheckInItem = memo(function CheckInItem({
         <div className="mt-auto">
           <div className="relative w-full h-[52px] mt-1">
             <AnimatePresence initial={false}>
-              {isCaughtUp ? (
+              {isGraduation ? (
+                <motion.div
+                  key="graduation"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.3, ease: 'easeOut' }}
+                  className="absolute inset-0 flex items-start gap-2"
+                >
+                  <div className="flex flex-col items-center w-20 -ml-2 shrink-0">
+                    <div className="w-5 h-5 rounded-full bg-emerald-600 flex items-center justify-center z-10 ring-[3px] ring-[#0a0c16]">
+                      <Check className="w-3 h-3 text-white stroke-[3]" aria-hidden="true" />
+                    </div>
+                    <div className="text-[10px] text-gray-400 mt-1.5 text-center leading-tight">
+                      Watched through
+                      <br />
+                      Ep. <Ticker value={maxWatched} />
+                    </div>
+                  </div>
+
+                  {/* The runway: one pip per stacked episode, the finale as the
+                      star node — the binge answer to the behind card's
+                      "N episodes to today". */}
+                  <div className="flex flex-1 min-w-0 flex-col items-center gap-1.5 pt-[7px]">
+                    <div className="flex w-full gap-[3px]" aria-hidden="true">
+                      {Array.from({ length: Math.max(0, stackedCount - 1) }, (_, i) => (
+                        <span
+                          key={i}
+                          className="h-[9px] flex-1 rounded-[3px] border border-emerald-400/40 bg-emerald-500/20"
+                        />
+                      ))}
+                    </div>
+                    <div className="rounded-full border border-emerald-500/30 bg-[#0a0c16] px-2 py-0.5 text-[9px] text-emerald-300 whitespace-nowrap">
+                      <Ticker value={stackedCount} /> episode{stackedCount === 1 ? '' : 's'} ready · zero waits
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-center w-20 -mr-2 shrink-0">
+                    <div className="w-5 h-5 rounded-full border-2 border-emerald-400 bg-[#0a0c16] flex items-center justify-center z-10 ring-[3px] ring-[#0a0c16]">
+                      <Star className="w-2.5 h-2.5 text-emerald-400 fill-current" aria-hidden="true" />
+                    </div>
+                    <div className="text-[10px] text-gray-300 mt-1.5 text-center leading-tight font-medium">
+                      Finale: Ep. {todayEp}
+                    </div>
+                  </div>
+                </motion.div>
+              ) : isCaughtUp ? (
                 <motion.div
                   key="caught-up"
                   initial={{ opacity: 0, y: 8 }}
@@ -654,10 +792,23 @@ const CheckInItem = memo(function CheckInItem({
               href={watchLink}
               target="_blank"
               rel="noreferrer"
-              className="w-full h-11 sm:h-12 flex items-center justify-center gap-2 rounded-xl font-medium text-[14px] sm:text-[15px] transition-all mt-6 bg-[#0a0c16] border border-accent-600 text-accent-400 hover:bg-accent-600 hover:text-white shadow-[0_0_15px_rgba(147,51,234,0.2)] hover:shadow-[0_0_20px_rgba(147,51,234,0.4)]"
+              className={cn(
+                'w-full h-11 sm:h-12 flex items-center justify-center gap-2 rounded-xl font-medium text-[14px] sm:text-[15px] transition-all mt-6',
+                isGraduation
+                  ? 'bg-emerald-600 text-white hover:bg-emerald-500'
+                  : 'bg-[#0a0c16] border border-accent-600 text-accent-400 hover:bg-accent-600 hover:text-white shadow-[0_0_15px_rgba(147,51,234,0.2)] hover:shadow-[0_0_20px_rgba(147,51,234,0.4)]',
+              )}
             >
               <Play className="w-4 h-4 fill-current" aria-hidden="true" />
-              <Ticker value={isCaughtUp ? `Watch Episode ${todayEp}` : `Continue Episode ${nextEp}`} />
+              <Ticker
+                value={
+                  isGraduation
+                    ? `Start the binge — Episode ${nextEp}`
+                    : isCaughtUp
+                      ? `Watch Episode ${todayEp}`
+                      : `Continue Episode ${nextEp}`
+                }
+              />
             </a>
           ) : (
             <p className="w-full h-11 sm:h-12 flex items-center justify-center gap-2 rounded-xl font-medium text-[14px] sm:text-[15px] mt-6 bg-[#1e2336] text-gray-400">
@@ -666,6 +817,26 @@ const CheckInItem = memo(function CheckInItem({
           )}
         </div>
       </div>
+    </div>
+  );
+
+  if (!isGraduation) return card;
+
+  // The graduation card sits on a literal pile of card edges — the stacked
+  // episodes underneath it. The edges overflow into the grid gap so the card
+  // itself stays exactly drop-card sized; SwipeCell only clips during an
+  // active swap, so they render whenever the card is at rest.
+  return (
+    <div className="relative isolate h-full">
+      {card}
+      <div
+        aria-hidden="true"
+        className="absolute inset-x-[13px] -bottom-[11px] -z-10 h-6 rounded-b-[14px] border border-t-0 border-emerald-500/50 bg-[#131834] shadow-[0_10px_20px_rgba(0,0,0,0.55)]"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-x-[28px] -bottom-[22px] -z-20 h-6 rounded-b-[14px] border border-t-0 border-emerald-500/25 bg-[#0d1024]"
+      />
     </div>
   );
 });
