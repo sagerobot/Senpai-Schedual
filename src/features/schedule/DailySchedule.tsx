@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 import { cn } from '../../lib/utils';
 import { displayTitle } from '../../lib/displayTitle';
 import { latestAiredEpisode } from '../../lib/aired';
-import { CheckInFeed, computeDrops } from './CheckInFeed';
+import { CheckInFeed, computeDrops, wouldBeDrop } from './CheckInFeed';
 import { STREAMING_SITES } from '../../lib/watchLinks';
 import { useUpNext } from '../../hooks/useUpNext';
 import { useUserData } from '../../stores/userData';
@@ -36,6 +36,13 @@ export function DailySchedule({ animeList, favorites, onAnimeSelect, logs, onLog
   const activeDropCount = useMemo(
     () => computeDrops(animeList, favorites, logs).length,
     [animeList, favorites, logs],
+  );
+  // The standalone deck applies the same fresh-clock guard as the merged row:
+  // a candidate whose episode just aired belongs to the drops feed, and the
+  // memos above may not have re-run since the airing. Un-memoized on purpose.
+  const deckNowSec = Math.floor(Date.now() / 1000);
+  const deckCandidates = upNextCandidates.filter(
+    (c) => !wouldBeDrop(c.anime, favorites, logs, deckNowSec),
   );
   // "You're done for today" only means something if there was a today: at least
   // one tracked episode aired in the last 24h and its log exists.
@@ -151,7 +158,7 @@ export function DailySchedule({ animeList, favorites, onAnimeSelect, logs, onLog
         }}
       />
 
-      {activeDropCount === 0 && upNextCandidates.length > 0 && (
+      {activeDropCount === 0 && deckCandidates.length > 0 && (
         <div>
           {clearedDropsToday && (
             <div className="mb-8 flex items-center gap-3.5 text-[13px] font-semibold text-emerald-300">
@@ -167,7 +174,7 @@ export function DailySchedule({ animeList, favorites, onAnimeSelect, logs, onLog
             </div>
           )}
           <UpNextDeck
-            candidates={upNextCandidates}
+            candidates={deckCandidates}
             onLog={handleDeckLog}
             onSkip={skipUpNext}
             onAnimeSelect={onAnimeSelect}

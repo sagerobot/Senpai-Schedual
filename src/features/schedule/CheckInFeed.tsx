@@ -68,6 +68,9 @@ interface Drop {
 /** The quick row; everything below 5 lives behind the LowScoreButtons expander. */
 const QUICK_SCORES = [5, 6, 7, 8, 9, 10];
 
+/** Admission window: an episode is drop material for 24h after it airs. */
+const DROP_WINDOW_SEC = 24 * 3600;
+
 /**
  * Admission pins: showId -> the latest-aired episode a drop card is up for.
  * The drops memo only re-runs when logs/animeList/favorites change, and it
@@ -106,7 +109,7 @@ export function computeDrops(animeList: AnimeMedia[], favorites: number[], logs:
 
     const episodeNum = latest.episode;
     const timeSinceAir = now - latest.airedAt;
-    const inWindow = timeSinceAir >= 0 && timeSinceAir <= 24 * 3600;
+    const inWindow = timeSinceAir >= 0 && timeSinceAir <= DROP_WINDOW_SEC;
     if (!inWindow && admittedDrops.get(anime.id) !== episodeNum) continue;
 
     const showLogs = logs.filter((l) => l.showId === anime.id);
@@ -120,6 +123,29 @@ export function computeDrops(animeList: AnimeMedia[], favorites: number[], logs:
     recent.push({ anime, episode: episodeNum, airedAt: latest.airedAt, maxWatched, userAvgScore });
   }
   return recent.sort((a, b) => b.airedAt - a.airedAt);
+}
+
+/**
+ * Would computeDrops admit this show, judged with a fresh clock? (Same
+ * admission test, minus the pins — pinned cards are already in the drops
+ * list.) The drops memo and the deck's candidate memo re-run on different
+ * dependencies, so for a stretch after an episode airs the deck can know
+ * about it while the drops list on screen predates it. A show in that gap is
+ * a drop card waiting for the next drops recompute, not catch-up material —
+ * deck surfaces use this to hold it back until the drop card claims it.
+ */
+export function wouldBeDrop(
+  anime: AnimeMedia,
+  favorites: number[],
+  logs: EpisodeLog[],
+  nowSec: number,
+): boolean {
+  if (!favorites.includes(anime.id)) return false;
+  const latest = latestAiredEpisode(anime, nowSec);
+  if (latest === null) return false;
+  const timeSinceAir = nowSec - latest.airedAt;
+  if (timeSinceAir < 0 || timeSinceAir > DROP_WINDOW_SEC) return false;
+  return !logs.some((l) => l.showId === anime.id && l.episodeNumber === latest.episode);
 }
 
 /**
@@ -151,9 +177,16 @@ export function CheckInFeed({ animeList, favorites, logs, onLog, onAnimeSelect, 
   // page waiting for every drop to be logged. Single-column screens skip it —
   // there is no leftover column to fill. A behind drop show is also a ranked
   // deck candidate, so filter by drop id or a show could appear twice in the
-  // same row.
+  // same row. dropIds alone isn't enough: the drops memo may predate an
+  // airing the candidates already know about, so a would-be drop is filtered
+  // by a fresh clock too (this runs un-memoized, so it stays current).
   const dropIds = new Set(drops.map((d) => d.anime.id));
-  const available = upNext ? upNext.candidates.filter((c) => !dropIds.has(c.anime.id)) : [];
+  const nowSec = Math.floor(Date.now() / 1000);
+  const available = upNext
+    ? upNext.candidates.filter(
+        (c) => !dropIds.has(c.anime.id) && !wouldBeDrop(c.anime, favorites, logs, nowSec),
+      )
+    : [];
   const fillCount = cols > 1 ? Math.min((cols - (drops.length % cols)) % cols, available.length) : 0;
   const fillers = available.slice(0, fillCount);
 
