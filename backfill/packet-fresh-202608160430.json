@@ -1,0 +1,102 @@
+[
+ {
+  "key": "188388:43",
+  "showId": 188388,
+  "episode": 43,
+  "title": "DIGIMON BEATBREAK",
+  "airedAt": 1786838400,
+  "kind": "first",
+  "thread": {
+   "title": "Digimon Beatbreak - Episode 43 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vplq3j/digimon_beatbreak_episode_43_discussion/",
+   "score": 17,
+   "num_comments": 3
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "202957:29",
+  "showId": 202957,
+  "episode": 29,
+  "title": "Meitantei Precure!",
+  "airedAt": 1786836600,
+  "kind": "update",
+  "thread": {
+   "title": "Meitantei Precure \u2022 Star Detective Precure! - Episode 29 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vpjxuv/meitantei_precure_star_detective_precure_episode/",
+   "score": 0,
+   "num_comments": 7
+  },
+  "comments_read": 7,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the episode\u2019s visual touches, character-focused material, and the new ending sequence."
+   },
+   {
+    "tone": "positive",
+    "point": "The discussion showed strong enthusiasm for Luluka and Kurea, with viewers appreciating their characterization and emotional material."
+   },
+   {
+    "tone": "mixed",
+    "point": "One reaction found the episode interesting but felt it mainly confirmed connections viewers had already anticipated."
+   },
+   {
+    "tone": "mixed",
+    "point": "A commenter praised the focus on secondary characters while wishing the series would return more often to other cast members and lighter standalone material."
+   },
+   {
+    "tone": "positive",
+    "point": "The new ending was broadly viewed as attractive and charming, though one commenter considered its song less immediately striking than an earlier favorite."
+   }
+  ],
+  "aspects": {
+   "animation": "positive",
+   "story": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The title and body explicitly identify Meitantei Precure and episode 29, with no conflicting season marker. Seven comments were retrievable, including one reply. Reddit did not expose a reliable post score in the retrieved page, so score is reported as 0."
+ },
+ {
+  "key": "186863:8",
+  "showId": 186863,
+  "episode": 8,
+  "title": "Neko to Ryuu",
+  "airedAt": 1786795200,
+  "kind": "update",
+  "thread": {
+   "title": "The Cat and the Dragon \u2022 Neko to Ryuu - Episode 8 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vp2of4/the_cat_and_the_dragon_neko_to_ryuu_episode_8/",
+   "score": 0,
+   "num_comments": 20
+  },
+  "comments_read": 20,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "The episode was widely viewed as cozy, wholesome, and comforting."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the cat-focused humor and the expanding worldbuilding."
+   },
+   {
+    "tone": "positive",
+    "point": "The prince and supporting characters were frequently described as endearing, amusing, or entertaining."
+   },
+   {
+    "tone": "positive",
+    "point": "Multiple viewers liked the episode\u2019s character moments and warm closing beat."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some appreciated the relaxed slice-of-life focus, while another felt the episode lacked something because the titular dragon was absent."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The title clearly identifies Neko to Ryuu and Episode 8. The page exposed 20 readable comments or replies. The post score was not available in the retrieved page, so score is recorded as 0. No clear multi-comment signal was available for animation, pacing, or sound."
+ }
+]
