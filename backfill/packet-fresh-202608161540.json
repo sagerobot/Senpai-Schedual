@@ -1,0 +1,692 @@
+[
+ {
+  "key": "177637:7",
+  "showId": 177637,
+  "episode": 7,
+  "title": "Sayonara Lara",
+  "airedAt": 1786894200,
+  "kind": "first",
+  "thread": {
+   "title": "Goodbye, Lara \u2022 Sayonara Lara - Episode 7 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vq02pj/goodbye_lara_sayonara_lara_episode_7_discussion/",
+   "score": 1,
+   "num_comments": 0
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "178789:8",
+  "showId": 178789,
+  "episode": 8,
+  "title": "Mushoku Tensei III: Isekai Ittara Honki Dasu",
+  "airedAt": 1786892400,
+  "kind": "first",
+  "thread": {
+   "title": "Mushoku Tensei: Jobless Reincarnation Season 3 \u2022 Mushoku Tensei III: Isekai Ittara Honki Dasu - Episode 8 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vpzaiq/mushoku_tensei_jobless_reincarnation_season_3/",
+   "score": 257,
+   "num_comments": 0
+  },
+  "comments_read": 14,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many viewers considered the episode very strong and felt the series had returned to peak form."
+   },
+   {
+    "tone": "positive",
+    "point": "Several comments praised the character interactions, especially the contrasting reactions to the powerful hosts and guests."
+   },
+   {
+    "tone": "positive",
+    "point": "Viewers enjoyed the episode\u2019s emotional tension and anticipation surrounding Nanahoshi\u2019s worsening condition."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some felt the backstory material added little new information, while others appreciated the extra context."
+   },
+   {
+    "tone": "negative",
+    "point": "A few reactions expressed concern or frustration about the abrupt and disturbing developments near the ending."
+   }
+  ],
+  "aspects": {
+   "story": "positive",
+   "characters": "mixed"
+  },
+  "notes": "The r/anime bot thread clearly matches the exact show title, Season 3, and episode 8, and it was posted on the stated air date. Reddit exposed the post score and comments, but not a reliable total comment count in the retrieved page, so num_comments is reported as 0."
+ },
+ {
+  "key": "188139:6",
+  "showId": 188139,
+  "episode": 6,
+  "title": "Futsutsuka na Akujo de wa Gozaimasu ga: Suuguu Chouso Torikae Den",
+  "airedAt": 1786891560,
+  "kind": "first",
+  "thread": {
+   "title": "Though I Am an Inept Villainess \u2022 Futsutsuka na Akujo dewa Gozaimasu ga: Suuguu Chouso Torikae Den - Episode 6 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vpqahp/though_i_am_an_inept_villainess_futsutsuka_na/",
+   "score": 292,
+   "num_comments": 30
+  },
+  "comments_read": 20,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "The episode was widely viewed as compelling, with several viewers calling it excellent or highly engaging."
+   },
+   {
+    "tone": "positive",
+    "point": "Viewers strongly appreciated the protagonist\u2019s determination and endurance."
+   },
+   {
+    "tone": "positive",
+    "point": "Many commenters enjoyed the character-focused developments and emotional depth."
+   },
+   {
+    "tone": "positive",
+    "point": "The ending generated substantial anticipation for the next episode."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers felt certain character motivations or remarks were surprising and potentially suspicious."
+   },
+   {
+    "tone": "mixed",
+    "point": "A few viewers questioned whether some dramatic or romantic moments were fully convincing."
+   }
+  ],
+  "aspects": {
+   "story": "positive",
+   "pacing": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The thread title and post body match the exact show title and episode 6, with no conflicting season marker. I sampled 20 visible comments/replies and paraphrased spoiler-free sentiment; the thread was still active, so the score and comment count may change."
+ },
+ {
+  "key": "196974:19",
+  "showId": 196974,
+  "episode": 19,
+  "title": "Kuroneko to Majo no Kyoushitsu",
+  "airedAt": 1786890600,
+  "kind": "first",
+  "thread": {
+   "title": "The Classroom of a Black Cat and a Witch \u2022 Kuroneko to Majo no Kyoushitsu - Episode 19 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vpzaku/the_classroom_of_a_black_cat_and_a_witch_kuroneko/",
+   "score": 13,
+   "num_comments": 5
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "200637:7",
+  "showId": 200637,
+  "episode": 7,
+  "title": "Kimi no Koto ga Dai Dai Dai Dai Daisuki na 100-nin no Kanojo 3rd Season",
+  "airedAt": 1786887000,
+  "kind": "first",
+  "thread": {
+   "title": "The 100 Girlfriends Who Really, Really, Really, Really, REALLY Love You Season 3 \u2022 Kimi no Koto ga Daidaidaidaidaisuki na 100-nin no Kanojo Season 3 - Episode 7 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vpxuoe/the_100_girlfriends_who_really_really_really/",
+   "score": 0,
+   "num_comments": 0
+  },
+  "comments_read": 20,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many viewers found the episode exceptionally funny and praised its chaotic comedic energy."
+   },
+   {
+    "tone": "positive",
+    "point": "Nano\u2019s smaller-scale scenes were repeatedly described as especially cute, affectionate, and romantic."
+   },
+   {
+    "tone": "positive",
+    "point": "Commenters appreciated the focus on established girlfriends and their relationships with Rentarou."
+   },
+   {
+    "tone": "positive",
+    "point": "Kusuri\u2019s family material and the episode\u2019s escalating absurdity were widely enjoyed."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some reactions noted that the series\u2019 increasingly outrageous premise can feel repetitive or excessively fanservice-oriented."
+   },
+   {
+    "tone": "negative",
+    "point": "Some viewers criticized censorship in the Muse Asia release."
+   }
+  ],
+  "aspects": {
+   "story": "positive",
+   "characters": "positive",
+   "sound": "positive"
+  },
+  "notes": "The Reddit page clearly identifies Season 3 and episode 7 and is dated Sunday August 16, 2026. Reddit exposed the thread title and comment text but did not provide reliable aggregate score or comment-count metadata in the retrieved page, so those fields are reported as 0. Opinions are paraphrased an"
+ },
+ {
+  "key": "204060:7",
+  "showId": 204060,
+  "episode": 7,
+  "title": "Tetsunabe no Jan!",
+  "airedAt": 1786869000,
+  "kind": "first",
+  "thread": {
+   "title": "Iron Wok Jan! \u2022 Tetsunabe no Jan! - Episode 7 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vps5r9/iron_wok_jan_tetsunabe_no_jan_episode_7_discussion/",
+   "score": 58,
+   "num_comments": 23
+  },
+  "comments_read": 18,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters found the episode entertaining and praised the cast\u2019s personality and character development."
+   },
+   {
+    "tone": "positive",
+    "point": "Jan\u2019s increasing appeal and the emotional weight behind his behavior were repeatedly highlighted."
+   },
+   {
+    "tone": "positive",
+    "point": "Many enjoyed the episode\u2019s humor and exaggerated confrontational moments."
+   },
+   {
+    "tone": "mixed",
+    "point": "Viewers appreciated the technology-versus-fundamentals theme but found the outcome deliberately predictable."
+   },
+   {
+    "tone": "negative",
+    "point": "Some commenters criticized the implausibility of Jan\u2019s behavior going unpunished."
+   },
+   {
+    "tone": "negative",
+    "point": "Kawahara\u2019s cooking was widely viewed as poorly executed, with his reliance on equipment seen as a weakness."
+   }
+  ],
+  "aspects": {
+   "story": "positive",
+   "characters": "positive"
+  },
+  "notes": "The thread title, alternate title, episode number, and airing date clearly match the target. I retrieved and reviewed 18 substantive comments; spoiler-related source-material discussion was excluded. Reddit\u2019s displayed score was 58, and the thread showed 23 comments."
+ },
+ {
+  "key": "210031:7",
+  "showId": 210031,
+  "episode": 7,
+  "title": "Seihantai na Kimi to Boku 2nd Season",
+  "airedAt": 1786867200,
+  "kind": "first",
+  "thread": {
+   "title": "You and I Are Polar Opposites Season 2 \u2022 Seihantai na Kimi to Boku Season 2 - Episode 7 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vprn5s/you_and_i_are_polar_opposites_season_2_seihantai/",
+   "score": 542,
+   "num_comments": 0
+  },
+  "comments_read": 15,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "The episode was widely viewed as warm, cute, comforting, and consistently enjoyable."
+   },
+   {
+    "tone": "positive",
+    "point": "Many commenters praised the romantic development and natural chemistry among the couples."
+   },
+   {
+    "tone": "positive",
+    "point": "Azuma\u2019s growing awareness of her feelings drew especially enthusiastic reactions."
+   },
+   {
+    "tone": "positive",
+    "point": "Commenters liked the emotional honesty and healthy communication between characters."
+   },
+   {
+    "tone": "mixed",
+    "point": "One recurring criticism was that the central couple\u2019s development can feel slow or somewhat time-wasting compared with the supporting pairings."
+   }
+  ],
+  "aspects": {
+   "story": "positive",
+   "pacing": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The thread clearly matches the requested show\u2019s second season and episode 7 and was posted on the specified airing date. Reddit\u2019s rendered page exposed the post score but not a reliable total comment count, so num_comments is set to 0 rather than guessed. Comments were paraphrased without plot spoil"
+ },
+ {
+  "key": "194219:7",
+  "showId": 194219,
+  "episode": 7,
+  "title": "Oni no Hanayome",
+  "airedAt": 1786807800,
+  "kind": "settle",
+  "thread": {
+   "title": "The Ogre's Bride \u2022 Oni no Hanayome - Episode 7 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vp8389/the_ogres_bride_oni_no_hanayome_episode_7/",
+   "score": 48,
+   "num_comments": 30
+  },
+  "comments_read": 30,
+  "opinions": [
+   {
+    "tone": "negative",
+    "point": "Many viewers found the episode exhausting, poorly written, and dominated by contrived drama and implausible character decisions."
+   },
+   {
+    "tone": "negative",
+    "point": "Several commenters criticized the central relationship as underdeveloped, with insufficient interaction or believable emotional progression."
+   },
+   {
+    "tone": "negative",
+    "point": "The family-related conflict was widely disliked, especially the parents' exaggerated selfishness and the repetitive use of earlier problems."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers were frustrated by Yuzu's insecurity and choices, while others felt those reactions were consistent with her established emotional damage."
+   },
+   {
+    "tone": "positive",
+    "point": "A minority enjoyed the cute lesser-ogre characters, the grandparents' supportive presence, and the episode's tension."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some commenters found the premise's relationship and bride-system implications potentially interesting, but felt the series handled them shallowly."
+   }
+  ],
+  "aspects": {
+   "story": "negative",
+   "pacing": "negative",
+   "characters": "negative"
+  },
+  "notes": "The page title and episode label explicitly identify Oni no Hanayome episode 7. I retrieved the thread page and its visible comment discussion; no clear, substantive consensus about animation or sound was present, so those dimensions are omitted. Opinions are paraphrased and spoiler-free."
+ },
+ {
+  "key": "196017:7",
+  "showId": 196017,
+  "episode": 7,
+  "title": "Grow Up Show: Himawari no Circus-dan",
+  "airedAt": 1786806000,
+  "kind": "settle",
+  "thread": {
+   "title": "Grow Up Show: Sunflower Circus \u2022 Grow Up Show: Himawari no Circus-dan - Episode 7 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vp6m38/grow_up_show_sunflower_circus_grow_up_show/",
+   "score": 0,
+   "num_comments": 21
+  },
+  "comments_read": 21,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters appreciated the episode\u2019s focus on Mizuka\u2019s emotional development and her gradual connection with the circus troupe."
+   },
+   {
+    "tone": "positive",
+    "point": "Some viewers found the character backstory effective and said the episode made Mizuka easier to understand and sympathize with."
+   },
+   {
+    "tone": "positive",
+    "point": "A few commenters liked the supportive group dynamic and the sense that the troupe was becoming a genuine family for Mizuka."
+   },
+   {
+    "tone": "positive",
+    "point": "Some viewers specifically praised the animation as noticeably better than in earlier episodes."
+   },
+   {
+    "tone": "mixed",
+    "point": "Several commenters enjoyed the episode overall but thought its direction or continuity felt uneven."
+   },
+   {
+    "tone": "negative",
+    "point": "The main criticism was that the performance animation remained too limited, relying heavily on still images and effects."
+   },
+   {
+    "tone": "negative",
+    "point": "One commenter felt the episode weakened Mizuka artificially to make its character-development point and found that device clich\u00e9d."
+   }
+  ],
+  "aspects": {
+   "animation": "mixed",
+   "story": "mixed",
+   "characters": "positive",
+   "pacing": "mixed"
+  },
+  "notes": "The thread title explicitly names Grow Up Show: Himawari no Circus-dan and episode 7, with no conflicting season marker. I retrieved the thread page and its visible comments only; opinions are paraphrased and kept spoiler-free."
+ },
+ {
+  "key": "196012:20",
+  "showId": 196012,
+  "episode": 20,
+  "title": "MAO",
+  "airedAt": 1786805160,
+  "kind": "settle",
+  "thread": {
+   "title": "Mao - Episode 20 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vp8445/mao_episode_20_discussion/",
+   "score": 0,
+   "num_comments": 22
+  },
+  "comments_read": 22,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many viewers enjoyed the calmer tone and found the episode refreshing after several heavier developments."
+   },
+   {
+    "tone": "positive",
+    "point": "The central relationship received strong approval, with commenters appreciating the romantic progress and warmer characterization."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters praised the emotional storytelling and the way the cast\u2019s histories and relationships were developed."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers found the character drama compelling but considered the cast morally troubling and difficult to sympathize with."
+   },
+   {
+    "tone": "negative",
+    "point": "A minority strongly criticized the writing as repetitive and boring, with weak characters and unengaging action."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "pacing": "positive",
+   "characters": "mixed"
+  },
+  "notes": "The title and metadata explicitly identify Mao episode 20. Reddit exposed the thread and comment text but not a reliable post score; score is reported as 0 to indicate unavailable rather than an observed vote total. Sentiment is paraphrased and kept spoiler-free."
+ },
+ {
+  "key": "190569:8",
+  "showId": 190569,
+  "episode": 8,
+  "title": "Tenmaku no Jaadugar",
+  "airedAt": 1786804200,
+  "kind": "settle",
+  "thread": {
+   "title": "Jaadugar: A Witch in Mongolia \u2022 Tenmaku no Jaadugar - Episode 8 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vp6m4v/jaadugar_a_witch_in_mongolia_tenmaku_no_jaadugar/",
+   "score": 852,
+   "num_comments": 40
+  },
+  "comments_read": 40,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many commenters enjoyed the episode\u2019s blend of political intrigue, humor, and historical detail."
+   },
+   {
+    "tone": "positive",
+    "point": "Several viewers praised the increasingly strategic, layered characterization of the central figures."
+   },
+   {
+    "tone": "positive",
+    "point": "The episode\u2019s educational historical and religious details were frequently appreciated."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers enjoyed the protagonist\u2019s cleverness but felt she may be becoming too trusting or overconfident."
+   },
+   {
+    "tone": "mixed",
+    "point": "A few commenters liked the supporting cast but wanted more agency and development for one of the major women."
+   },
+   {
+    "tone": "negative",
+    "point": "Some reactions expressed discomfort with the protagonist\u2019s manipulation and uncertainty about whether to support her choices."
+   }
+  ],
+  "aspects": {
+   "story": "positive",
+   "characters": "mixed"
+  },
+  "notes": "The title and metadata explicitly identify Tenmaku no Jaadugar, episode 8. I reviewed the accessible thread comments and paraphrased only spoiler-free reactions; plot-specific discussion was excluded. The page exposed the post score but not a reliable official comment total, so num_comments reflects"
+ },
+ {
+  "key": "195600:19",
+  "showId": 195600,
+  "episode": 19,
+  "title": "Yomi no Tsugai",
+  "airedAt": 1786804200,
+  "kind": "settle",
+  "thread": {
+   "title": "Daemons of the Shadow Realm \u2022 Yomi no Tsugai - Episode 19 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vp55yc/daemons_of_the_shadow_realm_yomi_no_tsugai/",
+   "score": 0,
+   "num_comments": 0
+  },
+  "comments_read": 40,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many commenters enjoyed the action, especially the tactical combat, character teamwork, and Ivan\u2019s threatening presence."
+   },
+   {
+    "tone": "positive",
+    "point": "Several people liked the character-focused humor and the gradual warmth in the relationships between Yuru, Asa, and Danji."
+   },
+   {
+    "tone": "positive",
+    "point": "Some viewers praised the show\u2019s intelligent characters and found the episode\u2019s momentum and ending highly exciting."
+   },
+   {
+    "tone": "mixed",
+    "point": "Ivan was widely seen as compelling and impressively capable, but some readers felt his combat effectiveness was exaggerated or insufficiently believable."
+   },
+   {
+    "tone": "mixed",
+    "point": "The cliffhanger generated strong anticipation for the next episode, though some found it frustratingly forced and unsatisfying."
+   },
+   {
+    "tone": "negative",
+    "point": "The opening recap was criticized as excessive and unnecessary, particularly because viewers felt the series already moves slowly."
+   },
+   {
+    "tone": "negative",
+    "point": "Some commenters disliked the fight\u2019s perceived plot convenience and thought several characters behaved implausibly to make the antagonist seem stronger."
+   },
+   {
+    "tone": "mixed",
+    "point": "Asa\u2019s protective, brother-focused behavior was considered cute by some but overused and in need of moderation by others."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "pacing": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The thread title and episode label explicitly identify Daemons of the Shadow Realm/Yomi no Tsugai and episode 19. Reddit\u2019s rendered page exposed the discussion but did not expose reliable aggregate score or comment-count metadata, so those fields are recorded as 0; comments_read counts the substanti"
+ },
+ {
+  "key": "185874:4",
+  "showId": 185874,
+  "episode": 4,
+  "title": "BLEACH: Sennen Kessen-hen - Kashin-tan",
+  "airedAt": 1786802400,
+  "kind": "settle",
+  "thread": {
+   "title": "BLEACH: Thousand-Year Blood War: The Calamity \u2022 BLEACH: Sennen Kessen-hen: Kashin-tan - Episode 4 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vp56f9/bleach_thousandyear_blood_war_the_calamity_bleach/",
+   "score": 0,
+   "num_comments": 0
+  },
+  "comments_read": 31,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "The dominant reaction was enthusiastic, with many viewers describing the episode as exceptionally exciting and packed with memorable moments."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters praised the animation and visual impact of the major action sequences."
+   },
+   {
+    "tone": "positive",
+    "point": "The character-focused material, especially the comedic interactions and dramatic power displays, was widely enjoyed."
+   },
+   {
+    "tone": "positive",
+    "point": "Multiple commenters highlighted the music, including the returning theme and remixed tracks, as a major strength."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers felt the episode delivered too many climactic developments too quickly, leaving little time for individual scenes to settle."
+   },
+   {
+    "tone": "negative",
+    "point": "A few commenters found the central battle repetitive or overextended, and some felt particular power reveals were underwhelming."
+   },
+   {
+    "tone": "mixed",
+    "point": "Reactions to the new voice performance were generally favorable but included some hesitation about the change from the established voice."
+   }
+  ],
+  "aspects": {
+   "animation": "positive",
+   "pacing": "mixed",
+   "characters": "positive",
+   "sound": "positive"
+  },
+  "notes": "The title and metadata explicitly identify BLEACH: Sennen Kessen-hen: Kashin-tan, episode 4, matching the requested thread. Reddit exposed the discussion content but did not expose reliable numeric score or total-comment metadata, so those fields are 0. Comment reactions were paraphrased and plot de"
+ },
+ {
+  "key": "206249:7",
+  "showId": 206249,
+  "episode": 7,
+  "title": "Iwamoto-senpai no Suisen",
+  "airedAt": 1786800600,
+  "kind": "settle",
+  "thread": {
+   "title": "Recommendations from Iwamoto-Senpai \u2022 Iwamoto-senpai no Suisen - Episode 7 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vp3pa4/recommendations_from_iwamotosenpai_iwamotosenpai/",
+   "score": 12,
+   "num_comments": 2
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "187538:7",
+  "showId": 187538,
+  "episode": 7,
+  "title": "BLACK TORCH",
+  "airedAt": 1786798800,
+  "kind": "settle",
+  "thread": {
+   "title": "Black Torch - Episode 7 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vp2cip/black_torch_episode_7_discussion/",
+   "score": 0,
+   "num_comments": 24
+  },
+  "comments_read": 24,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the stylish character designs, especially the combined power-up form and the episode\u2019s more energetic action moments."
+   },
+   {
+    "tone": "positive",
+    "point": "The early setup for the brothers\u2019 confrontation generated curiosity and anticipation for the next episode."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers found the action dynamic and ambitious, while others felt parts of the episode relied too heavily on convenient developments and fanservice."
+   },
+   {
+    "tone": "negative",
+    "point": "One commenter thought the show\u2019s overall visual quality was weak despite noting an ambitious continuous camera shot."
+   }
+  ],
+  "aspects": {
+   "animation": "mixed",
+   "story": "mixed",
+   "pacing": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The thread title and header explicitly identify Black Torch episode 7. Reddit\u2019s rendered page did not expose a reliable post score or official comment total, so score is reported as 0 and the comment count reflects the 24 comments visibly retrieved, including the moderator comment and nested replies"
+ },
+ {
+  "key": "186863:8",
+  "showId": 186863,
+  "episode": 8,
+  "title": "Neko to Ryuu",
+  "airedAt": 1786795200,
+  "kind": "settle",
+  "thread": {
+   "title": "The Cat and the Dragon \u2022 Neko to Ryuu - Episode 8 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vp2of4/the_cat_and_the_dragon_neko_to_ryuu_episode_8/",
+   "score": 0,
+   "num_comments": 0
+  },
+  "comments_read": 17,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "The episode was widely viewed as cozy, wholesome, and comforting."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the cat-focused humor and the returning characters."
+   },
+   {
+    "tone": "positive",
+    "point": "Some viewers appreciated the world-building and character relationships."
+   },
+   {
+    "tone": "positive",
+    "point": "The prince was frequently described as endearing, amusing, and enthusiastically naive."
+   },
+   {
+    "tone": "mixed",
+    "point": "A few viewers found the episode unusually slow or felt it lacked something, partly because the titular dragon was absent."
+   }
+  ],
+  "aspects": {
+   "story": "positive",
+   "pacing": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The title and body identify Neko to Ryuu episode 8 exactly. I could retrieve the discussion text and visible comments, but Reddit did not expose the post score or total comment count in the retrieved page, so those fields are 0. Spoiler-containing plot details were excluded from the paraphrased sent"
+ },
+ {
+  "key": "171110:18",
+  "showId": 171110,
+  "episode": 18,
+  "title": "Honzuki no Gekokujou: Ryoushu no Youjo",
+  "airedAt": 1786782600,
+  "kind": "settle",
+  "thread": {
+   "title": "Ascendance of a Bookworm: Adopted Daughter of an Archduke \u2022 Honzuki no Gekokujou: Shisho ni Naru Tame ni wa Shudan wo Erandeiraremasen - Ryushu no Youjo - Episode 18 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1voyf0c/ascendance_of_a_bookworm_adopted_daughter_of_an/",
+   "score": 0,
+   "num_comments": 31
+  },
+  "comments_read": 31,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "The episode was widely enjoyed for its humor, especially the character interactions and comedic reactions."
+   },
+   {
+    "tone": "positive",
+    "point": "Many commenters praised Damuel\u2019s development and found his romantic subplot entertaining."
+   },
+   {
+    "tone": "positive",
+    "point": "The post-credits material and the ongoing merchandise jokes were repeatedly highlighted as especially funny."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers found the episode\u2019s discussion of marriage and social expectations uncomfortable or strange, even while appreciating the comedy."
+   },
+   {
+    "tone": "negative",
+    "point": "A few reactions criticized the episode\u2019s handling of certain romantic attitudes as insulting or socially unsettling."
+   }
+  ],
+  "aspects": {
+   "story": "positive",
+   "characters": "positive"
+  },
+  "notes": "The title explicitly identifies Honzuki no Gekokujou: Ryushu no Youjo, Episode 18, and lists Season 4 markers, so the thread matches the requested show and episode. Reddit exposed the title and comment text but did not expose reliable score or total-comment metadata in the retrieved page; score is t"
+ }
+]
