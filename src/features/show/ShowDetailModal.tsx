@@ -70,9 +70,14 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
   const setShowScore = useUserData((s) => s.setShowScore);
   const customSite = useUserData((s) => s.uiPrefs.customSource?.name);
   const watchEntry = filterWatchLinks(anime.externalLinks, customSite)[0];
-  // Same 7-day-cached query the advanced panel resolves; a solo show gets no link.
+  // Same 7-day-cached query the advanced panel resolves. Every show with a
+  // season gets the series page — solo shows included; The Run and the seal
+  // work per-season. Only a standalone film stays out: no episodes means the
+  // Atlas would be an empty room, and this modal already serves it fully.
   const seriesGraph = useSeriesGraph(anime.id);
-  const hasFranchise = (seriesGraph.data?.entries.length ?? 0) > 1;
+  const hasSeriesPage =
+    seriesGraph.data !== undefined &&
+    (seriesGraph.data.entries.length > 1 || seriesGraph.data.entries.some((e) => !e.isAttachment));
 
   const handleRate = (score: number) => {
     if (!libraryEntry) return;
@@ -535,7 +540,7 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                   <span>{discussionIsThread ? 'Discussion thread' : 'Find the discussion'}</span>
                 </a>
 
-                {hasFranchise && (
+                {hasSeriesPage && (
                   <Link
                     // No onClose here: navigating away drops `?show=`, which is
                     // what closes the modal. Calling onClose too fires the

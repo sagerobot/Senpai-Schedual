@@ -116,7 +116,9 @@ export function OverviewRoom({ graph, atlas, vibes, logs, library, reveal, onOpe
 
   return (
     <div className="mt-4 space-y-4">
-      {/* Journey rail — a mixed selector-plus-links strip, deliberately not a tablist */}
+      {/* Journey rail — a mixed selector-plus-links strip, deliberately not a
+          tablist. A solo show has nowhere to journey, so the rail sits out. */}
+      {graph.entries.length > 1 && (
       <div className="rounded-card border border-[var(--series-edge)] bg-[var(--series-bg)] p-3 shadow-e1">
         <div className="scrollbar-hide flex items-stretch gap-2.5 overflow-x-auto p-1" role="group" aria-label="Seasons and films">
           {graph.entries.map((entry) => {
@@ -198,6 +200,7 @@ export function OverviewRoom({ graph, atlas, vibes, logs, library, reveal, onOpe
           })}
         </div>
       </div>
+      )}
 
       {/* The Run teaser — the sanctioned doorknob */}
       {vibes.size > 0 && (
