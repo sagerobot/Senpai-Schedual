@@ -9,6 +9,7 @@ import { LIBRARY_STATUS_LABELS, LIBRARY_STATUS_ORDER } from '../../lib/status';
 import { LibraryStatusMenu } from '../../components/LibraryStatusMenu';
 import { useUserData } from '../../stores/userData';
 import { Select } from '../../components/ui/Select';
+import { Button } from '../../components/ui/Button';
 
 interface SeriesCardProps {
   key?: React.Key;
@@ -215,13 +216,14 @@ export function SeriesCard({ series, libraryEntries, logs, onAnimeSelect }: Seri
                   <p className="text-sm font-medium text-accent-300">Next season available!</p>
                   <p className="text-xs text-accent-400/70">{nextAvailable.seasonLabel}</p>
                 </div>
-                <button
-                  type="button"
+                <Button
+                  variant="primary"
+                  size="lg"
                   onClick={() => addSeasonToLibrary(nextAvailable!.id)}
-                  className="h-11 px-3 bg-accent-600 text-fg-inverse text-xs font-medium rounded-xs hover:bg-accent-500 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="shrink-0"
                 >
                   Add to Library
-                </button>
+                </Button>
               </div>
             )}
           </motion.div>

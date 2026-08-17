@@ -13,6 +13,7 @@ import { useSeriesGraphs } from '../../series/useSeriesGraphs';
 import { SeriesCard } from './SeriesCard';
 import { SeriesGraph } from '../../series/labeling';
 import { Select } from '../../components/ui/Select';
+import { Button } from '../../components/ui/Button';
 
 interface LibraryViewProps {
   library: LibraryEntry[];
@@ -247,17 +248,15 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
             onChange={handleFileUpload}
             disabled={importing}
           />
-          <button
+          <Button
+            variant="secondary"
+            size="lg"
             onClick={() => fileInputRef.current?.click()}
             disabled={importing}
-            className={cn(
-              "flex items-center gap-2 rounded-field bg-surface-3 border border-edge px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-              importing ? "opacity-50 cursor-not-allowed text-fg-secondary" : "hover:bg-surface-2 hover:text-fg text-fg-secondary"
-            )}
           >
             {importing ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Upload className="h-4 w-4" aria-hidden="true" />}
             Import MAL (XML)
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -369,14 +368,16 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
             Bookmark a show anywhere in the app and it lands in your library.
             Already tracking on MyAnimeList? Bring your whole history over.
           </p>
-          <button
+          <Button
+            variant="primary"
+            size="lg"
             onClick={() => fileInputRef.current?.click()}
             disabled={importing}
-            className="mt-6 flex items-center gap-2 rounded-field bg-accent-600 px-4 py-2.5 text-sm font-medium text-fg-inverse transition-colors hover:bg-accent-500 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="mt-6"
           >
             <Upload className="h-4 w-4" />
             Import from MAL
-          </button>
+          </Button>
         </div>
       )}
     </div>

@@ -11,6 +11,7 @@ import { cn } from '../../lib/utils';
 import { getAiredEpisodesCount } from '../../lib/aired';
 import { displayTitle } from '../../lib/displayTitle';
 import { Select } from '../../components/ui/Select';
+import { Button } from '../../components/ui/Button';
 
 interface WatchingViewProps {
   animeList: AnimeMedia[];
@@ -130,13 +131,10 @@ export function WatchingView({ animeList, library, logs, onLog, onAnimeSelect }:
           <p className="text-fg-muted">What's airing for you right now</p>
         </div>
         {logs.length > 0 && (
-          <button
-            onClick={() => setShowRecap(true)}
-            className="flex items-center justify-center space-x-2 rounded-field bg-accent-600 px-4 py-2.5 text-sm font-medium text-fg-inverse transition-colors hover:bg-accent-500"
-          >
+          <Button variant="primary" size="lg" onClick={() => setShowRecap(true)}>
             <TrendingUp className="h-4 w-4" />
             <span>Season Recap</span>
-          </button>
+          </Button>
         )}
       </div>
 

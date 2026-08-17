@@ -19,6 +19,7 @@ import { LibraryStatusMenu } from '../../components/LibraryStatusMenu';
 import { filterWatchLinks } from '../../lib/watchLinks';
 import { Link } from 'react-router';
 import { useSeriesGraph } from '../../series/useSeriesGraphs';
+import { Button } from '../../components/ui/Button';
 import { DialogShell } from '../../components/ui/DialogShell';
 import { Select } from '../../components/ui/Select';
 
@@ -389,13 +390,10 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                         <option key={ep} value={ep}>Episode {ep}</option>
                       ))}
                     </Select>
-                    <button
-                      onClick={loadPulse}
-                      className="flex items-center space-x-2 rounded-field bg-accent-600 px-4 py-2.5 text-sm font-medium text-fg-inverse transition-colors hover:bg-accent-500"
-                    >
+                    <Button variant="primary" onClick={loadPulse}>
                       <MessageCircle className="h-4 w-4" />
                       <span>Check community vibe</span>
-                    </button>
+                    </Button>
                   </div>
                   <p className="text-caption text-fg-muted">Searches r/anime discussion for episode {selectedEpisode}</p>
                 </div>
@@ -514,12 +512,9 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
               ) : (
                 <div className="flex flex-col items-center space-y-3 rounded-inner border border-danger-500/30 bg-danger-500/10 p-5 text-center">
                   <p className="text-sm text-danger-300">Could not check the community vibe.</p>
-                  <button
-                    onClick={loadPulse}
-                    className="rounded-field border border-edge-strong px-4 py-2 text-sm font-medium text-fg-secondary transition-colors hover:bg-surface-3 hover:text-fg"
-                  >
+                  <Button variant="secondary" onClick={loadPulse}>
                     Try again
-                  </button>
+                  </Button>
                 </div>
               )}
 

@@ -1,6 +1,7 @@
 import { ChevronDown, Loader2, Search } from 'lucide-react';
 import { useEffect, useId, useMemo, useState, type FormEvent } from 'react';
 import { toast } from 'sonner';
+import { Button } from '../../components/ui/Button';
 import { displayTitle } from '../../lib/displayTitle';
 import { cn } from '../../lib/utils';
 import { useSearchQuery } from '../../queries/hooks';
@@ -263,12 +264,9 @@ function AdvancedPanelBody({ anime }: ShowAdvancedPanelProps) {
               aria-label="Custom delay in minutes"
               className="h-11 w-28 rounded-field border border-edge bg-surface-2 px-3 text-sm text-fg-secondary placeholder-fg-faint focus:outline-none focus:border-accent-500 focus:ring-2 focus:ring-ring/40"
             />
-            <button
-              type="submit"
-              className="h-11 rounded-field bg-accent-600 px-4 text-sm font-medium text-fg-inverse transition-colors hover:bg-accent-500"
-            >
+            <Button type="submit" variant="primary">
               Apply
-            </button>
+            </Button>
           </form>
         )}
         <p className="text-xs text-fg-faint">
@@ -286,26 +284,18 @@ function AdvancedPanelBody({ anime }: ShowAdvancedPanelProps) {
         {isSplit && (
           <div className="flex items-center justify-between gap-3 rounded-field border border-accent-500/30 bg-accent-600/10 px-3 py-1.5">
             <p className="text-xs text-accent-300">You marked this entry as standalone.</p>
-            <button
-              type="button"
-              onClick={handleUnsplit}
-              className="h-11 shrink-0 rounded-field px-3 text-xs font-medium text-fg-secondary transition-colors hover:text-fg"
-            >
+            <Button variant="ghost" className="shrink-0" onClick={handleUnsplit}>
               Remove split
-            </button>
+            </Button>
           </div>
         )}
 
         {mergedInto !== undefined && (
           <div className="flex items-center justify-between gap-3 rounded-field border border-accent-500/30 bg-accent-600/10 px-3 py-1.5">
             <p className="text-xs text-accent-300">You merged this entry into another series.</p>
-            <button
-              type="button"
-              onClick={handleUnmerge}
-              className="h-11 shrink-0 rounded-field px-3 text-xs font-medium text-fg-secondary transition-colors hover:text-fg"
-            >
+            <Button variant="ghost" className="shrink-0" onClick={handleUnmerge}>
               Remove merge
-            </button>
+            </Button>
           </div>
         )}
 
@@ -315,13 +305,9 @@ function AdvancedPanelBody({ anime }: ShowAdvancedPanelProps) {
             <p className="mt-0.5 text-xs text-fg-faint">
               Treats this entry as its own standalone series everywhere, immediately.
             </p>
-            <button
-              type="button"
-              onClick={handleSplit}
-              className="mt-2 h-11 rounded-field border border-edge bg-surface-3 px-4 text-sm font-medium text-fg-secondary transition-colors hover:border-accent-500/40 hover:bg-accent-600/20 hover:text-accent-300"
-            >
+            <Button variant="secondary" className="mt-2" onClick={handleSplit}>
               Split into standalone series
-            </button>
+            </Button>
           </div>
         )}
 
@@ -359,20 +345,12 @@ function AdvancedPanelBody({ anime }: ShowAdvancedPanelProps) {
                 <p className="text-xs text-fg-faint">Groups this entry under that franchise everywhere.</p>
               </div>
               <div className="flex shrink-0 items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handleMergeConfirm}
-                  className="h-11 rounded-field bg-accent-600 px-4 text-sm font-medium text-fg-inverse transition-colors hover:bg-accent-500"
-                >
+                <Button variant="primary" onClick={handleMergeConfirm}>
                   Merge
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPendingTarget(null)}
-                  className="h-11 rounded-field border border-edge px-3 text-sm font-medium text-fg-muted transition-colors hover:text-fg"
-                >
+                </Button>
+                <Button variant="secondary" onClick={() => setPendingTarget(null)}>
                   Cancel
-                </button>
+                </Button>
               </div>
             </div>
           ) : searching ? (

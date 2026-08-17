@@ -1,6 +1,7 @@
 import { Flag } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { Button } from '../../components/ui/Button';
 
 /**
  * "This reading is wrong" — the visitor's side of the vibe correction loop.
@@ -47,20 +48,13 @@ export function VibeFlagButton({ showId, episode }: { showId: number; episode: n
       {open ? (
         <div className="flex flex-wrap items-center gap-2">
           {REASONS.map(({ reason, label }) => (
-            <button
-              key={reason}
-              onClick={() => void send(reason)}
-              className="flex min-h-11 items-center rounded-field border border-edge-strong px-3 text-xs font-medium text-fg-secondary transition-colors hover:bg-surface-3 hover:text-fg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
+            <Button key={reason} variant="secondary" onClick={() => void send(reason)}>
               {label}
-            </button>
+            </Button>
           ))}
-          <button
-            onClick={() => setOpen(false)}
-            className="flex min-h-11 items-center px-2 text-xs text-fg-faint transition-colors hover:text-fg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
+          <Button variant="ghost" onClick={() => setOpen(false)}>
             Cancel
-          </button>
+          </Button>
         </div>
       ) : (
         <button

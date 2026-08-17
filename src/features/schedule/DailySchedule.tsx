@@ -13,6 +13,7 @@ import { CheckInFeed, computeDrops, wouldBeDrop } from './CheckInFeed';
 import { STREAMING_SITES } from '../../lib/watchLinks';
 import { useUpNext } from '../../hooks/useUpNext';
 import { useUserData } from '../../stores/userData';
+import { Button } from '../../components/ui/Button';
 
 interface DailyScheduleProps {
   animeList: AnimeMedia[];
@@ -157,6 +158,9 @@ export function DailySchedule({ animeList, favorites, stacking = NO_STACKING, on
 
   return (
     <div className="space-y-8 pb-12">
+      {/* The visible page leads with the lean-back deck by design; the document
+          outline still leads with the view's one h1 (docs §11). */}
+      <h1 className="sr-only">Daily Schedule</h1>
       <WelcomeHero />
 
       <CheckInFeed
@@ -200,9 +204,9 @@ export function DailySchedule({ animeList, favorites, stacking = NO_STACKING, on
 
       <div className="flex flex-col 2xl:flex-row gap-6 items-start 2xl:items-center justify-between mb-8 bg-hero-drops-deep/50 border border-hero-drops-edge/60 p-4 sm:p-5 rounded-card shadow-e1 backdrop-blur-sm">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-fg flex items-center gap-2">
+          <h2 className="text-2xl font-bold tracking-tight text-fg flex items-center gap-2">
             Daily Schedule
-          </h1>
+          </h2>
           <p className="text-fg-muted mt-1 text-sm">Upcoming episodes in your local timezone</p>
           {isStreaming && (
             <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-edge bg-surface-1 px-2.5 py-1 text-caption font-medium text-fg-muted">
@@ -272,12 +276,9 @@ export function DailySchedule({ animeList, favorites, stacking = NO_STACKING, on
           {hasActiveFilters ? (
             <>
               <p className="mt-1 text-sm text-fg-faint">Your search and platform filters hid everything airing this week.</p>
-              <button
-                onClick={clearFilters}
-                className="mt-4 rounded-inner bg-accent-600 px-4 py-2 text-sm font-semibold text-fg-inverse transition-colors hover:bg-accent-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
+              <Button variant="primary" size="md" onClick={clearFilters} className="mt-4">
                 Clear filters
-              </button>
+              </Button>
             </>
           ) : (
             <p className="mt-1 text-sm text-fg-faint">Nothing on the schedule has an announced next episode right now.</p>

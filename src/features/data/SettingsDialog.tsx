@@ -3,6 +3,7 @@ import { AlertTriangle, CheckCircle2, Download, FileUp, Library, Link2, Trash2 }
 import React, { useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { toast } from 'sonner';
+import { Button } from '../../components/ui/Button';
 import { DialogShell } from '../../components/ui/DialogShell';
 import { queryClient } from '../../queries/client';
 import { isInjectableTemplate } from '../../queries/offsets';
@@ -170,13 +171,10 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   {library.length} {library.length === 1 ? 'show' : 'shows'} · {logs.length} episode{' '}
                   {logs.length === 1 ? 'log' : 'logs'}
                 </p>
-                <button
-                  onClick={handleExport}
-                  className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-field bg-accent-600 text-sm font-semibold text-fg-inverse transition-colors hover:bg-accent-500"
-                >
+                <Button variant="primary" onClick={handleExport} className="mt-3 w-full">
                   <Download className="h-4 w-4" aria-hidden="true" />
                   Download backup
-                </button>
+                </Button>
               </section>
 
               {/* Import */}
@@ -200,28 +198,19 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                       {pending.logs.length} episode {pending.logs.length === 1 ? 'log' : 'logs'} — merge into your data?
                     </p>
                     <div className="mt-3 flex gap-2">
-                      <button
-                        onClick={confirmImport}
-                        className="h-11 flex-1 rounded-field bg-accent-600 text-sm font-semibold text-fg-inverse transition-colors hover:bg-accent-500"
-                      >
+                      <Button variant="primary" onClick={confirmImport} className="flex-1">
                         Merge
-                      </button>
-                      <button
-                        onClick={() => setPending(null)}
-                        className="h-11 flex-1 rounded-field border border-edge text-sm font-medium text-fg-secondary transition-colors hover:bg-surface-3 hover:text-fg"
-                      >
+                      </Button>
+                      <Button onClick={() => setPending(null)} className="flex-1">
                         Cancel
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 ) : (
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-field border border-edge bg-surface-2 text-sm font-semibold text-fg-secondary transition-colors hover:bg-surface-3 hover:text-fg"
-                  >
+                  <Button onClick={() => fileInputRef.current?.click()} className="mt-3 w-full">
                     <FileUp className="h-4 w-4" aria-hidden="true" />
                     Choose backup file
-                  </button>
+                  </Button>
                 )}
               </section>
 
@@ -271,21 +260,19 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                     <p className="text-caption text-danger-300">The URL must start with http:// or https://</p>
                   )}
                   <div className="flex gap-2">
-                    <button
+                    <Button
+                      variant="primary"
                       onClick={handleSaveSource}
                       disabled={!canSaveSource}
-                      className="flex h-11 flex-1 items-center justify-center gap-2 rounded-field bg-accent-600 text-sm font-semibold text-fg-inverse transition-colors hover:bg-accent-500 disabled:cursor-not-allowed disabled:opacity-40"
+                      className="flex-1"
                     >
                       <Link2 className="h-4 w-4" aria-hidden="true" />
                       {customSource ? 'Update source' : 'Add source'}
-                    </button>
+                    </Button>
                     {customSource && (
-                      <button
-                        onClick={handleRemoveSource}
-                        className="h-11 flex-1 rounded-field border border-edge text-sm font-medium text-fg-secondary transition-colors hover:bg-surface-3 hover:text-fg"
-                      >
+                      <Button onClick={handleRemoveSource} className="flex-1">
                         Remove
-                      </button>
+                      </Button>
                     )}
                   </div>
                 </div>
@@ -321,25 +308,22 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                         <Trash2 className="h-4 w-4" aria-hidden="true" />
                         Delete everything
                       </button>
-                      <button
+                      <Button
                         onClick={() => {
                           setDangerOpen(false);
                           setConfirmText('');
                         }}
-                        className="h-11 flex-1 rounded-field border border-edge text-sm font-medium text-fg-secondary transition-colors hover:bg-surface-3 hover:text-fg"
+                        className="flex-1"
                       >
                         Cancel
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 ) : (
-                  <button
-                    onClick={() => setDangerOpen(true)}
-                    className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-field border border-danger-500/40 text-sm font-semibold text-danger-300 transition-colors hover:bg-danger-500/10 hover:text-danger-300"
-                  >
+                  <Button variant="danger" onClick={() => setDangerOpen(true)} className="mt-3 w-full">
                     <Trash2 className="h-4 w-4" aria-hidden="true" />
                     Clear all data
-                  </button>
+                  </Button>
                 )}
               </section>
         </div>

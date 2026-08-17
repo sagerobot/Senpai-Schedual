@@ -55,7 +55,7 @@ export function ThemePicker() {
       <h3 className="text-sm font-semibold text-fg-secondary">Theme</h3>
       <p className="mt-0.5 text-caption text-fg-muted">Six looks, one language. Custom derives a full palette from your hue.</p>
 
-      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+      <div className="mt-3 grid grid-cols-2 gap-2">
         {THEMES.map((t) => {
           const active = theme === t.id;
           return (

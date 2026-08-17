@@ -5,6 +5,7 @@ import { useSearchQuery } from '../../queries/hooks';
 import { Search, Loader2, Sparkles } from 'lucide-react';
 import { AnimeCard } from '../../components/AnimeCard';
 import { ErrorState, errorDetail } from '../../components/ErrorState';
+import { Button } from '../../components/ui/Button';
 
 interface SearchViewProps {
   onAnimeSelect: (anime: AnimeMedia) => void;
@@ -91,14 +92,16 @@ export function SearchView({ onAnimeSelect }: SearchViewProps) {
             onChange={(e) => setQuery(e.target.value)}
             className="w-full bg-surface-2 border border-edge rounded-inner py-4 pl-12 pr-24 text-fg-secondary placeholder-fg-faint focus:outline-none focus:border-accent-500 focus:ring-2 focus:ring-ring/40 transition-all"
           />
-          <button
+          <Button
             type="submit"
+            variant="primary"
+            size="md"
             disabled={loading || !query.trim()}
-            className="absolute right-2 bg-accent-600 hover:bg-accent-500 text-fg-inverse font-medium py-2 px-4 rounded-field text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="absolute right-2"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
             Search
-          </button>
+          </Button>
         </div>
       </form>
 

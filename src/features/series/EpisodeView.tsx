@@ -1,6 +1,7 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { Check, ExternalLink, Loader2, MessageCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { Button } from '../../components/ui/Button';
 import { DialogShell } from '../../components/ui/DialogShell';
 import type { AnimeMedia } from '../../types';
 import type { SeriesEntry } from '../../series/labeling';
@@ -267,12 +268,7 @@ export function EpisodeView({ seriesTitle, member, media, episode, onClose }: Ep
               ) : state === 'error' ? (
                 <div className="flex flex-col items-center gap-3 rounded-inner border border-danger-500/30 bg-danger-500/10 p-5 text-center">
                   <p className="text-sm text-danger-300">Could not check the community vibe.</p>
-                  <button
-                    onClick={load}
-                    className="flex h-11 items-center rounded-field border border-edge px-4 text-sm font-medium text-fg-secondary transition-colors hover:bg-surface-2 hover:text-fg"
-                  >
-                    Try again
-                  </button>
+                  <Button onClick={load}>Try again</Button>
                 </div>
               ) : preDiscussionEra ? (
                 <div className="rounded-inner border border-edge bg-surface-0 p-5 text-center text-sm text-fg-muted">
@@ -281,12 +277,9 @@ export function EpisodeView({ seriesTitle, member, media, episode, onClose }: Ep
               ) : (
                 <div className="flex flex-col items-center gap-3 rounded-inner border border-edge bg-surface-0 p-5 text-center">
                   <p className="text-sm text-fg-muted">No remembered reading for this episode yet.</p>
-                  <button
-                    onClick={load}
-                    className="flex h-11 items-center rounded-field bg-accent-600 px-4 text-sm font-semibold text-fg-inverse transition-colors hover:bg-accent-500"
-                  >
+                  <Button variant="primary" onClick={load}>
                     Check the community vibe
-                  </button>
+                  </Button>
                 </div>
               )}
 
