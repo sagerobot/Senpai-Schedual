@@ -124,8 +124,8 @@ export function EpisodeTracker({ anime }: EpisodeTrackerProps) {
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-baseline gap-2">
-          <h3 className="text-sm font-medium text-gray-300">Episodes</h3>
-          <span className="text-xs text-gray-500">
+          <h3 className="text-sm font-medium text-fg-secondary">Episodes</h3>
+          <span className="text-xs text-fg-faint">
             {watchedCount} / {totalEpisodes} watched
           </span>
         </div>
@@ -133,7 +133,7 @@ export function EpisodeTracker({ anime }: EpisodeTrackerProps) {
           <button
             onClick={handleMarkAll}
             disabled={watchedCount >= totalEpisodes}
-            className="text-xs font-medium text-accent-400 transition-colors hover:text-accent-300 disabled:cursor-default disabled:text-gray-600"
+            className="text-xs font-medium text-accent-400 transition-colors hover:text-accent-300 disabled:cursor-default disabled:text-fg-faint"
           >
             Mark all watched
           </button>
@@ -151,10 +151,10 @@ export function EpisodeTracker({ anime }: EpisodeTrackerProps) {
               aria-pressed={isWatched}
               aria-label={isWatched ? `Episode ${ep}, watched` : `Episode ${ep}, not watched`}
               className={cn(
-                'flex h-11 min-w-11 shrink-0 items-center justify-center gap-1 rounded-lg px-2 text-xs font-semibold transition-colors',
+                'flex h-11 min-w-11 shrink-0 items-center justify-center gap-1 rounded-field px-2 text-xs font-semibold transition-colors',
                 isWatched
-                  ? 'bg-accent-600 text-white hover:bg-accent-500'
-                  : 'bg-surface-2 text-gray-400 hover:bg-surface-3 hover:text-white',
+                  ? 'bg-accent-600 text-fg-inverse hover:bg-accent-500'
+                  : 'bg-surface-2 text-fg-muted hover:bg-surface-3 hover:text-fg',
               )}
             >
               {isWatched && <Check className="h-3.5 w-3.5" aria-hidden="true" />}

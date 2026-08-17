@@ -135,17 +135,17 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   return (
     <Dialog.Root open={open} onOpenChange={handleOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-        <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] p-4 md:p-6 shadow-2xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95">
-          <div className="relative flex max-h-[85vh] flex-col overflow-hidden rounded-2xl border border-edge bg-surface-1 text-gray-200 shadow-[0_0_40px_rgba(0,0,0,0.5)]">
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-overlay backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] p-4 md:p-6 shadow-e3 duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95">
+          <div className="relative flex max-h-[85vh] flex-col overflow-hidden rounded-card border border-edge bg-surface-1 text-fg-secondary shadow-e3">
             <div className="flex items-start justify-between gap-4 border-b border-edge p-5">
               <div>
-                <Dialog.Title className="text-lg font-bold tracking-tight text-white">Data &amp; Settings</Dialog.Title>
-                <Dialog.Description className="mt-1 text-sm text-gray-400">
+                <Dialog.Title className="text-lg font-bold tracking-tight text-fg">Data &amp; Settings</Dialog.Title>
+                <Dialog.Description className="mt-1 text-sm text-fg-muted">
                   Your library lives in this browser only. Export it to move devices or keep a backup.
                 </Dialog.Description>
               </div>
-              <Dialog.Close className="shrink-0 rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-surface-3 hover:text-white">
+              <Dialog.Close className="shrink-0 rounded-field p-1.5 text-fg-muted transition-colors hover:bg-surface-3 hover:text-fg">
                 <X className="h-5 w-5" aria-hidden="true" />
                 <span className="sr-only">Close</span>
               </Dialog.Close>
@@ -156,8 +156,8 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 <div
                   className={
                     banner.kind === 'success'
-                      ? 'flex items-start gap-2 rounded-lg bg-emerald-500/10 p-3 text-sm text-emerald-300'
-                      : 'flex items-start gap-2 rounded-lg bg-red-500/10 p-3 text-sm text-red-300'
+                      ? 'flex items-start gap-2 rounded-field bg-success-500/10 p-3 text-sm text-success-300'
+                      : 'flex items-start gap-2 rounded-field bg-danger-500/10 p-3 text-sm text-danger-300'
                   }
                 >
                   {banner.kind === 'success' ? (
@@ -172,15 +172,15 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
               <ThemePicker />
 
               {/* Export */}
-              <section className="rounded-xl border border-edge bg-surface-0 p-4">
-                <h3 className="text-sm font-semibold text-gray-200">Export your data</h3>
-                <p className="mt-0.5 text-[11px] text-gray-400">
+              <section className="rounded-inner border border-edge bg-surface-0 p-4">
+                <h3 className="text-sm font-semibold text-fg-secondary">Export your data</h3>
+                <p className="mt-0.5 text-caption text-fg-muted">
                   {library.length} {library.length === 1 ? 'show' : 'shows'} · {logs.length} episode{' '}
                   {logs.length === 1 ? 'log' : 'logs'}
                 </p>
                 <button
                   onClick={handleExport}
-                  className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-accent-600 text-sm font-semibold text-white transition-colors hover:bg-accent-500"
+                  className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-field bg-accent-600 text-sm font-semibold text-fg-inverse transition-colors hover:bg-accent-500"
                 >
                   <Download className="h-4 w-4" aria-hidden="true" />
                   Download backup
@@ -188,9 +188,9 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
               </section>
 
               {/* Import */}
-              <section className="rounded-xl border border-edge bg-surface-0 p-4">
-                <h3 className="text-sm font-semibold text-gray-200">Import a backup</h3>
-                <p className="mt-0.5 text-[11px] text-gray-400">Merges with what you already have — nothing is replaced.</p>
+              <section className="rounded-inner border border-edge bg-surface-0 p-4">
+                <h3 className="text-sm font-semibold text-fg-secondary">Import a backup</h3>
+                <p className="mt-0.5 text-caption text-fg-muted">Merges with what you already have — nothing is replaced.</p>
 
                 <input
                   ref={fileInputRef}
@@ -201,22 +201,22 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 />
 
                 {pending ? (
-                  <div className="mt-3 rounded-lg border border-accent-500/30 bg-accent-600/10 p-3">
-                    <p className="text-sm text-gray-200">
-                      <span className="font-medium text-white">{pending.fileName}</span> contains{' '}
+                  <div className="mt-3 rounded-field border border-accent-500/30 bg-accent-600/10 p-3">
+                    <p className="text-sm text-fg-secondary">
+                      <span className="font-medium text-fg">{pending.fileName}</span> contains{' '}
                       {pending.library.length} {pending.library.length === 1 ? 'show' : 'shows'} and{' '}
                       {pending.logs.length} episode {pending.logs.length === 1 ? 'log' : 'logs'} — merge into your data?
                     </p>
                     <div className="mt-3 flex gap-2">
                       <button
                         onClick={confirmImport}
-                        className="h-11 flex-1 rounded-lg bg-accent-600 text-sm font-semibold text-white transition-colors hover:bg-accent-500"
+                        className="h-11 flex-1 rounded-field bg-accent-600 text-sm font-semibold text-fg-inverse transition-colors hover:bg-accent-500"
                       >
                         Merge
                       </button>
                       <button
                         onClick={() => setPending(null)}
-                        className="h-11 flex-1 rounded-lg border border-edge text-sm font-medium text-gray-300 transition-colors hover:bg-surface-3 hover:text-white"
+                        className="h-11 flex-1 rounded-field border border-edge text-sm font-medium text-fg-secondary transition-colors hover:bg-surface-3 hover:text-fg"
                       >
                         Cancel
                       </button>
@@ -225,7 +225,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 ) : (
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-edge bg-surface-2 text-sm font-semibold text-gray-200 transition-colors hover:bg-surface-3 hover:text-white"
+                    className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-field border border-edge bg-surface-2 text-sm font-semibold text-fg-secondary transition-colors hover:bg-surface-3 hover:text-fg"
                   >
                     <FileUp className="h-4 w-4" aria-hidden="true" />
                     Choose backup file
@@ -234,15 +234,15 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
               </section>
 
               {/* MAL import lives in Library, where the matching progress has room */}
-              <section className="flex items-center justify-between gap-3 rounded-xl border border-edge bg-surface-0 p-4">
+              <section className="flex items-center justify-between gap-3 rounded-inner border border-edge bg-surface-0 p-4">
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-200">Coming from MyAnimeList?</h3>
-                  <p className="mt-0.5 text-[11px] text-gray-400">Import a MyAnimeList export from the Library tab.</p>
+                  <h3 className="text-sm font-semibold text-fg-secondary">Coming from MyAnimeList?</h3>
+                  <p className="mt-0.5 text-caption text-fg-muted">Import a MyAnimeList export from the Library tab.</p>
                 </div>
                 <Link
                   to="/library"
                   onClick={() => handleOpenChange(false)}
-                  className="flex h-11 shrink-0 items-center gap-2 rounded-lg border border-edge px-3 text-sm font-medium text-gray-300 transition-colors hover:bg-surface-3 hover:text-white"
+                  className="flex h-11 shrink-0 items-center gap-2 rounded-field border border-edge px-3 text-sm font-medium text-fg-secondary transition-colors hover:bg-surface-3 hover:text-fg"
                 >
                   <Library className="h-4 w-4" aria-hidden="true" />
                   Library
@@ -250,9 +250,9 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
               </section>
 
               {/* Custom watch source */}
-              <section className="rounded-xl border border-edge bg-surface-0 p-4">
-                <h3 className="text-sm font-semibold text-gray-200">Custom watch source</h3>
-                <p className="mt-0.5 text-[11px] text-gray-400">
+              <section className="rounded-inner border border-edge bg-surface-0 p-4">
+                <h3 className="text-sm font-semibold text-fg-secondary">Custom watch source</h3>
+                <p className="mt-0.5 text-caption text-fg-muted">
                   Add a watch source we don&apos;t list — your own media server, a regional service.{' '}
                   <code className="rounded bg-surface-2 px-1">{'{title}'}</code> in the URL becomes the show&apos;s
                   title. Stored in this browser only.
@@ -265,7 +265,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                     autoComplete="off"
                     aria-label="Source name"
                     placeholder="Source name"
-                    className="h-11 w-full rounded-lg border border-edge bg-surface-2 px-3 text-sm text-white placeholder-gray-500 focus:border-accent-500 focus:outline-none"
+                    className="h-11 w-full rounded-field border border-edge bg-surface-2 px-3 text-sm text-fg placeholder-fg-faint focus:border-accent-500 focus:outline-none"
                   />
                   <input
                     value={sourceTemplate}
@@ -273,16 +273,16 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                     autoComplete="off"
                     aria-label="URL template"
                     placeholder="https://example.com/search?q={title}"
-                    className="h-11 w-full rounded-lg border border-edge bg-surface-2 px-3 text-sm text-white placeholder-gray-500 focus:border-accent-500 focus:outline-none"
+                    className="h-11 w-full rounded-field border border-edge bg-surface-2 px-3 text-sm text-fg placeholder-fg-faint focus:border-accent-500 focus:outline-none"
                   />
                   {templateInvalid && (
-                    <p className="text-[11px] text-red-300">The URL must start with http:// or https://</p>
+                    <p className="text-caption text-danger-300">The URL must start with http:// or https://</p>
                   )}
                   <div className="flex gap-2">
                     <button
                       onClick={handleSaveSource}
                       disabled={!canSaveSource}
-                      className="flex h-11 flex-1 items-center justify-center gap-2 rounded-lg bg-accent-600 text-sm font-semibold text-white transition-colors hover:bg-accent-500 disabled:cursor-not-allowed disabled:opacity-40"
+                      className="flex h-11 flex-1 items-center justify-center gap-2 rounded-field bg-accent-600 text-sm font-semibold text-fg-inverse transition-colors hover:bg-accent-500 disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       <Link2 className="h-4 w-4" aria-hidden="true" />
                       {customSource ? 'Update source' : 'Add source'}
@@ -290,7 +290,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                     {customSource && (
                       <button
                         onClick={handleRemoveSource}
-                        className="h-11 flex-1 rounded-lg border border-edge text-sm font-medium text-gray-300 transition-colors hover:bg-surface-3 hover:text-white"
+                        className="h-11 flex-1 rounded-field border border-edge text-sm font-medium text-fg-secondary transition-colors hover:bg-surface-3 hover:text-fg"
                       >
                         Remove
                       </button>
@@ -300,16 +300,16 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
               </section>
 
               {/* Danger zone */}
-              <section className="rounded-xl border border-red-500/30 bg-red-950/20 p-4">
-                <h3 className="text-sm font-semibold text-red-300">Clear all data</h3>
-                <p className="mt-0.5 text-[11px] text-gray-400">
+              <section className="rounded-inner border border-danger-500/30 bg-danger-600/10 p-4">
+                <h3 className="text-sm font-semibold text-danger-300">Clear all data</h3>
+                <p className="mt-0.5 text-caption text-fg-muted">
                   Deletes your library, episode logs, ratings, and settings from this browser. Export first — this cannot
                   be undone.
                 </p>
 
                 {dangerOpen ? (
                   <div className="mt-3 space-y-2">
-                    <label htmlFor="clear-confirm" className="block text-[11px] font-medium text-gray-300">
+                    <label htmlFor="clear-confirm" className="block text-caption font-medium text-fg-secondary">
                       Type {CLEAR_PHRASE} to confirm
                     </label>
                     <input
@@ -317,14 +317,14 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                       value={confirmText}
                       onChange={(e) => setConfirmText(e.target.value)}
                       autoComplete="off"
-                      className="h-11 w-full rounded-lg border border-edge bg-surface-2 px-3 text-sm text-white placeholder-gray-500 focus:border-red-500 focus:outline-none"
+                      className="h-11 w-full rounded-field border border-edge bg-surface-2 px-3 text-sm text-fg placeholder-fg-faint focus:border-danger-500 focus:outline-none"
                       placeholder={CLEAR_PHRASE}
                     />
                     <div className="flex gap-2">
                       <button
                         onClick={handleClearAll}
                         disabled={confirmText !== CLEAR_PHRASE}
-                        className="flex h-11 flex-1 items-center justify-center gap-2 rounded-lg bg-red-600 text-sm font-semibold text-white transition-colors hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-40"
+                        className="flex h-11 flex-1 items-center justify-center gap-2 rounded-field bg-danger-600 text-sm font-semibold text-fg-inverse transition-colors hover:bg-danger-500 disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         <Trash2 className="h-4 w-4" aria-hidden="true" />
                         Delete everything
@@ -334,7 +334,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                           setDangerOpen(false);
                           setConfirmText('');
                         }}
-                        className="h-11 flex-1 rounded-lg border border-edge text-sm font-medium text-gray-300 transition-colors hover:bg-surface-3 hover:text-white"
+                        className="h-11 flex-1 rounded-field border border-edge text-sm font-medium text-fg-secondary transition-colors hover:bg-surface-3 hover:text-fg"
                       >
                         Cancel
                       </button>
@@ -343,7 +343,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 ) : (
                   <button
                     onClick={() => setDangerOpen(true)}
-                    className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-red-500/40 text-sm font-semibold text-red-300 transition-colors hover:bg-red-500/10 hover:text-red-200"
+                    className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-field border border-danger-500/40 text-sm font-semibold text-danger-300 transition-colors hover:bg-danger-500/10 hover:text-danger-300"
                   >
                     <Trash2 className="h-4 w-4" aria-hidden="true" />
                     Clear all data

@@ -227,7 +227,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="flex flex-col overflow-hidden rounded-[16px] bg-[#0c0a15] border border-[#2e1d52] shadow-xl group h-full"
+        className="flex flex-col overflow-hidden rounded-card bg-hero-catchup-bg border border-hero-catchup-edge shadow-e2 group h-full"
       >
         <div className="flex gap-4 p-4 relative z-10 min-h-[132px]">
           <button
@@ -239,10 +239,10 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
             <img
               src={item.anime.coverImage.extraLarge || item.anime.coverImage.large}
               alt={`${title} cover`}
-              className="h-full w-full rounded-[10px] object-cover shadow-md"
+              className="h-full w-full rounded-control object-cover shadow-e1"
             />
             <span
-              className="absolute -top-2 -right-2 min-w-[20px] h-5 px-1 rounded-full bg-[#ef4444] text-white text-[10px] font-bold flex items-center justify-center z-10 shadow-sm border border-[#0c0a15]"
+              className="absolute -top-2 -right-2 min-w-[20px] h-5 px-1 rounded-full bg-danger-500 text-fg-inverse text-micro font-bold flex items-center justify-center z-10 shadow-e1 border border-hero-catchup-bg"
               aria-hidden="true"
             >
               {item.behindCount}
@@ -256,24 +256,24 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
                   <button
                     type="button"
                     onClick={openShow}
-                    className="block max-w-full text-left font-bold text-gray-100 text-[14px] leading-snug line-clamp-2 hover:text-[#b0a4ff] transition-colors pr-2"
+                    className="block max-w-full text-left font-bold text-hero-text-hi text-sm leading-snug line-clamp-2 hover:text-hero-catchup-ink transition-colors pr-2"
                   >
                     {title}
                   </button>
                 </h3>
 
-                <div className="mt-1.5 flex flex-wrap items-center gap-2 text-[11px] text-gray-400 font-medium">
+                <div className="mt-1.5 flex flex-wrap items-center gap-2 text-caption text-hero-text-mid font-medium">
                   <span>
                     {item.watched.length} / {item.airedCount} logged
                   </span>
                   {info && info.seasonCount > 1 && (
-                    <span className="px-1.5 py-0.5 rounded border border-[#543bfa]/50 bg-[#543bfa]/20 text-[#b0a4ff] font-bold text-[9px] uppercase tracking-wider">
+                    <span className="px-1.5 py-0.5 rounded border border-hero-new/50 bg-hero-new/20 text-hero-catchup-ink font-bold text-micro uppercase tracking-wider">
                       {info.seasonLabel}
                     </span>
                   )}
                   <VibeChip vibe={vibeFor(item)} showTitle={title} onOpen={openShow} />
                   {item.anime.nextAiringEpisode && (
-                    <span className="flex items-center gap-1 text-amber-500 font-semibold truncate">
+                    <span className="flex items-center gap-1 text-warning-500 font-semibold truncate">
                       <Clock className="h-3 w-3 shrink-0" aria-hidden="true" />
                       Next in {Math.ceil(item.anime.nextAiringEpisode.timeUntilAiring / 3600)}h
                     </span>
@@ -287,18 +287,18 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
                 aria-valuemin={0}
                 aria-valuemax={item.airedCount}
                 aria-valuenow={item.watched.length}
-                className="shrink-0 relative w-[42px] h-[42px] flex items-center justify-center border-[1.5px] border-[#2e1d52] rounded-full bg-[#05040a]"
+                className="shrink-0 relative w-[42px] h-[42px] flex items-center justify-center border-[1.5px] border-hero-catchup-edge rounded-full bg-hero-catchup-well"
               >
                 <svg className="w-[34px] h-[34px] -rotate-90" viewBox="0 0 36 36" aria-hidden="true">
                   <path
-                    className="text-[#1e1a2f]"
+                    className="text-hero-catchup-track"
                     d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="3.5"
                   />
                   <path
-                    className="text-[#b0a4ff] transition-all duration-1000 ease-out"
+                    className="text-hero-catchup-ink transition-all duration-1000 ease-out"
                     strokeDasharray={`${progress}, 100`}
                     d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                     fill="none"
@@ -308,7 +308,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
                   />
                 </svg>
                 <div className="absolute flex flex-col items-center justify-center">
-                  <span className="text-white font-bold text-[10px] leading-none">{Math.round(progress)}%</span>
+                  <span className="text-hero-text-hi font-bold text-micro leading-none">{Math.round(progress)}%</span>
                 </div>
               </div>
             </div>
@@ -318,14 +318,14 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
                 {Array.from({ length: Math.min(item.airedCount, 40) }).map((_, idx) => (
                   <div
                     key={idx}
-                    className={cn('h-full flex-1 rounded-full', item.watched.includes(idx + 1) ? 'bg-[#b0a4ff]' : 'bg-[#251b3a]')}
+                    className={cn('h-full flex-1 rounded-full', item.watched.includes(idx + 1) ? 'bg-hero-catchup-ink' : 'bg-hero-catchup-pip')}
                   />
                 ))}
-                {item.airedCount > 40 && <div className="h-full w-2 rounded-full bg-[#b0a4ff]/30" />}
+                {item.airedCount > 40 && <div className="h-full w-2 rounded-full bg-hero-catchup-ink/30" />}
               </div>
-              <div className="flex justify-between items-center text-[10px] font-medium pt-0.5">
-                <span className="text-gray-400">{Math.round(progress)}% overall progress</span>
-                <span className="text-gray-400">{item.behindCount} left</span>
+              <div className="flex justify-between items-center text-micro font-medium pt-0.5">
+                <span className="text-hero-text-mid">{Math.round(progress)}% overall progress</span>
+                <span className="text-hero-text-mid">{item.behindCount} left</span>
               </div>
             </div>
           </div>
@@ -334,15 +334,15 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
         {nextUnwatched !== undefined && (
           <div className="flex flex-col px-4 pb-4">
             <div className="flex flex-wrap items-center justify-center gap-2 mb-3 mt-1">
-              <span className="flex items-center gap-1.5 text-[#b0a4ff] text-[13px] font-bold">
+              <span className="flex items-center gap-1.5 text-hero-catchup-ink text-label font-bold">
                 <Zap className="w-4 h-4 fill-current" aria-hidden="true" />
                 Rate Episode {nextUnwatched}
               </span>
               <LowScoreButtons
                 episode={nextUnwatched}
                 onSelect={(score) => onLog(item.anime.id, nextUnwatched, score)}
-                triggerClassName="h-7 px-2 rounded-full border border-[#2e1d52] bg-[#05040a] text-[10px] font-bold text-gray-400 hover:bg-[#120e24] hover:text-gray-200 after:absolute after:inset-x-0 after:top-1/2 after:h-11 after:-translate-y-1/2 after:content-['']"
-                buttonClassName="h-7 min-w-7 px-1.5 rounded-md border border-[#2e1d52] bg-[#05040a] text-[11px] font-bold text-gray-300 hover:bg-[#120e24] hover:text-white"
+                triggerClassName="h-7 px-2 rounded-full border border-hero-catchup-edge bg-hero-catchup-well text-micro font-bold text-hero-text-mid hover:bg-hero-catchup-well-hover hover:text-hero-text-hi after:absolute after:inset-x-0 after:top-1/2 after:h-11 after:-translate-y-1/2 after:content-['']"
+                buttonClassName="h-7 min-w-7 px-1.5 rounded-xs border border-hero-catchup-edge bg-hero-catchup-well text-caption font-bold text-hero-text-mid hover:bg-hero-catchup-well-hover hover:text-fg-inverse"
               />
             </div>
 
@@ -357,7 +357,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
                   type="button"
                   onClick={() => onLog(item.anime.id, nextUnwatched, score)}
                   aria-label={`Rate episode ${nextUnwatched} a ${score} and mark watched`}
-                  className="flex h-11 items-center justify-center rounded-[10px] border border-[#2e1d52] bg-[#05040a] text-[14px] font-bold text-gray-400 transition-all hover:border-[#b0a4ff] hover:bg-gradient-to-b hover:from-[#8b31ff] hover:to-[#5c1cba] hover:text-white"
+                  className="flex h-11 items-center justify-center rounded-control border border-hero-catchup-edge bg-hero-catchup-well text-sm font-bold text-hero-text-mid transition-all hover:border-hero-catchup-ink hover:bg-gradient-to-b hover:from-hero-grad-from hover:to-hero-grad-to hover:text-fg-inverse"
                 >
                   {score}
                 </button>
@@ -369,7 +369,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
                 type="button"
                 onClick={() => onLog(item.anime.id, nextUnwatched, null)}
                 aria-label={`Mark episode ${nextUnwatched} watched without a score`}
-                className="shrink-0 h-full px-2.5 flex items-center justify-center gap-2 rounded-[10px] border border-[#2e1d52] bg-[#05040a] text-[11px] font-bold text-gray-400 hover:bg-[#120e24] transition-colors"
+                className="shrink-0 h-full px-2.5 flex items-center justify-center gap-2 rounded-control border border-hero-catchup-edge bg-hero-catchup-well text-caption font-bold text-hero-text-mid hover:bg-hero-catchup-well-hover transition-colors"
               >
                 Watched only <Info className="w-3.5 h-3.5" aria-hidden="true" />
               </button>
@@ -379,13 +379,13 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
                   href={watchLink}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex-1 h-full flex items-center justify-center gap-2 rounded-[10px] text-[13px] font-bold text-white transition-all shadow-lg bg-gradient-to-b from-[#8b31ff] to-[#5c1cba] hover:brightness-110"
+                  className="flex-1 h-full flex items-center justify-center gap-2 rounded-control text-label font-bold text-fg-inverse transition-all shadow-e2 bg-gradient-to-b from-hero-grad-from to-hero-grad-to hover:brightness-110"
                 >
                   <Play className="w-4 h-4 fill-current" aria-hidden="true" />
                   Continue Ep {nextUnwatched}
                 </a>
               ) : (
-                <p className="flex-1 h-full flex items-center justify-center gap-2 rounded-[10px] text-[13px] font-bold text-gray-400 bg-[#120e24] border border-[#2e1d52]">
+                <p className="flex-1 h-full flex items-center justify-center gap-2 rounded-control text-label font-bold text-hero-text-mid bg-hero-catchup-well-hover border border-hero-catchup-edge">
                   No stream linked
                 </p>
               )}
@@ -422,7 +422,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="flex flex-col rounded-[16px] border border-[#2e1d52] bg-[#0c0a15] shadow-xl relative overflow-hidden group/series h-full min-h-0 sm:col-span-2"
+        className="flex flex-col rounded-card border border-hero-catchup-edge bg-hero-catchup-bg shadow-e2 relative overflow-hidden group/series h-full min-h-0 sm:col-span-2"
       >
         <div className="flex flex-col h-full">
           <div className="flex p-5 pb-0 gap-5">
@@ -435,7 +435,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
               <img
                 src={firstItem.anime.coverImage.extraLarge || firstItem.anime.coverImage.large}
                 alt={`${franchiseTitle} cover`}
-                className="w-full h-full object-cover rounded-[12px] shadow-md"
+                className="w-full h-full object-cover rounded-inner shadow-e1"
               />
             </button>
 
@@ -447,12 +447,12 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
                       <button
                         type="button"
                         onClick={() => onAnimeSelect(firstItem.anime)}
-                        className="block max-w-full truncate text-left font-bold text-gray-100 text-[16px] leading-snug hover:text-[#b0a4ff] transition-colors"
+                        className="block max-w-full truncate text-left font-bold text-hero-text-hi text-base leading-snug hover:text-hero-catchup-ink transition-colors"
                       >
                         {franchiseTitle}
                       </button>
                     </h3>
-                    <span className="shrink-0 px-2 py-0.5 rounded border border-[#b0a4ff]/30 bg-[#b0a4ff]/10 text-[#b0a4ff] font-bold text-[10px] uppercase tracking-wider">
+                    <span className="shrink-0 px-2 py-0.5 rounded border border-hero-catchup-ink/30 bg-hero-catchup-ink/10 text-hero-catchup-ink font-bold text-micro uppercase tracking-wider">
                       {group.length} seasons
                     </span>
                   </div>
@@ -465,9 +465,9 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
                         animate={{ opacity: 1, y: 0 }}
                         className="flex flex-wrap items-center gap-1.5"
                       >
-                        <Play className="w-[10px] h-[10px] fill-[#d434ff] text-[#b0a4ff]" aria-hidden="true" />
-                        <span className="font-medium text-[#b0a4ff] text-[13px] whitespace-nowrap">Continue in order</span>
-                        <span className="text-gray-400 text-[13px] font-medium ml-1 min-w-0 truncate">
+                        <Play className="w-[10px] h-[10px] fill-accent-400 text-hero-catchup-ink" aria-hidden="true" />
+                        <span className="font-medium text-hero-catchup-ink text-label whitespace-nowrap">Continue in order</span>
+                        <span className="text-hero-text-mid text-label font-medium ml-1 min-w-0 truncate">
                           • Next up: {currentLabel} — Ep {nextEpisode}
                         </span>
                         <VibeChip
@@ -486,18 +486,18 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
                   aria-valuemin={0}
                   aria-valuemax={totalAired}
                   aria-valuenow={totalWatched}
-                  className="shrink-0 relative w-[52px] h-[52px] flex items-center justify-center ml-2 border-[2px] border-[#2e1d52] rounded-full bg-[#05040a] shadow-lg"
+                  className="shrink-0 relative w-[52px] h-[52px] flex items-center justify-center ml-2 border-[2px] border-hero-catchup-edge rounded-full bg-hero-catchup-well shadow-e2"
                 >
                   <svg className="w-[44px] h-[44px] -rotate-90" viewBox="0 0 36 36" aria-hidden="true">
                     <path
-                      className="text-[#1e1a2f]"
+                      className="text-hero-catchup-track"
                       d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="3.5"
                     />
                     <path
-                      className="text-[#b0a4ff] transition-all duration-1000 ease-out"
+                      className="text-hero-catchup-ink transition-all duration-1000 ease-out"
                       strokeDasharray={`${totalProgress}, 100`}
                       d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                       fill="none"
@@ -507,7 +507,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
                     />
                   </svg>
                   <div className="absolute flex flex-col items-center justify-center">
-                    <span className="text-white font-bold text-[13px] leading-none">{Math.round(totalProgress)}%</span>
+                    <span className="text-hero-text-hi font-bold text-label leading-none">{Math.round(totalProgress)}%</span>
                   </div>
                 </div>
               </div>
@@ -525,18 +525,18 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
                       onClick={() => onAnimeSelect(season.anime)}
                       aria-label={`${label}: ${season.watched.length} of ${season.airedCount} episodes watched, ${marker}. Open ${displayTitle(season.anime)}`}
                       className={cn(
-                        'w-full flex items-center gap-3 text-left transition-colors p-2.5 rounded-[10px] group/season border',
-                        isCurrent ? 'bg-[#110d1c] border-[#36225e]' : 'bg-[#090710] border-[#1a132e] hover:border-[#2e1d52]',
+                        'w-full flex items-center gap-3 text-left transition-colors p-2.5 rounded-control group/season border',
+                        isCurrent ? 'bg-hero-catchup-well-hover border-hero-catchup-edge-strong' : 'bg-hero-catchup-well border-hero-catchup-edge hover:border-hero-catchup-edge-strong',
                       )}
                     >
                       <span className="shrink-0 w-6 flex items-center justify-center" aria-hidden="true">
                         {isCurrent ? (
-                          <span className="w-[22px] h-[22px] rounded-full bg-[#b0a4ff] flex items-center justify-center shadow-[0_0_10px_rgba(176,164,255,0.4)]">
-                            <Play className="w-[12px] h-[12px] fill-[#0c0a15] text-[#0c0a15] ml-0.5" />
+                          <span className="w-[22px] h-[22px] rounded-full bg-hero-catchup-ink flex items-center justify-center shadow-glow-sm">
+                            <Play className="w-[12px] h-[12px] fill-hero-catchup-bg text-hero-catchup-bg ml-0.5" />
                           </span>
                         ) : (
                           <span className="w-[22px] h-[22px] rounded-full flex items-center justify-center">
-                            <ChevronRight className="w-[16px] h-[16px] text-[#b0a4ff]" />
+                            <ChevronRight className="w-[16px] h-[16px] text-hero-catchup-ink" />
                           </span>
                         )}
                       </span>
@@ -545,8 +545,8 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
                         <span
                           title={label}
                           className={cn(
-                            'font-bold text-[13px] w-[86px] shrink-0 truncate transition-colors',
-                            isCurrent ? 'text-gray-100' : 'text-gray-300 group-hover/season:text-gray-200',
+                            'font-bold text-label w-[86px] shrink-0 truncate transition-colors',
+                            isCurrent ? 'text-hero-text-hi' : 'text-hero-text-mid group-hover/season:text-hero-text-hi',
                           )}
                         >
                           {label}
@@ -557,26 +557,26 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
                               key={epIdx}
                               className={cn(
                                 'h-full flex-1 rounded-full',
-                                season.watched.includes(epIdx + 1) ? 'bg-[#b0a4ff]' : 'bg-[#2e1d52]',
+                                season.watched.includes(epIdx + 1) ? 'bg-hero-catchup-ink' : 'bg-hero-catchup-edge',
                               )}
                             />
                           ))}
-                          {season.airedCount > 30 && <span className="h-full w-2 rounded-full bg-[#b0a4ff]/30" />}
+                          {season.airedCount > 30 && <span className="h-full w-2 rounded-full bg-hero-catchup-ink/30" />}
                         </span>
-                        <span className="text-[12px] font-bold text-gray-400 shrink-0 text-right">
+                        <span className="text-xs font-bold text-hero-text-mid shrink-0 text-right">
                           {season.watched.length} / {season.airedCount}
                         </span>
                       </span>
 
                       <span className="shrink-0 text-right min-w-[50px] flex justify-end" aria-hidden="true">
                         {isCurrent ? (
-                          <span className="text-[11px] px-2.5 py-0.5 rounded border border-[#b0a4ff]/40 bg-[#b0a4ff]/10 font-bold text-[#b0a4ff]">
+                          <span className="text-caption px-2.5 py-0.5 rounded border border-hero-catchup-ink/40 bg-hero-catchup-ink/10 font-bold text-hero-catchup-ink">
                             Current
                           </span>
                         ) : idx > currentIndex ? (
-                          <span className="text-[12px] font-medium text-gray-500">Up Next</span>
+                          <span className="text-xs font-medium text-hero-text-low">Up Next</span>
                         ) : (
-                          <span className="text-[12px] font-medium text-green-400/80">Done</span>
+                          <span className="text-xs font-medium text-success-400/80">Done</span>
                         )}
                       </span>
                     </button>
@@ -589,7 +589,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
           <div className="mt-auto px-5 pb-5">
             {nextEpisode !== undefined && (
               <div className="flex flex-col mt-4 pt-1">
-                <div className="flex items-center justify-center gap-1.5 text-[#b0a4ff] text-[14px] font-bold mb-3 min-w-0">
+                <div className="flex items-center justify-center gap-1.5 text-hero-catchup-ink text-sm font-bold mb-3 min-w-0">
                   <Zap className="w-4 h-4 fill-current shrink-0" aria-hidden="true" />
                   <span className="truncate">
                     Rate {currentLabel} — Ep {nextEpisode}
@@ -609,7 +609,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
                       type="button"
                       onClick={() => onLog(currentItem.anime.id, nextEpisode, score)}
                       aria-label={`Rate episode ${nextEpisode} a ${score} and mark watched`}
-                      className="flex h-11 items-center justify-center rounded-[8px] sm:rounded-[10px] border border-[#2e1d52] bg-[#05040a] text-[13px] sm:text-[15px] font-bold text-gray-400 transition-all hover:border-[#b0a4ff] hover:bg-gradient-to-b hover:from-[#8b31ff] hover:to-[#5c1cba] hover:text-white sm:h-[42px] sm:flex-1 sm:max-w-[48px]"
+                      className="flex h-11 items-center justify-center rounded-field sm:rounded-control border border-hero-catchup-edge bg-hero-catchup-well text-label sm:text-base font-bold text-hero-text-mid transition-all hover:border-hero-catchup-ink hover:bg-gradient-to-b hover:from-hero-grad-from hover:to-hero-grad-to hover:text-fg-inverse sm:h-[42px] sm:flex-1 sm:max-w-[48px]"
                     >
                       {score}
                     </button>
@@ -621,7 +621,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
                     type="button"
                     onClick={() => onLog(currentItem.anime.id, nextEpisode, null)}
                     aria-label={`Mark episode ${nextEpisode} watched without a score`}
-                    className="shrink-0 h-full px-3 flex items-center justify-center gap-2 rounded-[10px] border border-[#2e1d52] bg-[#05040a] text-[12px] font-bold text-gray-400 hover:bg-[#120e24] transition-colors"
+                    className="shrink-0 h-full px-3 flex items-center justify-center gap-2 rounded-control border border-hero-catchup-edge bg-hero-catchup-well text-xs font-bold text-hero-text-mid hover:bg-hero-catchup-well-hover transition-colors"
                   >
                     Watched only <Info className="w-4 h-4" aria-hidden="true" />
                   </button>
@@ -631,7 +631,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
                       href={watchLink}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex-1 h-full flex items-center justify-center gap-2 rounded-[10px] text-[14px] font-bold text-white transition-all shadow-lg bg-gradient-to-r from-[#8b31ff] to-[#5c1cba] hover:brightness-110"
+                      className="flex-1 h-full flex items-center justify-center gap-2 rounded-control text-sm font-bold text-fg-inverse transition-all shadow-e2 bg-gradient-to-r from-hero-grad-from to-hero-grad-to hover:brightness-110"
                     >
                       <Play className="w-4 h-4 shrink-0 fill-current" aria-hidden="true" />
                       <span className="truncate">
@@ -639,7 +639,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
                       </span>
                     </a>
                   ) : (
-                    <p className="flex-1 h-full flex items-center justify-center gap-2 rounded-[10px] text-[14px] font-bold text-gray-400 bg-[#120e24] border border-[#2e1d52]">
+                    <p className="flex-1 h-full flex items-center justify-center gap-2 rounded-control text-sm font-bold text-hero-text-mid bg-hero-catchup-well-hover border border-hero-catchup-edge">
                       No stream linked
                     </p>
                   )}
@@ -654,41 +654,41 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
 
   return (
     <div className="mb-12">
-      <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center justify-between mb-8 bg-[#0c0a15]/50 border border-[#2e1d52]/60 p-4 sm:p-5 rounded-[16px] shadow-sm backdrop-blur-sm">
+      <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center justify-between mb-8 bg-hero-catchup-bg/50 border border-hero-catchup-edge/60 p-4 sm:p-5 rounded-card shadow-e1 backdrop-blur-sm">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
+          <h2 className="text-2xl font-bold tracking-tight text-hero-text-hi flex items-center gap-3">
             <span className="relative flex h-5 w-5 items-center justify-center">
-              <History className="w-5 h-5 text-[#b0a4ff]" aria-hidden="true" />
+              <History className="w-5 h-5 text-hero-catchup-ink" aria-hidden="true" />
             </span>
             Catch-up Queue
           </h2>
-          <p className="text-gray-400 mt-1.5 text-sm flex items-center gap-2">
-            You are <span className="px-2 py-0.5 bg-[#8b31ff]/20 text-[#b0a4ff] rounded border border-[#8b31ff]/30 font-bold">{queueData.totalBehind}</span> episodes behind across your tracked shows
+          <p className="text-hero-text-mid mt-1.5 text-sm flex items-center gap-2">
+            You are <span className="px-2 py-0.5 bg-hero-grad-from/20 text-hero-catchup-ink rounded border border-hero-grad-from/30 font-bold">{queueData.totalBehind}</span> episodes behind across your tracked shows
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 shrink-0 w-full sm:w-auto">
           <button
             onClick={() => setSortBy('soonest')}
-            className={cn("px-4 py-2 rounded-[10px] text-[13px] font-semibold transition-all flex-1 sm:flex-auto border", sortBy === 'soonest' ? "bg-[#1f1638] border-[#8b31ff] text-[#b0a4ff] shadow-[0_0_10px_rgba(139,49,255,0.2)]" : "bg-[#0c0a15] border-[#2e1d52] text-gray-400 hover:text-gray-200 hover:border-[#3b2165]")}
+            className={cn("px-4 py-2 rounded-control text-label font-semibold transition-all flex-1 sm:flex-auto border", sortBy === 'soonest' ? "bg-hero-catchup-active border-hero-grad-from text-hero-catchup-ink shadow-glow-sm" : "bg-hero-catchup-bg border-hero-catchup-edge text-hero-text-mid hover:text-hero-text-hi hover:border-hero-catchup-edge-strong")}
           >
             Airing Soon
           </button>
           <button
             onClick={() => setSortBy('most_behind')}
-            className={cn("px-4 py-2 rounded-[10px] text-[13px] font-semibold transition-all flex-1 sm:flex-auto border", sortBy === 'most_behind' ? "bg-[#1f1638] border-[#8b31ff] text-[#b0a4ff] shadow-[0_0_10px_rgba(139,49,255,0.2)]" : "bg-[#0c0a15] border-[#2e1d52] text-gray-400 hover:text-gray-200 hover:border-[#3b2165]")}
+            className={cn("px-4 py-2 rounded-control text-label font-semibold transition-all flex-1 sm:flex-auto border", sortBy === 'most_behind' ? "bg-hero-catchup-active border-hero-grad-from text-hero-catchup-ink shadow-glow-sm" : "bg-hero-catchup-bg border-hero-catchup-edge text-hero-text-mid hover:text-hero-text-hi hover:border-hero-catchup-edge-strong")}
           >
             Most Behind
           </button>
           <button
             onClick={() => setSortBy('alphabetical')}
-            className={cn("px-4 py-2 rounded-[10px] text-[13px] font-semibold transition-all flex-1 sm:flex-auto border", sortBy === 'alphabetical' ? "bg-[#1f1638] border-[#8b31ff] text-[#b0a4ff] shadow-[0_0_10px_rgba(139,49,255,0.2)]" : "bg-[#0c0a15] border-[#2e1d52] text-gray-400 hover:text-gray-200 hover:border-[#3b2165]")}
+            className={cn("px-4 py-2 rounded-control text-label font-semibold transition-all flex-1 sm:flex-auto border", sortBy === 'alphabetical' ? "bg-hero-catchup-active border-hero-grad-from text-hero-catchup-ink shadow-glow-sm" : "bg-hero-catchup-bg border-hero-catchup-edge text-hero-text-mid hover:text-hero-text-hi hover:border-hero-catchup-edge-strong")}
           >
             A-Z
           </button>
           <button
             onClick={() => setGroupSeasons(!groupSeasons)}
-            className={cn("px-4 py-2 rounded-[10px] text-[13px] font-semibold transition-all flex-1 sm:flex-auto flex items-center gap-1.5 justify-center border", groupSeasons ? "bg-[#1f1638] border-[#8b31ff] text-[#b0a4ff] shadow-[0_0_10px_rgba(139,49,255,0.2)]" : "bg-[#0c0a15] border-[#2e1d52] text-gray-400 hover:text-gray-200 hover:border-[#3b2165]")}
+            className={cn("px-4 py-2 rounded-control text-label font-semibold transition-all flex-1 sm:flex-auto flex items-center gap-1.5 justify-center border", groupSeasons ? "bg-hero-catchup-active border-hero-grad-from text-hero-catchup-ink shadow-glow-sm" : "bg-hero-catchup-bg border-hero-catchup-edge text-hero-text-mid hover:text-hero-text-hi hover:border-hero-catchup-edge-strong")}
           >
             <Link className="w-3.5 h-3.5" aria-hidden="true" />
             Group Series

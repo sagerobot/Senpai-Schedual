@@ -50,22 +50,22 @@ export function EpisodeGrid({ media, vibes, onOpenEpisode }: EpisodeGridProps) {
               tone === 'quiet' ? ', quiet discussion' : tone ? `, ${tone} reception` : ''
             }`}
             className={cn(
-              'relative flex h-11 items-center justify-center rounded-lg border text-sm font-medium transition-colors',
-              tone === 'positive' && 'border-emerald-500/40 bg-emerald-500/10 text-emerald-200 hover:bg-emerald-500/20',
-              tone === 'mixed' && 'border-amber-500/40 bg-amber-500/10 text-amber-200 hover:bg-amber-500/20',
-              tone === 'negative' && 'border-rose-500/40 bg-rose-500/10 text-rose-200 hover:bg-rose-500/20',
-              tone === 'quiet' && 'border-zinc-500/40 bg-zinc-500/10 text-zinc-400 hover:bg-zinc-500/20',
-              tone === null && 'border-edge text-gray-300 hover:bg-surface-2 hover:text-white',
+              'relative flex h-11 items-center justify-center rounded-field border text-sm font-medium transition-colors',
+              tone === 'positive' && 'border-sent-positive/40 bg-sent-positive/10 text-sent-positive-fg hover:bg-sent-positive/20',
+              tone === 'mixed' && 'border-sent-mixed/40 bg-sent-mixed/10 text-sent-mixed-fg hover:bg-sent-mixed/20',
+              tone === 'negative' && 'border-sent-negative/40 bg-sent-negative/10 text-sent-negative-fg hover:bg-sent-negative/20',
+              tone === 'quiet' && 'border-sent-quiet/40 bg-sent-quiet/10 text-sent-quiet-fg hover:bg-sent-quiet/20',
+              tone === null && 'border-edge text-fg-secondary hover:bg-surface-2 hover:text-fg',
             )}
           >
             {episode}
             {tone && (
-              <span className="absolute right-0.5 top-0 text-[8px] leading-3 opacity-80" aria-hidden="true">
+              <span className="absolute right-0.5 top-0 text-micro leading-3 opacity-80" aria-hidden="true">
                 {TONE_GLYPH[tone]}
               </span>
             )}
             {isWatched && (
-              <Check className="absolute bottom-0.5 right-0.5 h-3 w-3 text-gray-400" aria-hidden="true" />
+              <Check className="absolute bottom-0.5 right-0.5 h-3 w-3 text-fg-muted" aria-hidden="true" />
             )}
           </button>
         );

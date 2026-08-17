@@ -9,6 +9,7 @@ import { UpNextCard } from '../../components/UpNextDeck';
 import { VibeChip } from '../../components/VibeChip';
 import type { UpNextCandidate } from '../../lib/upNext';
 import { latestAiredEpisode } from '../../lib/aired';
+import { LAYOUT_SWAP, SPRING_POP } from '../../lib/motion';
 import { displayTitle } from '../../lib/displayTitle';
 import { WATCH_STATE_LABELS } from '../../lib/status';
 import { cn } from '../../lib/utils';
@@ -316,14 +317,14 @@ export function CheckInFeed({
 
   return (
     <div className="mb-12">
-      <h2 className="mb-6 text-xl font-bold tracking-tight text-white flex items-center gap-3">
+      <h2 className="mb-6 text-xl font-bold tracking-tight text-fg flex items-center gap-3">
         <span className="relative flex h-4 w-4" aria-hidden="true">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-400 opacity-75"></span>
           <span className="relative inline-flex rounded-full h-4 w-4 bg-accent-500"></span>
         </span>
         Today's Drops
         {merged && deckRemaining > 0 && (
-          <span className="ml-auto text-[11px] font-normal tracking-normal text-gray-500">
+          <span className="ml-auto text-caption font-normal tracking-normal text-fg-faint">
             +{deckRemaining} more in the deck
           </span>
         )}
@@ -376,9 +377,9 @@ export function CheckInFeed({
           <motion.div
             key={tray.key}
             layout
-            transition={{ layout: { duration: 0.32, ease: [0.32, 0.72, 0.28, 1] } }}
+            transition={{ layout: LAYOUT_SWAP }}
             aria-hidden="true"
-            className="pointer-events-none rounded-2xl border border-accent-500/25 bg-gradient-to-b from-accent-500/10 to-accent-500/[0.03] shadow-[inset_0_0_30px_rgba(139,92,246,0.06)]"
+            className="pointer-events-none rounded-card border border-accent-500/25 bg-gradient-to-b from-accent-500/10 to-accent-500/[0.03] shadow-[inset_0_0_30px_color-mix(in_srgb,var(--color-accent-500)_6%,transparent)]"
             style={{ gridColumn: tray.col, gridRow: tray.row, margin: '-12px', zIndex: 0 }}
           />
         ))}
@@ -400,7 +401,7 @@ function Ticker({ value }: { value: string | number }) {
           initial={{ y: '105%', opacity: 0 }}
           animate={{ y: '0%', opacity: 1 }}
           exit={{ y: '-105%', opacity: 0 }}
-          transition={{ type: 'spring', stiffness: 500, damping: 38, mass: 0.8 }}
+          transition={SPRING_POP}
           className="inline-block whitespace-nowrap"
         >
           {value}
@@ -455,20 +456,20 @@ const CheckInItem = memo(function CheckInItem({
   const card = (
     <div
       className={cn(
-        'flex flex-col rounded-2xl bg-[#0a0c16] shadow-2xl h-full group border transition-all',
+        'flex flex-col rounded-card bg-hero-drops-bg shadow-e3 h-full group border transition-all',
         isGraduation
-          ? 'border-emerald-500/40 shadow-[0_0_20px_rgba(52,211,153,0.15)]'
+          ? 'border-success-500/40 shadow-glow-success'
           : isCaughtUp
-            ? 'border-accent-500/40 shadow-[0_0_20px_rgba(168,85,247,0.15)]'
-            : 'border-[#1e2336]',
+            ? 'border-accent-500/40 shadow-glow-lg'
+            : 'border-hero-drops-edge',
       )}
     >
-      <div className="relative w-full h-48 sm:h-52 bg-[#0a0c16] shrink-0 overflow-hidden rounded-t-2xl">
+      <div className="relative w-full h-48 sm:h-52 bg-hero-drops-bg shrink-0 overflow-hidden rounded-t-card">
         <button
           type="button"
           onClick={openShow}
           aria-label={`Open ${title}`}
-          className="absolute inset-0 flex items-center justify-center"
+          className="absolute inset-0 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
         >
           {hasBanner ? (
             <img
@@ -491,7 +492,7 @@ const CheckInItem = memo(function CheckInItem({
           <span
             className={cn(
               'absolute inset-0 pointer-events-none transition-colors',
-              isGraduation ? 'bg-emerald-500/10' : isCaughtUp ? 'bg-accent-500/10' : 'bg-black/20',
+              isGraduation ? 'bg-success-500/10' : isCaughtUp ? 'bg-accent-500/10' : 'bg-scrim/20',
             )}
             aria-hidden="true"
           />
@@ -499,30 +500,30 @@ const CheckInItem = memo(function CheckInItem({
               the plain gradient path, or GPUs draw seam lines through its alpha
               range while the swipe animates the subtree. */}
           <span
-            className="absolute -inset-1 top-0 transform-gpu will-change-transform bg-linear-to-t/srgb from-[#0a0c16] via-[#0a0c16]/60 to-transparent pointer-events-none"
+            className="absolute -inset-1 top-0 transform-gpu will-change-transform bg-linear-to-t/srgb from-hero-drops-bg via-hero-drops-bg/60 to-transparent pointer-events-none"
             aria-hidden="true"
           />
         </button>
 
         <div className="absolute top-3 left-3 z-20 flex flex-wrap items-center gap-1.5">
           {isGraduation ? (
-            <div className="flex items-center gap-1.5 bg-emerald-950/75 backdrop-blur-md border border-emerald-400/50 text-emerald-100 text-[11px] font-semibold px-2.5 py-1 rounded-full shadow-lg">
-              <Layers className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
+            <div className="flex items-center gap-1.5 bg-scrim/75 backdrop-blur-md border border-success-400/50 text-success-300 text-caption font-semibold px-2.5 py-1 rounded-full shadow-e2">
+              <Layers className="w-3.5 h-3.5 text-success-400" aria-hidden="true" />
               {WATCH_STATE_LABELS['stack-complete']}
             </div>
           ) : isCaughtUp ? (
-            <div className="flex items-center gap-1.5 bg-[#0a0c16]/80 backdrop-blur-md border border-accent-500/30 text-purple-100 text-[11px] font-semibold px-2.5 py-1 rounded-full shadow-lg">
+            <div className="flex items-center gap-1.5 bg-hero-drops-bg/80 backdrop-blur-md border border-accent-500/30 text-accent-300 text-caption font-semibold px-2.5 py-1 rounded-full shadow-e2">
               <CheckCircle2 className="w-3.5 h-3.5 text-accent-400" aria-hidden="true" />
               {WATCH_STATE_LABELS['caught-up']}
             </div>
           ) : (
-            <div className="flex items-center gap-1.5 bg-[#0a0c16]/80 backdrop-blur-md border border-gray-600/50 text-gray-300 text-[11px] font-semibold px-2.5 py-1 rounded-full shadow-lg">
-              <Clock className="w-3.5 h-3.5 text-gray-400" aria-hidden="true" />
+            <div className="flex items-center gap-1.5 bg-hero-drops-bg/80 backdrop-blur-md border border-hero-text-low/40 text-hero-text-mid text-caption font-semibold px-2.5 py-1 rounded-full shadow-e2">
+              <Clock className="w-3.5 h-3.5 text-hero-text-mid" aria-hidden="true" />
               {WATCH_STATE_LABELS.behind}
             </div>
           )}
 
-          <VibeChip vibe={vibe} showTitle={title} onOpen={openShow} variant="glass" className="text-[11px] py-1" />
+          <VibeChip vibe={vibe} showTitle={title} onOpen={openShow} variant="glass" className="text-caption py-1" />
         </div>
 
         <LibraryStatusMenu
@@ -531,10 +532,10 @@ const CheckInItem = memo(function CheckInItem({
           renderTrigger={({ inLibrary }) => (
             <button
               className={cn(
-                'absolute top-3 right-3 z-20 w-8 h-8 flex items-center justify-center backdrop-blur-md border rounded-full transition-colors',
+                'absolute top-3 right-3 z-20 w-8 h-8 flex items-center justify-center backdrop-blur-md border rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                 inLibrary
-                  ? 'bg-accent-600/90 border-accent-500/50 text-white'
-                  : 'bg-[#0a0c16]/80 border-gray-600/50 text-gray-300 hover:text-white',
+                  ? 'bg-accent-600/90 border-accent-500/50 text-fg-inverse'
+                  : 'bg-hero-drops-bg/80 border-hero-text-low/40 text-hero-text-mid hover:text-hero-text-hi',
               )}
             >
               <Bookmark className="w-4 h-4" fill={inLibrary ? 'currentColor' : 'none'} aria-hidden="true" />
@@ -549,17 +550,17 @@ const CheckInItem = memo(function CheckInItem({
             <button
               type="button"
               onClick={openShow}
-              className="block max-w-full text-left text-[17px] sm:text-[19px] font-bold text-white leading-tight line-clamp-1 hover:text-accent-400 transition-colors"
+              className="block max-w-full text-left text-lg sm:text-xl font-bold text-hero-text-hi leading-tight line-clamp-1 hover:text-accent-400 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               {title}
             </button>
           </h3>
           <div className="flex gap-1.5 mt-1 flex-col items-end sm:flex-row sm:items-center">
-            <div className="text-[11px] text-gray-400 whitespace-nowrap flex-shrink-0 border border-gray-800 bg-[#0f121d] px-2 py-0.5 rounded-full">
+            <div className="text-caption text-hero-text-mid whitespace-nowrap flex-shrink-0 border border-hero-drops-edge bg-hero-drops-well px-2 py-0.5 rounded-full">
               {seasonText} • <Ticker value={maxWatched} />/{totalEpisodes} watched
             </div>
             {userAvgScore !== null && (
-              <div className="text-[11px] font-semibold text-accent-300 whitespace-nowrap flex-shrink-0 border border-accent-500/30 bg-[#1a0f2e] px-2 py-0.5 rounded-full flex items-center gap-1 shadow-[0_0_10px_rgba(168,85,247,0.15)]">
+              <div className="text-caption font-semibold text-accent-300 whitespace-nowrap flex-shrink-0 border border-accent-500/30 bg-hero-drops-accent-well px-2 py-0.5 rounded-full flex items-center gap-1 shadow-glow-sm">
                 <Star className="w-3 h-3 fill-accent-400 text-accent-400" aria-hidden="true" />
                 Your Avg {userAvgScore.toFixed(1)}
               </div>
@@ -568,22 +569,22 @@ const CheckInItem = memo(function CheckInItem({
         </div>
 
         <div className="flex justify-between items-center mb-1 gap-2">
-          <div className="text-[13px] text-gray-300 line-clamp-1">
+          <div className="text-label text-hero-text-mid line-clamp-1">
             Episode {todayEp}
             {isGraduation && ' — Finale'}
           </div>
           <div
             className={cn(
-              'flex items-center gap-1.5 text-[11px] sm:text-[12px] flex-shrink-0',
-              isGraduation ? 'text-emerald-300' : 'text-accent-400',
+              'flex items-center gap-1.5 text-caption sm:text-xs flex-shrink-0',
+              isGraduation ? 'text-success-300' : 'text-accent-400',
             )}
           >
             <span
               className={cn(
                 'w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full',
                 isGraduation
-                  ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]'
-                  : 'bg-accent-500 shadow-[0_0_8px_rgba(168,85,247,0.8)]',
+                  ? 'bg-success-400 shadow-[0_0_8px_color-mix(in_srgb,var(--color-success-400)_80%,transparent)]'
+                  : 'bg-accent-500 shadow-[0_0_8px_color-mix(in_srgb,var(--color-accent-500)_80%,transparent)]',
               )}
               aria-hidden="true"
             />
@@ -595,20 +596,20 @@ const CheckInItem = memo(function CheckInItem({
           </div>
         </div>
 
-        <div className="text-[10px] sm:text-[11px] text-gray-500 mb-5 line-clamp-1">{infoLine}</div>
+        <div className="text-micro sm:text-caption text-hero-text-low mb-5 line-clamp-1">{infoLine}</div>
 
-        <div className="border border-[#1e2336] rounded-xl p-4 bg-[#080a14] flex flex-col items-center mb-5 relative">
+        <div className="border border-hero-drops-edge rounded-inner p-4 bg-hero-drops-deep flex flex-col items-center mb-5 relative">
           <div
             className={cn(
               'absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent to-transparent',
-              isGraduation ? 'via-emerald-500/20' : 'via-accent-500/20',
+              isGraduation ? 'via-success-500/20' : 'via-accent-500/20',
             )}
             aria-hidden="true"
           />
 
           <div className="flex items-center gap-2 mb-4">
             <Zap className="w-4 h-4 text-accent-500 fill-accent-500" aria-hidden="true" />
-            <span className="text-[14px] text-gray-200 font-medium">
+            <span className="text-sm text-hero-text-hi font-medium">
               <Ticker value={isCaughtUp ? "Rate today's episode" : `Rate Episode ${nextEp}`} />
             </span>
           </div>
@@ -626,10 +627,10 @@ const CheckInItem = memo(function CheckInItem({
                 onClick={() => handleRateAndWatch(s)}
                 aria-label={`Rate episode ${targetEp} a ${s} and mark watched`}
                 className={cn(
-                  'flex-1 h-11 sm:h-[46px] bg-[#0a0c16] text-gray-200 border border-[#1e2336] rounded-lg text-[16px] sm:text-[18px] font-medium hover:text-white transition-all',
+                  'flex-1 h-11 sm:h-[46px] bg-hero-drops-bg text-hero-text-hi border border-hero-drops-edge rounded-field text-base sm:text-lg font-medium hover:text-fg-inverse transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                   isGraduation
-                    ? 'hover:bg-emerald-600 hover:border-emerald-500 hover:shadow-[0_0_15px_rgba(52,211,153,0.45)]'
-                    : 'hover:bg-accent-600 hover:border-accent-500 hover:shadow-[0_0_15px_rgba(168,85,247,0.5)]',
+                    ? 'hover:bg-success-600 hover:border-success-500 hover:shadow-glow-success'
+                    : 'hover:bg-accent-600 hover:border-accent-500 hover:shadow-glow',
                 )}
               >
                 {s}
@@ -642,19 +643,19 @@ const CheckInItem = memo(function CheckInItem({
               type="button"
               onClick={() => handleRateAndWatch(null)}
               aria-label={`Mark episode ${targetEp} watched without a score`}
-              className="relative flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#1e2336] bg-[#0f121d] text-[10px] sm:text-[11px] text-gray-400 hover:bg-[#1a1f35] hover:text-gray-200 transition-colors after:absolute after:inset-x-0 after:top-1/2 after:h-11 after:-translate-y-1/2 after:content-['']"
+              className="relative flex items-center gap-1.5 px-3 py-1 rounded-full border border-hero-drops-edge bg-hero-drops-well text-micro sm:text-caption text-hero-text-mid hover:bg-hero-drops-well-hover hover:text-hero-text-hi transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring after:absolute after:inset-x-0 after:top-1/2 after:h-11 after:-translate-y-1/2 after:content-['']"
             >
               Mark watched only <Info className="w-3.5 h-3.5" aria-hidden="true" />
             </button>
             <LowScoreButtons
               episode={targetEp}
               onSelect={(score) => handleRateAndWatch(score)}
-              triggerClassName="px-3 py-1 rounded-full border border-[#1e2336] bg-[#0f121d] text-[10px] sm:text-[11px] text-gray-400 hover:bg-[#1a1f35] hover:text-gray-200 after:absolute after:inset-x-0 after:top-1/2 after:h-11 after:-translate-y-1/2 after:content-['']"
-              buttonClassName="h-7 min-w-7 px-1.5 rounded-md border border-[#1e2336] bg-[#0f121d] text-[11px] text-gray-300 hover:bg-[#1a1f35] hover:text-white"
+              triggerClassName="px-3 py-1 rounded-full border border-hero-drops-edge bg-hero-drops-well text-micro sm:text-caption text-hero-text-mid hover:bg-hero-drops-well-hover hover:text-hero-text-hi after:absolute after:inset-x-0 after:top-1/2 after:h-11 after:-translate-y-1/2 after:content-['']"
+              buttonClassName="h-7 min-w-7 px-1.5 rounded-xs border border-hero-drops-edge bg-hero-drops-well text-caption text-hero-text-mid hover:bg-hero-drops-well-hover hover:text-hero-text-hi"
             />
           </div>
 
-          <div className="text-[10px] sm:text-[11px] text-gray-500">Tap a score to rate + mark watched</div>
+          <div className="text-micro sm:text-caption text-hero-text-low">Tap a score to rate + mark watched</div>
         </div>
 
         <div className="mt-auto">
@@ -670,10 +671,10 @@ const CheckInItem = memo(function CheckInItem({
                   className="absolute inset-0 flex items-start gap-2"
                 >
                   <div className="flex flex-col items-center w-20 -ml-2 shrink-0">
-                    <div className="w-5 h-5 rounded-full bg-emerald-600 flex items-center justify-center z-10 ring-[3px] ring-[#0a0c16]">
-                      <Check className="w-3 h-3 text-white stroke-[3]" aria-hidden="true" />
+                    <div className="w-5 h-5 rounded-full bg-success-600 flex items-center justify-center z-10 ring-[3px] ring-hero-drops-bg">
+                      <Check className="w-3 h-3 text-fg-inverse stroke-[3]" aria-hidden="true" />
                     </div>
-                    <div className="text-[10px] text-gray-400 mt-1.5 text-center leading-tight">
+                    <div className="text-micro text-hero-text-mid mt-1.5 text-center leading-tight">
                       Watched through
                       <br />
                       Ep. <Ticker value={maxWatched} />
@@ -688,20 +689,20 @@ const CheckInItem = memo(function CheckInItem({
                       {Array.from({ length: Math.max(0, stackedCount - 1) }, (_, i) => (
                         <span
                           key={i}
-                          className="h-[9px] flex-1 rounded-[3px] border border-emerald-400/40 bg-emerald-500/20"
+                          className="h-[9px] flex-1 rounded-[3px] border border-success-400/40 bg-success-500/20"
                         />
                       ))}
                     </div>
-                    <div className="rounded-full border border-emerald-500/30 bg-[#0a0c16] px-2 py-0.5 text-[9px] text-emerald-300 whitespace-nowrap">
+                    <div className="rounded-full border border-success-500/30 bg-hero-drops-bg px-2 py-0.5 text-micro text-success-300 whitespace-nowrap">
                       <Ticker value={stackedCount} /> episode{stackedCount === 1 ? '' : 's'} ready · zero waits
                     </div>
                   </div>
 
                   <div className="flex flex-col items-center w-20 -mr-2 shrink-0">
-                    <div className="w-5 h-5 rounded-full border-2 border-emerald-400 bg-[#0a0c16] flex items-center justify-center z-10 ring-[3px] ring-[#0a0c16]">
-                      <Star className="w-2.5 h-2.5 text-emerald-400 fill-current" aria-hidden="true" />
+                    <div className="w-5 h-5 rounded-full border-2 border-success-400 bg-hero-drops-bg flex items-center justify-center z-10 ring-[3px] ring-hero-drops-bg">
+                      <Star className="w-2.5 h-2.5 text-success-400 fill-current" aria-hidden="true" />
                     </div>
-                    <div className="text-[10px] text-gray-300 mt-1.5 text-center leading-tight font-medium">
+                    <div className="text-micro text-hero-text-mid mt-1.5 text-center leading-tight font-medium">
                       Finale: Ep. {todayEp}
                     </div>
                   </div>
@@ -718,10 +719,10 @@ const CheckInItem = memo(function CheckInItem({
                   <div className="absolute top-2.5 left-4 right-4 h-[3px] bg-accent-600 rounded-full" aria-hidden="true" />
                   <div className="absolute inset-0 flex justify-between items-start">
                     <div className="flex flex-col items-center w-24 -ml-4">
-                      <div className="w-5 h-5 rounded-full bg-accent-600 flex items-center justify-center z-10 ring-[3px] ring-[#0a0c16]">
-                        <Check className="w-3 h-3 text-white stroke-[3]" aria-hidden="true" />
+                      <div className="w-5 h-5 rounded-full bg-accent-600 flex items-center justify-center z-10 ring-[3px] ring-hero-drops-bg">
+                        <Check className="w-3 h-3 text-fg-inverse stroke-[3]" aria-hidden="true" />
                       </div>
-                      <div className="text-[10px] text-gray-400 mt-1.5 text-center leading-tight">
+                      <div className="text-micro text-hero-text-mid mt-1.5 text-center leading-tight">
                         Caught up through
                         <br />
                         Ep. {Math.max(0, todayEp - 1)}
@@ -729,10 +730,10 @@ const CheckInItem = memo(function CheckInItem({
                     </div>
 
                     <div className="flex flex-col items-center w-20 -mr-2">
-                      <div className="w-5 h-5 rounded-full border-2 border-accent-500 bg-[#0a0c16] flex items-center justify-center z-10 ring-[3px] ring-[#0a0c16]">
+                      <div className="w-5 h-5 rounded-full border-2 border-accent-500 bg-hero-drops-bg flex items-center justify-center z-10 ring-[3px] ring-hero-drops-bg">
                         <Star className="w-2.5 h-2.5 text-accent-400 fill-current" aria-hidden="true" />
                       </div>
-                      <div className="text-[10px] text-gray-400 mt-1.5 text-center leading-tight">Today: Ep. {todayEp}</div>
+                      <div className="text-micro text-hero-text-mid mt-1.5 text-center leading-tight">Today: Ep. {todayEp}</div>
                     </div>
                   </div>
                 </motion.div>
@@ -747,15 +748,15 @@ const CheckInItem = memo(function CheckInItem({
                 >
                   <div className="absolute top-2.5 left-4 right-4 flex items-center" aria-hidden="true">
                     <div className="h-[3px] bg-accent-600 rounded-full w-[45%]" />
-                    <div className="h-[3px] border-t-2 border-dashed border-gray-700 flex-1 ml-1" />
+                    <div className="h-[3px] border-t-2 border-dashed border-hero-text-low/60 flex-1 ml-1" />
                   </div>
 
                   <div className="absolute inset-0 flex justify-between items-start">
                     <div className="flex flex-col items-center w-24 -ml-4">
-                      <div className="w-5 h-5 rounded-full bg-accent-600 flex items-center justify-center z-10 ring-[3px] ring-[#0a0c16]">
-                        <Check className="w-3 h-3 text-white stroke-[3]" aria-hidden="true" />
+                      <div className="w-5 h-5 rounded-full bg-accent-600 flex items-center justify-center z-10 ring-[3px] ring-hero-drops-bg">
+                        <Check className="w-3 h-3 text-fg-inverse stroke-[3]" aria-hidden="true" />
                       </div>
-                      <div className="text-[10px] text-gray-400 mt-1.5 text-center leading-tight">
+                      <div className="text-micro text-hero-text-mid mt-1.5 text-center leading-tight">
                         Watched through
                         <br />
                         Ep. <Ticker value={maxWatched} />
@@ -763,23 +764,23 @@ const CheckInItem = memo(function CheckInItem({
                     </div>
 
                     <div className="flex flex-col items-center w-20 absolute left-[45%] -translate-x-1/2">
-                      <div className="w-5 h-5 rounded-full border-2 border-accent-500 bg-[#0a0c16] flex items-center justify-center z-10 ring-[3px] ring-[#0a0c16]">
+                      <div className="w-5 h-5 rounded-full border-2 border-accent-500 bg-hero-drops-bg flex items-center justify-center z-10 ring-[3px] ring-hero-drops-bg">
                         <div className="w-2 h-2 rounded-full bg-accent-400" aria-hidden="true" />
                       </div>
-                      <div className="text-[10px] text-gray-300 mt-1.5 text-center leading-tight font-medium">
+                      <div className="text-micro text-hero-text-mid mt-1.5 text-center leading-tight font-medium">
                         Next: Ep. <Ticker value={nextEp} />
                       </div>
                     </div>
 
                     <div className="flex flex-col items-center w-20 -mr-2">
-                      <div className="w-5 h-5 rounded-full border-2 border-gray-600 bg-[#0a0c16] flex items-center justify-center z-10 ring-[3px] ring-[#0a0c16]">
-                        <Star className="w-2.5 h-2.5 text-gray-500 fill-current" aria-hidden="true" />
+                      <div className="w-5 h-5 rounded-full border-2 border-hero-text-low/60 bg-hero-drops-bg flex items-center justify-center z-10 ring-[3px] ring-hero-drops-bg">
+                        <Star className="w-2.5 h-2.5 text-hero-text-low fill-current" aria-hidden="true" />
                       </div>
-                      <div className="text-[10px] text-gray-400 mt-1.5 text-center leading-tight">Today: Ep. {todayEp}</div>
+                      <div className="text-micro text-hero-text-mid mt-1.5 text-center leading-tight">Today: Ep. {todayEp}</div>
                     </div>
                   </div>
 
-                  <div className="absolute top-[16px] left-[72.5%] transform -translate-x-1/2 -translate-y-1/2 border border-[#1e2336] bg-[#0a0c16] rounded-full px-2 py-0.5 text-[9px] text-gray-400 whitespace-nowrap z-10 shadow-sm">
+                  <div className="absolute top-[16px] left-[72.5%] transform -translate-x-1/2 -translate-y-1/2 border border-hero-drops-edge bg-hero-drops-bg rounded-full px-2 py-0.5 text-micro text-hero-text-mid whitespace-nowrap z-10 shadow-e1">
                     <Ticker value={todayEp - nextEp} /> episodes to today
                   </div>
                 </motion.div>
@@ -793,10 +794,10 @@ const CheckInItem = memo(function CheckInItem({
               target="_blank"
               rel="noreferrer"
               className={cn(
-                'w-full h-11 sm:h-12 flex items-center justify-center gap-2 rounded-xl font-medium text-[14px] sm:text-[15px] transition-all mt-6',
+                'w-full h-11 sm:h-12 flex items-center justify-center gap-2 rounded-inner font-medium text-sm sm:text-base transition-all mt-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                 isGraduation
-                  ? 'bg-emerald-600 text-white hover:bg-emerald-500'
-                  : 'bg-[#0a0c16] border border-accent-600 text-accent-400 hover:bg-accent-600 hover:text-white shadow-[0_0_15px_rgba(147,51,234,0.2)] hover:shadow-[0_0_20px_rgba(147,51,234,0.4)]',
+                  ? 'bg-success-600 text-fg-inverse hover:bg-success-500'
+                  : 'bg-hero-drops-bg border border-accent-600 text-accent-400 hover:bg-accent-600 hover:text-fg-inverse shadow-glow hover:shadow-glow-lg',
               )}
             >
               <Play className="w-4 h-4 fill-current" aria-hidden="true" />
@@ -811,7 +812,7 @@ const CheckInItem = memo(function CheckInItem({
               />
             </a>
           ) : (
-            <p className="w-full h-11 sm:h-12 flex items-center justify-center gap-2 rounded-xl font-medium text-[14px] sm:text-[15px] mt-6 bg-[#1e2336] text-gray-400">
+            <p className="w-full h-11 sm:h-12 flex items-center justify-center gap-2 rounded-inner font-medium text-sm sm:text-base mt-6 bg-hero-drops-edge text-hero-text-mid">
               No stream linked
             </p>
           )}
@@ -831,11 +832,11 @@ const CheckInItem = memo(function CheckInItem({
       {card}
       <div
         aria-hidden="true"
-        className="absolute inset-x-[13px] -bottom-[11px] -z-10 h-6 rounded-b-[14px] border border-t-0 border-emerald-500/50 bg-[#131834] shadow-[0_10px_20px_rgba(0,0,0,0.55)]"
+        className="absolute inset-x-[13px] -bottom-[11px] -z-10 h-6 rounded-b-[14px] border border-t-0 border-success-500/50 bg-hero-drops-pile-1 shadow-e2"
       />
       <div
         aria-hidden="true"
-        className="absolute inset-x-[28px] -bottom-[22px] -z-20 h-6 rounded-b-[14px] border border-t-0 border-emerald-500/25 bg-[#0d1024]"
+        className="absolute inset-x-[28px] -bottom-[22px] -z-20 h-6 rounded-b-[14px] border border-t-0 border-success-500/25 bg-hero-drops-pile-2"
       />
     </div>
   );

@@ -27,9 +27,9 @@ const ASPECT_LABELS = [
 ] as const;
 
 const TONE_STYLE = {
-  positive: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300',
-  mixed: 'border-amber-500/40 bg-amber-500/10 text-amber-300',
-  negative: 'border-rose-500/40 bg-rose-500/10 text-rose-300',
+  positive: 'border-sent-positive/40 bg-sent-positive/10 text-sent-positive-fg',
+  mixed: 'border-sent-mixed/40 bg-sent-mixed/10 text-sent-mixed-fg',
+  negative: 'border-sent-negative/40 bg-sent-negative/10 text-sent-negative-fg',
 } as const;
 
 const TONE_GLYPH = { positive: '▲', mixed: '◆', negative: '▼' } as const;
@@ -82,20 +82,20 @@ export function EpisodeView({ seriesTitle, member, media, episode, onClose }: Ep
   return (
     <Dialog.Root open onOpenChange={(open) => !open && onClose()}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-        <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-lg translate-x-[-50%] translate-y-[-50%] p-4 md:p-6">
-          <div className="flex max-h-[85vh] flex-col overflow-hidden rounded-2xl border border-edge bg-surface-1 text-gray-200 shadow-[0_0_40px_rgba(0,0,0,0.5)]">
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-overlay backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-lg translate-x-[-50%] translate-y-[-50%] p-4 md:p-6 duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95">
+          <div className="flex max-h-[85vh] flex-col overflow-hidden rounded-card border border-edge bg-surface-1 text-fg-secondary shadow-e3">
             <div className="flex items-start justify-between gap-4 border-b border-edge p-5">
               <div className="min-w-0">
-                <p className="truncate text-xs text-gray-500">
+                <p className="truncate text-xs text-fg-faint">
                   {seriesTitle}
                   {member.seasonLabel !== seriesTitle && ` · ${member.seasonLabel}`}
                 </p>
-                <Dialog.Title className="text-lg font-bold tracking-tight text-white">
+                <Dialog.Title className="text-lg font-bold tracking-tight text-fg">
                   Episode {episode}
                 </Dialog.Title>
               </div>
-              <Dialog.Close className="shrink-0 rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-surface-3 hover:text-white">
+              <Dialog.Close className="shrink-0 rounded-field p-1.5 text-fg-muted transition-colors hover:bg-surface-3 hover:text-fg">
                 <X className="h-5 w-5" aria-hidden="true" />
                 <span className="sr-only">Close</span>
               </Dialog.Close>
@@ -107,10 +107,10 @@ export function EpisodeView({ seriesTitle, member, media, episode, onClose }: Ep
                 <button
                   onClick={toggleWatched}
                   className={cn(
-                    'flex h-11 items-center gap-2 rounded-lg border px-4 text-sm font-medium transition-colors',
+                    'flex h-11 items-center gap-2 rounded-field border px-4 text-sm font-medium transition-colors',
                     isWatched
                       ? 'border-accent-500/40 bg-accent-600/15 text-accent-300 hover:bg-accent-600/25'
-                      : 'border-edge text-gray-300 hover:bg-surface-2 hover:text-white',
+                      : 'border-edge text-fg-secondary hover:bg-surface-2 hover:text-fg',
                   )}
                 >
                   <Check className="h-4 w-4" aria-hidden="true" />
@@ -128,8 +128,8 @@ export function EpisodeView({ seriesTitle, member, media, episode, onClose }: Ep
                         className={cn(
                           'h-11 w-6 rounded text-xs font-medium transition-colors',
                           score !== null && value <= score
-                            ? 'bg-amber-400/20 text-amber-300'
-                            : 'text-gray-600 hover:bg-surface-2 hover:text-gray-300',
+                            ? 'bg-warning-400/20 text-warning-300'
+                            : 'text-fg-faint hover:bg-surface-2 hover:text-fg-secondary',
                         )}
                       >
                         {value}
@@ -143,10 +143,10 @@ export function EpisodeView({ seriesTitle, member, media, episode, onClose }: Ep
               {state === 'ok' && pulse ? (
                 <div
                   className={cn(
-                    'rounded-xl border p-4',
-                    pulse.indicator === 'positive' && 'border-emerald-500/30 bg-emerald-950/30',
-                    pulse.indicator === 'negative' && 'border-rose-500/30 bg-rose-950/30',
-                    pulse.indicator === 'mixed' && 'border-amber-500/30 bg-amber-950/20',
+                    'rounded-inner border p-4',
+                    pulse.indicator === 'positive' && 'border-sent-positive/30 bg-sent-positive/10',
+                    pulse.indicator === 'negative' && 'border-sent-negative/30 bg-sent-negative/10',
+                    pulse.indicator === 'mixed' && 'border-sent-mixed/30 bg-sent-mixed/10',
                   )}
                 >
                   <div className="mb-2 flex flex-wrap items-center gap-2">
@@ -159,14 +159,14 @@ export function EpisodeView({ seriesTitle, member, media, episode, onClose }: Ep
                       {TONE_GLYPH[pulse.indicator]} {pulse.indicator === 'positive' ? 'Positive' : pulse.indicator === 'negative' ? 'Negative' : 'Mixed'}
                     </span>
                     {(pulse.upvotes > 0 || pulse.comments > 0) && (
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-fg-muted">
                         ↑ {pulse.upvotes} · 💬 {pulse.comments}
                       </span>
                     )}
                   </div>
 
-                  <p className="text-sm leading-relaxed text-gray-200">{pulse.summary}</p>
-                  {asOfLine && <p className="mt-1.5 text-[11px] text-gray-500">Early read, {asOfLine}.</p>}
+                  <p className="text-sm leading-relaxed text-fg-secondary">{pulse.summary}</p>
+                  {asOfLine && <p className="mt-1.5 text-caption text-fg-faint">Early read, {asOfLine}.</p>}
 
                   {aspects && Object.keys(aspects).length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-1.5">
@@ -176,7 +176,7 @@ export function EpisodeView({ seriesTitle, member, media, episode, onClose }: Ep
                         return (
                           <span
                             key={key}
-                            className={cn('rounded-full border px-2.5 py-1 text-[11px] font-medium', TONE_STYLE[tone])}
+                            className={cn('rounded-full border px-2.5 py-1 text-caption font-medium', TONE_STYLE[tone])}
                           >
                             {label} {TONE_GLYPH[tone]}
                           </span>
@@ -186,16 +186,16 @@ export function EpisodeView({ seriesTitle, member, media, episode, onClose }: Ep
                   )}
 
                   {(pulse.goods.length > 0 || pulse.bads.length > 0) && (
-                    <div className="mt-3 grid grid-cols-1 gap-3 border-t border-gray-700/50 pt-3 sm:grid-cols-2">
+                    <div className="mt-3 grid grid-cols-1 gap-3 border-t border-edge-strong/50 pt-3 sm:grid-cols-2">
                       {pulse.goods.length > 0 && (
                         <div>
-                          <span className="text-[11px] font-semibold uppercase tracking-wider text-emerald-400">
+                          <span className="text-caption font-semibold uppercase tracking-wider text-sent-positive-fg">
                             Highlights
                           </span>
                           <ul className="mt-1 space-y-1">
                             {pulse.goods.map((good, i) => (
-                              <li key={i} className="flex items-start text-xs text-gray-300">
-                                <span className="mr-1.5 text-emerald-500">•</span>
+                              <li key={i} className="flex items-start text-xs text-fg-secondary">
+                                <span className="mr-1.5 text-sent-positive">•</span>
                                 <span>{good}</span>
                               </li>
                             ))}
@@ -204,13 +204,13 @@ export function EpisodeView({ seriesTitle, member, media, episode, onClose }: Ep
                       )}
                       {pulse.bads.length > 0 && (
                         <div>
-                          <span className="text-[11px] font-semibold uppercase tracking-wider text-rose-400">
+                          <span className="text-caption font-semibold uppercase tracking-wider text-sent-negative-fg">
                             Critiques
                           </span>
                           <ul className="mt-1 space-y-1">
                             {pulse.bads.map((bad, i) => (
-                              <li key={i} className="flex items-start text-xs text-gray-300">
-                                <span className="mr-1.5 text-rose-500">•</span>
+                              <li key={i} className="flex items-start text-xs text-fg-secondary">
+                                <span className="mr-1.5 text-sent-negative">•</span>
                                 <span>{bad}</span>
                               </li>
                             ))}
@@ -220,12 +220,12 @@ export function EpisodeView({ seriesTitle, member, media, episode, onClose }: Ep
                     </div>
                   )}
 
-                  <div className="mt-3 flex items-center justify-between gap-3 border-t border-gray-700/50 pt-2">
+                  <div className="mt-3 flex items-center justify-between gap-3 border-t border-edge-strong/50 pt-2">
                     <a
                       href={pulse.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex min-h-11 items-center gap-1.5 text-xs font-medium text-gray-300 transition-colors hover:text-white"
+                      className="flex min-h-11 items-center gap-1.5 text-xs font-medium text-fg-secondary transition-colors hover:text-fg"
                     >
                       <MessageCircle className="h-3.5 w-3.5" aria-hidden="true" />
                       Read the thread
@@ -235,13 +235,13 @@ export function EpisodeView({ seriesTitle, member, media, episode, onClose }: Ep
                   <VibeFlagButton showId={member.id} episode={episode} />
                 </div>
               ) : state === 'loading' ? (
-                <div className="flex items-center justify-center gap-2 rounded-xl border border-edge bg-surface-0 p-5 text-sm text-gray-400">
+                <div className="flex items-center justify-center gap-2 rounded-inner border border-edge bg-surface-0 p-5 text-sm text-fg-muted">
                   <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                   Reading the community vibe…
                 </div>
               ) : state === 'quiet' && quiet !== null ? (
                 isJustAired(quiet) ? (
-                  <div className="rounded-xl border border-sky-500/30 bg-sky-950/20 p-5 text-center text-sm text-sky-200">
+                  <div className="rounded-inner border border-sent-new/30 bg-sent-new/10 p-5 text-center text-sm text-sent-new-fg">
                     Just released — the{' '}
                     <a href={quiet.url} target="_blank" rel="noreferrer" className="underline underline-offset-2">
                       discussion thread
@@ -249,9 +249,9 @@ export function EpisodeView({ seriesTitle, member, media, episode, onClose }: Ep
                     is still filling up. Check back soon.
                   </div>
                 ) : (
-                  <div className="rounded-xl border border-zinc-500/30 bg-surface-0 p-5 text-center text-sm text-gray-400">
+                  <div className="rounded-inner border border-sent-quiet/30 bg-surface-0 p-5 text-center text-sm text-fg-muted">
                     The{' '}
-                    <a href={quiet.url} target="_blank" rel="noreferrer" className="underline underline-offset-2 text-gray-300">
+                    <a href={quiet.url} target="_blank" rel="noreferrer" className="underline underline-offset-2 text-fg-secondary">
                       discussion thread
                     </a>{' '}
                     is quiet — only {quiet.comments} comment{quiet.comments === 1 ? '' : 's'}, not enough for a
@@ -259,37 +259,37 @@ export function EpisodeView({ seriesTitle, member, media, episode, onClose }: Ep
                   </div>
                 )
               ) : state === 'not_found' ? (
-                <div className="rounded-xl border border-edge bg-surface-0 p-5 text-center text-sm text-gray-400">
+                <div className="rounded-inner border border-edge bg-surface-0 p-5 text-center text-sm text-fg-muted">
                   r/anime never had a discussion thread for this episode.
                 </div>
               ) : state === 'resting' ? (
-                <div className="rounded-xl border border-edge bg-surface-0 p-5 text-center text-sm text-gray-400">
+                <div className="rounded-inner border border-edge bg-surface-0 p-5 text-center text-sm text-fg-muted">
                   AI features are resting — try again tomorrow.
                 </div>
               ) : state === 'no_key' ? (
-                <div className="rounded-xl border border-edge bg-surface-0 p-5 text-center text-sm text-gray-400">
+                <div className="rounded-inner border border-edge bg-surface-0 p-5 text-center text-sm text-fg-muted">
                   AI features are off in this deployment.
                 </div>
               ) : state === 'error' ? (
-                <div className="flex flex-col items-center gap-3 rounded-xl border border-rose-500/30 bg-rose-950/30 p-5 text-center">
-                  <p className="text-sm text-rose-200">Could not check the community vibe.</p>
+                <div className="flex flex-col items-center gap-3 rounded-inner border border-danger-500/30 bg-danger-500/10 p-5 text-center">
+                  <p className="text-sm text-danger-300">Could not check the community vibe.</p>
                   <button
                     onClick={load}
-                    className="flex h-11 items-center rounded-lg border border-edge px-4 text-sm font-medium text-gray-300 transition-colors hover:bg-surface-2 hover:text-white"
+                    className="flex h-11 items-center rounded-field border border-edge px-4 text-sm font-medium text-fg-secondary transition-colors hover:bg-surface-2 hover:text-fg"
                   >
                     Try again
                   </button>
                 </div>
               ) : preDiscussionEra ? (
-                <div className="rounded-xl border border-edge bg-surface-0 p-5 text-center text-sm text-gray-400">
+                <div className="rounded-inner border border-edge bg-surface-0 p-5 text-center text-sm text-fg-muted">
                   This aired before r/anime ran episode threads.
                 </div>
               ) : (
-                <div className="flex flex-col items-center gap-3 rounded-xl border border-edge bg-surface-0 p-5 text-center">
-                  <p className="text-sm text-gray-400">No remembered reading for this episode yet.</p>
+                <div className="flex flex-col items-center gap-3 rounded-inner border border-edge bg-surface-0 p-5 text-center">
+                  <p className="text-sm text-fg-muted">No remembered reading for this episode yet.</p>
                   <button
                     onClick={load}
-                    className="flex h-11 items-center rounded-lg bg-accent-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-accent-500"
+                    className="flex h-11 items-center rounded-field bg-accent-600 px-4 text-sm font-semibold text-fg-inverse transition-colors hover:bg-accent-500"
                   >
                     Check the community vibe
                   </button>
@@ -297,7 +297,7 @@ export function EpisodeView({ seriesTitle, member, media, episode, onClose }: Ep
               )}
 
               {media?.coverImage?.large && (
-                <p className="text-[11px] text-gray-600">
+                <p className="text-caption text-fg-faint">
                   {member.title} · {member.format || 'TV'}
                 </p>
               )}

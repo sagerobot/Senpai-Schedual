@@ -39,25 +39,25 @@ export function VibeFlagButton({ showId, episode }: { showId: number; episode: n
   };
 
   if (sent) {
-    return <p className="mt-3 text-[11px] text-gray-500">Reported — thank you.</p>;
+    return <p className="mt-3 text-caption text-fg-faint">Reported — thank you.</p>;
   }
 
   return (
-    <div className="mt-3 border-t border-gray-700/50 pt-2">
+    <div className="mt-3 border-t border-edge-strong/50 pt-2">
       {open ? (
         <div className="flex flex-wrap items-center gap-2">
           {REASONS.map(({ reason, label }) => (
             <button
               key={reason}
               onClick={() => void send(reason)}
-              className="flex min-h-11 items-center rounded-lg border border-gray-700 px-3 text-xs font-medium text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
+              className="flex min-h-11 items-center rounded-field border border-edge-strong px-3 text-xs font-medium text-fg-secondary transition-colors hover:bg-surface-3 hover:text-fg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               {label}
             </button>
           ))}
           <button
             onClick={() => setOpen(false)}
-            className="flex min-h-11 items-center px-2 text-xs text-gray-500 transition-colors hover:text-gray-300"
+            className="flex min-h-11 items-center px-2 text-xs text-fg-faint transition-colors hover:text-fg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             Cancel
           </button>
@@ -65,7 +65,7 @@ export function VibeFlagButton({ showId, episode }: { showId: number; episode: n
       ) : (
         <button
           onClick={() => setOpen(true)}
-          className="flex min-h-11 items-center gap-1.5 text-[11px] text-gray-500 transition-colors hover:text-gray-300"
+          className="flex min-h-11 items-center gap-1.5 text-caption text-fg-faint transition-colors hover:text-fg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <Flag className="h-3 w-3" aria-hidden="true" />
           Report an issue with this reading

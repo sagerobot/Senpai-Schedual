@@ -25,7 +25,7 @@ interface LibraryStatusMenuProps {
 }
 
 const itemClasses =
-  'flex min-h-11 cursor-pointer select-none items-center gap-2.5 rounded-lg px-3 text-sm text-gray-200 outline-none transition-colors data-[highlighted]:bg-accent-500/15 data-[highlighted]:text-white';
+  'flex min-h-11 cursor-pointer select-none items-center gap-2.5 rounded-field px-3 text-sm text-fg-secondary outline-none transition-colors data-[highlighted]:bg-accent-500/15 data-[highlighted]:text-fg';
 
 /**
  * The one bookmark behavior, everywhere a bookmark appears (PR 12):
@@ -93,7 +93,7 @@ export function LibraryStatusMenu({ showId, renderTrigger, align = 'end' }: Libr
           align={align}
           sideOffset={6}
           onClick={stop}
-          className="z-[100] min-w-[210px] rounded-xl border border-edge bg-surface-2 p-1.5 shadow-2xl data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95"
+          className="z-[100] min-w-[210px] rounded-inner border border-edge bg-surface-2 p-1.5 shadow-e3 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95"
         >
           {LIBRARY_STATUS_ORDER.map((s) => (
             <DropdownMenu.Item key={s} className={itemClasses} onSelect={() => handleSetStatus(s)}>
@@ -103,7 +103,7 @@ export function LibraryStatusMenu({ showId, renderTrigger, align = 'end' }: Libr
           ))}
           <DropdownMenu.Separator className="my-1 h-px bg-edge" />
           <DropdownMenu.Item
-            className={cn(itemClasses, 'text-red-400 data-[highlighted]:bg-red-500/10 data-[highlighted]:text-red-300')}
+            className={cn(itemClasses, 'text-danger-400 data-[highlighted]:bg-danger-500/10 data-[highlighted]:text-danger-300')}
             onSelect={handleRemove}
           >
             <Trash2 className="h-4 w-4" />

@@ -15,12 +15,12 @@ function ScheduleSkeleton() {
   return (
     <div className="space-y-4 pb-12" aria-hidden>
       <div className="space-y-2">
-        <div className="h-7 w-40 animate-pulse rounded-lg bg-surface-2" />
+        <div className="h-7 w-40 animate-pulse rounded-field bg-surface-2" />
         <div className="h-4 w-64 animate-pulse rounded bg-surface-1" />
       </div>
       <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4 sm:gap-6">
         {Array.from({ length: 10 }, (_, i) => (
-          <div key={i} className="flex flex-col overflow-hidden rounded-xl bg-gray-900 shadow-xl">
+          <div key={i} className="flex flex-col overflow-hidden rounded-inner bg-surface-1 shadow-e2">
             <div className="aspect-[3/4] w-full animate-pulse bg-surface-2" />
             <div className="space-y-2 p-3 sm:p-4">
               <div className="h-4 w-3/4 animate-pulse rounded bg-surface-2" />

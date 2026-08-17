@@ -54,48 +54,48 @@ export function SeasonRecapModal({ isOpen, onClose, logs, animeList, favorites }
   return (
     <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-overlay backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
         <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-lg translate-x-[-50%] translate-y-[-50%] p-4 md:p-6 duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]">
-          <div className="relative flex max-h-[85vh] flex-col overflow-hidden rounded-2xl bg-[#1c1c1f] text-gray-200 shadow-2xl border border-purple-500/30">
+          <div className="relative flex max-h-[85vh] flex-col overflow-hidden rounded-card bg-surface-1 text-fg-secondary shadow-e3 border border-accent-500/30">
             
-            <div className="bg-purple-900/50 p-6 pt-10 text-center relative">
-              <Dialog.Close className="absolute right-4 top-4 rounded-lg bg-black/20 p-1.5 text-white hover:bg-black/40 transition-colors">
+            <div className="bg-accent-700/40 p-6 pt-10 text-center relative">
+              <Dialog.Close className="absolute right-4 top-4 rounded-field p-1.5 text-fg-muted transition-colors hover:bg-surface-3 hover:text-fg">
                 <X className="h-4 w-4" aria-hidden="true" />
                 <span className="sr-only">Close</span>
               </Dialog.Close>
-              <Dialog.Title className="text-3xl font-bold tracking-tight text-white mb-1">Season Recap</Dialog.Title>
-              <Dialog.Description className="text-purple-200 text-sm">Your anime journey this season</Dialog.Description>
+              <Dialog.Title className="text-3xl font-bold tracking-tight text-fg mb-1">Season Recap</Dialog.Title>
+              <Dialog.Description className="text-accent-300 text-sm">Your anime journey this season</Dialog.Description>
             </div>
 
             <div className="p-6 space-y-6 overflow-y-auto custom-scrollbar">
               {/* Highlight Cards */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="rounded-xl bg-[#2a2a2d] p-4 border border-gray-800 flex flex-col items-center text-center">
-                  <div className="rounded-full bg-yellow-500/20 p-3 mb-2">
-                    <Trophy className="h-6 w-6 text-yellow-500" />
+                <div className="rounded-inner bg-surface-3 p-4 border border-edge flex flex-col items-center text-center">
+                  <div className="rounded-full bg-warning-500/20 p-3 mb-2">
+                    <Trophy className="h-6 w-6 text-warning-500" />
                   </div>
-                  <span className="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1">Seasonal MVP</span>
-                  <span className="font-semibold text-white line-clamp-1">{recapData.mvp ? displayTitle(recapData.mvp) : 'None'}</span>
-                  {recapData.highestScore > 0 && <span className="text-yellow-400 text-sm mt-1">{recapData.highestScore.toFixed(1)} avg</span>}
+                  <span className="text-xs text-fg-muted uppercase font-bold tracking-wider mb-1">Seasonal MVP</span>
+                  <span className="font-semibold text-fg line-clamp-1">{recapData.mvp ? displayTitle(recapData.mvp) : 'None'}</span>
+                  {recapData.highestScore > 0 && <span className="text-warning-400 text-sm mt-1">{recapData.highestScore.toFixed(1)} avg</span>}
                 </div>
-                
-                <div className="rounded-xl bg-[#2a2a2d] p-4 border border-gray-800 flex flex-col items-center text-center">
-                  <div className="rounded-full bg-purple-500/20 p-3 mb-2">
-                    <Clock className="h-6 w-6 text-purple-400" />
+
+                <div className="rounded-inner bg-surface-3 p-4 border border-edge flex flex-col items-center text-center">
+                  <div className="rounded-full bg-accent-500/20 p-3 mb-2">
+                    <Clock className="h-6 w-6 text-accent-400" />
                   </div>
-                  <span className="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1">Time Watched</span>
-                  <span className="font-semibold text-white text-2xl">{recapData.totalHours.toFixed(1)}h</span>
+                  <span className="text-xs text-fg-muted uppercase font-bold tracking-wider mb-1">Time Watched</span>
+                  <span className="font-semibold text-fg text-2xl">{recapData.totalHours.toFixed(1)}h</span>
                 </div>
               </div>
 
               {recapData.biggestJump.show && (
-                <div className="rounded-xl bg-purple-900/20 p-4 border border-purple-500/30 flex items-center gap-4">
-                  <div className="rounded-full bg-purple-500/20 p-2 shrink-0">
-                    <TrendingUp className="h-5 w-5 text-purple-400" />
+                <div className="rounded-inner bg-accent-700/15 p-4 border border-accent-500/30 flex items-center gap-4">
+                  <div className="rounded-full bg-accent-500/20 p-2 shrink-0">
+                    <TrendingUp className="h-5 w-5 text-accent-400" />
                   </div>
                   <div>
-                    <div className="text-xs text-purple-300 font-semibold mb-0.5">Biggest Score Jump (+{recapData.biggestJump.jump})</div>
-                    <div className="text-sm text-white font-medium">{displayTitle(recapData.biggestJump.show)}</div>
+                    <div className="text-xs text-accent-300 font-semibold mb-0.5">Biggest Score Jump (+{recapData.biggestJump.jump})</div>
+                    <div className="text-sm text-fg font-medium">{displayTitle(recapData.biggestJump.show)}</div>
                   </div>
                 </div>
               )}
@@ -103,18 +103,18 @@ export function SeasonRecapModal({ isOpen, onClose, logs, animeList, favorites }
               {/* Sparklines */}
               {recapData.showStats.length > 0 && (
                 <div className="space-y-3">
-                  <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-2">Episode Scores</h3>
+                  <h3 className="text-sm font-semibold text-fg-secondary uppercase tracking-wider mb-2">Episode Scores</h3>
                   {recapData.showStats.slice(0, 5).map(stat => (
                     <div key={stat.anime.id} className="flex flex-col gap-1">
                       <div className="flex justify-between text-xs">
-                        <span className="text-gray-300 font-medium truncate pr-2">{displayTitle(stat.anime)}</span>
-                        <span className="text-gray-500 shrink-0">{stat.avgScore.toFixed(1)}</span>
+                        <span className="text-fg-secondary font-medium truncate pr-2">{displayTitle(stat.anime)}</span>
+                        <span className="text-fg-faint shrink-0">{stat.avgScore.toFixed(1)}</span>
                       </div>
                       <div className="flex h-6 items-end gap-0.5 opacity-80 hover:opacity-100 transition-opacity">
                         {stat.scoredLogs.map(l => (
                           <div 
                             key={l.episodeNumber}
-                            className="w-full bg-purple-500 rounded-t-sm transition-all hover:bg-purple-400"
+                            className="w-full bg-accent-500 rounded-t-sm transition-all hover:bg-accent-400"
                             style={{ height: `${(l.score! / 10) * 100}%` }}
                             title={`Ep ${l.episodeNumber}: ${l.score}/10`}
                           />

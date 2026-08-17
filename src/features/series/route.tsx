@@ -79,11 +79,11 @@ export function SeriesRoute() {
   if (graph.isError || graph.data === undefined) {
     return (
       <div className="flex h-[50vh] flex-col items-center justify-center space-y-4 text-center">
-        <h1 className="text-2xl font-bold text-white">Couldn&apos;t load this franchise</h1>
-        <p className="max-w-sm text-sm text-gray-500">AniList didn&apos;t answer, or the id doesn&apos;t exist.</p>
+        <h1 className="text-2xl font-bold text-fg">Couldn&apos;t load this franchise</h1>
+        <p className="max-w-sm text-sm text-fg-faint">AniList didn&apos;t answer, or the id doesn&apos;t exist.</p>
         <Link
           to="/schedule"
-          className="flex h-11 items-center rounded-lg bg-accent-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-accent-500"
+          className="flex h-11 items-center rounded-field bg-accent-600 px-4 text-sm font-semibold text-fg-inverse transition-colors hover:bg-accent-500"
         >
           Back to Schedule
         </Link>

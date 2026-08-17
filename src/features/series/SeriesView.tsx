@@ -37,7 +37,7 @@ function year(entry: SeriesEntry): string {
 function SeasonSynopsis({ media }: { media: AnimeMedia }) {
   const details = useShowDetailsQuery(media);
   if (details.isPending) {
-    return <div className="mt-4 h-16 animate-pulse rounded-lg bg-surface-2" aria-hidden="true" />;
+    return <div className="mt-4 h-16 animate-pulse rounded-field bg-surface-2" aria-hidden="true" />;
   }
   const raw =
     details.data?.details.aiSummary ??
@@ -47,7 +47,7 @@ function SeasonSynopsis({ media }: { media: AnimeMedia }) {
     null;
   if (raw === null || raw.trim() === '') return null;
   const text = raw.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-  return <p className="mt-4 text-sm leading-relaxed text-gray-300 line-clamp-4">{text}</p>;
+  return <p className="mt-4 text-sm leading-relaxed text-fg-secondary line-clamp-4">{text}</p>;
 }
 
 export function SeriesView({ graph, media, logs, library, onOpenEpisode }: SeriesViewProps) {
@@ -77,8 +77,8 @@ export function SeriesView({ graph, media, logs, library, onOpenEpisode }: Serie
   return (
     <div className="mx-auto max-w-4xl">
       <header className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight text-white md:text-3xl">{graph.title}</h1>
-        <p className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-400">
+        <h1 className="text-2xl font-bold tracking-tight text-fg md:text-3xl">{graph.title}</h1>
+        <p className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-fg-muted">
           <span className="flex items-center gap-1.5">
             <Tv className="h-4 w-4" aria-hidden="true" />
             {seasons.length} {seasons.length === 1 ? 'season' : 'seasons'}
@@ -96,14 +96,14 @@ export function SeriesView({ graph, media, logs, library, onOpenEpisode }: Serie
 
         {franchise.watched > 0 && (
           <p className="mt-3 flex flex-wrap gap-2 text-xs">
-            <span className="rounded-full bg-surface-2 px-3 py-1.5 text-gray-300">
+            <span className="rounded-full bg-surface-2 px-3 py-1.5 text-fg-secondary">
               {franchise.watched} episodes watched
             </span>
-            <span className="rounded-full bg-surface-2 px-3 py-1.5 text-gray-300">
+            <span className="rounded-full bg-surface-2 px-3 py-1.5 text-fg-secondary">
               {franchise.seasonsStarted}/{graph.entries.length} entries started
             </span>
             {franchise.avgEpisodeScore !== null && (
-              <span className="rounded-full bg-surface-2 px-3 py-1.5 text-gray-300">
+              <span className="rounded-full bg-surface-2 px-3 py-1.5 text-fg-secondary">
                 Your episode average: {franchise.avgEpisodeScore}
               </span>
             )}
@@ -120,10 +120,10 @@ export function SeriesView({ graph, media, logs, library, onOpenEpisode }: Serie
             aria-selected={selectedId === entry.id}
             onClick={() => setSelectedId(entry.id)}
             className={cn(
-              'h-11 shrink-0 whitespace-nowrap rounded-lg border px-4 text-sm font-medium transition-colors',
+              'h-11 shrink-0 whitespace-nowrap rounded-field border px-4 text-sm font-medium transition-colors',
               selectedId === entry.id
                 ? 'border-accent-500/40 bg-accent-600/15 text-accent-300'
-                : 'border-edge text-gray-400 hover:bg-surface-2 hover:text-white',
+                : 'border-edge text-fg-muted hover:bg-surface-2 hover:text-fg',
             )}
           >
             {entry.seasonLabel}
@@ -135,10 +135,10 @@ export function SeriesView({ graph, media, logs, library, onOpenEpisode }: Serie
             aria-selected={selectedId === 'extras'}
             onClick={() => setSelectedId('extras')}
             className={cn(
-              'h-11 shrink-0 whitespace-nowrap rounded-lg border px-4 text-sm font-medium transition-colors',
+              'h-11 shrink-0 whitespace-nowrap rounded-field border px-4 text-sm font-medium transition-colors',
               selectedId === 'extras'
                 ? 'border-accent-500/40 bg-accent-600/15 text-accent-300'
-                : 'border-edge text-gray-400 hover:bg-surface-2 hover:text-white',
+                : 'border-edge text-fg-muted hover:bg-surface-2 hover:text-fg',
             )}
           >
             Extras
@@ -151,18 +151,18 @@ export function SeriesView({ graph, media, logs, library, onOpenEpisode }: Serie
         <section
           role="tabpanel"
           aria-label={selected.seasonLabel}
-          className="mt-3 flex flex-col gap-5 rounded-xl border border-edge bg-surface-0 p-5 sm:flex-row"
+          className="mt-3 flex flex-col gap-5 rounded-inner border border-edge bg-surface-0 p-5 sm:flex-row"
         >
           {selectedMedia?.coverImage?.large && (
             <img
               src={selectedMedia.coverImage.large}
               alt=""
-              className="h-56 w-40 shrink-0 rounded-lg object-cover"
+              className="h-56 w-40 shrink-0 rounded-field object-cover"
             />
           )}
           <div className="min-w-0 flex-1">
-            <h2 className="text-lg font-semibold text-white">{selected.title}</h2>
-            <p className="mt-0.5 text-xs text-gray-400">
+            <h2 className="text-lg font-semibold text-fg">{selected.title}</h2>
+            <p className="mt-0.5 text-xs text-fg-muted">
               {selected.format || 'TV'} · {year(selected)}
               {selected.episodes != null && ` · ${selected.episodes} episodes`}
               {selectedMedia?.averageScore != null && ` · ${selectedMedia.averageScore}% on AniList`}
@@ -170,26 +170,26 @@ export function SeriesView({ graph, media, logs, library, onOpenEpisode }: Serie
 
             {/* The two ratings, side by side, never merged. */}
             <div className="mt-4 grid grid-cols-2 gap-3 sm:max-w-xs">
-              <div className="rounded-lg bg-surface-2 p-3">
-                <p className="text-[11px] uppercase tracking-wider text-gray-500">Your overall</p>
-                <p className="mt-0.5 flex items-center gap-1 text-lg font-semibold text-white">
-                  <Star className="h-4 w-4 text-amber-400" aria-hidden="true" />
+              <div className="rounded-field bg-surface-2 p-3">
+                <p className="text-caption uppercase tracking-wider text-fg-faint">Your overall</p>
+                <p className="mt-0.5 flex items-center gap-1 text-lg font-semibold text-fg">
+                  <Star className="h-4 w-4 text-warning-400" aria-hidden="true" />
                   {selectedEntry?.showScore != null ? selectedEntry.showScore : '—'}
                 </p>
               </div>
-              <div className="rounded-lg bg-surface-2 p-3">
-                <p className="text-[11px] uppercase tracking-wider text-gray-500">Episode avg</p>
-                <p className="mt-0.5 text-lg font-semibold text-white">
+              <div className="rounded-field bg-surface-2 p-3">
+                <p className="text-caption uppercase tracking-wider text-fg-faint">Episode avg</p>
+                <p className="mt-0.5 text-lg font-semibold text-fg">
                   {selectedRollup?.avgEpisodeScore ?? '—'}
                   {selectedRollup !== null && selectedRollup.scored > 0 && (
-                    <span className="ml-1 text-xs font-normal text-gray-500">({selectedRollup.scored} rated)</span>
+                    <span className="ml-1 text-xs font-normal text-fg-faint">({selectedRollup.scored} rated)</span>
                   )}
                 </p>
               </div>
             </div>
 
             {selectedRollup !== null && selected.episodes != null && selected.episodes > 0 && (
-              <p className="mt-3 text-xs text-gray-400">
+              <p className="mt-3 text-xs text-fg-muted">
                 {selectedRollup.watched}/{selected.episodes} episodes watched
               </p>
             )}
@@ -199,7 +199,7 @@ export function SeriesView({ graph, media, logs, library, onOpenEpisode }: Serie
             <Link
               to={`?${SHOW_PARAM}=${selected.id}`}
               preventScrollReset
-              className="mt-4 inline-flex h-11 items-center rounded-lg border border-edge px-4 text-sm font-medium text-gray-300 transition-colors hover:bg-surface-2 hover:text-white"
+              className="mt-4 inline-flex h-11 items-center rounded-field border border-edge px-4 text-sm font-medium text-fg-secondary transition-colors hover:bg-surface-2 hover:text-fg"
             >
               Quick view &amp; bulk logging
             </Link>
@@ -210,7 +210,7 @@ export function SeriesView({ graph, media, logs, library, onOpenEpisode }: Serie
       {/* Episodes: each cell is a door to that episode's own view. */}
       {selected && selectedMedia && (
         <section className="mt-4">
-          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-gray-400">Episodes</h2>
+          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-fg-muted">Episodes</h2>
           <EpisodeGrid
             media={selectedMedia}
             vibes={vibes}
@@ -227,15 +227,15 @@ export function SeriesView({ graph, media, logs, library, onOpenEpisode }: Serie
               key={entry.id}
               to={`?${SHOW_PARAM}=${entry.id}`}
               preventScrollReset
-              className="flex min-h-11 items-center justify-between gap-3 rounded-lg border border-edge bg-surface-0 px-4 py-2.5 transition-colors hover:bg-surface-2"
+              className="flex min-h-11 items-center justify-between gap-3 rounded-field border border-edge bg-surface-0 px-4 py-2.5 transition-colors hover:bg-surface-2"
             >
               <span className="min-w-0">
-                <span className="block truncate text-sm font-medium text-gray-200">{entry.title}</span>
-                <span className="text-xs text-gray-500">
+                <span className="block truncate text-sm font-medium text-fg-secondary">{entry.title}</span>
+                <span className="text-xs text-fg-faint">
                   {entry.format || '—'} · {year(entry)}
                 </span>
               </span>
-              <span className="shrink-0 text-xs text-gray-500">Open</span>
+              <span className="shrink-0 text-xs text-fg-faint">Open</span>
             </Link>
           ))}
         </section>

@@ -94,7 +94,7 @@ export function SeriesCard({ series, libraryEntries, logs, onAnimeSelect }: Seri
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex flex-col overflow-hidden rounded-xl bg-[#1c1c1f] border border-gray-800 transition-all hover:border-gray-700"
+      className="flex flex-col overflow-hidden rounded-inner bg-surface-1 border border-edge transition-all hover:border-edge-strong"
     >
       {/* One control for the whole header row: a real disclosure button. The
           chevron is decoration inside it, not a second target that double-fires. */}
@@ -102,14 +102,14 @@ export function SeriesCard({ series, libraryEntries, logs, onAnimeSelect }: Seri
         type="button"
         onClick={() => setExpanded(!expanded)}
         aria-expanded={expanded}
-        className="flex w-full items-center gap-4 p-4 text-left"
+        className="flex w-full items-center gap-4 p-4 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
       >
         <span className="flex-1 min-w-0">
-          <span className="mb-1 block truncate text-lg font-bold text-white">{series.title}</span>
+          <span className="mb-1 block truncate text-lg font-bold text-fg">{series.title}</span>
 
-          <span className="flex items-center gap-3 text-sm text-gray-400">
+          <span className="flex items-center gap-3 text-sm text-fg-muted">
             {avgScore != null && (
-              <span className="flex items-center gap-1 text-yellow-400 font-medium">
+              <span className="flex items-center gap-1 text-warning-400 font-medium">
                 <Star className="h-3.5 w-3.5 fill-current" aria-hidden="true" />
                 {avgScore.toFixed(1)}
               </span>
@@ -126,11 +126,11 @@ export function SeriesCard({ series, libraryEntries, logs, onAnimeSelect }: Seri
           </span>
 
           {totalAired > 0 && (
-            <span className="mt-3 block h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-gray-800">
+            <span className="mt-3 block h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-surface-2">
               <span
                 className={cn(
                   "block h-full transition-all duration-500",
-                  derivedStatus === 'completed' ? "bg-emerald-500" : "bg-accent-500"
+                  derivedStatus === 'completed' ? "bg-success-500" : "bg-accent-500"
                 )}
                 style={{ width: `${Math.min(100, progressPercent)}%` }}
               />
@@ -138,7 +138,7 @@ export function SeriesCard({ series, libraryEntries, logs, onAnimeSelect }: Seri
           )}
         </span>
 
-        <span className="flex shrink-0 items-center p-2 text-gray-400">
+        <span className="flex shrink-0 items-center p-2 text-fg-muted">
           {expanded ? <ChevronUp className="h-5 w-5" aria-hidden="true" /> : <ChevronDown className="h-5 w-5" aria-hidden="true" />}
         </span>
       </button>
@@ -149,45 +149,45 @@ export function SeriesCard({ series, libraryEntries, logs, onAnimeSelect }: Seri
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="border-t border-gray-800 bg-[#2a2a2d]/30"
+            className="border-t border-edge bg-surface-3/30"
           >
-            <div className="flex flex-col divide-y divide-gray-800/50 p-2">
+            <div className="flex flex-col divide-y divide-edge/50 p-2">
               {displaySeasons.map((season) => {
                 const l = libraryMap.get(season.id);
                 return (
-                  <div key={season.id} className="flex items-center justify-between py-2 px-2 hover:bg-gray-800/50 rounded-lg">
+                  <div key={season.id} className="flex items-center justify-between py-2 px-2 hover:bg-surface-3/50 rounded-field">
                     <div className="flex flex-col min-w-0 pr-4">
                       <button
                         type="button"
                         onClick={() => onAnimeSelect?.(season.id)}
                         aria-label={`Open ${season.title}`}
-                        className="truncate text-left text-sm font-medium text-gray-200 hover:underline hover:text-accent-400"
+                        className="truncate text-left text-sm font-medium text-fg-secondary hover:underline hover:text-accent-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       >
                         {season.seasonLabel}
                       </button>
-                      <span className="text-xs text-gray-400 truncate">{season.title}</span>
+                      <span className="text-xs text-fg-muted truncate">{season.title}</span>
                     </div>
 
                     <div className="flex items-center gap-3 text-sm whitespace-nowrap">
                       {l ? (
                         <>
-                          <span className="text-gray-400 w-16 text-right">{logs.filter(log => log.showId === l.showId).length} / {season.episodes || '?'}</span>
+                          <span className="text-fg-muted w-16 text-right">{logs.filter(log => log.showId === l.showId).length} / {season.episodes || '?'}</span>
                           <select
                             value={l.status}
                             aria-label={`Status for ${season.seasonLabel}`}
                             onChange={(e) => setSeasonStatus(l, e.target.value as LibraryStatus)}
-                            className="h-8 rounded-md border border-edge bg-surface-3 px-2 text-xs font-medium text-gray-200 focus:border-accent-500 focus:outline-none"
+                            className="h-8 rounded-xs border border-edge bg-surface-3 px-2 text-xs font-medium text-fg-secondary focus:border-accent-500 focus:outline-none"
                           >
                             {LIBRARY_STATUS_ORDER.map((s) => (
                               <option key={s} value={s}>{LIBRARY_STATUS_LABELS[s]}</option>
                             ))}
                           </select>
-                          <span className="w-8 text-right text-yellow-400">{l.showScore || '-'}</span>
+                          <span className="w-8 text-right text-warning-400">{l.showScore || '-'}</span>
                           <LibraryStatusMenu
                             showId={season.id}
                             align="end"
                             renderTrigger={({ inLibrary }) => (
-                              <button type="button" className="flex h-11 w-11 items-center justify-center rounded-md text-accent-400 hover:bg-accent-500/10 hover:text-accent-300 transition-colors">
+                              <button type="button" className="flex h-11 w-11 items-center justify-center rounded-xs text-accent-400 hover:bg-accent-500/10 hover:text-accent-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                                 <Bookmark className="h-4 w-4" fill={inLibrary ? "currentColor" : "none"} aria-hidden="true" />
                               </button>
                             )}
@@ -197,7 +197,7 @@ export function SeriesCard({ series, libraryEntries, logs, onAnimeSelect }: Seri
                         <button
                           type="button"
                           onClick={() => addSeasonToLibrary(season.id)}
-                          className="flex h-11 items-center gap-1 text-xs font-medium text-accent-400 hover:text-accent-300 bg-accent-500/10 hover:bg-accent-500/20 px-3 rounded-md transition-colors"
+                          className="flex h-11 items-center gap-1 text-xs font-medium text-accent-400 hover:text-accent-300 bg-accent-500/10 hover:bg-accent-500/20 px-3 rounded-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         >
                           <Plus className="h-3.5 w-3.5" aria-hidden="true" /> Add to List
                         </button>
@@ -209,7 +209,7 @@ export function SeriesCard({ series, libraryEntries, logs, onAnimeSelect }: Seri
             </div>
 
             {nextAvailable && derivedStatus === 'completed' && (
-              <div className="p-3 m-2 mt-0 bg-accent-500/10 border border-accent-500/20 rounded-lg flex items-center justify-between">
+              <div className="p-3 m-2 mt-0 bg-accent-500/10 border border-accent-500/20 rounded-field flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-accent-300">Next season available!</p>
                   <p className="text-xs text-accent-400/70">{nextAvailable.seasonLabel}</p>
@@ -217,7 +217,7 @@ export function SeriesCard({ series, libraryEntries, logs, onAnimeSelect }: Seri
                 <button
                   type="button"
                   onClick={() => addSeasonToLibrary(nextAvailable!.id)}
-                  className="h-11 px-3 bg-accent-600 text-white text-xs font-medium rounded-md hover:bg-accent-500 transition-colors"
+                  className="h-11 px-3 bg-accent-600 text-fg-inverse text-xs font-medium rounded-xs hover:bg-accent-500 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   Add to Library
                 </button>

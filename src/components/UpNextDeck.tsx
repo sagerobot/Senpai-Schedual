@@ -25,12 +25,12 @@ const DECK_SIZE = 4;
 
 /** Reason chips share the drop cards' glassy pill grammar; never color-only. */
 const REASON_CHIP: Record<UpNextReasonKind, { chip: string; dot: string }> = {
-  'binge-ready': { chip: 'border-emerald-500/40 text-emerald-300', dot: 'bg-emerald-400' },
-  'finish-line': { chip: 'border-emerald-500/40 text-emerald-300', dot: 'bg-emerald-400' },
-  urgency: { chip: 'border-amber-500/40 text-amber-300', dot: 'bg-amber-400' },
+  'binge-ready': { chip: 'border-success-500/40 text-success-300', dot: 'bg-success-400' },
+  'finish-line': { chip: 'border-success-500/40 text-success-300', dot: 'bg-success-400' },
+  urgency: { chip: 'border-warning-500/40 text-warning-300', dot: 'bg-warning-400' },
   momentum: { chip: 'border-accent-500/40 text-accent-300', dot: 'bg-accent-400' },
-  affinity: { chip: 'border-pink-500/40 text-pink-300', dot: 'bg-pink-400' },
-  backlog: { chip: 'border-gray-600/50 text-gray-300', dot: 'bg-gray-400' },
+  affinity: { chip: 'border-sent-mixed/40 text-sent-mixed-fg', dot: 'bg-sent-mixed' },
+  backlog: { chip: 'border-hero-text-low/40 text-hero-text-mid', dot: 'bg-hero-text-mid' },
 };
 
 /**
@@ -55,11 +55,11 @@ export function UpNextDeck({ candidates, onLog, onSkip, onAnimeSelect }: UpNextD
     <section aria-label="Up next for you" className="mb-12">
       <div className="mb-6 flex items-end justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold tracking-tight text-white">Up next for you</h2>
-          <p className="mt-0.5 text-sm text-gray-400">Ranked for right now · skips stick for tonight</p>
+          <h2 className="text-xl font-bold tracking-tight text-fg">Up next for you</h2>
+          <p className="mt-0.5 text-sm text-fg-muted">Ranked for right now · skips stick for tonight</p>
         </div>
         {remaining > 0 && (
-          <span className="whitespace-nowrap pb-1 text-[11px] text-gray-500">
+          <span className="whitespace-nowrap pb-1 text-caption text-fg-faint">
             +{remaining} more in the deck
           </span>
         )}
@@ -124,11 +124,11 @@ export const UpNextCard = memo(function UpNextCard({
   return (
     <div
       className={cn(
-        'group flex h-full flex-col rounded-2xl border bg-[#0a0c16] shadow-2xl transition-all',
-        isBinge ? 'border-emerald-500/40 shadow-[0_0_20px_rgba(52,211,153,0.15)]' : 'border-[#1e2336]',
+        'group flex h-full flex-col rounded-card border bg-hero-drops-bg shadow-e3 transition-all',
+        isBinge ? 'border-success-500/40 shadow-glow-success' : 'border-hero-drops-edge',
       )}
     >
-      <div className="relative min-h-36 w-full grow overflow-hidden rounded-t-2xl bg-[#0a0c16]">
+      <div className="relative min-h-36 w-full grow overflow-hidden rounded-t-card bg-hero-drops-bg">
         <button
           type="button"
           onClick={openShow}
@@ -157,7 +157,7 @@ export const UpNextCard = memo(function UpNextCard({
               the plain gradient path, or GPUs draw seam lines through its alpha
               range while the swipe animates the subtree. */}
           <span
-            className="pointer-events-none absolute -inset-1 top-0 transform-gpu will-change-transform bg-linear-to-t/srgb from-[#0a0c16] via-[#0a0c16]/50 to-transparent"
+            className="pointer-events-none absolute -inset-1 top-0 transform-gpu will-change-transform bg-linear-to-t/srgb from-hero-drops-bg via-hero-drops-bg/50 to-transparent"
             aria-hidden="true"
           />
         </button>
@@ -165,7 +165,7 @@ export const UpNextCard = memo(function UpNextCard({
         <div className="absolute left-3 top-3 z-20 max-w-[calc(100%-24px)]">
           <span
             className={cn(
-              'inline-flex items-center gap-1.5 rounded-full border bg-[#0a0c16]/80 px-2.5 py-1 text-[11px] font-semibold shadow-lg backdrop-blur-md',
+              'inline-flex items-center gap-1.5 rounded-full border bg-hero-drops-bg/80 px-2.5 py-1 text-caption font-semibold shadow-e2 backdrop-blur-md',
               chipTone.chip,
             )}
           >
@@ -180,18 +180,18 @@ export const UpNextCard = memo(function UpNextCard({
           <button
             type="button"
             onClick={openShow}
-            className="block max-w-full truncate text-left text-[17px] font-bold leading-tight text-white transition-colors hover:text-accent-400"
+            className="block max-w-full truncate text-left text-lg font-bold leading-tight text-hero-text-hi transition-colors hover:text-accent-400"
           >
             {title}
           </button>
         </h3>
 
         <div className="mb-1 mt-1.5 flex flex-wrap items-center gap-1.5">
-          <span className="whitespace-nowrap rounded-full border border-gray-800 bg-[#0f121d] px-2 py-0.5 text-[11px] text-gray-400">
+          <span className="whitespace-nowrap rounded-full border border-hero-drops-edge bg-hero-drops-well px-2 py-0.5 text-caption text-hero-text-mid">
             {seasonText} • {watchedCount}/{totalEpisodes} watched
           </span>
           {userAvgScore !== null && (
-            <span className="flex items-center gap-1 whitespace-nowrap rounded-full border border-accent-500/30 bg-[#1a0f2e] px-2 py-0.5 text-[11px] font-semibold text-accent-300 shadow-[0_0_10px_rgba(168,85,247,0.15)]">
+            <span className="flex items-center gap-1 whitespace-nowrap rounded-full border border-accent-500/30 bg-hero-drops-accent-well px-2 py-0.5 text-caption font-semibold text-accent-300 shadow-glow-sm">
               <Star className="h-3 w-3 fill-accent-400 text-accent-400" aria-hidden="true" />
               Your Avg {userAvgScore.toFixed(1)}
             </span>
@@ -199,8 +199,8 @@ export const UpNextCard = memo(function UpNextCard({
         </div>
 
         <div className="mb-2 flex items-center justify-between gap-2">
-          <span className="text-[13px] text-gray-300">Next: Episode {nextEpisode}</span>
-          <span className="flex items-center gap-1.5 text-[11px] text-accent-400">
+          <span className="text-label text-hero-text-mid">Next: Episode {nextEpisode}</span>
+          <span className="flex items-center gap-1.5 text-caption text-accent-400">
             <span
               className="h-1.5 w-1.5 rounded-full bg-accent-500 shadow-[0_0_8px_rgba(168,85,247,0.8)]"
               aria-hidden="true"
@@ -210,17 +210,17 @@ export const UpNextCard = memo(function UpNextCard({
         </div>
 
         <div className="mb-4 flex items-center gap-3">
-          <div className="h-[5px] flex-1 overflow-hidden rounded-full bg-[#1e2336]">
+          <div className="h-[5px] flex-1 overflow-hidden rounded-full bg-hero-drops-edge">
             <div className="h-full rounded-full bg-accent-600" style={{ width: `${progressPct}%` }} />
           </div>
-          <span className="whitespace-nowrap text-[11px] text-gray-400">
+          <span className="whitespace-nowrap text-caption text-hero-text-mid">
             {watchedCount} / {airedCount}
           </span>
         </div>
 
         <div className="mb-2 flex items-center gap-2">
           <Zap className="h-4 w-4 fill-accent-500 text-accent-500" aria-hidden="true" />
-          <span className="text-[13px] font-medium text-gray-200">Rate Episode {nextEpisode}</span>
+          <span className="text-label font-medium text-hero-text-hi">Rate Episode {nextEpisode}</span>
         </div>
         <div
           role="group"
@@ -234,7 +234,7 @@ export const UpNextCard = memo(function UpNextCard({
               whileTap={{ scale: 0.88 }}
               onClick={() => onLog(anime.id, nextEpisode, s)}
               aria-label={`Rate episode ${nextEpisode} a ${s} and mark watched`}
-              className="h-10 flex-1 rounded-lg border border-[#1e2336] bg-[#0a0c16] text-[15px] font-medium text-gray-200 transition-all hover:border-accent-500 hover:bg-accent-600 hover:text-white hover:shadow-[0_0_15px_rgba(168,85,247,0.5)]"
+              className="h-10 flex-1 rounded-field border border-hero-drops-edge bg-hero-drops-bg text-base font-medium text-hero-text-hi transition-all hover:border-accent-500 hover:bg-accent-600 hover:text-fg-inverse hover:shadow-glow"
             >
               {s}
             </motion.button>
@@ -245,15 +245,15 @@ export const UpNextCard = memo(function UpNextCard({
             type="button"
             onClick={() => onLog(anime.id, nextEpisode, null)}
             aria-label={`Mark episode ${nextEpisode} watched without a score`}
-            className="relative flex items-center gap-1.5 rounded-full border border-[#1e2336] bg-[#0f121d] px-3 py-1 text-[11px] text-gray-400 transition-colors after:absolute after:inset-x-0 after:top-1/2 after:h-11 after:-translate-y-1/2 after:content-[''] hover:bg-[#1a1f35] hover:text-gray-200"
+            className="relative flex items-center gap-1.5 rounded-full border border-hero-drops-edge bg-hero-drops-well px-3 py-1 text-caption text-hero-text-mid transition-colors after:absolute after:inset-x-0 after:top-1/2 after:h-11 after:-translate-y-1/2 after:content-[''] hover:bg-hero-drops-well-hover hover:text-hero-text-hi"
           >
             Watched only <Info className="h-3.5 w-3.5" aria-hidden="true" />
           </button>
           <LowScoreButtons
             episode={nextEpisode}
             onSelect={(score) => onLog(anime.id, nextEpisode, score)}
-            triggerClassName="px-3 py-1 rounded-full border border-[#1e2336] bg-[#0f121d] text-[11px] text-gray-400 hover:bg-[#1a1f35] hover:text-gray-200 after:absolute after:inset-x-0 after:top-1/2 after:h-11 after:-translate-y-1/2 after:content-['']"
-            buttonClassName="h-7 min-w-7 px-1.5 rounded-md border border-[#1e2336] bg-[#0f121d] text-[11px] text-gray-300 hover:bg-[#1a1f35] hover:text-white"
+            triggerClassName="px-3 py-1 rounded-full border border-hero-drops-edge bg-hero-drops-well text-caption text-hero-text-mid hover:bg-hero-drops-well-hover hover:text-hero-text-hi after:absolute after:inset-x-0 after:top-1/2 after:h-11 after:-translate-y-1/2 after:content-['']"
+            buttonClassName="h-7 min-w-7 px-1.5 rounded-xs border border-hero-drops-edge bg-hero-drops-well text-caption text-hero-text-mid hover:bg-hero-drops-well-hover hover:text-hero-text-hi"
           />
         </div>
 
@@ -264,24 +264,24 @@ export const UpNextCard = memo(function UpNextCard({
               target="_blank"
               rel="noreferrer"
               className={cn(
-                'flex h-11 w-full items-center justify-center gap-2 rounded-xl text-[14px] font-medium transition-all',
+                'flex h-11 w-full items-center justify-center gap-2 rounded-inner text-sm font-medium transition-all',
                 isBinge
-                  ? 'bg-emerald-600 text-white hover:bg-emerald-500'
-                  : 'border border-accent-600 bg-[#0a0c16] text-accent-400 shadow-[0_0_15px_rgba(147,51,234,0.2)] hover:bg-accent-600 hover:text-white hover:shadow-[0_0_20px_rgba(147,51,234,0.4)]',
+                  ? 'bg-success-600 text-fg-inverse hover:bg-success-500'
+                  : 'border border-accent-600 bg-hero-drops-bg text-accent-400 shadow-glow hover:bg-accent-600 hover:text-fg-inverse hover:shadow-glow-lg',
               )}
             >
               <Play className="h-4 w-4 fill-current" aria-hidden="true" />
               {isBinge ? 'Start the binge' : `Continue Episode ${nextEpisode}`}
             </a>
           ) : (
-            <p className="flex h-11 w-full items-center justify-center rounded-xl bg-[#1e2336] text-[14px] font-medium text-gray-400">
+            <p className="flex h-11 w-full items-center justify-center rounded-inner bg-hero-drops-edge text-sm font-medium text-hero-text-mid">
               No stream linked
             </p>
           )}
           <button
             type="button"
             onClick={() => onSkip(anime.id)}
-            className="mt-2 flex h-8 w-full items-center justify-center rounded-lg text-[11px] font-medium text-gray-500 transition-colors hover:bg-[#0f121d] hover:text-gray-300"
+            className="mt-2 flex h-8 w-full items-center justify-center rounded-field text-caption font-medium text-hero-text-low transition-colors hover:bg-hero-drops-well hover:text-hero-text-mid"
           >
             Not tonight →
           </button>

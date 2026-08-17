@@ -18,7 +18,7 @@ export function StatusBadge({ state, behindCount, className }: StatusBadgeProps)
   return (
     <div
       className={cn(
-        'rounded-full border px-2 py-1 text-[10px] font-semibold backdrop-blur-md flex items-center gap-1',
+        'rounded-full border px-2 py-1 text-micro font-semibold backdrop-blur-md flex items-center gap-1',
         WATCH_STATE_CLASSES[state],
         className
       )}

@@ -177,14 +177,14 @@ export function DailySchedule({ animeList, favorites, stacking = NO_STACKING, on
       {activeDropCount === 0 && deckCandidates.length > 0 && (
         <div>
           {clearedDropsToday && (
-            <div className="mb-8 flex items-center gap-3.5 text-[13px] font-semibold text-emerald-300">
+            <div className="mb-8 flex items-center gap-3.5 text-label font-semibold text-success-300">
               <span
-                className="h-px flex-1 bg-gradient-to-r from-transparent via-emerald-500/35 to-transparent"
+                className="h-px flex-1 bg-gradient-to-r from-transparent via-success-500/35 to-transparent"
                 aria-hidden="true"
               />
               You're done for today
               <span
-                className="h-px flex-1 bg-gradient-to-r from-transparent via-emerald-500/35 to-transparent"
+                className="h-px flex-1 bg-gradient-to-r from-transparent via-success-500/35 to-transparent"
                 aria-hidden="true"
               />
             </div>
@@ -198,14 +198,14 @@ export function DailySchedule({ animeList, favorites, stacking = NO_STACKING, on
         </div>
       )}
 
-      <div className="flex flex-col 2xl:flex-row gap-6 items-start 2xl:items-center justify-between mb-8 bg-[#05060b]/50 border border-[#1e2336]/60 p-4 sm:p-5 rounded-2xl shadow-sm backdrop-blur-sm">
+      <div className="flex flex-col 2xl:flex-row gap-6 items-start 2xl:items-center justify-between mb-8 bg-hero-drops-deep/50 border border-hero-drops-edge/60 p-4 sm:p-5 rounded-card shadow-e1 backdrop-blur-sm">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+          <h1 className="text-2xl font-bold tracking-tight text-fg flex items-center gap-2">
             Daily Schedule
           </h1>
-          <p className="text-gray-400 mt-1 text-sm">Upcoming episodes in your local timezone</p>
+          <p className="text-fg-muted mt-1 text-sm">Upcoming episodes in your local timezone</p>
           {isStreaming && (
-            <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-edge bg-surface-1 px-2.5 py-1 text-[11px] font-medium text-gray-400">
+            <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-edge bg-surface-1 px-2.5 py-1 text-caption font-medium text-fg-muted">
               <Loader2 className="h-3 w-3 animate-spin text-accent-400" />
               Loading more shows…
             </span>
@@ -214,10 +214,10 @@ export function DailySchedule({ animeList, favorites, stacking = NO_STACKING, on
         
         <div className="flex flex-col sm:flex-row flex-wrap items-center gap-3 sm:gap-4 w-full 2xl:w-auto">
           {/* Quick Filters */}
-          <div className="flex items-center bg-[#0a0c16] border border-[#1e2336] rounded-xl p-1 shrink-0 w-full sm:w-auto justify-center sm:justify-start">
+          <div className="flex items-center bg-hero-drops-bg border border-hero-drops-edge rounded-inner p-1 shrink-0 w-full sm:w-auto justify-center sm:justify-start">
             <button
               onClick={() => setUiPrefs({ includeMovies: !includeMovies })}
-              className={cn("px-4 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5", includeMovies ? "bg-accent-600 text-white shadow-md" : "text-gray-400 hover:text-gray-200")}
+              className={cn("px-4 py-1.5 rounded-field text-xs font-semibold transition-all flex items-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring", includeMovies ? "bg-accent-600 text-fg-inverse shadow-e1" : "text-fg-muted hover:text-fg-secondary")}
             >
               <Film className="w-3.5 h-3.5" />
               Movies
@@ -239,10 +239,10 @@ export function DailySchedule({ animeList, favorites, stacking = NO_STACKING, on
                     });
                   }}
                   className={cn(
-                    "whitespace-nowrap px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all flex-shrink-0",
-                    isSelected 
-                      ? "bg-[#2917d2]/20 border-[#543bfa]/50 text-[#8b7ff9] shadow-[0_0_10px_rgba(84,59,250,0.15)]" 
-                      : "bg-[#0a0c16] border-[#1e2336] text-gray-500 hover:text-gray-300 hover:border-gray-700 hover:bg-[#0f121d]"
+                    "whitespace-nowrap px-3 py-1.5 rounded-field text-caption font-bold border transition-all flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    isSelected
+                      ? "bg-hero-new/15 border-hero-new/40 text-hero-new shadow-glow-sm"
+                      : "bg-hero-drops-bg border-hero-drops-edge text-fg-faint hover:text-fg-secondary hover:border-edge-strong hover:bg-hero-drops-well"
                   )}
                 >
                   {source}
@@ -253,34 +253,34 @@ export function DailySchedule({ animeList, favorites, stacking = NO_STACKING, on
 
           {/* Search */}
           <div className="relative flex-1 w-full sm:min-w-[200px] 2xl:max-w-[260px]">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
-            <input 
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg-faint" />
+            <input
               type="text"
               placeholder="Search schedule..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full rounded-xl border border-[#1e2336] bg-[#0a0c16] py-2 pl-9 pr-4 text-sm text-white placeholder-gray-500 focus:border-[#543bfa] focus:outline-none focus:ring-1 focus:ring-[#543bfa] transition-all"
+              className="w-full rounded-inner border border-hero-drops-edge bg-hero-drops-bg py-2 pl-9 pr-4 text-sm text-fg placeholder-fg-faint focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-ring/40 transition-all"
             />
           </div>
         </div>
       </div>
 
       {visibleCount === 0 && (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-edge bg-surface-0 py-20 text-center">
-          <SearchX className="mb-4 h-8 w-8 text-gray-600" />
-          <p className="text-gray-300 font-medium">No shows match</p>
+        <div className="flex flex-col items-center justify-center rounded-card border border-dashed border-edge bg-surface-0 py-20 text-center">
+          <SearchX className="mb-4 h-8 w-8 text-fg-faint" />
+          <p className="text-fg-secondary font-medium">No shows match</p>
           {hasActiveFilters ? (
             <>
-              <p className="mt-1 text-sm text-gray-500">Your search and platform filters hid everything airing this week.</p>
+              <p className="mt-1 text-sm text-fg-faint">Your search and platform filters hid everything airing this week.</p>
               <button
                 onClick={clearFilters}
-                className="mt-4 rounded-xl bg-accent-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent-500"
+                className="mt-4 rounded-inner bg-accent-600 px-4 py-2 text-sm font-semibold text-fg-inverse transition-colors hover:bg-accent-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 Clear filters
               </button>
             </>
           ) : (
-            <p className="mt-1 text-sm text-gray-500">Nothing on the schedule has an announced next episode right now.</p>
+            <p className="mt-1 text-sm text-fg-faint">Nothing on the schedule has an announced next episode right now.</p>
           )}
         </div>
       )}
@@ -293,10 +293,10 @@ export function DailySchedule({ animeList, favorites, stacking = NO_STACKING, on
           return (
             <div key={day} className="space-y-4">
               <div className="flex items-center space-x-3">
-                <h3 className="text-xl font-bold text-white">
+                <h3 className="text-xl font-bold text-fg">
                   {day === DAYS[todayIndex] ? 'Today' : day}
                 </h3>
-                <div className="h-px flex-1 bg-gray-800" />
+                <div className="h-px flex-1 bg-edge" />
               </div>
               <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4 sm:gap-6">
                 {shows.map(anime => (

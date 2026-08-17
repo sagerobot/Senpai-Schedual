@@ -21,7 +21,7 @@ export function SeriesTitle({ showId, fallbackTitle }: { showId: number; fallbac
 
   return (
     <div className="flex flex-col">
-      <span className="text-xs text-purple-400 font-medium leading-none mb-1 line-clamp-1">{graph.title}</span>
+      <span className="text-xs text-accent-400 font-medium leading-none mb-1 line-clamp-1">{graph.title}</span>
       <span className="line-clamp-1">{entry.seasonLabel}</span>
     </div>
   );

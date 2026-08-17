@@ -37,10 +37,10 @@ export const WATCH_STATE_LABELS: Record<WatchState, string> = {
 
 /** Tailwind classes per watch state, used by StatusBadge. */
 export const WATCH_STATE_CLASSES: Record<WatchState, string> = {
-  'caught-up': 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
-  'stack-complete': 'bg-emerald-500/15 text-emerald-300 border-emerald-500/40',
+  'caught-up': 'bg-success-500/20 text-success-300 border-success-500/30',
+  'stack-complete': 'bg-success-500/15 text-success-300 border-success-500/40',
   behind: 'bg-accent-500/20 text-accent-300 border-accent-500/30',
   'airing-soon': 'bg-accent-500/10 text-accent-300 border-accent-500/20',
-  finished: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-  'not-started': 'bg-surface-3 text-gray-300 border-edge',
+  finished: 'bg-info-500/20 text-info-300 border-info-500/30',
+  'not-started': 'bg-surface-3 text-fg-secondary border-edge',
 };

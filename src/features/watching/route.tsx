@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { toast } from 'sonner';
+import { ErrorState } from '../../components/ErrorState';
 import { useEpisodeLog } from '../../hooks/useEpisodeLog';
 import { useLibrary } from '../../hooks/useLibrary';
 import { useScheduleContext } from '../../routes/scheduleContext';
@@ -12,7 +13,7 @@ import { WatchingView } from './WatchingView';
  * blocked one.
  */
 export function WatchingRoute() {
-  const { animeList } = useScheduleContext();
+  const { animeList, scheduleError, retrySchedule } = useScheduleContext();
   const { library } = useLibrary();
   const { logs, logEpisode, unlogEpisode } = useEpisodeLog();
   const openShow = useOpenShow();
@@ -27,6 +28,13 @@ export function WatchingRoute() {
     },
     [logEpisode, unlogEpisode],
   );
+
+  // A failed schedule fetch must never render as "Nothing here yet" (docs §8).
+  // With cached data on screen the view stays useful; only a total absence of
+  // schedule data plus an error blocks the view.
+  if (animeList.length === 0 && scheduleError) {
+    return <ErrorState title="Failed to load the schedule." detail={scheduleError} onRetry={retrySchedule} />;
+  }
 
   return (
     <WatchingView

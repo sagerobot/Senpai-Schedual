@@ -77,24 +77,24 @@ export function SearchView({ onAnimeSelect }: SearchViewProps) {
   return (
     <div className="space-y-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white tracking-tight">Search</h1>
-        <p className="text-gray-400 mt-2 text-sm">Find and add previous seasons, movies, or any anime to your watchlist.</p>
+        <h1 className="text-3xl font-bold text-fg tracking-tight">Search</h1>
+        <p className="text-fg-muted mt-2 text-sm">Find and add previous seasons, movies, or any anime to your watchlist.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="relative w-full max-w-2xl mb-8">
         <div className="relative flex items-center">
-          <Search className="absolute left-4 h-5 w-5 text-gray-400" />
+          <Search className="absolute left-4 h-5 w-5 text-fg-muted" />
           <input
             type="text"
             placeholder="Search by title (e.g., You and I Are Polar Opposites)"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full bg-[#0a0c16] border border-[#1e2336] rounded-xl py-4 pl-12 pr-24 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
+            className="w-full bg-surface-2 border border-edge rounded-inner py-4 pl-12 pr-24 text-fg-secondary placeholder-fg-faint focus:outline-none focus:border-accent-500 focus:ring-2 focus:ring-ring/40 transition-all"
           />
           <button
             type="submit"
             disabled={loading || !query.trim()}
-            className="absolute right-2 bg-purple-600 hover:bg-purple-500 text-white font-medium py-2 px-4 rounded-lg text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="absolute right-2 bg-accent-600 hover:bg-accent-500 text-fg-inverse font-medium py-2 px-4 rounded-field text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
             Search
@@ -104,16 +104,16 @@ export function SearchView({ onAnimeSelect }: SearchViewProps) {
 
       {term.length === 0 ? (
         // Pre-search: a prompt plus somewhere to tap, never a blank page.
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-edge bg-surface-0 px-6 py-16 text-center">
+        <div className="flex flex-col items-center justify-center rounded-card border border-dashed border-edge bg-surface-0 px-6 py-16 text-center">
           <Sparkles className="mb-4 h-8 w-8 text-accent-400" />
-          <p className="font-medium text-gray-200">Look up any anime, past or present.</p>
-          <p className="mt-1 text-sm text-gray-500">Try a genre or a title to get going:</p>
+          <p className="font-medium text-fg-secondary">Look up any anime, past or present.</p>
+          <p className="mt-1 text-sm text-fg-faint">Try a genre or a title to get going:</p>
           <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
             {SUGGESTED_SEARCHES.map((suggestion) => (
               <button
                 key={suggestion}
                 onClick={() => applySuggestion(suggestion)}
-                className="rounded-full border border-edge bg-surface-1 px-4 py-1.5 text-sm font-medium text-gray-300 transition-colors hover:border-accent-500/50 hover:bg-surface-2 hover:text-white"
+                className="rounded-full border border-edge bg-surface-1 px-4 py-1.5 text-sm font-medium text-fg-secondary transition-colors hover:border-accent-500/50 hover:bg-surface-2 hover:text-fg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 {suggestion}
               </button>
@@ -122,7 +122,7 @@ export function SearchView({ onAnimeSelect }: SearchViewProps) {
         </div>
       ) : loading ? (
         <div className="flex h-64 items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+          <Loader2 className="h-8 w-8 animate-spin text-accent-500" />
         </div>
       ) : search.isError ? (
         // A failed search and a search that found nothing are different answers.
@@ -133,9 +133,9 @@ export function SearchView({ onAnimeSelect }: SearchViewProps) {
           className="min-h-64"
         />
       ) : search.isSuccess && results.length === 0 ? (
-        <div className="flex h-64 flex-col items-center justify-center rounded-2xl border border-dashed border-gray-800 bg-[#0a0c16]">
-          <Search className="mb-4 h-8 w-8 text-gray-600" />
-          <p className="text-gray-400">No results found for "{urlQuery}"</p>
+        <div className="flex h-64 flex-col items-center justify-center rounded-card border border-dashed border-edge bg-surface-1">
+          <Search className="mb-4 h-8 w-8 text-fg-faint" />
+          <p className="text-fg-muted">No results found for "{urlQuery}"</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">

@@ -138,28 +138,28 @@ export function RootLayout() {
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     cn(
-      'flex w-full items-center space-x-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors',
-      isActive ? 'bg-purple-600/10 text-purple-400' : 'text-gray-400 hover:bg-gray-900 hover:text-white',
+      'flex w-full items-center space-x-3 rounded-field px-4 py-3 text-sm font-medium transition-colors',
+      isActive ? 'bg-accent-600/10 text-accent-400' : 'text-fg-muted hover:bg-surface-2 hover:text-fg',
     );
 
   return (
-    <div className="min-h-screen bg-black text-gray-100 selection:bg-purple-500/30">
+    <div className="min-h-screen bg-surface-0 text-fg-secondary">
       {/* First tab stop on every page: jump the navs and land on the view. */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-accent-600 focus:px-4 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-white"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-field focus:bg-accent-600 focus:px-4 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-fg-inverse"
       >
         Skip to content
       </a>
 
       <div className="flex min-h-screen flex-col md:flex-row">
         {/* Desktop Sidebar */}
-        <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col overflow-y-auto border-r border-gray-900 bg-black p-6 md:flex">
+        <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col overflow-y-auto border-r border-edge bg-surface-0 p-6 md:flex">
           <div className="mb-10 flex items-center space-x-2 px-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-600">
-              <Sparkles className="h-5 w-5 text-white" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-field bg-accent-600">
+              <Sparkles className="h-5 w-5 text-fg-inverse" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-white">Senpai</span>
+            <span className="font-display text-xl font-bold tracking-tight text-fg">Senpai</span>
           </div>
 
           <nav aria-label="Primary" className="flex-1 space-y-2">
@@ -168,7 +168,7 @@ export function RootLayout() {
                 <item.icon className="h-5 w-5" aria-hidden="true" />
                 <span>{item.label}</span>
                 {item.to === '/watching' && favorites.length > 0 && (
-                  <span className="ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-purple-600/20 px-1.5 text-[10px] text-purple-400">
+                  <span className="ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-accent-600/20 px-1.5 text-micro text-accent-400">
                     {favorites.length}
                   </span>
                 )}
@@ -179,7 +179,7 @@ export function RootLayout() {
           <div className="mt-auto pt-6">
             <button
               onClick={() => setIsSettingsOpen(true)}
-              className="flex w-full items-center space-x-3 rounded-lg px-4 py-3 text-sm font-medium text-gray-400 transition-colors hover:bg-surface-2 hover:text-white"
+              className="flex w-full items-center space-x-3 rounded-field px-4 py-3 text-sm font-medium text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg"
             >
               <Save className="h-5 w-5" aria-hidden="true" />
               <span>Data &amp; Settings</span>
@@ -188,16 +188,16 @@ export function RootLayout() {
         </aside>
 
         {/* Mobile Header (replaces the sidebar logo on small screens) */}
-        <header className="sticky top-0 z-40 flex items-center justify-between border-b border-gray-900 bg-black p-4 md:hidden">
+        <header className="sticky top-0 z-40 flex items-center justify-between border-b border-edge bg-surface-0 p-4 md:hidden">
           <div className="flex items-center space-x-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-600">
-              <Sparkles className="h-5 w-5 text-white" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-field bg-accent-600">
+              <Sparkles className="h-5 w-5 text-fg-inverse" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-white">Senpai</span>
+            <span className="font-display text-xl font-bold tracking-tight text-fg">Senpai</span>
           </div>
           <button
             onClick={() => setIsSettingsOpen(true)}
-            className="flex h-11 w-11 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-900 hover:text-white"
+            className="flex h-11 w-11 items-center justify-center rounded-field text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg"
             aria-label="Data & Settings"
           >
             <Settings className="h-5 w-5" aria-hidden="true" />
@@ -233,7 +233,7 @@ export function RootLayout() {
         {/* Mobile Bottom Navigation — fixed 56px row, six items, labels never wrap. */}
         <nav
           aria-label="Primary mobile"
-          className="fixed bottom-0 left-0 z-50 w-full border-t border-gray-900 bg-black/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden"
+          className="fixed bottom-0 left-0 z-50 w-full border-t border-edge bg-surface-0/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden"
         >
           <div className="flex h-14 items-stretch">
             {NAV_ITEMS.map((item) => (
@@ -242,8 +242,8 @@ export function RootLayout() {
                 to={item.to}
                 className={({ isActive }) =>
                   cn(
-                    'relative flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 whitespace-nowrap text-[10px] font-medium transition-colors',
-                    isActive ? 'text-accent-400' : 'text-gray-400 hover:text-gray-200',
+                    'relative flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 whitespace-nowrap text-micro font-medium transition-colors',
+                    isActive ? 'text-accent-400' : 'text-fg-muted hover:text-fg-secondary',
                   )
                 }
               >
@@ -255,7 +255,7 @@ export function RootLayout() {
                     <span className="relative">
                       <item.icon className="h-5 w-5" aria-hidden="true" />
                       {item.to === '/watching' && favorites.length > 0 && (
-                        <span className="absolute -right-2 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-accent-600 px-1 text-[10px] font-semibold text-white">
+                        <span className="absolute -right-2 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-accent-600 px-1 text-micro font-semibold text-fg-inverse">
                           {favorites.length}
                         </span>
                       )}

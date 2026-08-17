@@ -142,9 +142,9 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
   return (
     <Dialog.Root open={true} onOpenChange={(open) => !open && onClose()}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-        <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-2xl translate-x-[-50%] translate-y-[-50%] p-4 md:p-6 shadow-2xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]">
-          <div className="relative flex max-h-[85vh] flex-col overflow-hidden rounded-2xl bg-[#1c1c1f] text-gray-200 shadow-[0_0_40px_rgba(0,0,0,0.5)] border border-gray-800">
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-overlay backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-2xl translate-x-[-50%] translate-y-[-50%] p-4 md:p-6 shadow-e3 duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]">
+          <div className="relative flex max-h-[85vh] flex-col overflow-hidden rounded-card bg-surface-1 text-fg-secondary shadow-e3 border border-edge">
             
             {/* Header */}
             <div className="flex gap-4 p-5 md:p-6 pb-2">
@@ -152,11 +152,11 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                 <img 
                   src={anime.coverImage.large}
                   alt={displayTitle(anime)}
-                  className="h-32 w-24 rounded-lg object-cover shadow-md bg-gray-900"
+                  className="h-32 w-24 rounded-field object-cover shadow-e1 bg-surface-1"
                 />
               </div>
               <div className="flex flex-col justify-center py-1">
-                <Dialog.Title className="text-xl md:text-2xl font-bold tracking-tight text-white mb-3">
+                <Dialog.Title className="text-xl md:text-2xl font-bold tracking-tight text-fg mb-3">
                   {displayTitle(anime)}
                 </Dialog.Title>
                 
@@ -171,18 +171,18 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                     </div>
                   )}
                   {watchEntry && (
-                    <div className="rounded-full bg-[#323236] px-3 py-1.5 text-gray-300">
+                    <div className="rounded-full bg-surface-3 px-3 py-1.5 text-fg-secondary">
                       {watchEntry.site}
                     </div>
                   )}
                   {anime.genres && anime.genres.length > 0 && (
-                    <div className="rounded-full bg-[#323236] px-3 py-1.5 text-gray-300">
+                    <div className="rounded-full bg-surface-3 px-3 py-1.5 text-fg-secondary">
                       {anime.genres.slice(0, 2).join(' · ')}
                     </div>
                   )}
                 </div>
               </div>
-              <Dialog.Close className="absolute right-4 top-4 rounded-lg border border-gray-700 bg-transparent p-1.5 text-gray-400 transition-colors hover:bg-gray-800 hover:text-white focus:outline-none">
+              <Dialog.Close className="absolute right-4 top-4 rounded-field border border-edge-strong bg-transparent p-1.5 text-fg-muted transition-colors hover:bg-surface-3 hover:text-fg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                 <X className="h-4 w-4" />
                 <span className="sr-only">Close</span>
               </Dialog.Close>
@@ -195,28 +195,28 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
               <div className="flex gap-2 md:gap-3 text-sm text-center">
                 {loading ? (
                   <>
-                    <div className="flex-1 h-[70px] animate-pulse rounded-xl bg-[#2a2a2d]"></div>
-                    <div className="flex-1 h-[70px] animate-pulse rounded-xl bg-[#2a2a2d]"></div>
-                    <div className="flex-1 h-[70px] animate-pulse rounded-xl bg-[#2a2a2d]"></div>
-                    <div className="flex-1 h-[70px] animate-pulse rounded-xl bg-[#2a2a2d]"></div>
+                    <div className="flex-1 h-[70px] animate-pulse rounded-inner bg-surface-2"></div>
+                    <div className="flex-1 h-[70px] animate-pulse rounded-inner bg-surface-2"></div>
+                    <div className="flex-1 h-[70px] animate-pulse rounded-inner bg-surface-2"></div>
+                    <div className="flex-1 h-[70px] animate-pulse rounded-inner bg-surface-2"></div>
                   </>
                 ) : (
                   <>
-                    <div className="flex flex-1 flex-col justify-center rounded-xl bg-[#2a2a2d] py-3">
-                      <span className="text-[11px] font-semibold uppercase text-gray-400">MAL</span>
-                      <span className="text-2xl font-bold text-white">{malScore || '-'}</span>
+                    <div className="flex flex-1 flex-col justify-center rounded-inner bg-surface-2 py-3">
+                      <span className="text-caption font-semibold uppercase text-fg-muted">MAL</span>
+                      <span className="text-2xl font-bold text-fg">{malScore || '-'}</span>
                     </div>
-                    <div className="flex flex-1 flex-col justify-center rounded-xl bg-[#2a2a2d] py-3">
-                      <span className="text-[11px] font-semibold uppercase text-gray-400">AniList</span>
-                      <span className="text-2xl font-bold text-white">{anilistScore ? `${anilistScore}%` : '-'}</span>
+                    <div className="flex flex-1 flex-col justify-center rounded-inner bg-surface-2 py-3">
+                      <span className="text-caption font-semibold uppercase text-fg-muted">AniList</span>
+                      <span className="text-2xl font-bold text-fg">{anilistScore ? `${anilistScore}%` : '-'}</span>
                     </div>
-                    <div className="flex flex-1 flex-col justify-center rounded-xl bg-[#2a2a2d] py-3">
-                      <span className="text-[11px] font-semibold uppercase text-gray-400">Kitsu</span>
-                      <span className="text-2xl font-bold text-white">{kitsuScore ? `${kitsuScore}%` : '-'}</span>
+                    <div className="flex flex-1 flex-col justify-center rounded-inner bg-surface-2 py-3">
+                      <span className="text-caption font-semibold uppercase text-fg-muted">Kitsu</span>
+                      <span className="text-2xl font-bold text-fg">{kitsuScore ? `${kitsuScore}%` : '-'}</span>
                     </div>
-                    <div className="flex flex-1 flex-col justify-center rounded-xl bg-accent-600/20 border border-accent-500/30 py-3">
-                      <span className="text-[10px] font-semibold uppercase text-accent-400">Average</span>
-                      <span className="text-2xl font-bold text-white">{normalizedAverage || '-'}</span>
+                    <div className="flex flex-1 flex-col justify-center rounded-inner bg-accent-600/20 border border-accent-500/30 py-3">
+                      <span className="text-micro font-semibold uppercase text-accent-400">Average</span>
+                      <span className="text-2xl font-bold text-fg">{normalizedAverage || '-'}</span>
                     </div>
                   </>
                 )}
@@ -224,11 +224,11 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
 
               {/* Source Material Card */}
               {!loading && (
-                <div className="flex items-center justify-between rounded-xl bg-[#2a2a2d] p-4">
+                <div className="flex items-center justify-between rounded-inner bg-surface-2 p-4">
                   <div className="flex flex-col">
-                    <span className="text-xs font-medium text-gray-400">Source Material</span>
+                    <span className="text-xs font-medium text-fg-muted">Source Material</span>
                     {isOriginal ? (
-                      <span className="text-sm font-semibold text-white">Anime original</span>
+                      <span className="text-sm font-semibold text-fg">Anime original</span>
                     ) : (
                       <a 
                         href={`https://anilist.co/${sourceNode?.type?.toLowerCase()}/${sourceNode?.id}`}
@@ -242,12 +242,12 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                     )}
                   </div>
                   {sourceRatedHigher && (
-                    <div className="rounded-full bg-orange-500/20 px-2.5 py-1 text-[10px] font-bold text-orange-400 border border-orange-500/30">
+                    <div className="rounded-full bg-warning-500/20 px-2.5 py-1 text-micro font-bold text-warning-400 border border-warning-500/30">
                       Source rated higher
                     </div>
                   )}
                   {anime.trending && anime.trending > 0 && (
-                    <div className="rounded-full bg-pink-500/20 px-2.5 py-1 text-[10px] font-bold text-pink-400 border border-pink-500/30 ml-2">
+                    <div className="rounded-full bg-sent-mixed/20 px-2.5 py-1 text-micro font-bold text-sent-mixed-fg border border-sent-mixed/30 ml-2">
                       #{anime.trending} Trending
                     </div>
                   )}
@@ -258,18 +258,18 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
               {/* Related Anime */}
               {!loading && anime.relations?.edges && anime.relations.edges.filter(e => e.node?.type === 'ANIME').length > 0 && (
                 <div className="space-y-2">
-                  <h3 className="text-sm font-medium text-gray-300">Related Anime</h3>
+                  <h3 className="text-sm font-medium text-fg-secondary">Related Anime</h3>
                   <div className="flex flex-wrap gap-2">
                     {anime.relations.edges.filter(e => e.node?.type === 'ANIME').map(e => (
                       <button
                         key={e.node.id}
                         // Opening by id is enough — the modal host resolves the record.
                         onClick={() => onAnimeSelect?.({ id: e.node.id })}
-                        className="flex items-center gap-2 rounded-lg bg-[#2a2a2d] px-3 py-2 text-left transition-colors hover:bg-accent-500/20 hover:border-accent-500/50 border border-transparent"
+                        className="flex items-center gap-2 rounded-field bg-surface-2 px-3 py-2 text-left transition-colors hover:bg-accent-500/20 hover:border-accent-500/50 border border-transparent"
                       >
                         <div className="flex flex-col">
-                          <span className="text-[10px] font-semibold uppercase text-accent-400">{e.relationType.replace('_', ' ')}</span>
-                          <span className="text-xs font-medium text-white line-clamp-1">{e.node.title.userPreferred}</span>
+                          <span className="text-micro font-semibold uppercase text-accent-400">{e.relationType.replace('_', ' ')}</span>
+                          <span className="text-xs font-medium text-fg line-clamp-1">{e.node.title.userPreferred}</span>
                         </div>
                       </button>
                     ))}
@@ -280,33 +280,33 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
               {/* Synopsis Section */}
               {loading ? (
                 <div className="space-y-4 animate-pulse">
-                  <div className="flex justify-between border-b border-gray-800 pb-2">
-                    <div className="h-4 w-20 rounded bg-[#2a2a2d]"></div>
+                  <div className="flex justify-between border-b border-edge pb-2">
+                    <div className="h-4 w-20 rounded bg-surface-2"></div>
                     <div className="flex space-x-2">
-                      <div className="h-6 w-12 rounded-full bg-[#2a2a2d]"></div>
-                      <div className="h-6 w-16 rounded-full bg-[#2a2a2d]"></div>
+                      <div className="h-6 w-12 rounded-full bg-surface-2"></div>
+                      <div className="h-6 w-16 rounded-full bg-surface-2"></div>
                     </div>
                   </div>
-                  <div className="space-y-2 rounded-xl bg-[#2a2a2d] p-4">
-                    <div className="h-4 w-full rounded bg-gray-700"></div>
-                    <div className="h-4 w-[90%] rounded bg-gray-700"></div>
-                    <div className="h-4 w-[95%] rounded bg-gray-700"></div>
+                  <div className="space-y-2 rounded-inner bg-surface-2 p-4">
+                    <div className="h-4 w-full rounded bg-surface-3"></div>
+                    <div className="h-4 w-[90%] rounded bg-surface-3"></div>
+                    <div className="h-4 w-[95%] rounded bg-surface-3"></div>
                   </div>
                 </div>
               ) : tabs.length > 0 && (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-medium text-gray-300">Synopsis</h3>
+                    <h3 className="text-sm font-medium text-fg-secondary">Synopsis</h3>
                     <div className="flex space-x-2">
                       {tabs.map(tab => (
                         <button
                           key={tab.id}
                           onClick={() => setActiveTab(tab.id)}
                           className={cn(
-                            "rounded-full px-3 py-1 text-[11px] font-medium transition-colors",
+                            "rounded-full px-3 py-1 text-caption font-medium transition-colors",
                             activeTab === tab.id
                               ? "bg-accent-600/20 border border-accent-500/40 text-accent-300"
-                              : "border border-gray-700 text-gray-400 hover:text-gray-200"
+                              : "border border-edge-strong text-fg-muted hover:text-fg-secondary"
                           )}
                         >
                           {tab.label}
@@ -314,24 +314,24 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                       ))}
                     </div>
                   </div>
-                  <div className="rounded-xl bg-[#2a2a2d] p-4 text-sm leading-relaxed text-gray-200 prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: activeContent }} />
+                  <div className="rounded-inner bg-surface-2 p-4 text-sm leading-relaxed text-fg-secondary prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: activeContent }} />
                 </div>
               )}
 
               {/* AI Summary */}
               {loading ? (
-                <div className="flex flex-col items-center justify-center py-8 rounded-xl border border-gray-800 bg-[#2a2a2d]/50">
+                <div className="flex flex-col items-center justify-center py-8 rounded-inner border border-edge bg-surface-2/50">
                   <Loader2 className="h-6 w-6 animate-spin text-accent-400" />
-                  <p className="mt-2 text-sm text-gray-400">Analyzing synopses...</p>
+                  <p className="mt-2 text-sm text-fg-muted">Analyzing synopses...</p>
                 </div>
               ) : details?.aiSummary ? (
-                <div className="relative rounded-xl border border-accent-500/30 bg-[#242436] p-4">
+                <div className="relative rounded-inner border border-accent-500/30 bg-surface-2 p-4">
                   <div className="mb-2 flex items-center space-x-2">
                     <Sparkles className="h-4 w-4 text-accent-400" />
                     <span className="text-xs font-semibold text-accent-400">AI summary</span>
-                    <span className="rounded-full bg-emerald-950 px-2 py-0.5 text-[10px] font-semibold text-emerald-300">Spoiler-free</span>
+                    <span className="rounded-full bg-success-500/15 px-2 py-0.5 text-micro font-semibold text-success-300">Spoiler-free</span>
                   </div>
-                  <p className="text-sm leading-relaxed text-gray-200">
+                  <p className="text-sm leading-relaxed text-fg-secondary">
                     {details.aiSummary}
                   </p>
                 </div>
@@ -342,13 +342,13 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
 
               {/* Community Pulse Section */}
               <div className="mt-2 flex items-center justify-between gap-3">
-                <h3 className="text-sm font-medium text-gray-300">Community vibe</h3>
+                <h3 className="text-sm font-medium text-fg-secondary">Community vibe</h3>
                 {(pulseState !== 'idle' || preDiscussionEra) && (
                   <select
                     value={selectedEpisode}
                     onChange={(e) => setSelectedEpisode(Number(e.target.value))}
                     aria-label="Episode for community vibe"
-                    className="rounded-lg border border-gray-700 bg-surface-2 px-2 py-1.5 text-xs font-medium text-gray-300 transition-colors hover:border-gray-600 focus:outline-none focus:ring-1 focus:ring-accent-500"
+                    className="rounded-field border border-edge-strong bg-surface-2 px-2 py-1.5 text-xs font-medium text-fg-secondary transition-colors hover:border-fg-faint focus:outline-none focus:border-accent-500 focus:ring-2 focus:ring-ring/40"
                   >
                     {Array.from({ length: latestEpisode }, (_, i) => i + 1).map((ep) => (
                       <option key={ep} value={ep}>Episode {ep}</option>
@@ -357,12 +357,12 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                 )}
               </div>
               {pulseState === 'idle' && preDiscussionEra ? (
-                <p className="rounded-xl border border-gray-800 bg-[#2a2a2d]/50 p-5 text-center text-sm text-gray-400">
+                <p className="rounded-inner border border-edge bg-surface-2/50 p-5 text-center text-sm text-fg-muted">
                   r/anime episode discussions only go back to about 2013 — there is nothing to read for a show this old.
                 </p>
               ) : pulseState === 'quiet' && quiet !== null ? (
                 isJustAired(quiet) ? (
-                  <p className="rounded-xl border border-sky-500/30 bg-sky-950/20 p-5 text-center text-sm text-sky-200">
+                  <p className="rounded-inner border border-sent-new/40 bg-sent-new/10 p-5 text-center text-sm text-sent-new-fg">
                     Just released — the{' '}
                     <a href={quiet.url} target="_blank" rel="noreferrer" className="underline underline-offset-2">
                       discussion thread
@@ -370,9 +370,9 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                     is still filling up. Check back soon.
                   </p>
                 ) : (
-                  <p className="rounded-xl border border-zinc-500/30 bg-[#2a2a2d]/50 p-5 text-center text-sm text-gray-400">
+                  <p className="rounded-inner border border-sent-quiet/40 bg-surface-2/50 p-5 text-center text-sm text-sent-quiet-fg">
                     The{' '}
-                    <a href={quiet.url} target="_blank" rel="noreferrer" className="underline underline-offset-2 text-gray-300">
+                    <a href={quiet.url} target="_blank" rel="noreferrer" className="underline underline-offset-2 text-fg-secondary">
                       discussion thread
                     </a>{' '}
                     for episode {selectedEpisode} is quiet — only {quiet.comments} comment
@@ -380,17 +380,17 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                   </p>
                 )
               ) : pulseState === 'not_found' ? (
-                <p className="rounded-xl border border-gray-800 bg-[#2a2a2d]/50 p-5 text-center text-sm text-gray-400">
+                <p className="rounded-inner border border-edge bg-surface-2/50 p-5 text-center text-sm text-fg-muted">
                   No discussion thread found for episode {selectedEpisode}.
                 </p>
               ) : pulseState === 'idle' ? (
-                <div className="flex flex-col items-center space-y-2 rounded-xl border border-gray-800 bg-[#2a2a2d]/50 p-5">
+                <div className="flex flex-col items-center space-y-2 rounded-inner border border-edge bg-surface-2/50 p-5">
                   <div className="flex flex-wrap items-center justify-center gap-2">
                     <select
                       value={selectedEpisode}
                       onChange={(e) => setSelectedEpisode(Number(e.target.value))}
                       aria-label="Episode for community vibe"
-                      className="h-11 rounded-lg border border-gray-700 bg-surface-2 px-2 text-xs font-medium text-gray-300 transition-colors hover:border-gray-600 focus:outline-none focus:ring-1 focus:ring-accent-500"
+                      className="h-11 rounded-field border border-edge-strong bg-surface-2 px-2 text-xs font-medium text-fg-secondary transition-colors hover:border-fg-faint focus:outline-none focus:border-accent-500 focus:ring-2 focus:ring-ring/40"
                     >
                       {Array.from({ length: latestEpisode }, (_, i) => i + 1).map((ep) => (
                         <option key={ep} value={ep}>Episode {ep}</option>
@@ -398,63 +398,63 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                     </select>
                     <button
                       onClick={loadPulse}
-                      className="flex items-center space-x-2 rounded-lg bg-accent-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-500"
+                      className="flex items-center space-x-2 rounded-field bg-accent-600 px-4 py-2.5 text-sm font-medium text-fg-inverse transition-colors hover:bg-accent-500"
                     >
                       <MessageCircle className="h-4 w-4" />
                       <span>Check community vibe</span>
                     </button>
                   </div>
-                  <p className="text-[11px] text-gray-400">Searches r/anime discussion for episode {selectedEpisode}</p>
+                  <p className="text-caption text-fg-muted">Searches r/anime discussion for episode {selectedEpisode}</p>
                 </div>
               ) : pulseState === 'loading' ? (
-                <div className="relative rounded-xl border border-gray-800 bg-[#2a2a2d]/50 p-4 animate-pulse">
+                <div className="relative rounded-inner border border-edge bg-surface-2/50 p-4 animate-pulse">
                   <div className="mb-2 flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                      <div className="h-4 w-4 rounded-full bg-gray-700"></div>
-                      <div className="h-4 w-32 rounded bg-gray-700"></div>
+                      <div className="h-4 w-4 rounded-full bg-surface-3"></div>
+                      <div className="h-4 w-32 rounded bg-surface-3"></div>
                     </div>
                     <div className="flex space-x-3">
-                      <div className="h-3 w-10 rounded bg-gray-700"></div>
-                      <div className="h-3 w-10 rounded bg-gray-700"></div>
+                      <div className="h-3 w-10 rounded bg-surface-3"></div>
+                      <div className="h-3 w-10 rounded bg-surface-3"></div>
                     </div>
                   </div>
                   <div className="mt-3 space-y-2">
-                    <div className="h-3 w-full rounded bg-gray-700"></div>
-                    <div className="h-3 w-4/5 rounded bg-gray-700"></div>
+                    <div className="h-3 w-full rounded bg-surface-3"></div>
+                    <div className="h-3 w-4/5 rounded bg-surface-3"></div>
                   </div>
                 </div>
               ) : pulseState === 'ok' && pulse ? (
-                <div className={cn("relative rounded-xl border p-4",
-                  pulse.indicator === 'positive' ? "bg-emerald-950/30 border-emerald-500/30" : 
-                  pulse.indicator === 'negative' ? "bg-rose-950/30 border-rose-500/30" : 
-                  "bg-pink-950/30 border-pink-500/30"
+                <div className={cn("relative rounded-inner border p-4",
+                  pulse.indicator === 'positive' ? "bg-sent-positive/10 border-sent-positive/40" : 
+                  pulse.indicator === 'negative' ? "bg-sent-negative/10 border-sent-negative/40" : 
+                  "bg-sent-mixed/10 border-sent-mixed/40"
                 )}>
                   <div className="mb-2 flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <MessageCircle className={cn("h-4 w-4", 
-                        pulse.indicator === 'positive' ? "text-emerald-400" : 
-                        pulse.indicator === 'negative' ? "text-rose-400" : 
-                        "text-pink-400"
+                        pulse.indicator === 'positive' ? "text-sent-positive-fg" : 
+                        pulse.indicator === 'negative' ? "text-sent-negative-fg" : 
+                        "text-sent-mixed-fg"
                       )} />
                       <span className={cn("text-xs font-semibold", 
-                        pulse.indicator === 'positive' ? "text-emerald-400" : 
-                        pulse.indicator === 'negative' ? "text-rose-400" : 
-                        "text-pink-400"
+                        pulse.indicator === 'positive' ? "text-sent-positive-fg" : 
+                        pulse.indicator === 'negative' ? "text-sent-negative-fg" : 
+                        "text-sent-mixed-fg"
                       )}>Community vibe (Ep {selectedEpisode})</span>
                       {/* Sentiment in words: the card's colour is a second signal, never the only one. */}
-                      <span className={cn("rounded-full border px-2 py-0.5 text-[11px] font-bold",
-                        pulse.indicator === 'positive' ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-300" :
-                        pulse.indicator === 'negative' ? "border-rose-500/40 bg-rose-500/15 text-rose-300" :
-                        "border-pink-500/40 bg-pink-500/15 text-pink-300"
+                      <span className={cn("rounded-full border px-2 py-0.5 text-caption font-bold",
+                        pulse.indicator === 'positive' ? "border-sent-positive/40 bg-sent-positive/15 text-sent-positive-fg" :
+                        pulse.indicator === 'negative' ? "border-sent-negative/40 bg-sent-negative/15 text-sent-negative-fg" :
+                        "border-sent-mixed/40 bg-sent-mixed/15 text-sent-mixed-fg"
                       )}>
                         {pulse.indicator === 'positive' ? 'Positive' : pulse.indicator === 'negative' ? 'Negative' : 'Mixed'}
                       </span>
-                      <span className="rounded-full bg-purple-950 px-2 py-0.5 text-[11px] font-semibold text-accent-300">Spoiler-free</span>
+                      <span className="rounded-full bg-accent-500/15 px-2 py-0.5 text-caption font-semibold text-accent-300">Spoiler-free</span>
                     </div>
                     <div className={cn("flex items-center space-x-3 text-xs", 
-                        pulse.indicator === 'positive' ? "text-emerald-300/80" : 
-                        pulse.indicator === 'negative' ? "text-rose-300/80" : 
-                        "text-pink-300/80"
+                        pulse.indicator === 'positive' ? "text-sent-positive-fg/80" : 
+                        pulse.indicator === 'negative' ? "text-sent-negative-fg/80" : 
+                        "text-sent-mixed-fg/80"
                       )}>
                       {pulse.upvotes > 0 || pulse.comments > 0 ? (
                         <>
@@ -464,7 +464,7 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                       ) : null}
                     </div>
                   </div>
-                  <p className={cn("text-sm leading-relaxed text-gray-200", (pulse.goods?.length || pulse.bads?.length) ? "mb-3" : "")}>
+                  <p className={cn("text-sm leading-relaxed text-fg-secondary", (pulse.goods?.length || pulse.bads?.length) ? "mb-3" : "")}>
                     {pulse.summary}
                   </p>
 
@@ -472,20 +472,20 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                       still filling up. Say when it was taken rather than imply it
                       is the last word. */}
                   {asOfLine && (
-                    <p className="-mt-1 mb-1 text-[11px] text-gray-400">
+                    <p className="-mt-1 mb-1 text-caption text-fg-muted">
                       Early read, {asOfLine} — refreshed hourly for the first day.
                     </p>
                   )}
 
                   {((pulse.goods && pulse.goods.length > 0) || (pulse.bads && pulse.bads.length > 0)) && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 pt-3 border-t border-gray-700/50">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 pt-3 border-t border-edge-strong/50">
                       {pulse.goods && pulse.goods.length > 0 && (
                         <div>
-                          <span className="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider">Highlights</span>
+                          <span className="text-caption font-semibold text-sent-positive-fg uppercase tracking-wider">Highlights</span>
                           <ul className="mt-1 space-y-1">
                             {pulse.goods.map((good, i) => (
-                              <li key={i} className="text-xs text-gray-300 flex items-start">
-                                <span className="text-emerald-500 mr-1.5">•</span>
+                              <li key={i} className="text-xs text-fg-secondary flex items-start">
+                                <span className="text-sent-positive mr-1.5">•</span>
                                 <span>{good}</span>
                               </li>
                             ))}
@@ -494,11 +494,11 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                       )}
                       {pulse.bads && pulse.bads.length > 0 && (
                         <div>
-                          <span className="text-[11px] font-semibold text-rose-400 uppercase tracking-wider">Critiques</span>
+                          <span className="text-caption font-semibold text-sent-negative-fg uppercase tracking-wider">Critiques</span>
                           <ul className="mt-1 space-y-1">
                             {pulse.bads.map((bad, i) => (
-                              <li key={i} className="text-xs text-gray-300 flex items-start">
-                                <span className="text-rose-500 mr-1.5">•</span>
+                              <li key={i} className="text-xs text-fg-secondary flex items-start">
+                                <span className="text-sent-negative mr-1.5">•</span>
                                 <span>{bad}</span>
                               </li>
                             ))}
@@ -511,19 +511,19 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                   <VibeFlagButton showId={anime.id} episode={selectedEpisode} />
                 </div>
               ) : pulseState === 'resting' ? (
-                <div className="rounded-xl border border-gray-800 bg-[#2a2a2d]/50 p-5 text-center text-sm text-gray-400">
+                <div className="rounded-inner border border-edge bg-surface-2/50 p-5 text-center text-sm text-fg-muted">
                   AI features are resting — try again tomorrow
                 </div>
               ) : pulseState === 'no_key' ? (
-                <div className="rounded-xl border border-gray-800 bg-[#2a2a2d]/50 p-5 text-center text-sm text-gray-400">
+                <div className="rounded-inner border border-edge bg-surface-2/50 p-5 text-center text-sm text-fg-muted">
                   AI features are off in this deployment
                 </div>
               ) : (
-                <div className="flex flex-col items-center space-y-3 rounded-xl border border-rose-500/30 bg-rose-950/30 p-5 text-center">
-                  <p className="text-sm text-rose-200">Could not check the community vibe.</p>
+                <div className="flex flex-col items-center space-y-3 rounded-inner border border-danger-500/30 bg-danger-500/10 p-5 text-center">
+                  <p className="text-sm text-danger-300">Could not check the community vibe.</p>
                   <button
                     onClick={loadPulse}
-                    className="rounded-lg border border-gray-700 px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
+                    className="rounded-field border border-edge-strong px-4 py-2 text-sm font-medium text-fg-secondary transition-colors hover:bg-surface-3 hover:text-fg"
                   >
                     Try again
                   </button>
@@ -541,7 +541,7 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                   href={discussionUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex flex-1 items-center justify-center space-x-2 rounded-lg border border-gray-700 bg-transparent px-4 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
+                  className="flex flex-1 items-center justify-center space-x-2 rounded-field border border-edge-strong bg-transparent px-4 py-2.5 text-sm font-medium text-fg-secondary transition-colors hover:bg-surface-3 hover:text-fg"
                 >
                   <MessageCircle className="h-4 w-4" />
                   <span>{discussionIsThread ? 'Discussion thread' : 'Find the discussion'}</span>
@@ -553,7 +553,7 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                     // what closes the modal. Calling onClose too fires the
                     // modal's navigate(-1) and it races this Link's navigation.
                     to={`/series/${anime.id}`}
-                    className="flex flex-1 items-center justify-center space-x-2 rounded-lg border border-gray-700 bg-transparent px-4 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
+                    className="flex flex-1 items-center justify-center space-x-2 rounded-field border border-edge-strong bg-transparent px-4 py-2.5 text-sm font-medium text-fg-secondary transition-colors hover:bg-surface-3 hover:text-fg"
                   >
                     <Layers className="h-4 w-4" />
                     <span>Series page</span>
@@ -565,7 +565,7 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                     href={watchEntry.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex flex-1 items-center justify-center space-x-2 rounded-lg border border-gray-700 bg-transparent px-4 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
+                    className="flex flex-1 items-center justify-center space-x-2 rounded-field border border-edge-strong bg-transparent px-4 py-2.5 text-sm font-medium text-fg-secondary transition-colors hover:bg-surface-3 hover:text-fg"
                   >
                     <ExternalLink className="h-4 w-4" />
                     <span>Watch on {watchEntry.site}</span>
@@ -578,7 +578,7 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                       <select
                         value={libraryEntry.status}
                         onChange={(e) => onUpdateEntry(anime.id, { status: e.target.value as LibraryStatus })}
-                        className="rounded-lg border border-gray-700 bg-[#2a2a2d] px-3 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:border-gray-600 focus:outline-none focus:ring-1 focus:ring-accent-500"
+                        className="rounded-field border border-edge-strong bg-surface-2 px-3 py-2.5 text-sm font-medium text-fg-secondary transition-colors hover:border-fg-faint focus:outline-none focus:border-accent-500 focus:ring-2 focus:ring-ring/40"
                       >
                         {LIBRARY_STATUS_ORDER.map((status) => (
                           <option key={status} value={status}>{LIBRARY_STATUS_LABELS[status]}</option>
@@ -593,7 +593,7 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                             })
                           }
                           aria-label="Binge-ready when"
-                          className="rounded-lg border border-gray-700 bg-[#2a2a2d] px-3 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:border-gray-600 focus:outline-none focus:ring-1 focus:ring-accent-500"
+                          className="rounded-field border border-edge-strong bg-surface-2 px-3 py-2.5 text-sm font-medium text-fg-secondary transition-colors hover:border-fg-faint focus:outline-none focus:border-accent-500 focus:ring-2 focus:ring-ring/40"
                         >
                           <option value="">Wake: season end</option>
                           {[4, 6, 8, 12].map((n) => (
@@ -608,10 +608,10 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                     renderTrigger={({ inLibrary }) => (
                       <button
                         className={cn(
-                          "flex min-h-11 min-w-11 items-center justify-center rounded-lg p-2.5 transition-colors border",
+                          "flex min-h-11 min-w-11 items-center justify-center rounded-field p-2.5 transition-colors border",
                           inLibrary
-                            ? "bg-accent-600 border-accent-600 text-white"
-                            : "bg-transparent border-gray-700 text-gray-400 hover:text-white hover:bg-gray-800"
+                            ? "bg-accent-600 border-accent-600 text-fg-inverse"
+                            : "bg-transparent border-edge-strong text-fg-muted hover:text-fg hover:bg-surface-3"
                         )}
                       >
                         <Bookmark className="h-5 w-5" fill={inLibrary ? "currentColor" : "none"} />
@@ -623,7 +623,7 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
 
               {/* Your rating */}
               <div className="space-y-2">
-                <span className="block text-xs font-medium text-gray-400">Your rating</span>
+                <span className="block text-xs font-medium text-fg-muted">Your rating</span>
                 {libraryEntry ? (
                   <div className="grid grid-cols-5 gap-2 sm:grid-cols-10" role="group" aria-label="Your rating, 1 to 10">
                     {Array.from({ length: 10 }, (_, i) => i + 1).map((score) => {
@@ -635,10 +635,10 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                           aria-pressed={isCurrent}
                           aria-label={isCurrent ? `Rated ${score} of 10 — tap to clear` : `Rate ${score} of 10`}
                           className={cn(
-                            'flex h-11 min-w-11 items-center justify-center rounded-lg text-sm font-semibold transition-colors',
+                            'flex h-11 min-w-11 items-center justify-center rounded-field text-sm font-semibold transition-colors',
                             isCurrent
-                              ? 'bg-accent-600 text-white hover:bg-accent-500'
-                              : 'bg-surface-2 text-gray-400 hover:bg-surface-3 hover:text-white',
+                              ? 'bg-accent-600 text-fg-inverse hover:bg-accent-500'
+                              : 'bg-surface-2 text-fg-muted hover:bg-surface-3 hover:text-fg',
                           )}
                         >
                           {score}
@@ -647,14 +647,14 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                     })}
                   </div>
                 ) : (
-                  <p className="text-[11px] text-gray-400">Add to library to rate</p>
+                  <p className="text-caption text-fg-muted">Add to library to rate</p>
                 )}
               </div>
 
               {libraryEntry && (
                 <button
                   onClick={handleRemoveFromLibrary}
-                  className="text-xs font-medium text-red-400/80 underline-offset-2 transition-colors hover:text-red-300 hover:underline"
+                  className="text-xs font-medium text-danger-400/80 underline-offset-2 transition-colors hover:text-danger-300 hover:underline"
                 >
                   Remove from Library
                 </button>

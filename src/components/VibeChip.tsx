@@ -1,39 +1,39 @@
 import { cn } from '../lib/utils';
 import { isJustAired, type VibeEntry } from '../lib/vibesFile';
 
-/** Sentiment is spelled out, never colour alone. */
+/** Sentiment is spelled out, never colour alone. Tokens: sent-* (docs §3). */
 const SENTIMENT = {
   positive: {
     label: 'Positive',
-    flat: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300',
-    glass: 'border-emerald-400/40 bg-[#0a0c16]/80 text-emerald-200 backdrop-blur-md shadow-lg',
-    dot: 'bg-emerald-400',
+    flat: 'border-sent-positive/40 bg-sent-positive/10 text-sent-positive-fg',
+    glass: 'border-sent-positive/40 bg-scrim/70 text-sent-positive-fg backdrop-blur-md shadow-e2',
+    dot: 'bg-sent-positive',
   },
   mixed: {
     label: 'Mixed',
-    flat: 'border-pink-500/40 bg-pink-500/10 text-pink-300',
-    glass: 'border-pink-400/40 bg-[#0a0c16]/80 text-pink-200 backdrop-blur-md shadow-lg',
-    dot: 'bg-pink-400',
+    flat: 'border-sent-mixed/40 bg-sent-mixed/10 text-sent-mixed-fg',
+    glass: 'border-sent-mixed/40 bg-scrim/70 text-sent-mixed-fg backdrop-blur-md shadow-e2',
+    dot: 'bg-sent-mixed',
   },
   negative: {
     label: 'Negative',
-    flat: 'border-rose-500/40 bg-rose-500/10 text-rose-300',
-    glass: 'border-rose-400/40 bg-[#0a0c16]/80 text-rose-200 backdrop-blur-md shadow-lg',
-    dot: 'bg-rose-400',
+    flat: 'border-sent-negative/40 bg-sent-negative/10 text-sent-negative-fg',
+    glass: 'border-sent-negative/40 bg-scrim/70 text-sent-negative-fg backdrop-blur-md shadow-e2',
+    dot: 'bg-sent-negative',
   },
   /** Thread verified, discussion never showed up. */
   quiet: {
     label: 'Zzz',
-    flat: 'border-zinc-500/40 bg-zinc-500/10 text-zinc-400',
-    glass: 'border-zinc-400/40 bg-[#0a0c16]/80 text-zinc-300 backdrop-blur-md shadow-lg',
-    dot: 'bg-zinc-500',
+    flat: 'border-sent-quiet/40 bg-sent-quiet/10 text-sent-quiet-fg',
+    glass: 'border-sent-quiet/40 bg-scrim/70 text-sent-quiet-fg backdrop-blur-md shadow-e2',
+    dot: 'bg-sent-quiet',
   },
   /** Episode under 2h old — the thread is still filling up. */
   new: {
     label: 'New',
-    flat: 'border-sky-500/40 bg-sky-500/10 text-sky-300',
-    glass: 'border-sky-400/40 bg-[#0a0c16]/80 text-sky-200 backdrop-blur-md shadow-lg',
-    dot: 'bg-sky-400',
+    flat: 'border-sent-new/40 bg-sent-new/10 text-sent-new-fg',
+    glass: 'border-sent-new/40 bg-scrim/70 text-sent-new-fg backdrop-blur-md shadow-e2',
+    dot: 'bg-sent-new',
   },
 } as const;
 
@@ -61,16 +61,16 @@ export interface VibeChipProps {
 }
 
 const CHIP_SHAPE =
-  'relative flex shrink-0 items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-semibold transition-colors ' +
+  'relative flex shrink-0 items-center gap-1 rounded-full border px-2 py-1 text-micro font-semibold transition-colors ' +
   // The chip stays small so it cannot crowd the card, but the touch target
   // does not: the overlay gives it the 44px height the rest of the app's
   // controls have without taking that much room.
   "after:absolute after:inset-x-0 after:top-1/2 after:h-11 after:-translate-y-1/2 after:content-['']";
 
 /**
- * The r/anime sentiment chip, shared by the rich Today's Drops banner and the
- * Catch-Up Queue cards. `EpisodeCard` draws its own copy inline; this exists so
- * the two restored designs cannot drift from each other or from the vocabulary
+ * The one r/anime sentiment chip, shared by the rich Today's Drops banner and
+ * the Catch-Up Queue cards (the old `EpisodeCard`, which drew its own copy
+ * inline, is gone). It exists so no surface can drift from the vocabulary
  * (Positive / Mixed / Negative / Zzz / New + comment count, identical everywhere).
  *
  * Three states beyond the sentiments:
@@ -124,7 +124,7 @@ export function VibeChip({ vibe, showTitle, onOpen, variant = 'flat', className 
       {justAired && (
         <span
           className={cn(
-            'flex shrink-0 items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-semibold',
+            'flex shrink-0 items-center gap-1 rounded-full border px-2 py-1 text-micro font-semibold',
             variant === 'glass' ? newTone.glass : newTone.flat,
           )}
         >

@@ -77,11 +77,11 @@ export function SeasonView({ onAnimeSelect }: SeasonViewProps) {
               onClick={handlePrevSeason}
               aria-label="Previous season"
               title="Previous season"
-              className="p-1 hover:bg-gray-800 rounded-lg transition-colors"
+              className="p-1 hover:bg-surface-3 rounded-field transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <ChevronLeft className="w-5 h-5" aria-hidden="true" />
             </button>
-            <h1 className="text-2xl font-bold tracking-tight text-white">
+            <h1 className="text-2xl font-bold tracking-tight text-fg">
               {selectedSeason} {selectedYear}
             </h1>
             <button
@@ -90,33 +90,33 @@ export function SeasonView({ onAnimeSelect }: SeasonViewProps) {
               aria-label="Next season"
               title={atForwardBoundary ? 'Nothing announced further out yet' : 'Next season'}
               className={cn(
-                'p-1 rounded-lg transition-colors',
-                atForwardBoundary ? 'cursor-not-allowed text-gray-700' : 'hover:bg-gray-800',
+                'p-1 rounded-field transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                atForwardBoundary ? 'cursor-not-allowed text-fg-faint' : 'hover:bg-surface-3',
               )}
             >
               <ChevronRight className="w-5 h-5" aria-hidden="true" />
             </button>
           </div>
-          <p className="text-gray-400 mt-1">
+          <p className="text-fg-muted mt-1">
             {isCurrentSeason ? "All anime airing this season" : `Archive for ${selectedSeason.toLowerCase()} ${selectedYear}`}
           </p>
         </div>
         
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
+          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-fg-faint" />
           <input 
             type="text"
             placeholder="Search season..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full rounded-full border border-gray-800 bg-gray-900/50 py-2 pl-10 pr-4 text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 sm:w-64"
+            className="w-full rounded-full border border-edge bg-surface-1/50 py-2 pl-10 pr-4 text-fg placeholder-fg-faint focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-ring/40 sm:w-64"
           />
         </div>
       </div>
 
       {loading ? (
         <div className="flex h-64 items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+          <Loader2 className="h-8 w-8 animate-spin text-accent-500" />
         </div>
       ) : query.isError ? (
         <ErrorState
@@ -126,9 +126,9 @@ export function SeasonView({ onAnimeSelect }: SeasonViewProps) {
         />
       ) : displayList.length === 0 ? (
         // The season really has nothing — a different answer from a search miss.
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-edge bg-surface-0 py-24 text-center">
-          <CalendarClock className="mb-4 h-8 w-8 text-gray-600" />
-          <p className="text-lg text-gray-300">
+        <div className="flex flex-col items-center justify-center rounded-card border border-dashed border-edge bg-surface-0 py-24 text-center">
+          <CalendarClock className="mb-4 h-8 w-8 text-fg-faint" />
+          <p className="text-lg text-fg-secondary">
             Nothing announced for {selectedSeason} {selectedYear} yet — check back later.
           </p>
         </div>
@@ -147,7 +147,7 @@ export function SeasonView({ onAnimeSelect }: SeasonViewProps) {
 
           {filtered.length === 0 && (
             <div className="flex flex-col items-center justify-center py-24 text-center">
-              <p className="text-lg text-gray-400">No shows found matching "{search}"</p>
+              <p className="text-lg text-fg-muted">No shows found matching "{search}"</p>
             </div>
           )}
         </>

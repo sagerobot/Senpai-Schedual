@@ -1,12 +1,10 @@
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useId, useState } from 'react';
+import { SPRING_POP } from '../lib/motion';
 import { cn } from '../lib/utils';
 
 const LOW_SCORES = [4, 3, 2, 1, 0];
-
-/** Snappy pop for each button; low mass so the stagger reads as one gesture. */
-const spring = { type: 'spring', stiffness: 600, damping: 32, mass: 0.7 } as const;
 
 export interface LowScoreButtonsProps {
   /** The episode the scores apply to; only used for the accessible names. */
@@ -38,7 +36,7 @@ export function LowScoreButtons({ episode, onSelect, triggerClassName, buttonCla
           key="trigger"
           type="button"
           initial={{ opacity: 0, scale: 0.6 }}
-          animate={{ opacity: 1, scale: 1, transition: { ...spring, delay: 0.06 } }}
+          animate={{ opacity: 1, scale: 1, transition: { ...SPRING_POP, delay: 0.06 } }}
           exit={{ opacity: 0, scale: 0.6, transition: { duration: 0.1 } }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.92 }}
@@ -68,7 +66,7 @@ export function LowScoreButtons({ episode, onSelect, triggerClassName, buttonCla
               key={score}
               type="button"
               initial={{ opacity: 0, scale: 0.3, x: -10 }}
-              animate={{ opacity: 1, scale: 1, x: 0, transition: { ...spring, delay: i * 0.04 } }}
+              animate={{ opacity: 1, scale: 1, x: 0, transition: { ...SPRING_POP, delay: i * 0.04 } }}
               exit={{
                 opacity: 0,
                 scale: 0.3,
@@ -93,7 +91,7 @@ export function LowScoreButtons({ episode, onSelect, triggerClassName, buttonCla
             key="collapse"
             type="button"
             initial={{ opacity: 0, scale: 0.3, x: -10 }}
-            animate={{ opacity: 1, scale: 1, x: 0, transition: { ...spring, delay: LOW_SCORES.length * 0.04 } }}
+            animate={{ opacity: 1, scale: 1, x: 0, transition: { ...SPRING_POP, delay: LOW_SCORES.length * 0.04 } }}
             exit={{ opacity: 0, scale: 0.3, transition: { duration: 0.1 } }}
             whileHover={{ scale: 1.12 }}
             whileTap={{ scale: 0.85 }}

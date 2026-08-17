@@ -7,6 +7,7 @@ import { importMalFile } from '../../lib/malImport';
 import { displayTitle } from '../../lib/displayTitle';
 import { Loader2, Upload, BookmarkIcon, AlertCircle } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { ErrorState } from '../../components/ErrorState';
 import { LIBRARY_STATUS_LABELS, LIBRARY_STATUS_ORDER } from '../../lib/status';
 import { useSeriesGraphs } from '../../series/useSeriesGraphs';
 import { SeriesCard } from './SeriesCard';
@@ -19,6 +20,8 @@ interface LibraryViewProps {
   onAnimeSelect: (show: { id: number }) => void;
   setLibraryBulk: (entries: LibraryEntry[]) => void;
   setLogsBulk: (logs: EpisodeLog[]) => void;
+  scheduleError: string | null;
+  retrySchedule: () => void;
 }
 
 type TabId = 'all' | LibraryStatus;
@@ -31,7 +34,7 @@ interface GroupedSeries {
   lastUpdated: number;
 }
 
-export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibraryBulk, setLogsBulk }: LibraryViewProps) {
+export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibraryBulk, setLogsBulk, scheduleError, retrySchedule }: LibraryViewProps) {
   const [activeTab, setActiveTab] = useState<TabId>('all');
   const [sortOption, setSortOption] = useState<'my-score' | 'title' | 'recently-updated'>('recently-updated');
   // `?q=` seeds the box once so /library?q=... is linkable; typing after that is
@@ -230,8 +233,8 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">Library</h1>
-          <p className="text-gray-400">Everything you've watched, planned, and shelved — grouped by series</p>
+          <h1 className="text-2xl font-bold tracking-tight text-fg">Library</h1>
+          <p className="text-fg-muted">Everything you've watched, planned, and shelved — grouped by series</p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -247,8 +250,8 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
             onClick={() => fileInputRef.current?.click()}
             disabled={importing}
             className={cn(
-              "flex items-center gap-2 rounded-lg bg-[#2a2a2d] border border-gray-800 px-4 py-2 text-sm font-medium transition-colors",
-              importing ? "opacity-50 cursor-not-allowed text-gray-300" : "hover:bg-gray-800 hover:text-white text-gray-300"
+              "flex items-center gap-2 rounded-field bg-surface-3 border border-edge px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              importing ? "opacity-50 cursor-not-allowed text-fg-secondary" : "hover:bg-surface-2 hover:text-fg text-fg-secondary"
             )}
           >
             {importing ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Upload className="h-4 w-4" aria-hidden="true" />}
@@ -258,26 +261,26 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
       </div>
 
       {importResult && (
-        <div className="rounded-lg bg-emerald-900/20 border border-emerald-500/30 p-4 text-emerald-300">
+        <div className="rounded-field bg-success-500/10 border border-success-500/30 p-4 text-success-300">
           <p className="font-medium text-sm">Import completed: {importResult.imported} shows imported successfully.</p>
           {importResult.failed > 0 && <p className="text-xs opacity-80 mt-1">{importResult.failed} shows could not be matched to AniList.</p>}
         </div>
       )}
 
       {importError && (
-        <div className="flex items-start gap-3 rounded-lg bg-red-900/20 border border-red-500/30 p-4 text-red-300">
+        <div className="flex items-start gap-3 rounded-field bg-danger-500/10 border border-danger-500/30 p-4 text-danger-300">
           <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
           <p className="text-sm">{importError}</p>
         </div>
       )}
 
       {importProgress && importProgress.total > 0 && (
-        <div className="rounded-lg bg-[#2a2a2d] border border-gray-800 p-4">
-          <div className="flex justify-between text-xs text-gray-400 mb-2">
+        <div className="rounded-field bg-surface-3 border border-edge p-4">
+          <div className="flex justify-between text-xs text-fg-muted mb-2">
             <span>Matching MAL entries to AniList ({importProgress.current} / {importProgress.total})...</span>
             <span>{Math.round((importProgress.current / importProgress.total) * 100)}%</span>
           </div>
-          <div className="h-1.5 w-full bg-gray-800 rounded-full overflow-hidden">
+          <div className="h-1.5 w-full bg-surface-2 rounded-full overflow-hidden">
             <div
               className="h-full bg-accent-500 rounded-full transition-all duration-300"
               style={{ width: `${Math.min(100, (importProgress.current / importProgress.total) * 100)}%` }}
@@ -286,21 +289,21 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
         </div>
       )}
 
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#1c1c1f] p-2 rounded-xl border border-gray-800">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-surface-1 p-2 rounded-inner border border-edge">
         <div className="flex space-x-1 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
           {tabs.map(t => (
             <button
               key={t.id}
               onClick={() => setActiveTab(t.id)}
               className={cn(
-                "flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3.5 py-2 text-sm font-medium transition-colors",
-                activeTab === t.id ? "bg-[#2a2a2d] text-white shadow-sm" : "text-gray-400 hover:text-gray-200 hover:bg-[#2a2a2d]/50"
+                "flex items-center gap-1.5 whitespace-nowrap rounded-field px-3.5 py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                activeTab === t.id ? "bg-surface-3 text-fg shadow-e1" : "text-fg-muted hover:text-fg-secondary hover:bg-surface-3/50"
               )}
             >
               {t.label}
               <span className={cn(
-                "rounded-full px-1.5 py-0.5 text-[10px] font-semibold",
-                activeTab === t.id ? "bg-accent-500/20 text-accent-300" : "bg-black/30 text-gray-500"
+                "rounded-full px-1.5 py-0.5 text-micro font-semibold",
+                activeTab === t.id ? "bg-accent-500/20 text-accent-300" : "bg-surface-0/50 text-fg-faint"
               )}>
                 {tabCounts[t.id]}
               </span>
@@ -309,18 +312,18 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
         </div>
 
         <div className="flex items-center gap-2">
-          {resolving && <Loader2 className="h-4 w-4 animate-spin text-gray-500" />}
+          {resolving && <Loader2 className="h-4 w-4 animate-spin text-fg-faint" />}
           <input
             type="text"
             placeholder="Search series..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="rounded-lg border border-gray-700 bg-[#2a2a2d] px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-accent-500 focus:outline-none w-full md:w-48"
+            className="rounded-field border border-edge-strong bg-surface-3 px-3 py-2 text-sm text-fg placeholder-fg-faint focus:border-accent-500 focus:outline-none w-full md:w-48"
           />
           <select
             value={sortOption}
             onChange={(e) => setSortOption(e.target.value as 'my-score' | 'title' | 'recently-updated')}
-            className="rounded-lg border border-gray-700 bg-[#2a2a2d] px-3 py-2 text-sm font-medium text-gray-300 focus:border-accent-500 focus:outline-none"
+            className="rounded-field border border-edge-strong bg-surface-3 px-3 py-2 text-sm font-medium text-fg-secondary focus:border-accent-500 focus:outline-none"
           >
             <option value="recently-updated">Recently Updated</option>
             <option value="title">A-Z</option>
@@ -330,7 +333,7 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
       </div>
 
       {pendingCount > 0 && (
-        <div className="flex items-center gap-2 text-xs text-gray-500">
+        <div className="flex items-center gap-2 text-xs text-fg-faint">
           <Loader2 className="h-3.5 w-3.5 animate-spin" />
           <span>Loading {pendingCount} more {pendingCount === 1 ? 'show' : 'shows'}…</span>
         </div>
@@ -349,21 +352,25 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
           ))}
         </div>
       ) : hasSearchMiss ? (
-        <div className="flex h-40 flex-col items-center justify-center rounded-xl border border-dashed border-gray-800 bg-[#1c1c1f]">
-          <p className="text-gray-400">No series match "{search}" here.</p>
+        <div className="flex h-40 flex-col items-center justify-center rounded-inner border border-dashed border-edge bg-surface-1">
+          <p className="text-fg-muted">No series match "{search}" here.</p>
         </div>
+      ) : scheduleError && library.length > 0 && groupedSeries.length === 0 ? (
+        // The library has entries but none could be resolved and the schedule
+        // fetch failed — never dress that failure up as an empty library.
+        <ErrorState title="Failed to load your library." detail={scheduleError} onRetry={retrySchedule} />
       ) : (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-800 bg-[#1c1c1f] py-24 text-center px-6">
-          <BookmarkIcon className="mb-4 h-12 w-12 text-gray-700" />
-          <h3 className="text-xl font-bold text-white">Nothing here yet</h3>
-          <p className="mt-2 max-w-md text-gray-500">
+        <div className="flex flex-col items-center justify-center rounded-card border border-dashed border-edge bg-surface-1 py-24 text-center px-6">
+          <BookmarkIcon className="mb-4 h-12 w-12 text-edge-strong" />
+          <h3 className="text-xl font-bold text-fg">Nothing here yet</h3>
+          <p className="mt-2 max-w-md text-fg-faint">
             Bookmark a show anywhere in the app and it lands in your library.
             Already tracking on MyAnimeList? Bring your whole history over.
           </p>
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={importing}
-            className="mt-6 flex items-center gap-2 rounded-lg bg-accent-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-500 disabled:opacity-50"
+            className="mt-6 flex items-center gap-2 rounded-field bg-accent-600 px-4 py-2.5 text-sm font-medium text-fg-inverse transition-colors hover:bg-accent-500 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <Upload className="h-4 w-4" />
             Import from MAL

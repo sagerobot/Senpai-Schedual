@@ -6,7 +6,7 @@ import { Loader2 } from 'lucide-react';
  */
 export function HydrateFallback() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-black text-purple-500">
+    <div className="flex min-h-screen items-center justify-center bg-surface-0 text-accent-500">
       <Loader2 className="h-8 w-8 animate-spin" />
     </div>
   );

@@ -79,7 +79,7 @@ export function AnimeCard({
       onClick={() => onClick?.(anime)}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="group relative flex cursor-pointer flex-col overflow-hidden rounded-xl bg-gray-900 shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl"
+      className="group relative flex cursor-pointer flex-col overflow-hidden rounded-inner bg-surface-1 shadow-e2 transition-all hover:-translate-y-1 hover:shadow-e3"
     >
       {/* Cover Image */}
       <div className="relative aspect-[3/4] w-full overflow-hidden">
@@ -90,7 +90,7 @@ export function AnimeCard({
           type="button"
           onClick={(e) => { e.stopPropagation(); onClick?.(anime); }}
           aria-label={`Open ${titleText}`}
-          className="absolute inset-0 focus:outline-none focus-visible:z-30 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent-400"
+          className="absolute inset-0 focus:outline-none focus-visible:z-30 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
         />
         <img
           src={anime.coverImage.extraLarge || anime.coverImage.large}
@@ -98,12 +98,12 @@ export function AnimeCard({
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-scrim via-scrim/40 to-transparent" />
         
         {/* Top-left: Score & Status */}
         <div className="absolute right-3 bottom-14 z-10 flex flex-col gap-2 items-end">
           {userScore != null && (
-            <div className="flex items-center gap-1 rounded-full bg-black/60 px-2 py-1 text-xs font-semibold text-yellow-400 backdrop-blur-md">
+            <div className="flex items-center gap-1 rounded-full bg-scrim/60 px-2 py-1 text-xs font-semibold text-warning-400 backdrop-blur-md">
               <Star className="h-3 w-3 fill-current" />
               {userScore.toFixed(1)}
             </div>
@@ -122,8 +122,8 @@ export function AnimeCard({
               className={cn(
                 "absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full backdrop-blur-md transition-colors",
                 inLibrary
-                  ? "bg-accent-600 text-white"
-                  : "bg-black/50 text-gray-300 hover:bg-black/80 hover:text-white"
+                  ? "bg-accent-600 text-fg-inverse"
+                  : "bg-scrim/50 text-fg-inverse hover:bg-scrim/80"
               )}
             >
               <Bookmark className="h-5 w-5" fill={inLibrary ? "currentColor" : "none"} aria-hidden="true" />
@@ -133,20 +133,20 @@ export function AnimeCard({
 
         {/* Status / Countdown */}
         <div className="absolute bottom-0 left-0 w-full p-3 sm:p-4">
-          <h3 className="line-clamp-2 text-base sm:text-lg font-bold leading-tight text-white" title={titleText}>
+          <h3 className="line-clamp-2 text-base sm:text-lg font-bold leading-tight text-fg-inverse" title={titleText}>
             {titleOverride || displayTitle(anime)}
           </h3>
           
-          <div className="mt-1.5 sm:mt-2 flex items-center space-x-2 text-xs sm:text-sm text-gray-300">
+          <div className="mt-1.5 sm:mt-2 flex items-center space-x-2 text-xs sm:text-sm text-fg-secondary">
             {nextEp ? (
-              <div className="flex items-center space-x-1 font-mono text-purple-400">
+              <div className="flex items-center space-x-1 font-mono text-accent-400">
                 {alreadyAiredToday || airedPerStaleData ? <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> : <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
                 <span>
                   Ep {displayEpisode} {alreadyAiredToday || airedPerStaleData ? '• Aired' : (showCountdown ? `in ${formatTimeUntil(timeUntil || 0)}` : '')}
                 </span>
               </div>
             ) : (
-              <div className="flex items-center space-x-1 text-gray-400">
+              <div className="flex items-center space-x-1 text-fg-muted">
                 <span>{anime.status}</span>
               </div>
             )}
@@ -158,15 +158,15 @@ export function AnimeCard({
       <div className="flex flex-1 flex-col p-3 sm:p-4">
         {progress && progress.aired > 0 && (
           <div className="mb-3">
-            <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
+            <div className="flex items-center justify-between text-xs text-fg-muted mb-1">
               <span>Progress</span>
               <span>{progress.watched} / {progress.aired}</span>
             </div>
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-800">
-              <div 
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
+              <div
                 className={cn(
                   "h-full transition-all duration-500",
-                  statusPill === 'caught-up' || statusPill === 'finished' ? "bg-emerald-500" : "bg-purple-500"
+                  statusPill === 'caught-up' || statusPill === 'finished' ? "bg-success-500" : "bg-accent-500"
                 )}
                 style={{ width: `${Math.min(100, (progress.watched / progress.aired) * 100)}%` }}
               />
@@ -175,8 +175,8 @@ export function AnimeCard({
         )}
 
         {nextEp && !progress && (
-          <div className="mb-3 sm:mb-4 flex items-center text-xs sm:text-sm text-gray-400">
-            <span className="rounded-md bg-gray-800 px-2 py-1 text-[10px] sm:text-xs text-gray-200">{localAiringTime}</span>
+          <div className="mb-3 sm:mb-4 flex items-center text-xs sm:text-sm text-fg-muted">
+            <span className="rounded-xs bg-surface-3 px-2 py-1 text-micro sm:text-xs text-fg-secondary">{localAiringTime}</span>
           </div>
         )}
         
@@ -190,7 +190,7 @@ export function AnimeCard({
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
-                  className="flex items-center space-x-1 rounded-full bg-gray-800 px-2 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-medium text-gray-300 transition-colors hover:bg-gray-700 hover:text-white"
+                  className="flex items-center space-x-1 rounded-full bg-surface-3 px-2 py-1 sm:px-3 sm:py-1.5 text-micro sm:text-xs font-medium text-fg-secondary transition-colors hover:bg-edge-strong hover:text-fg"
                 >
                   <PlayCircle className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                   <span>{link.site}</span>
@@ -198,7 +198,7 @@ export function AnimeCard({
               ))}
             </div>
           ) : (
-            <span className="text-[11px] sm:text-xs text-gray-400">No verified streams</span>
+            <span className="text-caption sm:text-xs text-fg-muted">No verified streams</span>
           )}
         </div>
       </div>

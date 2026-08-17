@@ -125,13 +125,13 @@ export function WatchingView({ animeList, library, logs, onLog, onAnimeSelect }:
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">Watching</h1>
-          <p className="text-gray-400">What's airing for you right now</p>
+          <h1 className="text-2xl font-bold tracking-tight text-fg">Watching</h1>
+          <p className="text-fg-muted">What's airing for you right now</p>
         </div>
         {logs.length > 0 && (
           <button
             onClick={() => setShowRecap(true)}
-            className="flex items-center justify-center space-x-2 rounded-lg bg-accent-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-500"
+            className="flex items-center justify-center space-x-2 rounded-field bg-accent-600 px-4 py-2.5 text-sm font-medium text-fg-inverse transition-colors hover:bg-accent-500"
           >
             <TrendingUp className="h-4 w-4" />
             <span>Season Recap</span>
@@ -155,7 +155,7 @@ export function WatchingView({ animeList, library, logs, onLog, onAnimeSelect }:
       />
 
       {currentShows.length > 0 && (
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#1c1c1f] p-2 rounded-xl border border-gray-800">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-surface-1 p-2 rounded-inner border border-edge">
           {/* Filter Tabs */}
           <div className="flex space-x-1 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
             {[
@@ -168,8 +168,8 @@ export function WatchingView({ animeList, library, logs, onLog, onAnimeSelect }:
                 key={t.id}
                 onClick={() => setFilter(t.id as FilterTab)}
                 className={cn(
-                  "whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors",
-                  filter === t.id ? "bg-[#2a2a2d] text-white shadow-sm" : "text-gray-400 hover:text-gray-200 hover:bg-[#2a2a2d]/50"
+                  "whitespace-nowrap rounded-field px-4 py-2 text-sm font-medium transition-colors",
+                  filter === t.id ? "bg-surface-3 text-fg shadow-e1" : "text-fg-muted hover:text-fg-secondary hover:bg-surface-3/50"
                 )}
               >
                 {t.label}
@@ -181,7 +181,7 @@ export function WatchingView({ animeList, library, logs, onLog, onAnimeSelect }:
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as SortOption)}
-            className="rounded-lg border border-gray-700 bg-[#2a2a2d] px-3 py-2 text-sm font-medium text-gray-300 focus:border-accent-500 focus:outline-none"
+            className="rounded-field border border-edge-strong bg-surface-3 px-3 py-2 text-sm font-medium text-fg-secondary focus:border-accent-500 focus:outline-none"
           >
             <option value="next-airing">Next episode airing</option>
             <option value="most-behind">Most behind</option>
@@ -192,7 +192,7 @@ export function WatchingView({ animeList, library, logs, onLog, onAnimeSelect }:
       )}
 
       {pendingCount > 0 && (
-        <div className="flex items-center gap-2 text-xs text-gray-500">
+        <div className="flex items-center gap-2 text-xs text-fg-faint">
           <Loader2 className="h-3.5 w-3.5 animate-spin" />
           <span>Loading {pendingCount} more {pendingCount === 1 ? 'show' : 'shows'}…</span>
         </div>
@@ -214,13 +214,13 @@ export function WatchingView({ animeList, library, logs, onLog, onAnimeSelect }:
             ))}
           </div>
         ) : (
-          <p className="py-12 text-center text-sm text-gray-500">No shows match this filter.</p>
+          <p className="py-12 text-center text-sm text-fg-faint">No shows match this filter.</p>
         )
       ) : (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-800 py-32 text-center px-6">
-          <BookmarkIcon className="mb-4 h-12 w-12 text-gray-700" />
-          <h3 className="text-xl font-bold text-white">Nothing here yet</h3>
-          <p className="mt-2 max-w-md text-gray-500">
+        <div className="flex flex-col items-center justify-center rounded-card border border-dashed border-edge py-32 text-center px-6">
+          <BookmarkIcon className="mb-4 h-12 w-12 text-fg-faint" />
+          <h3 className="text-xl font-bold text-fg">Nothing here yet</h3>
+          <p className="mt-2 max-w-md text-fg-faint">
             Bookmark a show on the Schedule or Season view and it appears here the day it airs.
           </p>
         </div>

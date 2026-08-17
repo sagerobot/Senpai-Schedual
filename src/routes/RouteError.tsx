@@ -58,8 +58,8 @@ export function RouteError() {
     return (
       <div className="flex h-screen flex-col items-center justify-center space-y-4 text-center">
         <RefreshCw className="h-10 w-10 animate-spin text-accent-500" aria-hidden="true" />
-        <h1 className="text-2xl font-bold text-white">Just a moment</h1>
-        <p className="max-w-sm text-sm text-gray-500">
+        <h1 className="text-2xl font-bold text-fg">Just a moment</h1>
+        <p className="max-w-sm text-sm text-fg-faint">
           Senpai updated while this tab was open — loading the new version.
         </p>
       </div>
@@ -70,9 +70,9 @@ export function RouteError() {
 
   return (
     <div className="flex h-screen flex-col items-center justify-center space-y-4 px-6 text-center">
-      <AlertTriangle className="h-12 w-12 text-gray-700" aria-hidden="true" />
-      <h1 className="text-2xl font-bold text-white">{stale ? 'Senpai updated' : 'Something broke'}</h1>
-      <p className="max-w-sm text-sm text-gray-500">
+      <AlertTriangle className="h-12 w-12 text-fg-faint" aria-hidden="true" />
+      <h1 className="text-2xl font-bold text-fg">{stale ? 'Senpai updated' : 'Something broke'}</h1>
+      <p className="max-w-sm text-sm text-fg-faint">
         {stale
           ? 'This tab is running an old version of the app. Reloading should fix it.'
           : 'The app hit an error it could not recover from. Your library and logs are safe — they live in this browser, not on the page.'}
@@ -80,7 +80,7 @@ export function RouteError() {
       <div className="flex gap-2">
         <button
           onClick={() => window.location.reload()}
-          className="flex h-11 items-center gap-2 rounded-lg bg-accent-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-accent-500"
+          className="flex h-11 items-center gap-2 rounded-field bg-accent-600 px-4 text-sm font-semibold text-fg-inverse transition-colors hover:bg-accent-500"
         >
           <RefreshCw className="h-4 w-4" aria-hidden="true" />
           Reload
@@ -88,12 +88,12 @@ export function RouteError() {
         <Link
           to="/schedule"
           reloadDocument
-          className="flex h-11 items-center rounded-lg border border-edge px-4 text-sm font-medium text-gray-300 transition-colors hover:bg-surface-3 hover:text-white"
+          className="flex h-11 items-center rounded-field border border-edge px-4 text-sm font-medium text-fg-secondary transition-colors hover:bg-surface-3 hover:text-fg"
         >
           Back to Schedule
         </Link>
       </div>
-      {detail !== '' && <p className="max-w-md break-all font-mono text-[11px] text-gray-600">{detail}</p>}
+      {detail !== '' && <p className="max-w-md break-all font-mono text-caption text-fg-faint">{detail}</p>}
     </div>
   );
 }

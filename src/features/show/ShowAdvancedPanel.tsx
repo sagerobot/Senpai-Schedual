@@ -80,7 +80,7 @@ export function ShowAdvancedPanel({ anime }: ShowAdvancedPanelProps) {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-controls={panelId}
-        className="flex min-h-11 w-full items-center gap-2 rounded-lg px-1 text-left text-sm font-medium text-gray-500 transition-colors hover:text-gray-300"
+        className="flex min-h-11 w-full items-center gap-2 rounded-field px-1 text-left text-sm font-medium text-fg-faint transition-colors hover:text-fg-secondary"
       >
         <ChevronDown
           className={cn('h-4 w-4 transition-transform', !open && '-rotate-90')}
@@ -208,12 +208,12 @@ function AdvancedPanelBody({ anime }: ShowAdvancedPanelProps) {
   };
 
   return (
-    <div className="mt-1 space-y-5 rounded-xl border border-edge bg-surface-1 p-4">
+    <div className="mt-1 space-y-5 rounded-inner border border-edge bg-surface-1 p-4">
       {/* ---- Simulcast delay ---- */}
       <section className="space-y-3">
         <div>
-          <h4 className="text-sm font-medium text-gray-300">Simulcast delay</h4>
-          <p className="mt-1 text-xs text-gray-500">
+          <h4 className="text-sm font-medium text-fg-secondary">Simulcast delay</h4>
+          <p className="mt-1 text-xs text-fg-faint">
             Airs later for you? Shift this show's countdown. Applies immediately, everywhere.
           </p>
         </div>
@@ -227,10 +227,10 @@ function AdvancedPanelBody({ anime }: ShowAdvancedPanelProps) {
                 onClick={() => applyOffset(preset.minutes)}
                 aria-pressed={active}
                 className={cn(
-                  'h-11 rounded-lg border px-3.5 text-sm font-medium transition-colors',
+                  'h-11 rounded-field border px-3.5 text-sm font-medium transition-colors',
                   active
                     ? 'border-accent-500/60 bg-accent-600/20 text-accent-300'
-                    : 'border-edge bg-surface-2 text-gray-400 hover:bg-surface-3 hover:text-white',
+                    : 'border-edge bg-surface-2 text-fg-muted hover:bg-surface-3 hover:text-fg',
                 )}
               >
                 {preset.label}
@@ -242,10 +242,10 @@ function AdvancedPanelBody({ anime }: ShowAdvancedPanelProps) {
             onClick={() => setCustomOpen((v) => !v)}
             aria-expanded={customOpen}
             className={cn(
-              'h-11 rounded-lg border px-3.5 text-sm font-medium transition-colors',
+              'h-11 rounded-field border px-3.5 text-sm font-medium transition-colors',
               customOpen
                 ? 'border-accent-500/60 bg-accent-600/20 text-accent-300'
-                : 'border-edge bg-surface-2 text-gray-400 hover:bg-surface-3 hover:text-white',
+                : 'border-edge bg-surface-2 text-fg-muted hover:bg-surface-3 hover:text-fg',
             )}
           >
             Custom&hellip;
@@ -261,35 +261,35 @@ function AdvancedPanelBody({ anime }: ShowAdvancedPanelProps) {
               onChange={(e) => setCustomValue(e.target.value)}
               placeholder="Minutes"
               aria-label="Custom delay in minutes"
-              className="h-11 w-28 rounded-lg border border-edge bg-surface-2 px-3 text-sm text-gray-200 placeholder-gray-500 focus:border-accent-500 focus:outline-none focus:ring-1 focus:ring-accent-500"
+              className="h-11 w-28 rounded-field border border-edge bg-surface-2 px-3 text-sm text-fg-secondary placeholder-fg-faint focus:outline-none focus:border-accent-500 focus:ring-2 focus:ring-ring/40"
             />
             <button
               type="submit"
-              className="h-11 rounded-lg bg-accent-600 px-4 text-sm font-medium text-white transition-colors hover:bg-accent-500"
+              className="h-11 rounded-field bg-accent-600 px-4 text-sm font-medium text-fg-inverse transition-colors hover:bg-accent-500"
             >
               Apply
             </button>
           </form>
         )}
-        <p className="text-xs text-gray-500">
-          Currently <span className="font-medium text-gray-300">{formatOffset(offset)}</span>.
+        <p className="text-xs text-fg-faint">
+          Currently <span className="font-medium text-fg-secondary">{formatOffset(offset)}</span>.
         </p>
       </section>
 
       {/* ---- Series tools ---- */}
       <section className="space-y-3 border-t border-edge pt-4">
         <div>
-          <h4 className="text-sm font-medium text-gray-300">Series grouping</h4>
-          <p className="mt-1 text-xs text-gray-500">{contextLine}</p>
+          <h4 className="text-sm font-medium text-fg-secondary">Series grouping</h4>
+          <p className="mt-1 text-xs text-fg-faint">{contextLine}</p>
         </div>
 
         {isSplit && (
-          <div className="flex items-center justify-between gap-3 rounded-lg border border-accent-500/30 bg-accent-600/10 px-3 py-1.5">
+          <div className="flex items-center justify-between gap-3 rounded-field border border-accent-500/30 bg-accent-600/10 px-3 py-1.5">
             <p className="text-xs text-accent-300">You marked this entry as standalone.</p>
             <button
               type="button"
               onClick={handleUnsplit}
-              className="h-11 shrink-0 rounded-lg px-3 text-xs font-medium text-gray-300 transition-colors hover:text-white"
+              className="h-11 shrink-0 rounded-field px-3 text-xs font-medium text-fg-secondary transition-colors hover:text-fg"
             >
               Remove split
             </button>
@@ -297,12 +297,12 @@ function AdvancedPanelBody({ anime }: ShowAdvancedPanelProps) {
         )}
 
         {mergedInto !== undefined && (
-          <div className="flex items-center justify-between gap-3 rounded-lg border border-accent-500/30 bg-accent-600/10 px-3 py-1.5">
+          <div className="flex items-center justify-between gap-3 rounded-field border border-accent-500/30 bg-accent-600/10 px-3 py-1.5">
             <p className="text-xs text-accent-300">You merged this entry into another series.</p>
             <button
               type="button"
               onClick={handleUnmerge}
-              className="h-11 shrink-0 rounded-lg px-3 text-xs font-medium text-gray-300 transition-colors hover:text-white"
+              className="h-11 shrink-0 rounded-field px-3 text-xs font-medium text-fg-secondary transition-colors hover:text-fg"
             >
               Remove merge
             </button>
@@ -310,28 +310,28 @@ function AdvancedPanelBody({ anime }: ShowAdvancedPanelProps) {
         )}
 
         {!isSplit && (
-          <div className="rounded-lg bg-surface-2 p-3">
-            <p className="text-sm text-gray-300">Not part of this series?</p>
-            <p className="mt-0.5 text-xs text-gray-500">
+          <div className="rounded-field bg-surface-2 p-3">
+            <p className="text-sm text-fg-secondary">Not part of this series?</p>
+            <p className="mt-0.5 text-xs text-fg-faint">
               Treats this entry as its own standalone series everywhere, immediately.
             </p>
             <button
               type="button"
               onClick={handleSplit}
-              className="mt-2 h-11 rounded-lg border border-edge bg-surface-3 px-4 text-sm font-medium text-gray-200 transition-colors hover:border-accent-500/40 hover:bg-accent-600/20 hover:text-accent-300"
+              className="mt-2 h-11 rounded-field border border-edge bg-surface-3 px-4 text-sm font-medium text-fg-secondary transition-colors hover:border-accent-500/40 hover:bg-accent-600/20 hover:text-accent-300"
             >
               Split into standalone series
             </button>
           </div>
         )}
 
-        <div className="space-y-2 rounded-lg bg-surface-2 p-3">
-          <p className="text-sm text-gray-300">Belongs to another series?</p>
-          <p className="text-xs text-gray-500">
+        <div className="space-y-2 rounded-field bg-surface-2 p-3">
+          <p className="text-sm text-fg-secondary">Belongs to another series?</p>
+          <p className="text-xs text-fg-faint">
             Search for the series to merge into &mdash; the change takes effect immediately.
           </p>
           <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" aria-hidden="true" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg-faint" aria-hidden="true" />
             <input
               type="text"
               value={mergeQuery}
@@ -341,49 +341,49 @@ function AdvancedPanelBody({ anime }: ShowAdvancedPanelProps) {
               }}
               placeholder="Search anime by title"
               aria-label="Search for a series to merge into"
-              className="h-11 w-full rounded-lg border border-edge bg-surface-1 pl-9 pr-3 text-sm text-gray-200 placeholder-gray-500 focus:border-accent-500 focus:outline-none focus:ring-1 focus:ring-accent-500"
+              className="h-11 w-full rounded-field border border-edge bg-surface-1 pl-9 pr-3 text-sm text-fg-secondary placeholder-fg-faint focus:outline-none focus:border-accent-500 focus:ring-2 focus:ring-ring/40"
             />
           </div>
 
           {pendingTarget !== null ? (
-            <div className="flex flex-wrap items-center gap-3 rounded-lg border border-accent-500/40 bg-accent-600/10 p-2">
+            <div className="flex flex-wrap items-center gap-3 rounded-field border border-accent-500/40 bg-accent-600/10 p-2">
               <img
                 src={pendingTarget.coverImage.large}
                 alt=""
                 className="h-12 w-9 shrink-0 rounded bg-surface-3 object-cover"
               />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-gray-200">
+                <p className="truncate text-sm font-medium text-fg-secondary">
                   Merge into {displayTitle(pendingTarget)}?
                 </p>
-                <p className="text-xs text-gray-500">Groups this entry under that franchise everywhere.</p>
+                <p className="text-xs text-fg-faint">Groups this entry under that franchise everywhere.</p>
               </div>
               <div className="flex shrink-0 items-center gap-2">
                 <button
                   type="button"
                   onClick={handleMergeConfirm}
-                  className="h-11 rounded-lg bg-accent-600 px-4 text-sm font-medium text-white transition-colors hover:bg-accent-500"
+                  className="h-11 rounded-field bg-accent-600 px-4 text-sm font-medium text-fg-inverse transition-colors hover:bg-accent-500"
                 >
                   Merge
                 </button>
                 <button
                   type="button"
                   onClick={() => setPendingTarget(null)}
-                  className="h-11 rounded-lg border border-edge px-3 text-sm font-medium text-gray-400 transition-colors hover:text-white"
+                  className="h-11 rounded-field border border-edge px-3 text-sm font-medium text-fg-muted transition-colors hover:text-fg"
                 >
                   Cancel
                 </button>
               </div>
             </div>
           ) : searching ? (
-            <div className="flex min-h-11 items-center gap-2 px-2 text-xs text-gray-500">
+            <div className="flex min-h-11 items-center gap-2 px-2 text-xs text-fg-faint">
               <Loader2 className="h-4 w-4 animate-spin text-accent-400" aria-hidden="true" />
               Searching&hellip;
             </div>
           ) : search.isError ? (
-            <p className="px-2 text-xs text-rose-300">Search failed &mdash; try again in a moment.</p>
+            <p className="px-2 text-xs text-danger-300">Search failed &mdash; try again in a moment.</p>
           ) : debouncedQuery.trim().length > 0 && results.length === 0 ? (
-            <p className="px-2 text-xs text-gray-500">No other series found for that title.</p>
+            <p className="px-2 text-xs text-fg-faint">No other series found for that title.</p>
           ) : results.length > 0 ? (
             <ul className="space-y-1">
               {results.map((m) => (
@@ -391,7 +391,7 @@ function AdvancedPanelBody({ anime }: ShowAdvancedPanelProps) {
                   <button
                     type="button"
                     onClick={() => setPendingTarget(m)}
-                    className="flex min-h-11 w-full items-center gap-3 rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-surface-3"
+                    className="flex min-h-11 w-full items-center gap-3 rounded-field px-2 py-1.5 text-left transition-colors hover:bg-surface-3"
                   >
                     <img
                       src={m.coverImage.large}
@@ -399,9 +399,9 @@ function AdvancedPanelBody({ anime }: ShowAdvancedPanelProps) {
                       className="h-12 w-9 shrink-0 rounded bg-surface-3 object-cover"
                     />
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm text-gray-200">{displayTitle(m)}</span>
+                      <span className="block truncate text-sm text-fg-secondary">{displayTitle(m)}</span>
                       {m.startDate?.year != null && (
-                        <span className="block text-xs text-gray-500">{m.startDate.year}</span>
+                        <span className="block text-xs text-fg-faint">{m.startDate.year}</span>
                       )}
                     </span>
                   </button>

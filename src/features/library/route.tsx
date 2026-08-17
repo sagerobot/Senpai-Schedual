@@ -5,7 +5,7 @@ import { useOpenShow } from '../../routes/showParam';
 import { LibraryView } from './LibraryView';
 
 export function LibraryRoute() {
-  const { animeList } = useScheduleContext();
+  const { animeList, scheduleError, retrySchedule } = useScheduleContext();
   const { library, setLibraryBulk } = useLibrary();
   const { logs, setLogsBulk } = useEpisodeLog();
   const openShow = useOpenShow();
@@ -18,6 +18,8 @@ export function LibraryRoute() {
       onAnimeSelect={openShow}
       setLibraryBulk={setLibraryBulk}
       setLogsBulk={setLogsBulk}
+      scheduleError={scheduleError}
+      retrySchedule={retrySchedule}
     />
   );
 }

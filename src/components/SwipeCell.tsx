@@ -1,5 +1,6 @@
-import { AnimatePresence, motion, useIsPresent, type Transition } from 'motion/react';
+import { AnimatePresence, motion, useIsPresent } from 'motion/react';
 import { useRef, useState, type CSSProperties, type ReactNode, type Ref } from 'react';
+import { DUR, EASE_STANDARD, LAYOUT_SWAP, PORTAL_X } from '../lib/motion';
 import { cn } from '../lib/utils';
 
 export interface SwapSlot {
@@ -25,8 +26,6 @@ const PORTAL_EXITS = new Set<string>();
 export function portalExitCell(cellKey: string): void {
   PORTAL_EXITS.add(cellKey);
 }
-
-const PORTAL_X: Transition = { duration: 0.45, ease: [0.4, 0, 0.2, 1] };
 
 /**
  * Sticky slot assignment for a card grid that swaps in place: a key keeps its
@@ -104,7 +103,7 @@ export function SwipeCell({
             ? {
                 x: '-130%',
                 opacity: 0,
-                transition: { x: PORTAL_X, opacity: { duration: 0.45, ease: 'easeIn' } },
+                transition: { x: PORTAL_X, opacity: { duration: DUR.portal, ease: 'easeIn' } },
               }
             : { opacity: 0, transition: { duration: 0.18, ease: 'easeIn' } },
       }}
@@ -112,15 +111,15 @@ export function SwipeCell({
       // Tween for layout moves: the default layout spring overshoots the slot
       // and visibly bounces off the neighboring card.
       transition={{
-        layout: { duration: 0.32, ease: [0.32, 0.72, 0.28, 1] },
-        opacity: { duration: 0.3, ease: 'easeOut' },
-        scale: { duration: 0.3, ease: 'easeOut' },
+        layout: LAYOUT_SWAP,
+        opacity: { duration: DUR.standard, ease: 'easeOut' },
+        scale: { duration: DUR.standard, ease: 'easeOut' },
         x: PORTAL_X,
       }}
       style={isPresent ? style : { zIndex: style?.zIndex }}
       // Always relative: the swap's exit measurement runs before a same-render
       // class change could establish the positioning context it needs.
-      className={cn('relative h-full', swapping && 'overflow-hidden rounded-2xl')}
+      className={cn('relative h-full', swapping && 'overflow-hidden rounded-card')}
     >
       <AnimatePresence initial={false} mode="popLayout" onExitComplete={() => setSwapping(false)}>
         <motion.div
@@ -131,7 +130,7 @@ export function SwipeCell({
           exit={{ x: '-108%' }}
           // Symmetric ease so the half-and-half push moment is readable, not
           // a front-loaded blink.
-          transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
+          transition={{ duration: DUR.portal, ease: EASE_STANDARD }}
         >
           {children}
         </motion.div>
