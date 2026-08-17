@@ -2,8 +2,12 @@ import { cn } from '../lib/utils';
 import { isJustAired, type VibeEntry } from '../lib/vibesFile';
 import { Tooltip } from './ui/Tooltip';
 
-/** Sentiment is spelled out, never colour alone. Tokens: sent-* (docs §3). */
-const SENTIMENT = {
+/**
+ * Sentiment is spelled out, never colour alone. Tokens: sent-* (docs §3).
+ * Exported so other surfaces (the Run's verdict pills, aspect chips) reuse the
+ * one recipe instead of growing inline copies.
+ */
+export const SENTIMENT = {
   positive: {
     label: 'Positive',
     flat: 'border-sent-positive/40 bg-sent-positive/10 text-sent-positive-fg',

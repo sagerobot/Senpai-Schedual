@@ -22,9 +22,15 @@ interface EpisodeGridProps {
   media: AnimeMedia;
   vibes: VibesLookup;
   onOpenEpisode: (episode: number) => void;
+  /**
+   * The frontier: episodes past this number render sealed — no tint, no glyph —
+   * because the spoiler line is page state (design-language §12 / the Atlas).
+   * Omit for no sealing.
+   */
+  sealAfter?: number;
 }
 
-export function EpisodeGrid({ media, vibes, onOpenEpisode }: EpisodeGridProps) {
+export function EpisodeGrid({ media, vibes, onOpenEpisode, sealAfter }: EpisodeGridProps) {
   const logs = useUserData(selectLogsArray);
   const watched = useMemo(() => {
     const set = new Set<number>();
@@ -39,7 +45,8 @@ export function EpisodeGrid({ media, vibes, onOpenEpisode }: EpisodeGridProps) {
   return (
     <div className="grid grid-cols-[repeat(auto-fill,minmax(2.75rem,1fr))] gap-1.5">
       {episodes.map((episode) => {
-        const entry = vibes.get(media.id, episode);
+        const sealed = sealAfter !== undefined && episode > sealAfter;
+        const entry = sealed ? undefined : vibes.get(media.id, episode);
         const tone = entry?.status === 'found' ? entry.indicator : entry?.status === 'quiet' ? 'quiet' : null;
         const isWatched = watched.has(episode);
         return (
@@ -47,7 +54,7 @@ export function EpisodeGrid({ media, vibes, onOpenEpisode }: EpisodeGridProps) {
             key={episode}
             onClick={() => onOpenEpisode(episode)}
             aria-label={`Episode ${episode}${isWatched ? ', watched' : ''}${
-              tone === 'quiet' ? ', quiet discussion' : tone ? `, ${tone} reception` : ''
+              sealed ? ', reading sealed' : tone === 'quiet' ? ', quiet discussion' : tone ? `, ${tone} reception` : ''
             }`}
             className={cn(
               'relative flex h-11 items-center justify-center rounded-field border text-sm font-medium transition-colors',
@@ -56,6 +63,7 @@ export function EpisodeGrid({ media, vibes, onOpenEpisode }: EpisodeGridProps) {
               tone === 'negative' && 'border-sent-negative/40 bg-sent-negative/10 text-sent-negative-fg hover:bg-sent-negative/20',
               tone === 'quiet' && 'border-sent-quiet/40 bg-sent-quiet/10 text-sent-quiet-fg hover:bg-sent-quiet/20',
               tone === null && 'border-edge text-fg-secondary hover:bg-surface-2 hover:text-fg',
+              sealed && 'border-dashed text-fg-faint',
             )}
           >
             {episode}

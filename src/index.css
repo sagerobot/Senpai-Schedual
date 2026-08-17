@@ -108,6 +108,15 @@
   --color-hero-text-low: #7c8095;
   /* The one sanctioned electric indigo — NEW/platform chips only */
   --color-hero-new: #543bfa;
+  /* Series page hero (the franchise shell + journey rail). The one namespace
+     that admits per-show tint: SeriesShell mixes coverImage.color into the
+     ground tokens via color-mix (contract in docs §12) — these are the neutral
+     bases that mix receives. Ink stays untinted for contrast safety. */
+  --color-hero-series-bg: #0e1112;
+  --color-hero-series-edge: #272e30;
+  --color-hero-series-well: #151a1b;
+  --color-hero-series-ink: #a3bdb2;
+  --color-hero-series-track: #1c2325;
 
   /* Radius scale — semantic, per-theme reshapeable */
   --radius-xs: 6px;
@@ -206,6 +215,11 @@ html[data-theme="daylight"] {
   --color-hero-text-mid: #4c5570;
   --color-hero-text-low: #7d86a4;
   --color-hero-new: #4330e8;
+  --color-hero-series-bg: #f2f6f4;
+  --color-hero-series-edge: #d7e1dc;
+  --color-hero-series-well: #e9efec;
+  --color-hero-series-ink: #2f6b58;
+  --color-hero-series-track: #dfe8e4;
   color-scheme: light;
 }
 
@@ -234,6 +248,10 @@ html[data-theme="void"] {
   --color-hero-catchup-well: #030208;
   --color-hero-catchup-well-hover: #0f0a1e;
   --color-hero-catchup-edge: #281948;
+  --color-hero-series-bg: #080b0b;
+  --color-hero-series-edge: #212a2b;
+  --color-hero-series-well: #0e1314;
+  --color-hero-series-track: #161d1e;
 }
 
 /* Sakura is the deliberate in-between mode: dusk plum, light rose ink. */
@@ -295,6 +313,11 @@ html[data-theme="sakura"] {
   --color-hero-text-mid: #d3a9bb;
   --color-hero-text-low: #a97f92;
   --color-hero-new: #ff4fa3;
+  --color-hero-series-bg: #251b21;
+  --color-hero-series-edge: #4d3a45;
+  --color-hero-series-well: #2e2229;
+  --color-hero-series-ink: #cdb3ba;
+  --color-hero-series-track: #382a33;
 }
 
 html[data-theme="synthwave"] {
@@ -373,6 +396,11 @@ html[data-theme="synthwave"] {
   --color-hero-text-mid: #b3a5d6;
   --color-hero-text-low: #8172ab;
   --color-hero-new: #6236ff;
+  --color-hero-series-bg: #130a35;
+  --color-hero-series-edge: #34216d;
+  --color-hero-series-well: #1a0f42;
+  --color-hero-series-ink: #8fd8e0;
+  --color-hero-series-track: #241656;
 }
 
 /* -------------------------------------------------------------------- base */
