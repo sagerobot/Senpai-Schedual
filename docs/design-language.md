@@ -208,12 +208,20 @@ visible focus.
 
 ## 12. Hero surfaces
 
-The two protected surfaces — Today's Drops banner cards (+ Up Next deck) and the Catch-Up
-ring/pip cards — keep their density and art direction in every theme.
+The three protected surfaces — Today's Drops banner cards (+ Up Next deck), the Catch-Up
+ring/pip cards, and the series page's shell + journey rail — keep their density and art
+direction in every theme.
 
 - Heroes consume **only** their namespaces: `hero-drops-*`, `hero-catchup-*`,
-  `hero-text-{hi,mid,low}`, `hero-new`, plus shared accent/status/sentiment where semantics
-  align. They never import app surface/text tokens, and never invent colors.
+  `hero-series-*`, `hero-text-{hi,mid,low}`, `hero-new`, plus shared accent/status/sentiment
+  where semantics align. They never import app surface/text tokens, and never invent colors.
+- **`hero-series-*` is the one namespace that admits per-show tint.** Its tokens are
+  neutral bases; `seriesSkin()` (src/features/series/seriesSkin.ts) mixes the franchise's
+  `coverImage.color` into the grounds via `color-mix` at fixed ratios and exposes the result
+  as `--series-*` variables. The ink tier is never tinted — a saturated cover color mixed
+  into it can fall out of AA. The mix ratios live in `seriesSkin` and nowhere else; the
+  hero frame is the shell + rail only, and everything below drops to the ordinary recipe
+  ("raise, don't flatten").
 - **Every theme art-directs the heroes — light themes included.** In Daylight the heroes
   are genuinely light re-skins (paper-tinted cards, dark hero text, shadows instead of
   glow, art fading into the light card) — decided against the dark-island alternative with

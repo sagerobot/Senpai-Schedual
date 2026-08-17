@@ -1,5 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { Check, ExternalLink, Loader2, MessageCircle } from 'lucide-react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '../../components/ui/Button';
 import { DialogShell } from '../../components/ui/DialogShell';
@@ -41,10 +42,13 @@ interface EpisodeViewProps {
   member: SeriesEntry;
   media: AnimeMedia | undefined;
   episode: number;
+  /** Past the frontier with the page lock on: the reading stays sealed until logged (or peeked). */
+  sealed?: boolean;
   onClose: () => void;
 }
 
-export function EpisodeView({ seriesTitle, member, media, episode, onClose }: EpisodeViewProps) {
+export function EpisodeView({ seriesTitle, member, media, episode, sealed = false, onClose }: EpisodeViewProps) {
+  const [peeked, setPeeked] = useState(false);
   const vibes = useVibesIndex();
   const stored = vibes.get(member.id, episode);
   const { pulse, state, load, remembered, quiet } = useCommunityPulse(member.title, episode, member.id, stored);
@@ -134,8 +138,15 @@ export function EpisodeView({ seriesTitle, member, media, episode, onClose }: Ep
                 </div>
               </div>
 
-              {/* Community sentiment */}
-              {state === 'ok' && pulse ? (
+              {/* Community sentiment — sealed past the frontier until logged or peeked */}
+              {sealed && !isWatched && !peeked ? (
+                <div className="flex flex-col items-center gap-3 rounded-inner border border-dashed border-edge-strong bg-surface-0 p-5 text-center">
+                  <p className="text-sm text-fg-muted">
+                    This episode is past your line — the community reading stays sealed until you log it.
+                  </p>
+                  <Button onClick={() => setPeeked(true)}>Peek anyway</Button>
+                </div>
+              ) : state === 'ok' && pulse ? (
                 <div
                   className={cn(
                     'rounded-inner border p-4',

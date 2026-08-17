@@ -1,20 +1,39 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
+import type { AnimeMedia, EpisodeLog, LibraryEntry } from '../../types';
+import type { SeriesGraph } from '../../series/labeling';
+import type { VibesLookup } from '../../queries/vibes';
 import { useMediaByIds } from '../../queries/hooks';
+import { useVibesIndex } from '../../queries/vibes';
 import { parseShowId } from '../../routes/showParam';
 import { useSeriesGraph } from '../../series/useSeriesGraphs';
 import { selectLibraryArray, selectLogsArray, useUserData } from '../../stores/userData';
 import { EpisodeView } from './EpisodeView';
-import { SeriesView } from './SeriesView';
+import { EpisodesRoom } from './EpisodesRoom';
+import { OverviewRoom } from './OverviewRoom';
+import { RunRoom } from './RunRoom';
+import { SeriesShell } from './SeriesShell';
+import { parseRoom, VIEW_PARAM, type SeriesRoom } from './rooms';
+import { seriesSkin } from './seriesSkin';
+import { useAtlas } from './useAtlas';
 
 /**
- * `/series/:id` — the franchise page. `:id` is ANY member's AniList id; the
- * graph resolves the franchise from whichever member the link carried, so
- * every season's id is a valid address for the whole. The router's loader has
- * already redirected junk ids, so the param parses here by construction.
+ * `/series/:id` — the Atlas. `:id` is ANY member's AniList id; the graph
+ * resolves the franchise from whichever member the link carried. The router's
+ * loader has already redirected junk ids, so the param parses by construction.
  *
- * Episodes live on `?ep=<memberId>-<n>`, mirroring the `?show=` pattern: Back
- * closes the episode view, and the URL is a shareable episode permalink.
+ * Three URL citizens live here, with different history semantics:
+ * - `?view=` addresses a room. Switching rooms REPLACES history — tabs are
+ *   peers, and Back should leave the page, not un-tab.
+ * - `?ep=<memberId>-<n>` is an episode permalink (a layer): opening one
+ *   PUSHES, carrying `view=episodes` in the same navigation, so Back returns
+ *   to the room you came from.
+ * - `?show=` stays the app-wide quick-view modal, hosted by RootLayout.
+ *
+ * The loaded page is keyed by `graph.seriesId`: SeriesRoute stays mounted when
+ * only `:id` changes (the modal's franchise link can hop franchises), and the
+ * reveal toggle plus every room's local selection must die with the franchise
+ * they belong to — spoiler consent does not transfer.
  */
 
 const EP_PARAM = 'ep';
@@ -34,18 +53,36 @@ export function SeriesRoute() {
   const graph = useSeriesGraph(showId);
   const memberIds = useMemo(() => graph.data?.entries.map((e) => e.id) ?? [], [graph.data]);
   const { media } = useMediaByIds(memberIds);
+  const vibes = useVibesIndex();
 
   const logs = useUserData(selectLogsArray);
   const library = useUserData(selectLibraryArray);
 
   const [searchParams, setSearchParams] = useSearchParams();
+  const view = parseRoom(searchParams.get(VIEW_PARAM));
   const epTarget = parseEpParam(searchParams.get(EP_PARAM));
+
+  const setView = useCallback(
+    (room: SeriesRoom) => {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          if (room === 'overview') next.delete(VIEW_PARAM);
+          else next.set(VIEW_PARAM, room);
+          return next;
+        },
+        { replace: true, preventScrollReset: true },
+      );
+    },
+    [setSearchParams],
+  );
 
   const openEpisode = useCallback(
     (memberId: number, episode: number) => {
       setSearchParams(
         (prev) => {
           const next = new URLSearchParams(prev);
+          next.set(VIEW_PARAM, 'episodes');
           next.set(EP_PARAM, `${memberId}-${episode}`);
           return next;
         },
@@ -91,21 +128,112 @@ export function SeriesRoute() {
     );
   }
 
-  const epMember = epTarget !== null ? graph.data.entries.find((e) => e.id === epTarget.memberId) : undefined;
+  return (
+    <AtlasContent
+      key={graph.data.seriesId}
+      graph={graph.data}
+      media={media}
+      vibes={vibes}
+      logs={logs}
+      library={library}
+      view={view}
+      onViewChange={setView}
+      epTarget={epTarget}
+      onOpenEpisode={openEpisode}
+      onCloseEpisode={closeEpisode}
+    />
+  );
+}
+
+interface AtlasContentProps {
+  graph: SeriesGraph;
+  media: AnimeMedia[];
+  vibes: VibesLookup;
+  logs: EpisodeLog[];
+  library: LibraryEntry[];
+  view: SeriesRoom;
+  onViewChange: (room: SeriesRoom) => void;
+  epTarget: { memberId: number; episode: number } | null;
+  onOpenEpisode: (memberId: number, episode: number) => void;
+  onCloseEpisode: () => void;
+}
+
+/**
+ * Everything below the loading gate, keyed per franchise. Owns the reveal
+ * toggle (per-visit, per-franchise — deliberately not persisted) and the
+ * `--series-*` tint scope both the shell and the rooms consume.
+ */
+function AtlasContent({
+  graph,
+  media,
+  vibes,
+  logs,
+  library,
+  view,
+  onViewChange,
+  epTarget,
+  onOpenEpisode,
+  onCloseEpisode,
+}: AtlasContentProps) {
+  const [reveal, setReveal] = useState(false);
+  const atlas = useAtlas(graph, media, logs, library);
+
+  const tint =
+    atlas.mediaById.get(graph.seriesId)?.coverImage?.color ??
+    atlas.mediaById.get(atlas.seasons[0]?.id ?? 0)?.coverImage?.color;
+
+  const epMember = epTarget !== null ? graph.entries.find((e) => e.id === epTarget.memberId) : undefined;
 
   return (
-    <>
-      <SeriesView graph={graph.data} media={media} logs={logs} library={library} onOpenEpisode={openEpisode} />
+    <div className="mx-auto max-w-5xl" style={seriesSkin(tint)}>
+      <SeriesShell
+        graph={graph}
+        atlas={atlas}
+        view={view}
+        onViewChange={onViewChange}
+        reveal={reveal}
+        onToggleReveal={() => setReveal((v) => !v)}
+      />
+
+      <div role="tabpanel" id={`series-room-${view}`} aria-labelledby={`series-tab-${view}`}>
+        {view === 'overview' && (
+          <OverviewRoom
+            graph={graph}
+            atlas={atlas}
+            vibes={vibes}
+            logs={logs}
+            library={library}
+            reveal={reveal}
+            onOpenRun={() => onViewChange('run')}
+          />
+        )}
+        {view === 'run' && (
+          <RunRoom
+            graph={graph}
+            atlas={atlas}
+            vibes={vibes}
+            logs={logs}
+            library={library}
+            reveal={reveal}
+            onOpenEpisode={onOpenEpisode}
+          />
+        )}
+        {view === 'episodes' && (
+          <EpisodesRoom atlas={atlas} vibes={vibes} reveal={reveal} onOpenEpisode={onOpenEpisode} />
+        )}
+      </div>
+
       {epTarget !== null && epMember !== undefined && (
         <EpisodeView
           key={`${epTarget.memberId}-${epTarget.episode}`}
-          seriesTitle={graph.data.title}
+          seriesTitle={graph.title}
           member={epMember}
           media={media.find((m) => m.id === epTarget.memberId)}
           episode={epTarget.episode}
-          onClose={closeEpisode}
+          sealed={!reveal && epTarget.episode > (atlas.progress.get(epTarget.memberId)?.maxWatched ?? 0)}
+          onClose={onCloseEpisode}
         />
       )}
-    </>
+    </div>
   );
 }
