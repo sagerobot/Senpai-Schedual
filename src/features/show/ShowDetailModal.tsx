@@ -7,10 +7,7 @@ import { useShowDetailsQuery } from '../../queries/hooks';
 import { useVibesIndex } from '../../queries/vibes';
 import { latestAiredEpisode } from '../../lib/aired';
 import { displayTitle } from '../../lib/displayTitle';
-import { isJustAired } from '../../lib/vibesFile';
-import { asOfLabel, useCommunityPulse } from './useCommunityPulse';
 import { EpisodeTracker } from './EpisodeTracker';
-import { VibeFlagButton } from './VibeFlagButton';
 import { ShowAdvancedPanel } from './ShowAdvancedPanel';
 import { cn } from '../../lib/utils';
 import { LIBRARY_STATUS_LABELS, LIBRARY_STATUS_ORDER } from '../../lib/status';
@@ -19,7 +16,6 @@ import { LibraryStatusMenu } from '../../components/LibraryStatusMenu';
 import { filterWatchLinks } from '../../lib/watchLinks';
 import { Link } from 'react-router';
 import { useSeriesGraph } from '../../series/useSeriesGraphs';
-import { Button } from '../../components/ui/Button';
 import { DialogShell } from '../../components/ui/DialogShell';
 import { Select } from '../../components/ui/Select';
 
@@ -36,48 +32,27 @@ type TabType = 'mal' | 'anilist' | 'kitsu';
 export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, onUpdateEntry }: ShowDetailModalProps) {
   const [activeTab, setActiveTab] = useState<TabType>('mal');
 
-  // The vibe check's episode picker — deliberately its own state, fully
-  // decoupled from the episode tracker. Defaults to the latest aired episode.
-  // Stale-proof latest aired episode (a passed airingAt counts as aired).
+  // The footer's discussion link reads the remembered vibes index directly —
+  // the interactive community pulse lives on the series page now, so the
+  // modal never spends a grounded call. Stale-proof latest aired episode
+  // (a passed airingAt counts as aired).
   const latestEpisode = Math.max(1, latestAiredEpisode(anime, Math.floor(Date.now() / 1000))?.episode ?? anime.episodes ?? 1);
-  const [selectedEpisode, setSelectedEpisode] = useState(latestEpisode);
   const vibes = useVibesIndex();
-  const {
-    pulse,
-    state: pulseState,
-    load: loadPulse,
-    remembered,
-    quiet,
-  } = useCommunityPulse(displayTitle(anime), selectedEpisode, anime.id, vibes.get(anime.id, selectedEpisode));
-
-  // r/anime episode discussion threads barely exist before about 2013, so for
-  // an older show the button is a paid search with a known answer. Anything the
-  // refresh routine has already remembered still displays — this only removes
-  // the offer to go looking.
-  const startYear = anime.startDate?.year ?? null;
-  const preDiscussionEra = startYear !== null && startYear < 2013;
-  const asOfLine = remembered !== null ? asOfLabel(remembered) : null;
-
-  // The remembered reading carries the real thread URL — a quiet entry too;
-  // the r/anime search is only the fallback for episodes nothing has read yet.
-  const discussionIsThread = pulseState === 'ok' && pulse !== null && pulse.url.includes('/comments/');
+  const rememberedVibe = vibes.get(anime.id, latestEpisode);
+  const discussionIsThread = rememberedVibe !== undefined && rememberedVibe.status !== 'not_found';
   const discussionUrl = discussionIsThread
-    ? pulse.url
-    : quiet !== null
-      ? quiet.url
-      : `https://www.reddit.com/r/anime/search/?q=${encodeURIComponent(displayTitle(anime))}+episode+${selectedEpisode}+discussion&restrict_sr=1`;
+    ? rememberedVibe.url
+    : `https://www.reddit.com/r/anime/search/?q=${encodeURIComponent(displayTitle(anime))}+episode+${latestEpisode}+discussion&restrict_sr=1`;
 
   const setShowScore = useUserData((s) => s.setShowScore);
   const customSite = useUserData((s) => s.uiPrefs.customSource?.name);
   const watchEntry = filterWatchLinks(anime.externalLinks, customSite)[0];
-  // Same 7-day-cached query the advanced panel resolves. Every show with a
-  // season gets the series page — solo shows included; The Run and the seal
-  // work per-season. Only a standalone film stays out: no episodes means the
-  // Atlas would be an empty room, and this modal already serves it fully.
+  // The series-page banner never waits on the graph: format is already in
+  // hand, and every show with episodes has an Atlas. Only a standalone film
+  // stays out (no episodes = an empty room) — a film that turns out to belong
+  // to a franchise gains the banner when its graph resolves.
   const seriesGraph = useSeriesGraph(anime.id);
-  const hasSeriesPage =
-    seriesGraph.data !== undefined &&
-    (seriesGraph.data.entries.length > 1 || seriesGraph.data.entries.some((e) => !e.isAttachment));
+  const showSeriesPage = anime.format !== 'MOVIE' || (seriesGraph.data?.entries.length ?? 0) > 1;
 
   const handleRate = (score: number) => {
     if (!libraryEntry) return;
@@ -191,7 +166,26 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
 
             {/* Scrollable Content */}
             <div className="flex-1 overflow-y-auto p-5 md:p-6 pt-2 space-y-6 custom-scrollbar">
-              
+
+              {/* The destination, up front. No onClose: navigating away drops
+                  ?show=, which is what closes the modal — onClose too would
+                  race this Link's navigation with the modal's navigate(-1). */}
+              {showSeriesPage && (
+                <Link
+                  to={`/series/${anime.id}`}
+                  className="flex items-center gap-3 rounded-inner border border-accent-500/30 bg-accent-600/10 px-4 py-3 transition-colors hover:bg-accent-600/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <Layers className="h-5 w-5 shrink-0 text-accent-400" aria-hidden="true" />
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-semibold text-fg">Series page</span>
+                    <span className="block text-caption text-fg-muted">
+                      Seasons, the community pulse, and every episode in one place
+                    </span>
+                  </span>
+                  <span className="shrink-0 text-accent-400" aria-hidden="true">→</span>
+                </Link>
+              )}
+
               {/* Ratings Row */}
               <div className="flex gap-2 md:gap-3 text-sm text-center">
                 {loading ? (
@@ -341,188 +335,6 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
               {/* Episode tracking */}
               <EpisodeTracker anime={anime} />
 
-              {/* Community Pulse Section */}
-              <div className="mt-2 flex items-center justify-between gap-3">
-                <h3 className="text-sm font-medium text-fg-secondary">Community vibe</h3>
-                {(pulseState !== 'idle' || preDiscussionEra) && (
-                  <Select
-                    value={selectedEpisode}
-                    onChange={(e) => setSelectedEpisode(Number(e.target.value))}
-                    aria-label="Episode for community vibe"
-                  >
-                    {Array.from({ length: latestEpisode }, (_, i) => i + 1).map((ep) => (
-                      <option key={ep} value={ep}>Episode {ep}</option>
-                    ))}
-                  </Select>
-                )}
-              </div>
-              {pulseState === 'idle' && preDiscussionEra ? (
-                <p className="rounded-inner border border-edge bg-surface-2/50 p-5 text-center text-sm text-fg-muted">
-                  r/anime episode discussions only go back to about 2013 — there is nothing to read for a show this old.
-                </p>
-              ) : pulseState === 'quiet' && quiet !== null ? (
-                isJustAired(quiet) ? (
-                  <p className="rounded-inner border border-sent-new/40 bg-sent-new/10 p-5 text-center text-sm text-sent-new-fg">
-                    Just released — the{' '}
-                    <a href={quiet.url} target="_blank" rel="noreferrer" className="underline underline-offset-2">
-                      discussion thread
-                    </a>{' '}
-                    is still filling up. Check back soon.
-                  </p>
-                ) : (
-                  <p className="rounded-inner border border-sent-quiet/40 bg-surface-2/50 p-5 text-center text-sm text-sent-quiet-fg">
-                    The{' '}
-                    <a href={quiet.url} target="_blank" rel="noreferrer" className="underline underline-offset-2 text-fg-secondary">
-                      discussion thread
-                    </a>{' '}
-                    for episode {selectedEpisode} is quiet — only {quiet.comments} comment
-                    {quiet.comments === 1 ? '' : 's'}, not enough for a sentiment read.
-                  </p>
-                )
-              ) : pulseState === 'not_found' ? (
-                <p className="rounded-inner border border-edge bg-surface-2/50 p-5 text-center text-sm text-fg-muted">
-                  No discussion thread found for episode {selectedEpisode}.
-                </p>
-              ) : pulseState === 'idle' ? (
-                <div className="flex flex-col items-center space-y-2 rounded-inner border border-edge bg-surface-2/50 p-5">
-                  <div className="flex flex-wrap items-center justify-center gap-2">
-                    <Select
-                      value={selectedEpisode}
-                      onChange={(e) => setSelectedEpisode(Number(e.target.value))}
-                      aria-label="Episode for community vibe"
-                    >
-                      {Array.from({ length: latestEpisode }, (_, i) => i + 1).map((ep) => (
-                        <option key={ep} value={ep}>Episode {ep}</option>
-                      ))}
-                    </Select>
-                    <Button variant="primary" onClick={loadPulse}>
-                      <MessageCircle className="h-4 w-4" />
-                      <span>Check community vibe</span>
-                    </Button>
-                  </div>
-                  <p className="text-caption text-fg-muted">Searches r/anime discussion for episode {selectedEpisode}</p>
-                </div>
-              ) : pulseState === 'loading' ? (
-                <div className="relative rounded-inner border border-edge bg-surface-2/50 p-4 animate-pulse">
-                  <div className="mb-2 flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <div className="h-4 w-4 rounded-full bg-surface-3"></div>
-                      <div className="h-4 w-32 rounded bg-surface-3"></div>
-                    </div>
-                    <div className="flex space-x-3">
-                      <div className="h-3 w-10 rounded bg-surface-3"></div>
-                      <div className="h-3 w-10 rounded bg-surface-3"></div>
-                    </div>
-                  </div>
-                  <div className="mt-3 space-y-2">
-                    <div className="h-3 w-full rounded bg-surface-3"></div>
-                    <div className="h-3 w-4/5 rounded bg-surface-3"></div>
-                  </div>
-                </div>
-              ) : pulseState === 'ok' && pulse ? (
-                <div className={cn("relative rounded-inner border p-4",
-                  pulse.indicator === 'positive' ? "bg-sent-positive/10 border-sent-positive/40" : 
-                  pulse.indicator === 'negative' ? "bg-sent-negative/10 border-sent-negative/40" : 
-                  "bg-sent-mixed/10 border-sent-mixed/40"
-                )}>
-                  <div className="mb-2 flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <MessageCircle className={cn("h-4 w-4", 
-                        pulse.indicator === 'positive' ? "text-sent-positive-fg" : 
-                        pulse.indicator === 'negative' ? "text-sent-negative-fg" : 
-                        "text-sent-mixed-fg"
-                      )} />
-                      <span className={cn("text-xs font-semibold", 
-                        pulse.indicator === 'positive' ? "text-sent-positive-fg" : 
-                        pulse.indicator === 'negative' ? "text-sent-negative-fg" : 
-                        "text-sent-mixed-fg"
-                      )}>Community vibe (Ep {selectedEpisode})</span>
-                      {/* Sentiment in words: the card's colour is a second signal, never the only one. */}
-                      <span className={cn("rounded-full border px-2 py-0.5 text-caption font-bold",
-                        pulse.indicator === 'positive' ? "border-sent-positive/40 bg-sent-positive/15 text-sent-positive-fg" :
-                        pulse.indicator === 'negative' ? "border-sent-negative/40 bg-sent-negative/15 text-sent-negative-fg" :
-                        "border-sent-mixed/40 bg-sent-mixed/15 text-sent-mixed-fg"
-                      )}>
-                        {pulse.indicator === 'positive' ? 'Positive' : pulse.indicator === 'negative' ? 'Negative' : 'Mixed'}
-                      </span>
-                      <span className="rounded-full bg-accent-500/15 px-2 py-0.5 text-caption font-semibold text-accent-300">Spoiler-free</span>
-                    </div>
-                    <div className={cn("flex items-center space-x-3 text-xs", 
-                        pulse.indicator === 'positive' ? "text-sent-positive-fg/80" : 
-                        pulse.indicator === 'negative' ? "text-sent-negative-fg/80" : 
-                        "text-sent-mixed-fg/80"
-                      )}>
-                      {pulse.upvotes > 0 || pulse.comments > 0 ? (
-                        <>
-                          <span>↑ {pulse.upvotes}</span>
-                          <span>💬 {pulse.comments}</span>
-                        </>
-                      ) : null}
-                    </div>
-                  </div>
-                  <p className={cn("text-sm leading-relaxed text-fg-secondary", (pulse.goods?.length || pulse.bads?.length) ? "mb-3" : "")}>
-                    {pulse.summary}
-                  </p>
-
-                  {/* An unsettled reading is deliberately partial — the thread was
-                      still filling up. Say when it was taken rather than imply it
-                      is the last word. */}
-                  {asOfLine && (
-                    <p className="-mt-1 mb-1 text-caption text-fg-muted">
-                      Early read, {asOfLine} — refreshed hourly for the first day.
-                    </p>
-                  )}
-
-                  {((pulse.goods && pulse.goods.length > 0) || (pulse.bads && pulse.bads.length > 0)) && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 pt-3 border-t border-edge-strong/50">
-                      {pulse.goods && pulse.goods.length > 0 && (
-                        <div>
-                          <span className="text-caption font-semibold text-sent-positive-fg uppercase tracking-wider">Highlights</span>
-                          <ul className="mt-1 space-y-1">
-                            {pulse.goods.map((good, i) => (
-                              <li key={i} className="text-xs text-fg-secondary flex items-start">
-                                <span className="text-sent-positive mr-1.5">•</span>
-                                <span>{good}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                      {pulse.bads && pulse.bads.length > 0 && (
-                        <div>
-                          <span className="text-caption font-semibold text-sent-negative-fg uppercase tracking-wider">Critiques</span>
-                          <ul className="mt-1 space-y-1">
-                            {pulse.bads.map((bad, i) => (
-                              <li key={i} className="text-xs text-fg-secondary flex items-start">
-                                <span className="text-sent-negative mr-1.5">•</span>
-                                <span>{bad}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  <VibeFlagButton showId={anime.id} episode={selectedEpisode} />
-                </div>
-              ) : pulseState === 'resting' ? (
-                <div className="rounded-inner border border-edge bg-surface-2/50 p-5 text-center text-sm text-fg-muted">
-                  AI features are resting — try again tomorrow
-                </div>
-              ) : pulseState === 'no_key' ? (
-                <div className="rounded-inner border border-edge bg-surface-2/50 p-5 text-center text-sm text-fg-muted">
-                  AI features are off in this deployment
-                </div>
-              ) : (
-                <div className="flex flex-col items-center space-y-3 rounded-inner border border-danger-500/30 bg-danger-500/10 p-5 text-center">
-                  <p className="text-sm text-danger-300">Could not check the community vibe.</p>
-                  <Button variant="secondary" onClick={loadPulse}>
-                    Try again
-                  </Button>
-                </div>
-              )}
-
               {/* Advanced: simulcast delay + series split/merge */}
               <ShowAdvancedPanel anime={anime} />
             </div>
@@ -539,19 +351,6 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                   <MessageCircle className="h-4 w-4" />
                   <span>{discussionIsThread ? 'Discussion thread' : 'Find the discussion'}</span>
                 </a>
-
-                {hasSeriesPage && (
-                  <Link
-                    // No onClose here: navigating away drops `?show=`, which is
-                    // what closes the modal. Calling onClose too fires the
-                    // modal's navigate(-1) and it races this Link's navigation.
-                    to={`/series/${anime.id}`}
-                    className="flex flex-1 items-center justify-center space-x-2 rounded-field border border-edge-strong bg-transparent px-4 py-2.5 text-sm font-medium text-fg-secondary transition-colors hover:bg-surface-3 hover:text-fg"
-                  >
-                    <Layers className="h-4 w-4" />
-                    <span>Series page</span>
-                  </Link>
-                )}
 
                 {watchEntry && (
                   <a
