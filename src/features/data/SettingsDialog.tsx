@@ -136,7 +136,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
   return (
     <Dialog.Root open={open} onOpenChange={handleOpenChange}>
-      <DialogShell maxWidth="max-w-md">
+      <DialogShell maxWidth="max-w-4xl">
         <div className="border-b border-edge p-5 pr-12">
           <Dialog.Title className="text-lg font-bold tracking-tight text-fg">Data &amp; Settings</Dialog.Title>
           <Dialog.Description className="mt-1 text-sm text-fg-muted">
@@ -144,13 +144,15 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           </Dialog.Description>
         </div>
 
-        <div className="flex-1 space-y-4 overflow-y-auto p-5 custom-scrollbar">
+        {/* Two balanced columns on desktop so nothing needs scrolling; a single
+            scrolling column only where the viewport forces it. */}
+        <div className="flex-1 overflow-y-auto p-5 custom-scrollbar">
               {banner && (
                 <div
                   className={
                     banner.kind === 'success'
-                      ? 'flex items-start gap-2 rounded-field bg-success-500/10 p-3 text-sm text-success-300'
-                      : 'flex items-start gap-2 rounded-field bg-danger-500/10 p-3 text-sm text-danger-300'
+                      ? 'mb-4 flex items-start gap-2 rounded-field bg-success-500/10 p-3 text-sm text-success-300'
+                      : 'mb-4 flex items-start gap-2 rounded-field bg-danger-500/10 p-3 text-sm text-danger-300'
                   }
                 >
                   {banner.kind === 'success' ? (
@@ -162,8 +164,60 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 </div>
               )}
 
+              <div className="grid gap-4 md:grid-cols-2 md:items-start">
+              <div className="space-y-4">
               <ThemePicker />
 
+              {/* Custom watch source */}
+              <section className="rounded-inner border border-edge bg-surface-0 p-4">
+                <h3 className="text-sm font-semibold text-fg-secondary">Custom watch source</h3>
+                <p className="mt-0.5 text-caption text-fg-muted">
+                  Add a watch source we don&apos;t list — your own media server, a regional service.{' '}
+                  <code className="rounded bg-surface-2 px-1">{'{title}'}</code> in the URL becomes the show&apos;s
+                  title. Stored in this browser only.
+                </p>
+
+                <div className="mt-3 space-y-2">
+                  <input
+                    value={sourceName}
+                    onChange={(e) => setSourceName(e.target.value)}
+                    autoComplete="off"
+                    aria-label="Source name"
+                    placeholder="Source name"
+                    className="h-11 w-full rounded-field border border-edge bg-surface-2 px-3 text-sm text-fg placeholder-fg-faint focus:border-accent-500 focus:outline-none"
+                  />
+                  <input
+                    value={sourceTemplate}
+                    onChange={(e) => setSourceTemplate(e.target.value)}
+                    autoComplete="off"
+                    aria-label="URL template"
+                    placeholder="https://example.com/search?q={title}"
+                    className="h-11 w-full rounded-field border border-edge bg-surface-2 px-3 text-sm text-fg placeholder-fg-faint focus:border-accent-500 focus:outline-none"
+                  />
+                  {templateInvalid && (
+                    <p className="text-caption text-danger-300">The URL must start with http:// or https://</p>
+                  )}
+                  <div className="flex gap-2">
+                    <Button
+                      variant="primary"
+                      onClick={handleSaveSource}
+                      disabled={!canSaveSource}
+                      className="flex-1"
+                    >
+                      <Link2 className="h-4 w-4" aria-hidden="true" />
+                      {customSource ? 'Update source' : 'Add source'}
+                    </Button>
+                    {customSource && (
+                      <Button onClick={handleRemoveSource} className="flex-1">
+                        Remove
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </section>
+              </div>
+
+              <div className="space-y-4">
               {/* Export */}
               <section className="rounded-inner border border-edge bg-surface-0 p-4">
                 <h3 className="text-sm font-semibold text-fg-secondary">Export your data</h3>
@@ -230,54 +284,6 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 </Link>
               </section>
 
-              {/* Custom watch source */}
-              <section className="rounded-inner border border-edge bg-surface-0 p-4">
-                <h3 className="text-sm font-semibold text-fg-secondary">Custom watch source</h3>
-                <p className="mt-0.5 text-caption text-fg-muted">
-                  Add a watch source we don&apos;t list — your own media server, a regional service.{' '}
-                  <code className="rounded bg-surface-2 px-1">{'{title}'}</code> in the URL becomes the show&apos;s
-                  title. Stored in this browser only.
-                </p>
-
-                <div className="mt-3 space-y-2">
-                  <input
-                    value={sourceName}
-                    onChange={(e) => setSourceName(e.target.value)}
-                    autoComplete="off"
-                    aria-label="Source name"
-                    placeholder="Source name"
-                    className="h-11 w-full rounded-field border border-edge bg-surface-2 px-3 text-sm text-fg placeholder-fg-faint focus:border-accent-500 focus:outline-none"
-                  />
-                  <input
-                    value={sourceTemplate}
-                    onChange={(e) => setSourceTemplate(e.target.value)}
-                    autoComplete="off"
-                    aria-label="URL template"
-                    placeholder="https://example.com/search?q={title}"
-                    className="h-11 w-full rounded-field border border-edge bg-surface-2 px-3 text-sm text-fg placeholder-fg-faint focus:border-accent-500 focus:outline-none"
-                  />
-                  {templateInvalid && (
-                    <p className="text-caption text-danger-300">The URL must start with http:// or https://</p>
-                  )}
-                  <div className="flex gap-2">
-                    <Button
-                      variant="primary"
-                      onClick={handleSaveSource}
-                      disabled={!canSaveSource}
-                      className="flex-1"
-                    >
-                      <Link2 className="h-4 w-4" aria-hidden="true" />
-                      {customSource ? 'Update source' : 'Add source'}
-                    </Button>
-                    {customSource && (
-                      <Button onClick={handleRemoveSource} className="flex-1">
-                        Remove
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </section>
-
               {/* Danger zone */}
               <section className="rounded-inner border border-danger-500/30 bg-danger-600/10 p-4">
                 <h3 className="text-sm font-semibold text-danger-300">Clear all data</h3>
@@ -326,6 +332,8 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   </Button>
                 )}
               </section>
+              </div>
+              </div>
         </div>
       </DialogShell>
     </Dialog.Root>
