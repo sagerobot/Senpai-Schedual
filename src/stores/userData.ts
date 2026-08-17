@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { StateStorage } from 'zustand/middleware';
 import { toast } from 'sonner';
+import type { CustomTheme, ThemeName } from '../lib/theme';
 import { EpisodeLog, LibraryEntry, LibraryStatus } from '../types';
 import { removeKey, writeJSON, WriteResult } from './storage';
 import { runMigrations, USER_DATA_KEY } from './migrations';
@@ -40,6 +41,10 @@ export interface UiPrefs {
   welcomeDismissed?: boolean;
   /** Absent = the user never added one. */
   customSource?: CustomWatchSource;
+  /** Absent = Midnight. Stamped pre-paint by index.html, kept by lib/theme.ts. */
+  theme?: ThemeName;
+  /** Only meaningful while theme === 'custom'; kept across theme moves. */
+  customTheme?: CustomTheme;
 }
 
 /** Everything removeFromLibrary takes away, so Undo can put it back. */

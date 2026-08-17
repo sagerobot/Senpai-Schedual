@@ -1,33 +1,403 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/*
+ * The design language lives here. Contract: docs/design-language.md.
+ * Raw color/radius/shadow values are legal ONLY in this file's @theme and
+ * html[data-theme] blocks. Components consume tokens, nothing else.
+ * Themes redefine the same variables; no data-theme attribute = Midnight.
+ * The "custom" theme has no block — src/lib/theme.ts composes its variables
+ * inline on <html> from uiPrefs.customTheme.
+ */
+
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", "Zen Maru Gothic", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
-  /* Surface scale — the only backgrounds the app uses.
-     0 = page, 1 = card, 2 = raised card/modal, 3 = hover/input. */
+  /* Surface scale — the only backgrounds ordinary UI uses.
+     0 = page, 1 = card, 2 = raised card/modal/skeleton, 3 = hover/input. */
   --color-surface-0: #0b0b0e;
   --color-surface-1: #17171b;
   --color-surface-2: #1f1f24;
   --color-surface-3: #2a2a30;
-  --color-edge: #26262c;
 
-  /* Single accent: purple. Do not introduce indigo or raw hex accents. */
+  /* Edge tiers */
+  --color-edge: #26262c;
+  --color-edge-strong: #3f3f46;
+  --color-edge-faint: #1c1c21;
+
+  /* Text ramp — replaces text-white and the gray-* ramp for copy */
+  --color-fg: #ffffff;
+  --color-fg-secondary: #d1d5db;
+  --color-fg-muted: #9ca3af;
+  --color-fg-faint: #6b7280;
+  --color-fg-inverse: #ffffff;
+
+  /* Single accent. Ramp positions are roles, not lightness:
+     300 text-on-tint · 400 ring/icon · 500 border/base · 600 fill · 700 fill-hover. */
   --color-accent-300: var(--color-purple-300);
   --color-accent-400: var(--color-purple-400);
   --color-accent-500: var(--color-purple-500);
   --color-accent-600: var(--color-purple-600);
   --color-accent-700: var(--color-purple-700);
+
+  /* Focus ring (accent-400 tier) */
+  --color-ring: #c084fc;
+
+  /* Semantic status — danger is destructive UI, never sentiment */
+  --color-success-300: #6ee7b7;
+  --color-success-400: #34d399;
+  --color-success-500: #10b981;
+  --color-success-600: #059669;
+  --color-danger-300: #fca5a5;
+  --color-danger-400: #f87171;
+  --color-danger-500: #ef4444;
+  --color-danger-600: #dc2626;
+  --color-warning-300: #fcd34d;
+  --color-warning-400: #fbbf24;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+  --color-info-300: #93c5fd;
+  --color-info-400: #60a5fa;
+  --color-info-500: #3b82f6;
+  --color-info-600: #2563eb;
+
+  /* Community sentiment — hues stable across themes; only -fg lightness flips */
+  --color-sent-positive: #10b981;
+  --color-sent-positive-fg: #6ee7b7;
+  --color-sent-mixed: #ec4899;
+  --color-sent-mixed-fg: #f9a8d4;
+  --color-sent-negative: #f43f5e;
+  --color-sent-negative-fg: #fda4af;
+  --color-sent-quiet: #71717a;
+  --color-sent-quiet-fg: #a1a1aa;
+  --color-sent-new: #0ea5e9;
+  --color-sent-new-fg: #7dd3fc;
+
+  /* Overlays. Scrim is theme-invariant near-black: cover art always sits on
+     dark ground, so text directly over artwork stays white in every theme. */
+  --color-overlay: rgb(0 0 0 / 0.8);
+  --color-scrim: #08080b;
+  --color-veil: rgb(11 11 14 / 0.6);
+
+  /* Hero namespaces — Today's Drops / Up Next deck (blue-black) and the
+     Catch-Up Queue (violet). Protected art direction; every theme repaints
+     them here, components never invent hero colors. */
+  --color-hero-drops-bg: #0a0c16;
+  --color-hero-drops-deep: #080a14;
+  --color-hero-drops-edge: #1e2336;
+  --color-hero-drops-well: #0f121d;
+  --color-hero-drops-well-hover: #1a1f35;
+  --color-hero-drops-accent-well: #1a0f2e;
+  --color-hero-drops-pile-1: #131834;
+  --color-hero-drops-pile-2: #0d1024;
+  --color-hero-catchup-bg: #0c0a15;
+  --color-hero-catchup-well: #05040a;
+  --color-hero-catchup-well-hover: #120e24;
+  --color-hero-catchup-edge: #2e1d52;
+  --color-hero-catchup-edge-strong: #36225e;
+  --color-hero-catchup-ink: #b0a4ff;
+  --color-hero-catchup-track: #1e1a2f;
+  --color-hero-catchup-pip: #251b3a;
+  --color-hero-catchup-active: #1f1638;
+  --color-hero-grad-from: #8b31ff;
+  --color-hero-grad-to: #5c1cba;
+  --color-hero-text-hi: #f4f4f7;
+  --color-hero-text-mid: #a9adbd;
+  --color-hero-text-low: #7c8095;
+  /* The one sanctioned electric indigo — NEW/platform chips only */
+  --color-hero-new: #543bfa;
+
+  /* Radius scale — semantic, per-theme reshapeable */
+  --radius-xs: 6px;
+  --radius-field: 8px;
+  --radius-control: 10px;
+  --radius-inner: 12px;
+  --radius-card: 16px;
+
+  /* Elevation + glow. Whole strings are theme variables: light themes
+     redefine glows as conventional drop shadows. */
+  --shadow-e1: 0 1px 2px rgb(0 0 0 / 0.35);
+  --shadow-e2: 0 12px 24px -8px rgb(0 0 0 / 0.5);
+  --shadow-e3: 0 24px 48px -12px rgb(0 0 0 / 0.6);
+  --shadow-glow-sm: 0 0 10px rgb(168 85 247 / 0.15);
+  --shadow-glow: 0 0 15px rgb(168 85 247 / 0.25);
+  --shadow-glow-lg: 0 0 20px rgb(168 85 247 / 0.4);
+  --shadow-glow-success: 0 0 20px rgb(52 211 153 / 0.15);
+
+  /* Type-scale additions for dense card metadata (see docs §4) */
+  --text-micro: 0.625rem;
+  --text-micro--line-height: 1.3;
+  --text-caption: 0.6875rem;
+  --text-caption--line-height: 1.35;
+  --text-label: 0.8125rem;
+  --text-label--line-height: 1.4;
+
+  /* Motion easings — durations + the spring live in src/lib/motion.ts */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-swap: cubic-bezier(0.32, 0.72, 0.28, 1);
+}
+
+/* ------------------------------------------------------------------ themes */
+
+html[data-theme="daylight"] {
+  --color-surface-0: #f6f6f8;
+  --color-surface-1: #ffffff;
+  --color-surface-2: #fbfbfd;
+  --color-surface-3: #ededf1;
+  --color-edge: #e4e4ea;
+  --color-edge-strong: #c9c9d4;
+  --color-edge-faint: #efeff3;
+  --color-fg: #17171c;
+  --color-fg-secondary: #45454f;
+  --color-fg-muted: #6e6e7a;
+  --color-fg-faint: #9c9ca8;
+  --color-accent-300: #7e22ce;
+  --color-accent-400: #9333ea;
+  --color-accent-500: #a855f7;
+  --color-accent-600: #9333ea;
+  --color-accent-700: #7e22ce;
+  --color-ring: #9333ea;
+  --color-success-300: #065f46;
+  --color-success-400: #047857;
+  --color-success-600: #047857;
+  --color-danger-300: #b91c1c;
+  --color-danger-400: #dc2626;
+  --color-warning-300: #92400e;
+  --color-warning-400: #b45309;
+  --color-warning-600: #b45309;
+  --color-info-300: #1d4ed8;
+  --color-info-400: #2563eb;
+  --color-info-600: #2563eb;
+  --color-sent-positive-fg: #047857;
+  --color-sent-mixed-fg: #be185d;
+  --color-sent-negative-fg: #be123c;
+  --color-sent-quiet-fg: #52525b;
+  --color-sent-new-fg: #0369a1;
+  --color-overlay: rgb(23 23 28 / 0.5);
+  --color-veil: rgb(246 246 248 / 0.85);
+  --shadow-e1: 0 1px 3px rgb(23 23 28 / 0.08);
+  --shadow-e2: 0 8px 24px -8px rgb(23 23 28 / 0.14);
+  --shadow-e3: 0 24px 48px -12px rgb(23 23 28 / 0.22);
+  --shadow-glow-sm: 0 2px 10px rgb(147 51 234 / 0.12);
+  --shadow-glow: 0 2px 12px rgb(147 51 234 / 0.16);
+  --shadow-glow-lg: 0 4px 16px rgb(147 51 234 / 0.2);
+  --shadow-glow-success: 0 2px 10px rgb(4 120 87 / 0.15);
+  /* Light-adapted heroes: paper-tinted cards, dark hero ink, art fades to light */
+  --color-hero-drops-bg: #f5f7ff;
+  --color-hero-drops-deep: #eceffc;
+  --color-hero-drops-edge: #d8def2;
+  --color-hero-drops-well: #eef1fb;
+  --color-hero-drops-well-hover: #e2e8f8;
+  --color-hero-drops-accent-well: #f0eafd;
+  --color-hero-drops-pile-1: #e4e9fa;
+  --color-hero-drops-pile-2: #eff2fc;
+  --color-hero-catchup-bg: #faf8ff;
+  --color-hero-catchup-well: #f1edfc;
+  --color-hero-catchup-well-hover: #e9e2fa;
+  --color-hero-catchup-edge: #ddd2f4;
+  --color-hero-catchup-edge-strong: #c9b8ec;
+  --color-hero-catchup-ink: #6d28d9;
+  --color-hero-catchup-track: #eae4f8;
+  --color-hero-catchup-pip: #dcd2f0;
+  --color-hero-catchup-active: #efe9fb;
+  --color-hero-text-hi: #1b2033;
+  --color-hero-text-mid: #4c5570;
+  --color-hero-text-low: #7d86a4;
+  --color-hero-new: #4330e8;
+  color-scheme: light;
+}
+
+html[data-theme="void"] {
+  --color-surface-0: #000000;
+  --color-surface-1: #0b0b0d;
+  --color-surface-2: #131316;
+  --color-surface-3: #1d1d22;
+  --color-edge: #24242b;
+  --color-edge-strong: #3a3a44;
+  --color-edge-faint: #17171c;
+  --color-overlay: rgb(0 0 0 / 0.85);
+  --color-veil: rgb(0 0 0 / 0.7);
+  --shadow-e1: 0 1px 2px rgb(0 0 0 / 0.6);
+  --shadow-e2: 0 12px 24px -8px rgb(0 0 0 / 0.7);
+  --shadow-e3: 0 24px 48px -12px rgb(0 0 0 / 0.8);
+  --color-hero-drops-bg: #05070f;
+  --color-hero-drops-deep: #030408;
+  --color-hero-drops-edge: #1a2033;
+  --color-hero-drops-well: #0a0e1a;
+  --color-hero-drops-well-hover: #141a2c;
+  --color-hero-drops-accent-well: #150c26;
+  --color-hero-drops-pile-1: #0f1430;
+  --color-hero-drops-pile-2: #090d20;
+  --color-hero-catchup-bg: #070510;
+  --color-hero-catchup-well: #030208;
+  --color-hero-catchup-well-hover: #0f0a1e;
+  --color-hero-catchup-edge: #281948;
+}
+
+/* Sakura is the deliberate in-between mode: dusk plum, light rose ink. */
+html[data-theme="sakura"] {
+  --color-surface-0: #2b1e28;
+  --color-surface-1: #362833;
+  --color-surface-2: #40303c;
+  --color-surface-3: #4c3a47;
+  --color-edge: #4a3844;
+  --color-edge-strong: #644d5c;
+  --color-edge-faint: #3a2b36;
+  --color-fg: #fdf3f7;
+  --color-fg-secondary: #e7cfda;
+  --color-fg-muted: #c5a3b4;
+  --color-fg-faint: #9d7c8d;
+  --color-accent-300: #ffc6dd;
+  --color-accent-400: #ff9dc6;
+  --color-accent-500: #f472b6;
+  --color-accent-600: #db2777;
+  --color-accent-700: #be185d;
+  --color-ring: #ff9dc6;
+  --color-sent-quiet-fg: #cfc3c9;
+  --color-overlay: rgb(20 10 16 / 0.7);
+  --color-veil: rgb(43 30 40 / 0.7);
+  --shadow-e1: 0 1px 3px rgb(15 8 12 / 0.4);
+  --shadow-e2: 0 12px 24px -8px rgb(15 8 12 / 0.5);
+  --shadow-e3: 0 24px 48px -12px rgb(15 8 12 / 0.6);
+  --shadow-glow-sm: 0 0 10px rgb(244 114 182 / 0.18);
+  --shadow-glow: 0 0 15px rgb(244 114 182 / 0.28);
+  --shadow-glow-lg: 0 0 20px rgb(244 114 182 / 0.4);
+  --shadow-glow-success: 0 0 20px rgb(52 211 153 / 0.18);
+  --radius-xs: 8px;
+  --radius-field: 10px;
+  --radius-control: 12px;
+  --radius-inner: 14px;
+  --radius-card: 20px;
+  --font-display: "Zen Maru Gothic", "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  /* Dusk-garden heroes: deeper jewel boxes on the plum ground */
+  --color-hero-drops-bg: #241318;
+  --color-hero-drops-deep: #1d0f14;
+  --color-hero-drops-edge: #4a2a3d;
+  --color-hero-drops-well: #2e1a22;
+  --color-hero-drops-well-hover: #3a2230;
+  --color-hero-drops-accent-well: #3b1c2e;
+  --color-hero-drops-pile-1: #442033;
+  --color-hero-drops-pile-2: #2e1622;
+  --color-hero-catchup-bg: #251222;
+  --color-hero-catchup-well: #170a15;
+  --color-hero-catchup-well-hover: #321a2e;
+  --color-hero-catchup-edge: #543054;
+  --color-hero-catchup-edge-strong: #6b3d66;
+  --color-hero-catchup-ink: #ffb3d1;
+  --color-hero-catchup-track: #3a2136;
+  --color-hero-catchup-pip: #452a41;
+  --color-hero-catchup-active: #401f39;
+  --color-hero-grad-from: #ff5c9d;
+  --color-hero-grad-to: #c22860;
+  --color-hero-text-hi: #fdf2f6;
+  --color-hero-text-mid: #d3a9bb;
+  --color-hero-text-low: #a97f92;
+  --color-hero-new: #ff4fa3;
+}
+
+html[data-theme="synthwave"] {
+  --color-surface-0: #0d0221;
+  --color-surface-1: #190b33;
+  --color-surface-2: #221244;
+  --color-surface-3: #2e1b57;
+  --color-edge: #382366;
+  --color-edge-strong: #53389b;
+  --color-edge-faint: #241345;
+  --color-fg: #f6f0ff;
+  --color-fg-secondary: #cfc0ea;
+  --color-fg-muted: #a08cc8;
+  --color-fg-faint: #74609f;
+  --color-accent-300: #ff9ce4;
+  --color-accent-400: #ff63d3;
+  --color-accent-500: #ff2ec4;
+  --color-accent-600: #c9109a;
+  --color-accent-700: #a30c7d;
+  --color-ring: #52ecf7;
+  --color-success-300: #7df5cd;
+  --color-success-400: #4ceeb9;
+  --color-success-500: #2ee6a8;
+  --color-success-600: #17bd86;
+  --color-danger-300: #ff9b9b;
+  --color-danger-400: #ff6b6b;
+  --color-danger-500: #ff3b3b;
+  --color-danger-600: #e02222;
+  --color-warning-300: #ffd97a;
+  --color-warning-400: #ffc94d;
+  --color-warning-500: #ffb020;
+  --color-warning-600: #dd9110;
+  --color-info-300: #8ef4fb;
+  --color-info-400: #52ecf7;
+  --color-info-500: #26e0f0;
+  --color-info-600: #12b6c7;
+  --color-sent-positive-fg: #7df5cd;
+  --color-sent-mixed-fg: #ff9ce4;
+  --color-sent-negative-fg: #ff9b9b;
+  --color-sent-new-fg: #8ef4fb;
+  --color-overlay: rgb(6 0 20 / 0.8);
+  --color-veil: rgb(13 2 33 / 0.7);
+  --shadow-e1: 0 1px 2px rgb(0 0 0 / 0.5);
+  --shadow-e2: 0 12px 24px -8px rgb(0 0 0 / 0.6);
+  --shadow-e3: 0 24px 48px -12px rgb(0 0 0 / 0.7);
+  --shadow-glow-sm: 0 0 12px rgb(255 46 196 / 0.25);
+  --shadow-glow: 0 0 18px rgb(255 46 196 / 0.35);
+  --shadow-glow-lg: 0 0 28px rgb(255 46 196 / 0.5);
+  --shadow-glow-success: 0 0 18px rgb(46 230 168 / 0.3);
+  --radius-xs: 4px;
+  --radius-field: 6px;
+  --radius-control: 8px;
+  --radius-inner: 10px;
+  --radius-card: 12px;
+  --font-display: "Orbitron", "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --color-hero-drops-bg: #0a1029;
+  --color-hero-drops-deep: #070b1e;
+  --color-hero-drops-edge: #24347a;
+  --color-hero-drops-well: #101838;
+  --color-hero-drops-well-hover: #1a2450;
+  --color-hero-drops-accent-well: #1c1048;
+  --color-hero-drops-pile-1: #121f5e;
+  --color-hero-drops-pile-2: #0b1440;
+  --color-hero-catchup-bg: #190636;
+  --color-hero-catchup-well: #0d0220;
+  --color-hero-catchup-well-hover: #251047;
+  --color-hero-catchup-edge: #55219c;
+  --color-hero-catchup-edge-strong: #6b2fc0;
+  --color-hero-catchup-ink: #cf9bff;
+  --color-hero-catchup-track: #2b1550;
+  --color-hero-catchup-pip: #3a1d68;
+  --color-hero-catchup-active: #2e1258;
+  --color-hero-grad-from: #b026ff;
+  --color-hero-grad-to: #6a11cb;
+  --color-hero-text-hi: #f2edff;
+  --color-hero-text-mid: #b3a5d6;
+  --color-hero-text-low: #8172ab;
+  --color-hero-new: #6236ff;
+}
+
+/* -------------------------------------------------------------------- base */
+
+/* Painting the page ground here (not in a component div) also fixes the
+   cold-boot white flash and light-theme iOS overscroll. */
+html {
+  background-color: var(--color-surface-0);
+  color-scheme: dark;
 }
 
 body {
   font-family: var(--font-sans);
+  background-color: var(--color-surface-0);
+  color: var(--color-fg-secondary);
 }
 
-h1, h2, h3, h4, h5, h6, .tracking-tight {
-  font-family: "Space Grotesk", var(--font-sans);
+/* The display face is applied by element rule and the font-display utility —
+   never as a side effect of a spacing class (the retired .tracking-tight trap). */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+::selection {
+  background-color: color-mix(in srgb, var(--color-accent-500) 30%, transparent);
 }
 
 @utility scrollbar-hide {
@@ -37,6 +407,10 @@ h1, h2, h3, h4, h5, h6, .tracking-tight {
   }
 }
 
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-edge-strong) transparent;
+}
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }
@@ -44,9 +418,9 @@ h1, h2, h3, h4, h5, h6, .tracking-tight {
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #374151;
+  background-color: var(--color-edge-strong);
   border-radius: 10px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: #4b5563;
+  background-color: var(--color-fg-faint);
 }

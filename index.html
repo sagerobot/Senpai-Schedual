@@ -21,6 +21,70 @@
       name="twitter:description"
       content="Track upcoming anime releases, view daily schedules with countdowns, and manage your watchlist with local timezone support."
     />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+    <script>
+      // Pre-paint theme stamp: reads the persisted zustand envelope and sets
+      // data-theme before first paint so no theme ever flashes. The custom
+      // theme composes oklch() strings from stored numbers — string concat
+      // only, no color math. KEEP IN SYNC with src/lib/theme.ts.
+      (function () {
+        try {
+          var raw = localStorage.getItem('senpai.userdata.v3');
+          if (!raw) return;
+          var prefs = (JSON.parse(raw).state || {}).uiPrefs || {};
+          var t = prefs.theme;
+          var el = document.documentElement;
+          if (t === 'daylight' || t === 'void' || t === 'sakura' || t === 'synthwave') {
+            el.setAttribute('data-theme', t);
+            if (t === 'daylight') el.style.colorScheme = 'light';
+            return;
+          }
+          if (t !== 'custom' || !prefs.customTheme) return;
+          var c = prefs.customTheme;
+          var dark = c.base !== 'light';
+          if (c.base === 'light') { el.setAttribute('data-theme', 'daylight'); el.style.colorScheme = 'light'; }
+          else if (c.base === 'black') el.setAttribute('data-theme', 'void');
+          var H = c.accentHue || 0;
+          var C = c.accentVivid ? 0.2 : 0.14;
+          var fill = c.fillL || (dark ? 0.55 : 0.52);
+          var L = dark ? [0.8, 0.72, 0.63, fill, fill - 0.08] : [0.45, 0.52, 0.63, fill, fill - 0.07];
+          var steps = ['300', '400', '500', '600', '700'];
+          function ok(l, ch, h) { return 'oklch(' + l + ' ' + ch + ' ' + h + ')'; }
+          for (var i = 0; i < 5; i++) el.style.setProperty('--color-accent-' + steps[i], ok(L[i], C, H));
+          el.style.setProperty('--color-ring', ok(dark ? 0.72 : 0.52, C, H));
+          if (dark) {
+            el.style.setProperty('--shadow-glow-sm', '0 0 10px ' + ok(0.63, C, H));
+            el.style.setProperty('--shadow-glow', '0 0 15px ' + ok(0.63, C, H));
+            el.style.setProperty('--shadow-glow-lg', '0 0 20px ' + ok(0.63, C, H));
+            el.style.setProperty('--color-hero-drops-accent-well', ok(0.2, 0.06, H));
+            el.style.setProperty('--color-hero-catchup-ink', ok(0.78, 0.12, H));
+            el.style.setProperty('--color-hero-grad-from', ok(0.6, C, H));
+            el.style.setProperty('--color-hero-grad-to', ok(0.42, C, H));
+          } else {
+            el.style.setProperty('--shadow-glow-sm', '0 2px 10px ' + ok(0.52, C, H));
+            el.style.setProperty('--shadow-glow', '0 2px 12px ' + ok(0.52, C, H));
+            el.style.setProperty('--shadow-glow-lg', '0 4px 16px ' + ok(0.52, C, H));
+          }
+          var tint = c.surfaceTint || 0;
+          if (tint > 0) {
+            var TH = c.surfaceHue == null ? H : c.surfaceHue;
+            var sc = (dark ? 0.015 : 0.008) * tint;
+            var SL = c.base === 'black' ? [0, 0.13, 0.17, 0.21] : dark ? [0.16, 0.2, 0.23, 0.26] : [0.97, 1, 0.99, 0.94];
+            for (var s = 0; s < 4; s++)
+              el.style.setProperty('--color-surface-' + s, SL[s] === 0 ? '#000000' : ok(SL[s], sc, TH));
+            var EL = c.base === 'black' ? [0.19, 0.36, 0.14] : dark ? [0.26, 0.36, 0.2] : [0.9, 0.8, 0.94];
+            el.style.setProperty('--color-edge', ok(EL[0], sc, TH));
+            el.style.setProperty('--color-edge-strong', ok(EL[1], sc, TH));
+            el.style.setProperty('--color-edge-faint', ok(EL[2], sc, TH));
+          }
+        } catch (e) {}
+      })();
+    </script>
     <title>Senpai Schedule</title>
   </head>
   <body>

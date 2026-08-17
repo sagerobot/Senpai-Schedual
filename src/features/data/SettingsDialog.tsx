@@ -8,6 +8,7 @@ import { isInjectableTemplate } from '../../queries/offsets';
 import { QUERY_CACHE_KEY, removeKey } from '../../stores/storage';
 import { selectLibraryArray, selectLogsArray, useUserData } from '../../stores/userData';
 import { buildExport, exportFileName, parseBackup, type ParsedBackup } from './backup';
+import { ThemePicker } from './ThemePicker';
 
 interface SettingsDialogProps {
   open: boolean;
@@ -167,6 +168,8 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   <span>{banner.message}</span>
                 </div>
               )}
+
+              <ThemePicker />
 
               {/* Export */}
               <section className="rounded-xl border border-edge bg-surface-0 p-4">
