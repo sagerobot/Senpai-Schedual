@@ -117,7 +117,7 @@ Settings exports/imports `{ version: 2, timestamp, library, logs }` (`features/d
 - **Status vocabulary lives in `src/lib/status.ts`** (`LIBRARY_STATUS_LABELS`, `WatchState`) and renders through `StatusBadge`. This replaced three divergent badge vocabularies — don't start a second.
 - **Titles go through `src/lib/displayTitle.ts`** — `title.english` is nullable and often absent.
 - **Watch links go through `src/lib/watchLinks.ts`**: `STREAMING_SITES` is the canonical site list, `pickWatchLink` the canonical picker.
-- **Design tokens** in `src/index.css` `@theme` (Tailwind v4, CSS-first, no `tailwind.config`): `accent-*`, `surface-0..3`, `edge`, plus the `scrollbar-hide` utility. Dark palette only. No raw hexes. Merge classes with `cn()`.
+- **Design language: `docs/design-language.md`** — tokens in `src/index.css` `@theme` (Tailwind v4, CSS-first, no `tailwind.config`); six themes (Midnight default) via `data-theme` on `<html>` redefining the same variables, pref in `uiPrefs.theme`. All color/radius/shadow/font through tokens — raw values are legal only in index.css theme blocks; hero surfaces (Today's Drops, Up Next deck, Catch-Up) use their `--hero-*` namespaces. Motion (durations/easings/spring) from `src/lib/motion.ts` — no magic numbers. Merge classes with `cn()`.
 - **Mobile/a11y floor**: 44px touch targets, exactly one `h1` per view, cards are real buttons, sentiment is never color-only.
 - **Tests** are vitest, colocated as `*.test.ts(x)`.
 
