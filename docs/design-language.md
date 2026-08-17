@@ -225,6 +225,11 @@ ring/pip cards — keep their density and art direction in every theme.
   the theme.
 - `hero-new` is the sanctioned electric indigo (§3), resolving the old
   `#2917d2/#543bfa/#8b7ff9` contradiction into one token.
+- **Deck cards are siblings**: the graduation (binge-ready) card matches the airing drop
+  card's dimensions — same width, equal stretched height in the deck row, CTA pinned to the
+  shared bottom edge. Its middle tier is the stack-summary well (episode count, total
+  runtime) where the airing card carries the rate well, and the pile edges sit below the
+  card on the deck's shared baseline.
 
 ## 13. Theming architecture
 
