@@ -12,6 +12,7 @@ import { LIBRARY_STATUS_LABELS, LIBRARY_STATUS_ORDER } from '../../lib/status';
 import { useSeriesGraphs } from '../../series/useSeriesGraphs';
 import { SeriesCard } from './SeriesCard';
 import { SeriesGraph } from '../../series/labeling';
+import { Select } from '../../components/ui/Select';
 
 interface LibraryViewProps {
   library: LibraryEntry[];
@@ -320,15 +321,16 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
             onChange={(e) => setSearch(e.target.value)}
             className="rounded-field border border-edge-strong bg-surface-3 px-3 py-2 text-sm text-fg placeholder-fg-faint focus:border-accent-500 focus:outline-none w-full md:w-48"
           />
-          <select
+          <Select
             value={sortOption}
             onChange={(e) => setSortOption(e.target.value as 'my-score' | 'title' | 'recently-updated')}
-            className="rounded-field border border-edge-strong bg-surface-3 px-3 py-2 text-sm font-medium text-fg-secondary focus:border-accent-500 focus:outline-none"
+            aria-label="Sort library"
+            className="shrink-0"
           >
             <option value="recently-updated">Recently Updated</option>
             <option value="title">A-Z</option>
             <option value="my-score">My Score</option>
-          </select>
+          </Select>
         </div>
       </div>
 

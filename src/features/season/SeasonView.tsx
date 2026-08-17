@@ -3,13 +3,39 @@ import { AnimeMedia } from '../../types';
 import { AnimeCard } from '../../components/AnimeCard';
 import { SeriesTitle } from '../../components/SeriesTitle';
 import { ErrorState, errorDetail } from '../../components/ErrorState';
-import { Search, CalendarClock, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { Button } from '../../components/ui/Button';
+import { Skeleton } from '../../components/ui/Skeleton';
+import { Tooltip } from '../../components/ui/Tooltip';
+import { Search, CalendarClock, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { useSeasonQuery } from '../../queries/hooks';
-import { cn } from '../../lib/utils';
 import { displayTitle } from '../../lib/displayTitle';
 import { SEASONS, currentSeason, maxSeasonYear, parseSeasonParams, seasonPath } from '../../routes/season';
+
+/**
+ * Loading is shaped like the content it becomes (docs/design-language.md §8):
+ * the same auto-fill grid the loaded cards use, so arriving data replaces
+ * placeholders without shifting the layout.
+ */
+function SeasonSkeleton() {
+  return (
+    <div className="space-y-4" aria-hidden="true">
+      <Skeleton className="h-4 w-56 rounded bg-surface-1" />
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4 sm:gap-6">
+        {Array.from({ length: 10 }, (_, i) => (
+          <div key={i} className="flex flex-col overflow-hidden rounded-inner bg-surface-1 shadow-e2">
+            <Skeleton className="aspect-[3/4] w-full rounded-none" />
+            <div className="space-y-2 p-3 sm:p-4">
+              <Skeleton className="h-4 w-3/4 rounded" />
+              <Skeleton className="h-3 w-1/2 rounded bg-surface-1" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 interface SeasonViewProps {
   onAnimeSelect: (anime: AnimeMedia) => void;
@@ -72,30 +98,38 @@ export function SeasonView({ onAnimeSelect }: SeasonViewProps) {
     <div className="space-y-8 pb-12">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handlePrevSeason}
-              aria-label="Previous season"
-              title="Previous season"
-              className="p-1 hover:bg-surface-3 rounded-field transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <ChevronLeft className="w-5 h-5" aria-hidden="true" />
-            </button>
+          <div className="flex items-center gap-2">
+            <Tooltip label="Previous season" align="start">
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={handlePrevSeason}
+                aria-label="Previous season"
+                className="w-11 px-0"
+              >
+                <ChevronLeft className="w-5 h-5" aria-hidden="true" />
+              </Button>
+            </Tooltip>
             <h1 className="text-2xl font-bold tracking-tight text-fg">
               {selectedSeason} {selectedYear}
             </h1>
-            <button
-              onClick={handleNextSeason}
-              disabled={atForwardBoundary}
-              aria-label="Next season"
-              title={atForwardBoundary ? 'Nothing announced further out yet' : 'Next season'}
-              className={cn(
-                'p-1 rounded-field transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                atForwardBoundary ? 'cursor-not-allowed text-fg-faint' : 'hover:bg-surface-3',
-              )}
+            {/* The forward boundary keeps its explanation: the tooltip says why
+                the button is disabled instead of going silent. */}
+            <Tooltip
+              label={atForwardBoundary ? 'Nothing announced further out yet' : 'Next season'}
+              align="center"
             >
-              <ChevronRight className="w-5 h-5" aria-hidden="true" />
-            </button>
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={handleNextSeason}
+                disabled={atForwardBoundary}
+                aria-label="Next season"
+                className="w-11 px-0"
+              >
+                <ChevronRight className="w-5 h-5" aria-hidden="true" />
+              </Button>
+            </Tooltip>
           </div>
           <p className="text-fg-muted mt-1">
             {isCurrentSeason ? "All anime airing this season" : `Archive for ${selectedSeason.toLowerCase()} ${selectedYear}`}
@@ -115,9 +149,7 @@ export function SeasonView({ onAnimeSelect }: SeasonViewProps) {
       </div>
 
       {loading ? (
-        <div className="flex h-64 items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-accent-500" />
-        </div>
+        <SeasonSkeleton />
       ) : query.isError ? (
         <ErrorState
           title={`Couldn't load ${selectedSeason.toLowerCase()} ${selectedYear}.`}
@@ -146,8 +178,17 @@ export function SeasonView({ onAnimeSelect }: SeasonViewProps) {
           </div>
 
           {filtered.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-24 text-center">
-              <p className="text-lg text-fg-muted">No shows found matching "{search}"</p>
+            // A search miss, not an empty season — same card language as the
+            // season-empty state above, with a way back out.
+            <div className="flex flex-col items-center justify-center rounded-card border border-dashed border-edge bg-surface-0 px-6 py-24 text-center">
+              <Search className="mb-4 h-8 w-8 text-fg-faint" aria-hidden="true" />
+              <p className="text-lg text-fg-secondary">No shows found matching "{search}"</p>
+              <p className="mt-1 text-fg-muted">
+                Nothing in {selectedSeason.toLowerCase()} {selectedYear} matches — try another title.
+              </p>
+              <Button variant="secondary" size="lg" className="mt-6" onClick={() => setSearch('')}>
+                Clear search
+              </Button>
             </div>
           )}
         </>

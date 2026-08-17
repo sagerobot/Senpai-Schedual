@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useMemo, useState } from 'react';
 import { LowScoreButtons } from "../../components/LowScoreButtons";
 import { VibeChip } from '../../components/VibeChip';
+import { Tooltip } from '../../components/ui/Tooltip';
 import { getAiredEpisodesCount } from '../../lib/aired';
 import { displayTitle } from '../../lib/displayTitle';
 import { cn } from '../../lib/utils';
@@ -542,15 +543,16 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
                       </span>
 
                       <span className="flex-1 flex items-center gap-4 min-w-0">
-                        <span
-                          title={label}
-                          className={cn(
-                            'font-bold text-label w-[86px] shrink-0 truncate transition-colors',
-                            isCurrent ? 'text-hero-text-hi' : 'text-hero-text-mid group-hover/season:text-hero-text-hi',
-                          )}
-                        >
-                          {label}
-                        </span>
+                        <Tooltip label={label} align="start" className="w-[86px] shrink-0">
+                          <span
+                            className={cn(
+                              'font-bold text-label w-full truncate transition-colors',
+                              isCurrent ? 'text-hero-text-hi' : 'text-hero-text-mid group-hover/season:text-hero-text-hi',
+                            )}
+                          >
+                            {label}
+                          </span>
+                        </Tooltip>
                         <span className="flex-1 flex gap-1 h-[5px]" aria-hidden="true">
                           {Array.from({ length: Math.min(season.airedCount, 30) }).map((_, epIdx) => (
                             <span

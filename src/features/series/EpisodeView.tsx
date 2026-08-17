@@ -1,6 +1,7 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { Check, ExternalLink, Loader2, MessageCircle, X } from 'lucide-react';
+import { Check, ExternalLink, Loader2, MessageCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { DialogShell } from '../../components/ui/DialogShell';
 import type { AnimeMedia } from '../../types';
 import type { SeriesEntry } from '../../series/labeling';
 import { asOfLabel, useCommunityPulse } from '../show/useCommunityPulse';
@@ -81,27 +82,20 @@ export function EpisodeView({ seriesTitle, member, media, episode, onClose }: Ep
 
   return (
     <Dialog.Root open onOpenChange={(open) => !open && onClose()}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-overlay backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-        <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-lg translate-x-[-50%] translate-y-[-50%] p-4 md:p-6 duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95">
-          <div className="flex max-h-[85vh] flex-col overflow-hidden rounded-card border border-edge bg-surface-1 text-fg-secondary shadow-e3">
-            <div className="flex items-start justify-between gap-4 border-b border-edge p-5">
-              <div className="min-w-0">
-                <p className="truncate text-xs text-fg-faint">
-                  {seriesTitle}
-                  {member.seasonLabel !== seriesTitle && ` · ${member.seasonLabel}`}
-                </p>
-                <Dialog.Title className="text-lg font-bold tracking-tight text-fg">
-                  Episode {episode}
-                </Dialog.Title>
-              </div>
-              <Dialog.Close className="shrink-0 rounded-field p-1.5 text-fg-muted transition-colors hover:bg-surface-3 hover:text-fg">
-                <X className="h-5 w-5" aria-hidden="true" />
-                <span className="sr-only">Close</span>
-              </Dialog.Close>
-            </div>
+      <DialogShell maxWidth="max-w-lg">
+        <div className="border-b border-edge p-5 pr-12">
+          <div className="min-w-0">
+            <p className="truncate text-xs text-fg-faint">
+              {seriesTitle}
+              {member.seasonLabel !== seriesTitle && ` · ${member.seasonLabel}`}
+            </p>
+            <Dialog.Title className="text-lg font-bold tracking-tight text-fg">
+              Episode {episode}
+            </Dialog.Title>
+          </div>
+        </div>
 
-            <div className="flex-1 space-y-4 overflow-y-auto p-5">
+        <div className="flex-1 space-y-4 overflow-y-auto p-5">
               {/* Personal: watched + rating */}
               <div className="flex flex-wrap items-center gap-2">
                 <button
@@ -301,10 +295,8 @@ export function EpisodeView({ seriesTitle, member, media, episode, onClose }: Ep
                   {member.title} · {member.format || 'TV'}
                 </p>
               )}
-            </div>
-          </div>
-        </Dialog.Content>
-      </Dialog.Portal>
+        </div>
+      </DialogShell>
     </Dialog.Root>
   );
 }

@@ -1,5 +1,6 @@
 import { cn } from '../lib/utils';
 import { isJustAired, type VibeEntry } from '../lib/vibesFile';
+import { Tooltip } from './ui/Tooltip';
 
 /** Sentiment is spelled out, never colour alone. Tokens: sent-* (docs §3). */
 const SENTIMENT = {
@@ -97,23 +98,27 @@ export function VibeChip({ vibe, showTitle, onOpen, variant = 'flat', className 
   if (vibe.status === 'quiet') {
     const tone = justAired ? newTone : SENTIMENT.quiet;
     return (
-      <button
-        type="button"
-        onClick={open}
-        title={
+      <Tooltip
+        label={
           justAired
             ? 'Just released — the discussion thread is still filling up'
             : `Only ${vibe.comments} comment${vibe.comments === 1 ? '' : 's'} — not enough for a sentiment read`
         }
-        aria-label={`Episode ${vibe.episode} ${
-          justAired ? 'just released, discussion forming' : `discussion is quiet, ${vibe.comments} comments`
-        }. Open ${showTitle}`}
-        className={cn(CHIP_SHAPE, variant === 'glass' ? tone.glass : tone.flat, className)}
+        className={cn('shrink-0', className)}
       >
-        <span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', tone.dot)} aria-hidden="true" />
-        {tone.label}
-        {vibe.comments > 0 && <span className="font-medium opacity-80">· {compactCount(vibe.comments)}</span>}
-      </button>
+        <button
+          type="button"
+          onClick={open}
+          aria-label={`Episode ${vibe.episode} ${
+            justAired ? 'just released, discussion forming' : `discussion is quiet, ${vibe.comments} comments`
+          }. Open ${showTitle}`}
+          className={cn(CHIP_SHAPE, variant === 'glass' ? tone.glass : tone.flat)}
+        >
+          <span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', tone.dot)} aria-hidden="true" />
+          {tone.label}
+          {vibe.comments > 0 && <span className="font-medium opacity-80">· {compactCount(vibe.comments)}</span>}
+        </button>
+      </Tooltip>
     );
   }
 
@@ -132,19 +137,20 @@ export function VibeChip({ vibe, showTitle, onOpen, variant = 'flat', className 
           {newTone.label}
         </span>
       )}
-      <button
-        type="button"
-        onClick={open}
-        title={firstSentence(vibe.summary)}
-        aria-label={`Episode ${vibe.episode} community vibe: ${tone.label}${
-          vibe.comments > 0 ? `, ${vibe.comments} comments` : ''
-        }${justAired ? ', just released' : ''}. Open ${showTitle}`}
-        className={cn(CHIP_SHAPE, variant === 'glass' ? tone.glass : tone.flat)}
-      >
-        <span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', tone.dot)} aria-hidden="true" />
-        {tone.label}
-        {vibe.comments > 0 && <span className="font-medium opacity-80">· {compactCount(vibe.comments)}</span>}
-      </button>
+      <Tooltip label={firstSentence(vibe.summary)} className="shrink-0">
+        <button
+          type="button"
+          onClick={open}
+          aria-label={`Episode ${vibe.episode} community vibe: ${tone.label}${
+            vibe.comments > 0 ? `, ${vibe.comments} comments` : ''
+          }${justAired ? ', just released' : ''}. Open ${showTitle}`}
+          className={cn(CHIP_SHAPE, variant === 'glass' ? tone.glass : tone.flat)}
+        >
+          <span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', tone.dot)} aria-hidden="true" />
+          {tone.label}
+          {vibe.comments > 0 && <span className="font-medium opacity-80">· {compactCount(vibe.comments)}</span>}
+        </button>
+      </Tooltip>
     </span>
   );
 }

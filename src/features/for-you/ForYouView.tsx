@@ -7,6 +7,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Loader2, Sparkles, X, Filter, Moon, PowerOff, AlertTriangle } from 'lucide-react';
 import { displayTitle } from '../../lib/displayTitle';
 import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/Button';
+import { Tooltip } from '../../components/ui/Tooltip';
 
 interface ForYouViewProps {
   library: LibraryEntry[];
@@ -41,7 +43,7 @@ export function ForYouView({ library, onAnimeSelect }: ForYouViewProps) {
         </p>
         <Link
           to="/library"
-          className="rounded-field bg-accent-600 px-4 py-2.5 text-sm font-medium text-fg-inverse transition-colors hover:bg-accent-500"
+          className="inline-flex h-11 items-center justify-center gap-2 rounded-control bg-accent-600 px-4 text-sm font-semibold text-fg-inverse transition-colors hover:bg-accent-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           Go to your Library
         </Link>
@@ -79,12 +81,9 @@ export function ForYouView({ library, onAnimeSelect }: ForYouViewProps) {
         <AlertTriangle className="h-12 w-12 text-danger-400/70" />
         <h1 className="text-xl font-bold text-fg-secondary">Couldn't build your recommendations</h1>
         <p className="max-w-md text-sm text-fg-faint">{errorMessage ?? 'Something went wrong talking to the server.'}</p>
-        <button
-          onClick={forceRecompute}
-          className="rounded-field bg-accent-600 px-4 py-2 text-sm font-medium text-fg-inverse transition-colors hover:bg-accent-500"
-        >
+        <Button variant="primary" onClick={forceRecompute}>
           Retry
-        </button>
+        </Button>
       </div>
     );
   }
@@ -131,7 +130,10 @@ export function ForYouView({ library, onAnimeSelect }: ForYouViewProps) {
         <div className="flex items-center gap-3 text-sm text-danger-300 bg-danger-600/10 px-3 py-2 rounded-field border border-danger-500/40 w-max">
           <AlertTriangle className="h-4 w-4" />
           <span>Couldn't refresh recommendations — showing your last results.</span>
-          <button onClick={forceRecompute} className="font-medium text-danger-300 underline hover:text-fg">
+          <button
+            onClick={forceRecompute}
+            className="rounded-xs font-medium text-danger-300 underline transition-colors hover:text-fg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
             Retry
           </button>
         </div>
@@ -154,28 +156,31 @@ export function ForYouView({ library, onAnimeSelect }: ForYouViewProps) {
                 transition={{ duration: 0.2 }}
                 className="group relative flex flex-col"
               >
-                <button
-                  onClick={() => removeRecommendation(rec.show.id)}
-                  aria-label={`Not interested in ${displayTitle(rec.show)}`}
-                  title="Not interested"
-                  className="group/dismiss absolute -top-3 -right-3 z-20 flex h-11 w-11 items-center justify-center"
-                >
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full border border-edge bg-surface-3 text-fg-secondary shadow-e2 transition-all group-hover/dismiss:scale-110 group-hover/dismiss:bg-danger-600 group-hover/dismiss:text-fg-inverse">
-                    <X className="h-3.5 w-3.5" aria-hidden="true" />
-                  </span>
-                </button>
-                <div className="flex-1">
+                <Tooltip label="Not interested" align="end" className="absolute -top-3 -right-3 z-20">
+                  <button
+                    onClick={() => removeRecommendation(rec.show.id)}
+                    aria-label={`Not interested in ${displayTitle(rec.show)}`}
+                    className="group/dismiss flex h-11 w-11 items-center justify-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full border border-edge bg-surface-3 text-fg-secondary shadow-e2 transition-all group-hover/dismiss:scale-110 group-hover/dismiss:bg-danger-600 group-hover/dismiss:text-fg-inverse">
+                      <X className="h-3.5 w-3.5" aria-hidden="true" />
+                    </span>
+                  </button>
+                </Tooltip>
+                <div className="flex flex-1 flex-col overflow-hidden rounded-inner border border-edge bg-surface-1 shadow-e1">
                   <AnimeCard
                     anime={rec.show}
                     onClick={() => onAnimeSelect(rec.show)}
                   />
-                </div>
-                <div className="mt-2 text-xs text-fg-muted bg-surface-1 p-2 rounded-field border border-edge relative z-10 flex-1">
-                  <span className="text-accent-400 font-medium mr-1 flex items-center gap-1 mb-1">
-                    <Sparkles className="h-3 w-3" />
-                    Why:
-                  </span>
-                  <span className="line-clamp-3 leading-relaxed" title={rec.reason}>{rec.reason}</span>
+                  <div className="flex-1 p-3 sm:p-4">
+                    <span className="mb-1 flex items-center gap-1 text-micro font-medium text-accent-400">
+                      <Sparkles className="h-3 w-3" aria-hidden="true" />
+                      Why
+                    </span>
+                    <Tooltip label={rec.reason} className="w-full">
+                      <span className="line-clamp-3 text-caption leading-relaxed text-fg-muted">{rec.reason}</span>
+                    </Tooltip>
+                  </div>
                 </div>
               </motion.div>
             ))}

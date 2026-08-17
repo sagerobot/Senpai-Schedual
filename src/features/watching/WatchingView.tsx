@@ -10,6 +10,7 @@ import { SeasonRecapModal } from './SeasonRecapModal';
 import { cn } from '../../lib/utils';
 import { getAiredEpisodesCount } from '../../lib/aired';
 import { displayTitle } from '../../lib/displayTitle';
+import { Select } from '../../components/ui/Select';
 
 interface WatchingViewProps {
   animeList: AnimeMedia[];
@@ -178,16 +179,17 @@ export function WatchingView({ animeList, library, logs, onLog, onAnimeSelect }:
           </div>
 
           {/* Sort Select */}
-          <select
+          <Select
             value={sort}
             onChange={(e) => setSort(e.target.value as SortOption)}
-            className="rounded-field border border-edge-strong bg-surface-3 px-3 py-2 text-sm font-medium text-fg-secondary focus:border-accent-500 focus:outline-none"
+            aria-label="Sort watching list"
+            className="shrink-0"
           >
             <option value="next-airing">Next episode airing</option>
             <option value="most-behind">Most behind</option>
             <option value="highest-score">Highest score</option>
             <option value="a-z">A-Z</option>
-          </select>
+          </Select>
         </div>
       )}
 

@@ -5,6 +5,7 @@ import { Bookmark, Clock, PlayCircle, Star, CheckCircle2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import React, { useState, useEffect } from 'react';
 import { StatusBadge } from './StatusBadge';
+import { Tooltip } from './ui/Tooltip';
 import { WatchState } from '../lib/status';
 import { LibraryStatusMenu } from './LibraryStatusMenu';
 import { filterWatchLinks } from '../lib/watchLinks';
@@ -133,9 +134,11 @@ export function AnimeCard({
 
         {/* Status / Countdown */}
         <div className="absolute bottom-0 left-0 w-full p-3 sm:p-4">
-          <h3 className="line-clamp-2 text-base sm:text-lg font-bold leading-tight text-fg-inverse" title={titleText}>
-            {titleOverride || displayTitle(anime)}
-          </h3>
+          <Tooltip label={titleText} align="start" className="flex w-full">
+            <h3 className="w-full line-clamp-2 text-base sm:text-lg font-bold leading-tight text-fg-inverse">
+              {titleOverride || displayTitle(anime)}
+            </h3>
+          </Tooltip>
           
           <div className="mt-1.5 sm:mt-2 flex items-center space-x-2 text-xs sm:text-sm text-fg-secondary">
             {nextEp ? (

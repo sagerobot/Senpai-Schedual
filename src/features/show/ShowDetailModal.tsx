@@ -1,5 +1,5 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { X, ExternalLink, Bookmark, Layers, MessageCircle, Loader2, Sparkles } from 'lucide-react';
+import { ExternalLink, Bookmark, Layers, MessageCircle, Loader2, Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { AnimeMedia, LibraryEntry, LibraryStatus } from '../../types';
@@ -19,6 +19,8 @@ import { LibraryStatusMenu } from '../../components/LibraryStatusMenu';
 import { filterWatchLinks } from '../../lib/watchLinks';
 import { Link } from 'react-router';
 import { useSeriesGraph } from '../../series/useSeriesGraphs';
+import { DialogShell } from '../../components/ui/DialogShell';
+import { Select } from '../../components/ui/Select';
 
 interface ShowDetailModalProps {
   anime: AnimeMedia;
@@ -141,11 +143,8 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
 
   return (
     <Dialog.Root open={true} onOpenChange={(open) => !open && onClose()}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-overlay backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-        <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-2xl translate-x-[-50%] translate-y-[-50%] p-4 md:p-6 shadow-e3 duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]">
-          <div className="relative flex max-h-[85vh] flex-col overflow-hidden rounded-card bg-surface-1 text-fg-secondary shadow-e3 border border-edge">
-            
+      <DialogShell maxWidth="max-w-2xl">
+
             {/* Header */}
             <div className="flex gap-4 p-5 md:p-6 pb-2">
               <div className="shrink-0">
@@ -182,10 +181,6 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                   )}
                 </div>
               </div>
-              <Dialog.Close className="absolute right-4 top-4 rounded-field border border-edge-strong bg-transparent p-1.5 text-fg-muted transition-colors hover:bg-surface-3 hover:text-fg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                <X className="h-4 w-4" />
-                <span className="sr-only">Close</span>
-              </Dialog.Close>
             </div>
 
             {/* Scrollable Content */}
@@ -344,16 +339,15 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
               <div className="mt-2 flex items-center justify-between gap-3">
                 <h3 className="text-sm font-medium text-fg-secondary">Community vibe</h3>
                 {(pulseState !== 'idle' || preDiscussionEra) && (
-                  <select
+                  <Select
                     value={selectedEpisode}
                     onChange={(e) => setSelectedEpisode(Number(e.target.value))}
                     aria-label="Episode for community vibe"
-                    className="rounded-field border border-edge-strong bg-surface-2 px-2 py-1.5 text-xs font-medium text-fg-secondary transition-colors hover:border-fg-faint focus:outline-none focus:border-accent-500 focus:ring-2 focus:ring-ring/40"
                   >
                     {Array.from({ length: latestEpisode }, (_, i) => i + 1).map((ep) => (
                       <option key={ep} value={ep}>Episode {ep}</option>
                     ))}
-                  </select>
+                  </Select>
                 )}
               </div>
               {pulseState === 'idle' && preDiscussionEra ? (
@@ -386,16 +380,15 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
               ) : pulseState === 'idle' ? (
                 <div className="flex flex-col items-center space-y-2 rounded-inner border border-edge bg-surface-2/50 p-5">
                   <div className="flex flex-wrap items-center justify-center gap-2">
-                    <select
+                    <Select
                       value={selectedEpisode}
                       onChange={(e) => setSelectedEpisode(Number(e.target.value))}
                       aria-label="Episode for community vibe"
-                      className="h-11 rounded-field border border-edge-strong bg-surface-2 px-2 text-xs font-medium text-fg-secondary transition-colors hover:border-fg-faint focus:outline-none focus:border-accent-500 focus:ring-2 focus:ring-ring/40"
                     >
                       {Array.from({ length: latestEpisode }, (_, i) => i + 1).map((ep) => (
                         <option key={ep} value={ep}>Episode {ep}</option>
                       ))}
-                    </select>
+                    </Select>
                     <button
                       onClick={loadPulse}
                       className="flex items-center space-x-2 rounded-field bg-accent-600 px-4 py-2.5 text-sm font-medium text-fg-inverse transition-colors hover:bg-accent-500"
@@ -575,17 +568,17 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                 <div className="flex items-center gap-2">
                   {libraryEntry && onUpdateEntry && (
                     <>
-                      <select
+                      <Select
                         value={libraryEntry.status}
                         onChange={(e) => onUpdateEntry(anime.id, { status: e.target.value as LibraryStatus })}
-                        className="rounded-field border border-edge-strong bg-surface-2 px-3 py-2.5 text-sm font-medium text-fg-secondary transition-colors hover:border-fg-faint focus:outline-none focus:border-accent-500 focus:ring-2 focus:ring-ring/40"
+                        aria-label="Library status"
                       >
                         {LIBRARY_STATUS_ORDER.map((status) => (
                           <option key={status} value={status}>{LIBRARY_STATUS_LABELS[status]}</option>
                         ))}
-                      </select>
+                      </Select>
                       {libraryEntry.status === 'stacking' && (
-                        <select
+                        <Select
                           value={libraryEntry.stackWakeCount ?? ''}
                           onChange={(e) =>
                             onUpdateEntry(anime.id, {
@@ -593,13 +586,12 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                             })
                           }
                           aria-label="Binge-ready when"
-                          className="rounded-field border border-edge-strong bg-surface-2 px-3 py-2.5 text-sm font-medium text-fg-secondary transition-colors hover:border-fg-faint focus:outline-none focus:border-accent-500 focus:ring-2 focus:ring-ring/40"
                         >
                           <option value="">Wake: season end</option>
                           {[4, 6, 8, 12].map((n) => (
                             <option key={n} value={n}>Wake: {n} eps</option>
                           ))}
-                        </select>
+                        </Select>
                       )}
                     </>
                   )}
@@ -660,10 +652,8 @@ export function ShowDetailModal({ anime, onClose, onAnimeSelect, libraryEntry, o
                 </button>
               )}
             </div>
-            
-          </div>
-        </Dialog.Content>
-      </Dialog.Portal>
+
+      </DialogShell>
     </Dialog.Root>
   );
 }

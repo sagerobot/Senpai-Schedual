@@ -8,6 +8,7 @@ import { EpisodeLog, LibraryEntry, LibraryStatus } from '../../types';
 import { LIBRARY_STATUS_LABELS, LIBRARY_STATUS_ORDER } from '../../lib/status';
 import { LibraryStatusMenu } from '../../components/LibraryStatusMenu';
 import { useUserData } from '../../stores/userData';
+import { Select } from '../../components/ui/Select';
 
 interface SeriesCardProps {
   key?: React.Key;
@@ -172,16 +173,16 @@ export function SeriesCard({ series, libraryEntries, logs, onAnimeSelect }: Seri
                       {l ? (
                         <>
                           <span className="text-fg-muted w-16 text-right">{logs.filter(log => log.showId === l.showId).length} / {season.episodes || '?'}</span>
-                          <select
+                          <Select
                             value={l.status}
                             aria-label={`Status for ${season.seasonLabel}`}
                             onChange={(e) => setSeasonStatus(l, e.target.value as LibraryStatus)}
-                            className="h-8 rounded-xs border border-edge bg-surface-3 px-2 text-xs font-medium text-fg-secondary focus:border-accent-500 focus:outline-none"
+                            className="shrink-0"
                           >
                             {LIBRARY_STATUS_ORDER.map((s) => (
                               <option key={s} value={s}>{LIBRARY_STATUS_LABELS[s]}</option>
                             ))}
-                          </select>
+                          </Select>
                           <span className="w-8 text-right text-warning-400">{l.showScore || '-'}</span>
                           <LibraryStatusMenu
                             showId={season.id}
