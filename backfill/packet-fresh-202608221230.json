@@ -1,0 +1,125 @@
+[
+ {
+  "key": "184492:19",
+  "showId": 184492,
+  "episode": 19,
+  "title": "Mairimashita! Iruma-kun 4",
+  "airedAt": 1787390760,
+  "kind": "update",
+  "thread": {
+   "title": "Welcome to Demon School! Iruma-kun Season 4 \u2022 Mairimashita! Iruma-kun Season 4 - Episode 19 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vp0j6d/welcome_to_demon_school_irumakun_season_4/",
+   "score": 0,
+   "num_comments": 31
+  },
+  "comments_read": 31,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many viewers found the episode highly entertaining and enthusiastically praised its comedic energy."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the new idol-focused direction and were excited for the competition to continue."
+   },
+   {
+    "tone": "positive",
+    "point": "Character-focused humor, especially involving Lied and Ameri, was frequently appreciated."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers enjoyed the arc\u2019s playful premise while questioning certain character motivations and relationship logic."
+   },
+   {
+    "tone": "negative",
+    "point": "A commenter felt the current arc was tedious and wished the series would move on."
+   },
+   {
+    "tone": "negative",
+    "point": "Multiple commenters were frustrated by the episode\u2019s release confusion and repeated delay."
+   },
+   {
+    "tone": "mixed",
+    "point": "The episode\u2019s briskness was read either as exciting momentum or as feeling so short that it ended almost immediately."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "pacing": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The thread title and body explicitly identify Mairimashita! Iruma-kun/Welcome to Demon School! Iruma-kun Season 4, episode 19. I read the available discussion comments from this thread only. Reddit did not expose a reliable live score or exact total comment count in the retrieved page, so score is r"
+ },
+ {
+  "key": "235:1210",
+  "showId": 235,
+  "episode": 1210,
+  "title": "Meitantei Conan",
+  "airedAt": 1787389200,
+  "kind": "first",
+  "thread": {
+   "title": "Meitantei Conan \u2022 Case Closed - Episode 1210 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vva3g5/meitantei_conan_case_closed_episode_1210/",
+   "score": 1,
+   "num_comments": 1
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "171110:19",
+  "showId": 171110,
+  "episode": 19,
+  "title": "Honzuki no Gekokujou: Ryoushu no Youjo",
+  "airedAt": 1787387400,
+  "kind": "first",
+  "thread": {
+   "title": "Ascendance of a Bookworm: Adopted Daughter of an Archduke \u2022 Honzuki no Gekokujou: Shisho ni Naru Tame ni wa Shudan wo Erandeiraremasen - Ryushu no Youjo - Episode 19 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vv7t8t/ascendance_of_a_bookworm_adopted_daughter_of_an/",
+   "score": 118,
+   "num_comments": 10
+  },
+  "comments_read": 10,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters considered it one of the stronger episodes of the season and enjoyed its setting, atmosphere, and lighter adventure feel."
+   },
+   {
+    "tone": "positive",
+    "point": "The episode\u2019s fantasy atmosphere and distinctive environmental details were well received."
+   },
+   {
+    "tone": "positive",
+    "point": "The post-credits material was viewed as a fun and worthwhile addition."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers liked the presentation of the mana-compression material but felt its explanation was too casual and insufficiently clear."
+   },
+   {
+    "tone": "negative",
+    "point": "A few commenters wanted more time devoted to certain elements, suggesting that some material felt rushed or underdeveloped."
+   }
+  ],
+  "aspects": {
+   "story": "positive",
+   "pacing": "mixed"
+  },
+  "notes": "The title explicitly names Ascendance of a Bookworm/Honzuki no Gekokujou Season 4 and episode 19. I retrieved the thread score and a search-indexed subset of its comments; comment count may be incomplete because Reddit itself was not directly fetchable."
+ },
+ {
+  "key": "158871:146",
+  "showId": 158871,
+  "episode": 146,
+  "title": "Pocket Monsters (2023)",
+  "airedAt": 1787306100,
+  "kind": "settle",
+  "thread": {
+   "title": "Pok\u00e9mon Horizons: The Series - Episode 146 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vv2ha2/pok%C3%A9mon_horizons_the_series_episode_146_discussion/",
+   "score": 7,
+   "num_comments": 4
+  },
+  "status": "quiet"
+ }
+]
