@@ -1,0 +1,146 @@
+[
+ {
+  "key": "183231:21",
+  "showId": 183231,
+  "episode": 21,
+  "title": "Rilakkuma",
+  "airedAt": 1787358360,
+  "kind": "first",
+  "thread": {
+   "title": "Rilakkuma - Episode 21 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vuy7p7/rilakkuma_episode_21_discussion/",
+   "score": 1,
+   "num_comments": 1
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "207674:8",
+  "showId": 207674,
+  "episode": 8,
+  "title": "Ushiro no Shoumen Kamui-san",
+  "airedAt": 1787329800,
+  "kind": "update",
+  "thread": {
+   "title": "KAMUI: He's Behind You \u2022 Ushiro no Shoumen Kamui-san - Episode 8 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vul9ff/kamui_hes_behind_you_ushiro_no_shoumen_kamuisan/",
+   "score": 48,
+   "num_comments": 0
+  },
+  "comments_read": 12,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many commenters found the episode especially entertaining and considered it among the season\u2019s best."
+   },
+   {
+    "tone": "positive",
+    "point": "The cast and character interactions drew enthusiastic reactions, with particular affection for the newly highlighted characters."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the show\u2019s provocative comedy and escalating absurdity."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers liked the episode\u2019s stronger dramatic momentum, while others mainly treated it as another comedy showcase."
+   },
+   {
+    "tone": "negative",
+    "point": "One commenter criticized the episode\u2019s music and felt the epilogue segments were too long."
+   }
+  ],
+  "aspects": {
+   "story": "positive",
+   "characters": "positive",
+   "sound": "negative"
+  },
+  "notes": "The thread title and metadata clearly identify Ushiro no Shoumen Kamui-san episode 8. Search retrieval exposed the post score and a selection of comments, but not a reliable total comment count; num_comments is therefore reported as 0. Opinions are paraphrased and spoiler-free."
+ },
+ {
+  "key": "209983:8",
+  "showId": 209983,
+  "episode": 8,
+  "title": "Hell Mode: Yarikomi-zuki no Gamer wa Haisettei no Isekai de Musou Suru 2nd Season",
+  "airedAt": 1787328000,
+  "kind": "update",
+  "thread": {
+   "title": "HELL MODE: The Hardcore Gamer Dominates in Another World with Garbage Balancing Season 2 \u2022 Hell Mode: Yarikomizuki no Gamer wa Hai Settei no Isekai de Musou suru Season 2 - Episode 8 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vulda6/hell_mode_the_hardcore_gamer_dominates_in_another/",
+   "score": 0,
+   "num_comments": 42
+  },
+  "comments_read": 42,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many viewers enjoyed the episode\u2019s character interactions and comedic reactions, especially the increased attention given to Sophia."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters liked the protagonist\u2019s strategic, game-like approach to progression and resource management."
+   },
+   {
+    "tone": "positive",
+    "point": "The episode\u2019s worldbuilding and explanations of the leveling and class systems generated substantial interest."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers found the romance-related developments amusing and engaging, while others felt the protagonist\u2019s lack of romantic interest made the pairing uncertain or awkward."
+   },
+   {
+    "tone": "mixed",
+    "point": "The episode was generally considered well paced, though some commenters were confused by the rules and limits of the progression system."
+   },
+   {
+    "tone": "negative",
+    "point": "At least one commenter strongly criticized the CGI and animation quality, while still praising the underlying story."
+   }
+  ],
+  "aspects": {
+   "animation": "negative",
+   "story": "positive",
+   "pacing": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The thread title and metadata explicitly identify Season 2 and episode 8. I could retrieve the rendered Reddit thread and its visible discussion, but Reddit did not expose reliable post score or total-comment metadata in the fetched page, so the score is reported as 0 and comments_read reflects the "
+ },
+ {
+  "key": "203490:8",
+  "showId": 203490,
+  "episode": 8,
+  "title": "Uchi no Otouto-domo ga Sumimasen",
+  "airedAt": 1787324400,
+  "kind": "update",
+  "thread": {
+   "title": "Please Excuse My Younger Brothers \u2022 Uchi no Otouto-domo ga Sumimasen - Episode 8 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vul8ht/please_excuse_my_younger_brothers_uchi_no/",
+   "score": 46,
+   "num_comments": 13
+  },
+  "comments_read": 13,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the episode\u2019s humor, especially the festival performances, character role-playing, and awkward reactions to attention."
+   },
+   {
+    "tone": "positive",
+    "point": "Commenters liked the increased focus on supporting characters and were interested in seeing more development for the quieter brother."
+   },
+   {
+    "tone": "mixed",
+    "point": "Many found Ito\u2019s romantic feelings and her effort to preserve the family dynamic understandable, while debating whether the romance fits the show."
+   },
+   {
+    "tone": "negative",
+    "point": "Some viewers strongly disliked the possibility of Ito and Gen becoming a couple and felt the romantic direction conflicted with the series\u2019 familial appeal."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The title explicitly names Uchi no Otouto-domo ga Sumimasen and episode 8, with no conflicting season marker. Community sentiment was paraphrased from the target thread only; plot events were excluded. The page exposed a score of 46 and 13 readable comments, but did not provide a separate authoritat"
+ }
+]
