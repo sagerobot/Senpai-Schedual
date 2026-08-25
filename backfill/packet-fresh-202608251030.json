@@ -1,0 +1,58 @@
+[
+ {
+  "key": "197754:21",
+  "showId": 197754,
+  "episode": 21,
+  "title": "LIAR GAME",
+  "airedAt": 1787583600,
+  "kind": "update",
+  "thread": {
+   "title": "Liar Game - Episode 21 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vx6xnv/liar_game_episode_21_discussion/",
+   "score": 0,
+   "num_comments": 3
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "199111:8",
+  "showId": 199111,
+  "episode": 8,
+  "title": "Grand Blue Season 3",
+  "airedAt": 1787583600,
+  "kind": "update",
+  "thread": {
+   "title": "Grand Blue Dreaming Season 3 \u2022 Grand Blue Season 3 - Episode 8 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1vx645l/grand_blue_dreaming_season_3_grand_blue_season_3/",
+   "score": 0,
+   "num_comments": 0
+  },
+  "comments_read": 31,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many commenters found the episode extremely funny, especially the chaotic group dynamics and escalating comic punishments."
+   },
+   {
+    "tone": "positive",
+    "point": "Several enjoyed the return of familiar characters and felt the ensemble interactions were particularly entertaining."
+   },
+   {
+    "tone": "positive",
+    "point": "Some appreciated the protagonist\u2019s protective behavior toward the female members of the group."
+   },
+   {
+    "tone": "mixed",
+    "point": "A few commenters discussed the romantic character dynamics favorably, while another felt the central relationship had shown little development and criticized the fake-boyfriend setup."
+   },
+   {
+    "tone": "negative",
+    "point": "One commenter considered the English subtitle typesetting inferior in this episode."
+   }
+  ],
+  "aspects": {
+   "characters": "mixed"
+  },
+  "notes": "The title explicitly identifies Grand Blue Season 3 and episode 8. Reddit exposed the discussion and comment text, but did not expose reliable score or total-comment metadata in the retrieved page, so those fields remain 0. Spoiler-containing plot details were excluded from the paraphrased sentiment"
+ }
+]
