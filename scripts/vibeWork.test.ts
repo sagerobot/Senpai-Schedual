@@ -202,6 +202,41 @@ describe('mergeVibeEntries', () => {
     expect(result.entries['5:2']).toMatchObject({ status: 'not_found', settled: true });
   });
 
+  it('carries stored aspects forward when the new read heard none', () => {
+    // The backfill-writer blocker: an update packet with empty aspects used to
+    // wipe the stored object and trip the no-aspects-lost gate every run.
+    const existing = index(entry({ aspects: { story: 'mixed', characters: 'positive' } }));
+
+    const omitted = mergeVibeEntries(existing, [incomingFound({ kind: 'update', aspects: undefined })], NOW);
+    const merged = omitted.entries['1:1'];
+    expect(merged.status === 'found' && merged.aspects).toEqual({ story: 'mixed', characters: 'positive' });
+
+    const empty = mergeVibeEntries(existing, [incomingFound({ kind: 'update', aspects: {} })], NOW);
+    const still = empty.entries['1:1'];
+    expect(still.status === 'found' && still.aspects).toEqual({ story: 'mixed', characters: 'positive' });
+  });
+
+  it('folds aspects per dimension: the new read wins where it spoke, silence changes nothing', () => {
+    const existing = index(entry({ aspects: { animation: 'mixed', story: 'positive' } }));
+    const result = mergeVibeEntries(
+      existing,
+      [incomingFound({ kind: 'update', aspects: { story: 'mixed', pacing: 'negative' } })],
+      NOW,
+    );
+    const merged = result.entries['1:1'];
+    expect(merged.status === 'found' && merged.aspects).toEqual({
+      animation: 'mixed',
+      story: 'mixed',
+      pacing: 'negative',
+    });
+  });
+
+  it('stores no aspects field at all when neither side heard any', () => {
+    const result = mergeVibeEntries({}, [incomingFound({ aspects: {} })], NOW);
+    const merged = result.entries['1:1'];
+    expect(merged.status === 'found' && 'aspects' in merged).toBe(false);
+  });
+
   it('never deletes: a rejected item leaves the stored entry alone', () => {
     const existing = index(entry());
     const result = mergeVibeEntries(existing, [{ garbage: true }, incomingFound({ summary: 'no' })], NOW);

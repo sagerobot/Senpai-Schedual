@@ -172,6 +172,12 @@ function isFiniteInt(value: unknown): value is number {
  *    rejected entry leaves the previous value exactly where it was.
  * 3. `settled` comes from the work item's `kind`, not from the agent. Only the
  *    settle pass freezes, and the classifier is what decides a pass is one.
+ * 4. **Aspects fold, they don't replace.** An aspect's absence means "the
+ *    comments didn't say" (see `vibeAspectsSchema`), so a later read that heard
+ *    nothing about a dimension must not erase what an earlier read heard — a
+ *    dimension the new read *did* hear wins. Without this, an update pass
+ *    carrying no aspects wipes the stored ones wholesale, which is exactly the
+ *    loss the backfill writer's no-aspects-lost gate kept aborting on.
  *
  * A found entry whose `url` is not on reddit.com is repaired with the r/anime
  * search URL — the same substitution `server/routes/ai.ts` makes on Gemini
@@ -265,7 +271,17 @@ export function mergeVibeEntries(
       continue;
     }
 
-    entries[key] = parsed.data;
+    const next = parsed.data;
+    const prev = entries[key];
+    if (next.status === 'found') {
+      const folded = { ...(prev?.status === 'found' ? prev.aspects : undefined), ...next.aspects };
+      if (Object.keys(folded).length > 0) next.aspects = folded;
+      // An empty object would read as "aspects were read: none" — absence is
+      // the honest spelling of "the comments didn't say".
+      else delete next.aspects;
+    }
+
+    entries[key] = next;
     merged++;
   }
 
