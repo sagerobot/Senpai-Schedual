@@ -1,0 +1,148 @@
+[
+ {
+  "key": "183231:22",
+  "showId": 183231,
+  "episode": 22,
+  "title": "Rilakkuma",
+  "airedAt": 1787963160,
+  "kind": "update",
+  "thread": {
+   "title": "Rilakkuma - Episode 22 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1w18exm/rilakkuma_episode_22_discussion/",
+   "score": 8,
+   "num_comments": 18
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "207674:9",
+  "showId": 207674,
+  "episode": 9,
+  "title": "Ushiro no Shoumen Kamui-san",
+  "airedAt": 1787934600,
+  "kind": "update",
+  "thread": {
+   "title": "KAMUI: He's Behind You \u2022 Ushiro no Shoumen Kamui-san - Episode 9 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1w0vfsm/kamui_hes_behind_you_ushiro_no_shoumen_kamuisan/",
+   "score": 64,
+   "num_comments": 9
+  },
+  "comments_read": 7,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "The episode was widely viewed as highly entertaining and comedic."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the energetic character interactions and escalating absurdity."
+   },
+   {
+    "tone": "positive",
+    "point": "The opening received favorable comparisons to another popular action anime."
+   },
+   {
+    "tone": "positive",
+    "point": "A supporting character\u2019s bravery and willingness to help were appreciated."
+   },
+   {
+    "tone": "mixed",
+    "point": "The humor was enthusiastically received, though it centers heavily on explicit sexual comedy and may not appeal to everyone."
+   }
+  ],
+  "aspects": {
+   "story": "positive",
+   "characters": "positive"
+  },
+  "notes": "The title and page metadata explicitly identify Ushiro no Shoumen Kamui-san, episode 9. I retrieved the post score and nine total comments, and read seven substantive non-moderation comments. Plot details and source-material discussion were excluded from the sentiment summary to keep it spoiler-free"
+ },
+ {
+  "key": "209983:9",
+  "showId": 209983,
+  "episode": 9,
+  "title": "Hell Mode: Yarikomi-zuki no Gamer wa Haisettei no Isekai de Musou Suru 2nd Season",
+  "airedAt": 1787932800,
+  "kind": "update",
+  "thread": {
+   "title": "HELL MODE: The Hardcore Gamer Dominates in Another World with Garbage Balancing Season 2 \u2022 Hell Mode: Yarikomizuki no Gamer wa Hai Settei no Isekai de Musou suru Season 2 - Episode 9 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1w0vhr7/hell_mode_the_hardcore_gamer_dominates_in_another/",
+   "score": 0,
+   "num_comments": 7
+  },
+  "comments_read": 7,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the protagonist\u2019s overwhelming competence and battle-focused power fantasy appeal."
+   },
+   {
+    "tone": "positive",
+    "point": "The episode\u2019s humor, especially its wordplay and localization, received clear appreciation."
+   },
+   {
+    "tone": "positive",
+    "point": "Some viewers were enthusiastic about the escalating challenge and curious about future high-level abilities."
+   },
+   {
+    "tone": "positive",
+    "point": "A few comments playfully framed the protagonist as unusually detached from romance, suggesting amusement with his personality."
+   }
+  ],
+  "aspects": {
+   "characters": "positive",
+   "story": "positive"
+  },
+  "notes": "The title explicitly identifies Hell Mode Season 2 and episode 9. I could retrieve the title and seven visible comments, but the page did not expose a reliable score; score is reported as 0. Reactions were predominantly positive, with no clear negative or mixed evaluations in the retrieved comments."
+ },
+ {
+  "key": "203490:9",
+  "showId": 203490,
+  "episode": 9,
+  "title": "Uchi no Otouto-domo ga Sumimasen",
+  "airedAt": 1787929200,
+  "kind": "update",
+  "thread": {
+   "title": "Please Excuse My Younger Brothers \u2022 Uchi no Otouto-domo ga Sumimasen - Episode 9 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1w0vht1/please_excuse_my_younger_brothers_uchi_no/",
+   "score": 49,
+   "num_comments": 29
+  },
+  "comments_read": 28,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Viewers found the family interactions, birthday celebration, and supportive younger brothers especially sweet and charming."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the comedy, exaggerated misunderstandings, and the protagonist\u2019s amusing inability to recognize romantic implications."
+   },
+   {
+    "tone": "positive",
+    "point": "Raku received repeated praise for being perceptive, helpful, and a particularly appealing character."
+   },
+   {
+    "tone": "mixed",
+    "point": "The romantic tension was entertaining for many, but some found the central misunderstanding frustrating and felt the confession setup was delayed again."
+   },
+   {
+    "tone": "negative",
+    "point": "Some viewers considered the episode too sitcom-like or criticized the protagonist as excessively dense."
+   },
+   {
+    "tone": "negative",
+    "point": "The recurring anime explanation for characters catching colds was viewed by several commenters as implausible or tiresome."
+   },
+   {
+    "tone": "mixed",
+    "point": "One reaction suggested the series is charming but overlooked because the season is overcrowded, while another felt the romantic progression was slower than expected."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "pacing": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The title and body explicitly identify Uchi no Otouto-domo ga Sumimasen, episode 9, with no conflicting season marker. I retrieved the post metadata and visible comment text from this thread only. Plot details were excluded from the sentiment summary."
+ }
+]
