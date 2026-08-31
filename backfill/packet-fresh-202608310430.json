@@ -1,0 +1,92 @@
+[
+ {
+  "key": "188388:45",
+  "showId": 188388,
+  "episode": 45,
+  "title": "DIGIMON BEATBREAK",
+  "airedAt": 1788048000,
+  "kind": "settle",
+  "thread": {
+   "title": "Digimon Beatbreak - Episode 45 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1w25yqo/digimon_beatbreak_episode_45_discussion/",
+   "score": 0,
+   "num_comments": 6
+  },
+  "comments_read": 6,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several viewers found the episode unusually powerful and emotionally impactful."
+   },
+   {
+    "tone": "negative",
+    "point": "Multiple viewers reacted with strong distress and anger, especially toward the episode\u2019s cruel developments and an antagonist."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some appreciated the bold, consequential writing while feeling deeply unhappy about how painful the episode was."
+   },
+   {
+    "tone": "mixed",
+    "point": "Viewers were uncertain whether the story could recover satisfactorily, with some cautiously holding onto hope."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "characters": "negative"
+  },
+  "notes": "The title and episode marker clearly match Digimon Beatbreak episode 45. I could retrieve six visible comments from this r/anime thread; the page did not expose a reliable score, so score is reported as 0. Sentiment is paraphrased and spoiler-free."
+ },
+ {
+  "key": "202957:31",
+  "showId": 202957,
+  "episode": 31,
+  "title": "Meitantei Precure!",
+  "airedAt": 1788046200,
+  "kind": "settle",
+  "thread": {
+   "title": "Meitantei Precure \u2022 Star Detective Precure! - Episode 31 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1w245jh/meitantei_precure_star_detective_precure_episode/",
+   "score": 0,
+   "num_comments": 0
+  },
+  "comments_read": 11,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "The episode was widely praised as a satisfying culmination of the character-focused arc, with especially strong emotional payoff."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters considered the central character writing unusually thoughtful and well integrated with the series\u2019 themes."
+   },
+   {
+    "tone": "positive",
+    "point": "The action and visual presentation were regarded as impressively animated, with stylish effects and choreography."
+   },
+   {
+    "tone": "positive",
+    "point": "The insert song during the climactic action was enthusiastically received."
+   },
+   {
+    "tone": "mixed",
+    "point": "One commenter felt the new transformation sequence moved too quickly and hoped it would be refined."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some enthusiasm for the updated transformation performance was tempered by nostalgia for the older, more subdued version."
+   },
+   {
+    "tone": "mixed",
+    "point": "The close relationship between two characters generated excitement, though commenters differed on how to interpret its romantic implications."
+   }
+  ],
+  "aspects": {
+   "animation": "positive",
+   "story": "positive",
+   "characters": "positive",
+   "sound": "positive"
+  },
+  "notes": "The title and episode label directly identify Meitantei Precure and episode 31. I could retrieve the post and visible comments, but the page did not expose reliable score or total-comment metadata, so those fields are 0; comments_read counts the 11 substantive comment entries available in the retrie"
+ }
+]
