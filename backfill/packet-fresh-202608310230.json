@@ -1,0 +1,136 @@
+[
+ {
+  "key": "200230:9",
+  "showId": 200230,
+  "episode": 9,
+  "title": "Let's Go Kaikigumi",
+  "airedAt": 1788075000,
+  "kind": "update",
+  "thread": {
+   "title": "Let's Go Kaikigumi - Episode 9 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1w2c0o0/lets_go_kaikigumi_episode_9_discussion/",
+   "score": 34,
+   "num_comments": 15
+  },
+  "comments_read": 15,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many commenters found the episode consistently funny and enjoyable."
+   },
+   {
+    "tone": "positive",
+    "point": "The central pair\u2019s interactions were viewed as charming, especially the protagonist helping Mechako."
+   },
+   {
+    "tone": "mixed",
+    "point": "Several commenters sensed a more serious or unsettling undercurrent beneath the comedy."
+   },
+   {
+    "tone": "negative",
+    "point": "One commenter considered the episode weak because the final segment felt less humorous and more like ordinary horror."
+   },
+   {
+    "tone": "negative",
+    "point": "Another found the episode annoying and disappointing, particularly because comedic possibilities seemed underused."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "characters": "positive",
+   "sound": "mixed"
+  },
+  "notes": "The title explicitly identifies Let's Go Kaikigumi and episode 9. I retrieved the thread and 15 substantive comments; the page exposed a score of 34. Opinions are paraphrased and kept spoiler-free. Animation and pacing were not clearly discussed by several comments."
+ },
+ {
+  "key": "188388:45",
+  "showId": 188388,
+  "episode": 45,
+  "title": "DIGIMON BEATBREAK",
+  "airedAt": 1788048000,
+  "kind": "settle",
+  "thread": {
+   "title": "Digimon Beatbreak - Episode 45 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1w25yqo/digimon_beatbreak_episode_45_discussion/",
+   "score": 0,
+   "num_comments": 6
+  },
+  "comments_read": 6,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters found the episode exceptionally emotional and impactful."
+   },
+   {
+    "tone": "positive",
+    "point": "Some praised the writing for taking bold, unexpectedly harsh turns."
+   },
+   {
+    "tone": "mixed",
+    "point": "A few viewers were impressed by the intensity but also found the experience deeply distressing."
+   },
+   {
+    "tone": "negative",
+    "point": "Multiple commenters expressed strong anger and frustration about the episode's treatment of its characters."
+   },
+   {
+    "tone": "negative",
+    "point": "One commenter plainly disliked the episode, while others described it as painful and difficult to revisit."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "characters": "mixed",
+   "pacing": "negative"
+  },
+  "notes": "The title and episode marker clearly match Digimon Beatbreak episode 45. Reddit exposed six comments on the target thread; vote score was not available in the retrieved page, so score is reported as 0."
+ },
+ {
+  "key": "202957:31",
+  "showId": 202957,
+  "episode": 31,
+  "title": "Meitantei Precure!",
+  "airedAt": 1788046200,
+  "kind": "settle",
+  "thread": {
+   "title": "Meitantei Precure \u2022 Star Detective Precure! - Episode 31 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1w245jh/meitantei_precure_star_detective_precure_episode/",
+   "score": 0,
+   "num_comments": 12
+  },
+  "comments_read": 12,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "The episode and its central character writing were widely praised as exceptionally effective."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the strong emotional focus and relationship development."
+   },
+   {
+    "tone": "positive",
+    "point": "The action presentation, visual polish, and transformation effects received enthusiastic approval."
+   },
+   {
+    "tone": "positive",
+    "point": "The insert song was considered a particularly effective enhancement."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers liked the new transformation while finding it too brief and missing elements of the earlier version."
+   },
+   {
+    "tone": "mixed",
+    "point": "One discussion questioned whether the episode\u2019s relationship framing should be read as romance or close companionship."
+   }
+  ],
+  "aspects": {
+   "animation": "positive",
+   "story": "positive",
+   "characters": "positive",
+   "sound": "positive"
+  },
+  "notes": "The title and metadata explicitly identify Meitantei Precure and episode 31. Reddit exposed 12 comments, including replies; the displayed score was unavailable, so score is recorded as 0. Reactions are paraphrased and kept spoiler-free."
+ }
+]
