@@ -47,7 +47,7 @@ component classes never change per theme.
 | Hero | `hero-drops-*`, `hero-catchup-*`, `hero-text-{hi,mid,low}`, `hero-new` | §12 |
 
 Non-color namespaces: `--radius-{xs,field,control,inner,card,pill}` (§5),
-`--shadow-{e1,e2,e3,glow-sm,glow,glow-lg,glow-success}` (§6), `--font-display` (§4),
+`--shadow-{e1,e2,e3,glow-sm,glow,glow-lg,glow-success,glow-warning}` (§6), `--font-display` (§4),
 `--text-{micro,caption,label}` type steps (§4). Motion constants live in `src/lib/motion.ts` (§7).
 
 The Theme Lab is the authoritative table of per-theme values — its CSS *is* the spec, and
@@ -124,7 +124,9 @@ Whole shadow strings are theme variables — that is the full-skin mechanism for
 - `e1` chips/cards · `e2` raised/popover · `e3` modal/hero.
 - `glow-sm / glow / glow-lg` use **one** glow color (accent-500 tier) — retiring the three
   different purples the audit found doing the same job — plus `glow-success` for
-  graduation/binge moments.
+  graduation/binge moments and `glow-warning` for the pre-air runway (§16). The two
+  semantic glows exist because those surfaces are *not* accent-toned; nothing else may
+  add a third without the same justification.
 - Dark themes: glows are glows. **Daylight redefines the same tokens as conventional drop
   shadows.** Void leans on edges (drop shadows are invisible on black). Sakura glows soft
   rose ("petal glow"). Synthwave cranks the radii and alpha.
@@ -284,3 +286,18 @@ Found live in the codebase by the audit; each is now a review flag:
 - `focus:outline-none` with no replacement → §10.
 - A bare centered spinner as a loading state → skeletons shaped like content.
 - Failure rendered as emptiness → branch on the error, always.
+
+## 16. Amber is the time colour
+
+Anticipation — a countdown, an airing you cannot act on yet — is the `warning-*` ramp, not
+accent. This predates the token contract: `AnimeCard`'s countdowns and the Up Next deck's
+`urgency` reason chip were already amber, and "On the Runway" (`AiringRunway`) inherits that
+rather than inventing a fourth tone.
+
+Amber here means *imminent*, never *wrong*. Status still spells itself out — `Ready`,
+`one behind`, `Ep. 9 next` — so nothing rests on the hue (§3, §11).
+
+The runway strip is **not** a hero surface. §12 lists three protected heroes and this is not
+one: it borrows the `hero-drops-*` ground so it reads as the same family as the grid beneath
+it, and takes nothing else. It is also the one surface that is allowed to look unlike the
+rest of the app, because it exists for at most an hour a night and then unmounts itself.

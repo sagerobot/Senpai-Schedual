@@ -17,3 +17,26 @@ export function formatTimeUntil(seconds: number): string {
   }
   return `${hours}h ${minutes}m`;
 }
+
+/**
+ * The last hour, to the second — `47:12`, `0:30`. Sibling of formatTimeUntil
+ * rather than a rewrite of it: that one bottoms out at "0h 47m", which is the
+ * right shape for a card three days out and the wrong one for a countdown you
+ * are watching land.
+ */
+export function formatCountdown(seconds: number): string {
+  const total = Math.max(0, Math.floor(seconds));
+  const minutes = Math.floor(total / 60);
+  return `${minutes}:${String(total % 60).padStart(2, '0')}`;
+}
+
+/**
+ * The same span said out loud, for screen readers. Minute resolution on
+ * purpose: the visible clock ticks every second, and a label that changed
+ * with it would be unusable.
+ */
+export function describeCountdown(seconds: number): string {
+  const minutes = Math.max(0, Math.round(seconds / 60));
+  if (minutes === 0) return 'in less than a minute';
+  return `in ${minutes} minute${minutes === 1 ? '' : 's'}`;
+}

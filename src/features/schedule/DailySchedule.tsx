@@ -1,4 +1,5 @@
 import { AnimeMedia, EpisodeLog } from '../../types';
+import { AiringRunway } from '../../components/AiringRunway';
 import { AnimeCard } from '../../components/AnimeCard';
 import { SeriesTitle } from '../../components/SeriesTitle';
 import { UpNextDeck } from '../../components/UpNextDeck';
@@ -163,6 +164,17 @@ export function DailySchedule({ animeList, favorites, stacking = NO_STACKING, on
           outline still leads with the view's one h1 (docs §11). */}
       <h1 className="sr-only">Daily Schedule</h1>
       <WelcomeHero />
+
+      {/* The hour before the drop. Its own section rather than a fifth card
+          class, so the drops grid — tray spans, fill maths, merged deck row —
+          is untouched. It unmounts itself when nothing is within the hour. */}
+      <AiringRunway
+        animeList={dropSource}
+        favorites={favorites}
+        stacking={stacking}
+        logs={logs}
+        onAnimeSelect={onAnimeSelect}
+      />
 
       <CheckInFeed
         animeList={dropSource}
