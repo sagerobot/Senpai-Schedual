@@ -37,6 +37,12 @@ export interface CustomWatchSource {
 export interface UiPrefs {
   includeMovies: boolean;
   selectedSources: string[];
+  /**
+   * Schedule's Mine / Everything segment. Absent = Everything, so the tab
+   * opens as a season browser; the first flip to Mine persists forever.
+   * "Mine" is watching + stacking — both are shows the user has claimed.
+   */
+  mineOnly?: boolean;
   /** First-run hero on the schedule, closed by hand. Absent = never dismissed. */
   welcomeDismissed?: boolean;
   /** Absent = the user never added one. */

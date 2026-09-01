@@ -118,3 +118,107 @@ describe('DailySchedule standalone deck after a skip', () => {
     expect(container.textContent).not.toContain('Up next for you');
   });
 });
+
+/**
+ * The Mine / Everything segment: "mine" is watching + stacking, and the choice
+ * is persisted so the schedule opens the way the user left it.
+ */
+describe('DailySchedule Mine / Everything', () => {
+  let container: HTMLDivElement;
+  let root: Root;
+
+  /** Episode 6 airs in two days — day-grid material, never a drop. */
+  const upcomingShow = (id: number): AnimeMedia => ({
+    ...justAiredShow(id),
+    nextAiringEpisode: { airingAt: NOW + 2 * 24 * 3600, timeUntilAiring: 2 * 24 * 3600, episode: 6 },
+  });
+
+  const stackingEntry = (showId: number): LibraryEntry => ({
+    showId,
+    idMal: showId,
+    status: 'stacking',
+    showScore: null,
+    source: 'manual',
+  });
+
+  beforeEach(() => {
+    (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+    resetAdmittedDrops();
+    resetSkippedTonight();
+    useUserData.setState({
+      library: { 2: watchingEntry(2), 3: stackingEntry(3) },
+      logs: {},
+      dropSkips: {},
+      uiPrefs: { includeMovies: false, selectedSources: [] },
+    });
+    container = document.createElement('div');
+    document.body.appendChild(container);
+    root = createRoot(container);
+  });
+
+  afterEach(async () => {
+    await act(async () => root.unmount());
+    container.remove();
+    vi.restoreAllMocks();
+  });
+
+  async function render(ui: ReactElement) {
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    await act(async () => {
+      root.render(<QueryClientProvider client={client}>{ui}</QueryClientProvider>);
+    });
+  }
+
+  it('keeps the untracked show until Mine is picked, then remembers the pick', async () => {
+    await render(
+      <DailySchedule
+        animeList={[upcomingShow(2), upcomingShow(3), upcomingShow(4)]}
+        favorites={[2]}
+        stacking={[3]}
+        onAnimeSelect={() => {}}
+        logs={[]}
+        onLog={() => {}}
+      />,
+    );
+
+    // Everything is the default: the tab still opens as a season browser.
+    expect(useUserData.getState().uiPrefs.mineOnly ?? false).toBe(false);
+    expect(container.textContent).toContain('Show 4');
+
+    const mine = [...container.querySelectorAll('button')].find((b) =>
+      b.textContent?.startsWith('Mine'),
+    );
+    expect(mine).toBeDefined();
+    await act(async () => {
+      mine!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    // Watching and stacking both survive; the untracked show is gone.
+    expect(container.textContent).toContain('Show 2');
+    expect(container.textContent).toContain('Show 3');
+    expect(container.textContent).not.toContain('Show 4');
+    expect(useUserData.getState().uiPrefs.mineOnly).toBe(true);
+  });
+
+  it('offers the way out when Mine empties the week', async () => {
+    await render(
+      <DailySchedule
+        animeList={[upcomingShow(4)]}
+        favorites={[]}
+        stacking={[]}
+        onAnimeSelect={() => {}}
+        logs={[]}
+        onLog={() => {}}
+      />,
+    );
+
+    const mine = [...container.querySelectorAll('button')].find((b) =>
+      b.textContent?.startsWith('Mine'),
+    );
+    await act(async () => {
+      mine!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    expect(container.textContent).toContain('None of your shows have an episode this week');
+  });
+});

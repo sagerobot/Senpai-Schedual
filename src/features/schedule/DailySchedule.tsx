@@ -4,7 +4,7 @@ import { AnimeCard } from '../../components/AnimeCard';
 import { SeriesTitle } from '../../components/SeriesTitle';
 import { UpNextDeck } from '../../components/UpNextDeck';
 import { WelcomeHero } from '../../components/WelcomeHero';
-import { Search, SearchX, Film, Loader2 } from 'lucide-react';
+import { Search, SearchX, Film, Loader2, X } from 'lucide-react';
 import { useState, useMemo, useCallback } from 'react';
 import { toast } from 'sonner';
 import { cn } from '../../lib/utils';
@@ -12,6 +12,8 @@ import { displayTitle } from '../../lib/displayTitle';
 import { latestAiredEpisode } from '../../lib/aired';
 import { DROP_WINDOW_SEC } from '../../lib/freshness';
 import { CheckInFeed, computeDrops, wouldBeDrop } from './CheckInFeed';
+import { WeekRuler } from './WeekRuler';
+import { summarizeWeek } from './weekSummary';
 import { STREAMING_SITES } from '../../lib/watchLinks';
 import { useUpNext } from '../../hooks/useUpNext';
 import { useUserData } from '../../stores/userData';
@@ -34,6 +36,31 @@ const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 
 // Stable empty default — an inline `= []` would re-trigger every downstream
 // memo (including CheckInFeed's clock-reading drops memo) on each render.
 const NO_STACKING: number[] = [];
+
+/**
+ * The hit-area idiom from design-language §5: the filter chips stay visually
+ * compact while a pseudo-element carries the 44px touch floor. Same trick as
+ * UpNextDeck's and VibeChip's controls.
+ */
+const TOUCH_EXTEND =
+  "relative after:absolute after:inset-x-0 after:top-1/2 after:h-11 after:-translate-y-1/2 after:content-['']";
+
+function matchesTitle(anime: AnimeMedia, term: string): boolean {
+  return (
+    anime.title.userPreferred?.toLowerCase().includes(term) === true ||
+    anime.title.english?.toLowerCase().includes(term) === true
+  );
+}
+
+/** Every streaming site this show can be watched on, deduped — a show with two
+ * Crunchyroll links must still count once against the chip's tally. */
+function sitesFor(anime: AnimeMedia): Set<string> {
+  const sites = new Set<string>();
+  for (const link of anime.externalLinks ?? []) {
+    if (STREAMING_SITES.includes(link.site)) sites.add(link.site);
+  }
+  return sites;
+}
 
 export function DailySchedule({ animeList, favorites, stacking = NO_STACKING, onAnimeSelect, logs, onLog, isStreaming = false }: DailyScheduleProps) {
   const [search, setSearch] = useState('');
@@ -97,38 +124,64 @@ export function DailySchedule({ animeList, favorites, stacking = NO_STACKING, on
   // Persisted state (userData store uiPrefs)
   const includeMovies = useUserData(s => s.uiPrefs.includeMovies);
   const selectedSources = useUserData(s => s.uiPrefs.selectedSources);
+  const mineOnly = useUserData(s => s.uiPrefs.mineOnly ?? false);
   const setUiPrefs = useUserData(s => s.setUiPrefs);
+
+  /** "Mine" is watching + stacking: both are shows the user has claimed. */
+  const mineIds = useMemo(() => new Set([...favorites, ...stacking]), [favorites, stacking]);
+
+  /**
+   * Everything the schedule *could* show. Movies shape this baseline rather
+   * than filtering it — the toggle decides what counts as being on your
+   * schedule at all, which is what keeps the Mine/Everything tallies beside it
+   * comparable.
+   */
+  const baseList = useMemo(() => {
+    const airing = animeList.filter(a => a.nextAiringEpisode);
+    return includeMovies ? airing : airing.filter(a => a.format !== 'MOVIE');
+  }, [animeList, includeMovies]);
+
+  const mineCount = useMemo(
+    () => baseList.reduce((n, a) => (mineIds.has(a.id) ? n + 1 : n), 0),
+    [baseList, mineIds],
+  );
+
+  const term = search.trim().toLowerCase();
+
+  /**
+   * Every filter *except* the source chips. Source counts are computed against
+   * it so a chip's number is exactly what clicking it yields, and the schedule
+   * below is this list with the chip selection applied.
+   */
+  const sourceScope = useMemo(() => {
+    let list = baseList;
+    if (mineOnly) list = list.filter(a => mineIds.has(a.id));
+    if (term) list = list.filter(a => matchesTitle(a, term));
+    return list;
+  }, [baseList, mineOnly, mineIds, term]);
+
+  const sourceCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const anime of sourceScope) {
+      for (const site of sitesFor(anime)) counts.set(site, (counts.get(site) ?? 0) + 1);
+    }
+    return counts;
+  }, [sourceScope]);
 
   const availableSources = useMemo(() => {
     const sources = new Set<string>();
-    animeList.forEach(anime => {
-      anime.externalLinks?.forEach(link => {
-        if (STREAMING_SITES.includes(link.site)) {
-          sources.add(link.site);
-        }
-      });
-    });
+    for (const anime of baseList) {
+      for (const site of sitesFor(anime)) sources.add(site);
+    }
     return Array.from(sources).sort();
-  }, [animeList]);
+  }, [baseList]);
 
   const schedule = useMemo(() => {
-    // Only include currently airing shows with known next episode
-    let filtered = animeList.filter(a => a.nextAiringEpisode);
-    
-    if (!includeMovies) {
-      filtered = filtered.filter(a => a.format !== 'MOVIE');
-    }
-    
-    if (selectedSources.length > 0) {
-      filtered = filtered.filter(a => 
-        a.externalLinks?.some(link => selectedSources.includes(link.site))
-      );
-    }
+    let filtered = sourceScope;
 
-    if (search) {
+    if (selectedSources.length > 0) {
       filtered = filtered.filter(a =>
-        a.title.userPreferred?.toLowerCase().includes(search.toLowerCase()) ||
-        a.title.english?.toLowerCase().includes(search.toLowerCase())
+        a.externalLinks?.some(link => selectedSources.includes(link.site))
       );
     }
 
@@ -150,21 +203,38 @@ export function DailySchedule({ animeList, favorites, stacking = NO_STACKING, on
     });
 
     return grouped;
-  }, [animeList, search, includeMovies, selectedSources]);
+  }, [sourceScope, selectedSources]);
 
   // Order days starting from today
   const todayIndex = new Date().getDay();
-  const orderedDays = [
-    ...DAYS.slice(todayIndex),
-    ...DAYS.slice(0, todayIndex)
-  ];
+  const orderedDays = useMemo(
+    () => [...DAYS.slice(todayIndex), ...DAYS.slice(0, todayIndex)],
+    [todayIndex],
+  );
+
+  // The ruler describes the *visible* schedule, so it can never disagree with
+  // the grid below it — a filter that empties a day empties its column too.
+  const weekDays = useMemo(
+    () => summarizeWeek(schedule, orderedDays, favorites, stacking, logs, new Date()),
+    [schedule, orderedDays, favorites, stacking, logs],
+  );
+
+  const jumpToDay = useCallback((day: string) => {
+    const target = document.getElementById(`schedule-day-${day}`);
+    if (!target || typeof target.scrollIntoView !== 'function') return;
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+    target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  }, []);
 
   const visibleCount = DAYS.reduce((n, day) => n + schedule[day].length, 0);
-  const hasActiveFilters = search.trim().length > 0 || selectedSources.length > 0;
+  const todayCount = schedule[DAYS[todayIndex]].length;
+  // includeMovies is deliberately absent: it only ever *adds* shows, so it can
+  // never be the reason the grid came back empty.
+  const hasActiveFilters = term.length > 0 || selectedSources.length > 0 || mineOnly;
 
   const clearFilters = () => {
     setSearch('');
-    setUiPrefs({ selectedSources: [], includeMovies: false });
+    setUiPrefs({ selectedSources: [], includeMovies: false, mineOnly: false });
   };
 
   return (
@@ -224,72 +294,151 @@ export function DailySchedule({ animeList, favorites, stacking = NO_STACKING, on
         </div>
       )}
 
-      <div className="flex flex-col 2xl:flex-row gap-6 items-start 2xl:items-center justify-between mb-8 bg-hero-drops-deep/50 border border-hero-drops-edge/60 p-4 sm:p-5 rounded-card shadow-e1 backdrop-blur-sm">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight text-fg flex items-center gap-2">
-            Daily Schedule
-          </h2>
-          <p className="text-fg-muted mt-1 text-sm">Upcoming episodes in your local timezone</p>
-          {isStreaming && (
-            <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-edge bg-surface-1 px-2.5 py-1 text-caption font-medium text-fg-muted">
-              <Loader2 className="h-3 w-3 animate-spin text-accent-400" />
-              Loading more shows…
-            </span>
-          )}
-        </div>
-        
-        <div className="flex flex-col sm:flex-row flex-wrap items-center gap-3 sm:gap-4 w-full 2xl:w-auto">
-          {/* Quick Filters */}
-          <div className="flex items-center bg-hero-drops-bg border border-hero-drops-edge rounded-inner p-1 shrink-0 w-full sm:w-auto justify-center sm:justify-start">
-            <button
-              onClick={() => setUiPrefs({ includeMovies: !includeMovies })}
-              className={cn("px-4 py-1.5 rounded-field text-xs font-semibold transition-all flex items-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring", includeMovies ? "bg-accent-600 text-fg-inverse shadow-e1" : "text-fg-muted hover:text-fg-secondary")}
-            >
-              <Film className="w-3.5 h-3.5" />
-              Movies
-            </button>
-          </div>
-          
-          {/* Platform Filters */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide max-w-full sm:max-w-[400px] w-full sm:w-auto">
-            {availableSources.map(source => {
-              const isSelected = selectedSources.includes(source);
-              return (
-                <button
-                  key={source}
-                  onClick={() => {
-                    setUiPrefs({
-                      selectedSources: isSelected
-                        ? selectedSources.filter(s => s !== source)
-                        : [...selectedSources, source],
-                    });
-                  }}
-                  className={cn(
-                    "whitespace-nowrap px-3 py-1.5 rounded-field text-caption font-bold border transition-all flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                    isSelected
-                      ? "bg-hero-new/15 border-hero-new/40 text-hero-new shadow-glow-sm"
-                      : "bg-hero-drops-bg border-hero-drops-edge text-fg-faint hover:text-fg-secondary hover:border-edge-strong hover:bg-hero-drops-well"
-                  )}
-                >
-                  {source}
-                </button>
-              );
-            })}
+      <section
+        aria-labelledby="schedule-heading"
+        className="mb-8 space-y-4 rounded-card border border-hero-drops-edge/60 bg-hero-drops-deep/50 p-4 shadow-e1 backdrop-blur-sm sm:p-5"
+      >
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0">
+            <h2 id="schedule-heading" className="text-2xl font-bold tracking-tight text-fg">
+              Daily Schedule
+            </h2>
+            <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-fg-muted">
+              <span className="tabular-nums text-fg-secondary">
+                {visibleCount}
+                {visibleCount !== baseList.length && (
+                  <span className="text-fg-faint"> of {baseList.length}</span>
+                )}
+              </span>
+              <span>episode{visibleCount === 1 ? '' : 's'} this week</span>
+              <span aria-hidden="true" className="h-1 w-1 rounded-full bg-edge-strong" />
+              <span className="tabular-nums text-fg-secondary">{todayCount}</span>
+              <span>today</span>
+              <span aria-hidden="true" className="h-1 w-1 rounded-full bg-edge-strong" />
+              <span className="text-fg-faint">times in your timezone</span>
+            </p>
+            {isStreaming && (
+              <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-edge bg-surface-1 px-2.5 py-1 text-caption font-medium text-fg-muted">
+                <Loader2 className="h-3 w-3 animate-spin text-accent-400" />
+                Loading more shows…
+              </span>
+            )}
           </div>
 
-          {/* Search */}
-          <div className="relative flex-1 w-full sm:min-w-[200px] 2xl:max-w-[260px]">
+          <div className="relative w-full lg:w-[260px] lg:shrink-0">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg-faint" />
             <input
               type="text"
               placeholder="Search schedule..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full rounded-inner border border-hero-drops-edge bg-hero-drops-bg py-2 pl-9 pr-4 text-sm text-fg placeholder-fg-faint focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-ring/40 transition-all"
+              className="h-11 w-full rounded-inner border border-hero-drops-edge bg-hero-drops-bg pl-9 pr-4 text-sm text-fg placeholder-fg-faint transition-colors focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-ring/40"
             />
           </div>
         </div>
-      </div>
+
+        {/* One wrapping row. Nothing here scrolls sideways or gets clipped:
+            a narrow window buys another line, never a hidden chip. */}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-1 rounded-inner border border-hero-drops-edge bg-hero-drops-bg p-1">
+            {([
+              { mine: true, label: 'Mine', count: mineCount },
+              { mine: false, label: 'Everything', count: baseList.length },
+            ] as const).map(seg => (
+              <button
+                key={seg.label}
+                type="button"
+                aria-pressed={mineOnly === seg.mine}
+                onClick={() => setUiPrefs({ mineOnly: seg.mine })}
+                className={cn(
+                  'flex h-9 items-center gap-1.5 rounded-field px-3.5 text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                  TOUCH_EXTEND,
+                  mineOnly === seg.mine
+                    ? 'bg-accent-600 text-fg-inverse shadow-e1'
+                    : 'text-fg-muted hover:text-fg-secondary',
+                )}
+              >
+                {seg.label}
+                <span className={cn('text-micro tabular-nums', mineOnly === seg.mine ? 'opacity-75' : 'text-fg-faint')}>
+                  {seg.count}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center rounded-inner border border-hero-drops-edge bg-hero-drops-bg p-1">
+            <button
+              type="button"
+              aria-pressed={includeMovies}
+              onClick={() => setUiPrefs({ includeMovies: !includeMovies })}
+              className={cn(
+                'flex h-9 items-center gap-1.5 rounded-field px-3.5 text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                TOUCH_EXTEND,
+                includeMovies
+                  ? 'bg-accent-600 text-fg-inverse shadow-e1'
+                  : 'text-fg-muted hover:text-fg-secondary',
+              )}
+            >
+              <Film className="h-3.5 w-3.5" />
+              Movies
+            </button>
+          </div>
+
+          {availableSources.length > 0 && (
+            <span aria-hidden="true" className="mx-1 hidden h-6 w-px bg-hero-drops-edge sm:block" />
+          )}
+
+          {availableSources.map(source => {
+            const isSelected = selectedSources.includes(source);
+            const count = sourceCounts.get(source) ?? 0;
+            return (
+              <button
+                key={source}
+                type="button"
+                aria-pressed={isSelected}
+                onClick={() => {
+                  setUiPrefs({
+                    selectedSources: isSelected
+                      ? selectedSources.filter(s => s !== source)
+                      : [...selectedSources, source],
+                  });
+                }}
+                className={cn(
+                  'flex items-center gap-1.5 whitespace-nowrap rounded-field border px-3 py-1.5 text-caption font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                  TOUCH_EXTEND,
+                  isSelected
+                    ? 'border-hero-new/40 bg-hero-new/15 text-hero-new shadow-glow-sm'
+                    : 'border-hero-drops-edge bg-hero-drops-bg text-fg-faint hover:border-edge-strong hover:bg-hero-drops-well hover:text-fg-secondary',
+                  // Nothing behind this chip right now — still clickable, just
+                  // not worth a click.
+                  !isSelected && count === 0 && 'opacity-50',
+                )}
+              >
+                {source}
+                <span className={cn('text-micro tabular-nums font-medium', isSelected ? 'opacity-75' : 'opacity-70')}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={clearFilters}
+              className={cn(
+                'flex items-center gap-1.5 whitespace-nowrap rounded-field border border-dashed border-edge-strong px-3 py-1.5 text-caption font-semibold text-fg-muted transition-colors hover:border-edge-strong hover:text-fg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                TOUCH_EXTEND,
+              )}
+            >
+              <X className="h-3 w-3" />
+              Clear
+            </button>
+          )}
+        </div>
+
+        <WeekRuler days={weekDays} onJump={jumpToDay} />
+      </section>
 
       {visibleCount === 0 && (
         <div className="flex flex-col items-center justify-center rounded-card border border-dashed border-edge bg-surface-0 py-20 text-center">
@@ -297,7 +446,11 @@ export function DailySchedule({ animeList, favorites, stacking = NO_STACKING, on
           <p className="text-fg-secondary font-medium">No shows match</p>
           {hasActiveFilters ? (
             <>
-              <p className="mt-1 text-sm text-fg-faint">Your search and platform filters hid everything airing this week.</p>
+              <p className="mt-1 text-sm text-fg-faint">
+                {mineOnly && selectedSources.length === 0 && term.length === 0
+                  ? "None of your shows have an episode this week — switch to Everything to see what's airing."
+                  : 'Your filters hid everything airing this week.'}
+              </p>
               <Button variant="primary" size="md" onClick={clearFilters} className="mt-4">
                 Clear filters
               </Button>
@@ -314,7 +467,13 @@ export function DailySchedule({ animeList, favorites, stacking = NO_STACKING, on
           if (shows.length === 0) return null;
 
           return (
-            <div key={day} className="space-y-4">
+            // scroll-mt clears the sticky mobile header the ruler's jump would
+            // otherwise park this heading behind.
+            <div
+              key={day}
+              id={`schedule-day-${day}`}
+              className="scroll-mt-20 space-y-4 md:scroll-mt-6"
+            >
               <div className="flex items-center space-x-3">
                 <h3 className="text-xl font-bold text-fg">
                   {day === DAYS[todayIndex] ? 'Today' : day}
