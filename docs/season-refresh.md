@@ -184,12 +184,21 @@ were prose in this document until the build moved to a runner with no judgement.
 The reasoning did not change:
 
 A bad bundle is worse than no bundle, because the client trusts a bundle that
-parses. The ±30% show-count gate catches a half-fetched season — AniList
-paginating short, or a mid-run rate limit the script's retries did not absorb.
-The `generatedAt` gate catches committing the same file twice or resurrecting an
-old one over a newer one. The summary gate catches a broken `--prev` path, which
-would otherwise silently discard every summary in the season and put all of them
-back on the work list, every run, forever.
+parses. The show-count gate catches a half-fetched season — AniList paginating
+short, or a mid-run rate limit the script's retries did not absorb — by refusing
+a bundle that lost more than 30% of the previous one's shows. It is deliberately
+lopsided: growth is allowed up to a tripling, because growth is what a season
+rollover looks like and what recovery from a truncated baseline looks like. It
+used to be a symmetric ±30%, and in August 2026 that ratcheted the baseline down
+in two sub-tolerance steps (242 → 181 → 137) and then refused every complete
+244-show build for three weeks as an "implausible jump", while committing the
+truncated ones. The truncation itself is closed off separately: both walks now
+follow up every full page regardless of AniList's `hasNextPage`, which
+undercounts (`src/api/anilist/pagination.ts`). The `generatedAt` gate catches
+committing the same file twice or resurrecting an old one over a newer one. The
+summary gate catches a broken `--prev` path, which would otherwise silently
+discard every summary in the season and put all of them back on the work list,
+every run, forever.
 
 One gate is newer than the prose: the bundle is parsed with the same schema the
 **client** uses, and a bundle that loses shows in that parse is blocked. The
@@ -275,13 +284,14 @@ experience, and it is the one that has to keep working anyway.
 | Symptom | Cause | What to do |
 | --- | --- | --- |
 | `/api/season` 404s in production | `SEASON_BUNDLE_URL` unset, or no bundle has ever loaded | Check the env var, then check the `data` branch has `season.json` |
-| Issue open: *Season bundle refresh blocked* | A sanity gate refused the build | The reason is in the issue body; the branch is untouched and the app is fine. Close the issue once a run goes green |
+| Issue open: *Season bundle refresh blocked* | A sanity gate refused the build | The reason is in the issue body — or in its latest comment, which the Action adds when a *different* gate trips while the issue is still open. The branch is untouched and the app is fine. Close the issue once a run goes green |
+| Gate: `show count grew …` | The bundle on the branch is the wrong size — truncated by an earlier short fetch, or the query changed | If the new count is the honest one, raise the baseline by hand: `npm run data:build -- --prev <branch season.json> --out season.json --emit-missing missing.json` locally and commit both to `data`. Do not delete `season.json` to get a first-run pass — the summaries live in it |
 | The Action is red but no issue was opened | AniList was down or rate-limiting, so the build never reached the gates | Nothing. The next run picks it up. Look into it if several consecutive runs fail |
 | `missing.json` never empties | The routine is not running, or is skipping shows it cannot honestly summarize | Check the routine's history first; a small permanent residue of description-less shows is normal |
 | The routine reports "the Action has not had a successful run yet" | No `missing.json` on the branch | Run the workflow by hand from the Actions tab |
 | Server log: `bundle host responded 404` | The `data` branch or file does not exist | Run the workflow once by hand |
 | Server log: `bundle host responded 401/403` | Private repo without a valid token | Set `SEASON_BUNDLE_TOKEN`, or make the repo public |
-| Client console: `bundle from … is stale` | No successful refresh in over 24h | Check the workflow's run history, then the routine's |
+| Client console: `bundle from … is stale` | No successful refresh in over 24h | Check the workflow's run history, then the routine's. Without `gh`, the public API works unauthenticated: `…/actions/workflows/season-data.yml/runs` for conclusions, `…/actions/runs/<id>/jobs` for the failing step; run logs need a token, so reproduce the gate locally instead (`data:build` against the branch's `season.json`, then `check-gates`) |
 | Client console: `bundle failed validation` | The committed file is truncated or from an incompatible build | Revert the `data` branch to the previous commit; the client is already on the live path |
 | Schedule is slow again | Any of the above | All of them degrade to the live path — the app is correct, just not accelerated |
 | Both schedules stopped silently | GitHub disables `schedule:` triggers after 60 days without a push to the default branch | Push anything to `main`, or re-enable the workflows in the Actions tab |

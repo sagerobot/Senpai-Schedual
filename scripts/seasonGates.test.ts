@@ -47,23 +47,34 @@ describe('checkSeasonGates', () => {
   describe('show count', () => {
     const prev = facts();
 
-    it('allows drift inside ±30%', () => {
-      const ids = (n: number) => Array.from({ length: n }, (_, i) => i + 1);
+    const ids = (n: number) => Array.from({ length: n }, (_, i) => i + 1);
+
+    it('allows a drop inside 30% and any growth short of tripling', () => {
       expect(checkSeasonGates(later(prev, { showIds: ids(70) }), prev).ok).toBe(true);
       expect(checkSeasonGates(later(prev, { showIds: ids(130) }), prev).ok).toBe(true);
+      expect(checkSeasonGates(later(prev, { showIds: ids(300) }), prev).ok).toBe(true);
     });
 
     it('blocks a half-fetched season', () => {
-      const half = later(prev, { showIds: Array.from({ length: 50 }, (_, i) => i + 1) });
-      const result = checkSeasonGates(half, prev);
+      const result = checkSeasonGates(later(prev, { showIds: ids(50) }), prev);
       expect(result.ok).toBe(false);
-      expect(result.reason).toContain('show count moved -50.0% (100 -> 50)');
+      expect(result.reason).toContain('show count fell 50.0% (100 -> 50)');
       expect(result.stats.showDrift).toBeCloseTo(-0.5);
     });
 
-    it('blocks an implausible jump upward too', () => {
-      const doubled = later(prev, { showIds: Array.from({ length: 200 }, (_, i) => i + 1) });
-      expect(checkSeasonGates(doubled, prev).reason).toContain('100 -> 200');
+    it('lets a complete build replace a truncated baseline', () => {
+      // August 2026: the branch held 138 shows because AniList had paginated
+      // short; the honest fetch was 244. A symmetric gate refused it for weeks.
+      const truncated = facts({ showIds: ids(138), summaryIds: ids(130) });
+      const result = checkSeasonGates(later(truncated, { showIds: ids(244), summaryIds: ids(130) }), truncated);
+      expect(result.ok).toBe(true);
+      expect(result.stats.showDrift).toBeCloseTo(0.768, 2);
+    });
+
+    it('still trips on a runaway query', () => {
+      const result = checkSeasonGates(later(prev, { showIds: ids(350) }), prev);
+      expect(result.ok).toBe(false);
+      expect(result.reason).toContain('show count grew 250.0% (100 -> 350)');
     });
 
     it('has no opinion when the previous bundle had no shows', () => {

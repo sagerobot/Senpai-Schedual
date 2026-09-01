@@ -140,6 +140,14 @@ jobs:
           } > "$RUNNER_TEMP/issue-body.md"
 
           # One issue, not one per cycle: a broken build stays broken for hours.
+          # But an issue left open across incidents must not hide the next one:
+          # for three weeks in August 2026 an issue about a show-count *drop*
+          # sat open while every run was being refused for a show-count *rise*,
+          # and the new reason lived only in the run logs. So when the gate that
+          # tripped is not the one the issue last reported, the reason goes on
+          # as a comment. Digits are ignored for that comparison — the same gate
+          # tripping with a count that drifts by one is still one problem.
+          #
           # `gh issue list` rather than `--search`, because the search index lags
           # by enough to open a second issue before the first is indexed.
           #
@@ -147,15 +155,24 @@ jobs:
           # issue must not become the failure this job reports. The gate is.
           (
             set +e
-            OPEN=$(gh issue list --state open --limit 100 --json title \
-              | jq --arg title "$TITLE" '[.[] | select(.title == $title)] | length')
-            if [ "$OPEN" = "0" ]; then
-              gh issue create --title "$TITLE" --body-file "$RUNNER_TEMP/issue-body.md"
-            elif [ -z "$OPEN" ]; then
+            if ! LIST=$(gh issue list --state open --limit 100 --json number,title); then
               echo "Could not list issues, so not filing one blindly — a duplicate every"
               echo "8 hours would be worse than none. The red run is the signal either way."
+              exit 0
+            fi
+            NUMBER=$(jq -r --arg title "$TITLE" '[.[] | select(.title == $title)][0].number // empty' <<< "$LIST")
+            if [ -z "$NUMBER" ]; then
+              gh issue create --title "$TITLE" --body-file "$RUNNER_TEMP/issue-body.md"
+              exit 0
+            fi
+            FINGERPRINT=$(tail -n 1 "$RUNNER_TEMP/gate-error.txt" | tr -d '0-9.%')
+            REPORTED=$(gh issue view "$NUMBER" --json body,comments \
+              --jq '([.body] + [.comments[].body]) | last' | tr -d '0-9.%')
+            if [[ "$REPORTED" == *"$FINGERPRINT"* ]]; then
+              echo "Issue #$NUMBER already reports this gate; not commenting again."
             else
-              echo "An issue titled \"$TITLE\" is already open; not opening another."
+              echo "Issue #$NUMBER is open for a different gate; adding this run's reason as a comment."
+              gh issue comment "$NUMBER" --body-file "$RUNNER_TEMP/issue-body.md"
             fi
           ) || echo "Could not file an issue — the gate failure above is the real problem."
 

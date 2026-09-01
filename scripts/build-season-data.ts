@@ -26,6 +26,7 @@ import { resolve } from 'node:path';
 import { z } from 'zod';
 import { anilistRequest } from '../src/api/anilist/client';
 import { MEDIA_CORE, MEDIA_FIELDS_FULL } from '../src/api/anilist/fragments';
+import { hasMorePages } from '../src/api/anilist/pagination';
 import { MalResolvedMediaSchema, MediaSchema, type AnimeMedia } from '../src/api/anilist/schemas';
 import {
   seasonBundleSchema,
@@ -124,7 +125,9 @@ async function walk(query: string, variables: Record<string, unknown>, into: Map
   for (let page = 1; page <= MAX_PAGES; page++) {
     const data = await request(query, { ...variables, page }, MediaPageSchema);
     for (const media of data.Page.media) into.set(media.id, media);
-    if (!data.Page.pageInfo?.hasNextPage) return;
+    // Not `hasNextPage` alone: AniList's flag undercounts, and a walk that
+    // believed it shipped three weeks of half-size bundles (see pagination.ts).
+    if (!hasMorePages(data.Page.pageInfo, data.Page.media.length, PER_PAGE)) return;
     if (page === MAX_PAGES) {
       console.warn(`[data] pagination capped at ${MAX_PAGES} pages; some shows were not fetched.`);
     }

@@ -13,8 +13,20 @@
  * No Node imports, no side effects, no clock reads.
  */
 
-/** How far the show count may drift from the previous bundle, either way. */
-export const SHOW_COUNT_TOLERANCE = 0.3;
+/** How far the show count may fall from the previous bundle before the build is refused. */
+export const SHOW_SHRINK_TOLERANCE = 0.3;
+/**
+ * How far it may grow. Deliberately lopsided: every failure this gate exists
+ * for — a short page, a mid-run rate limit — makes a bundle *smaller*, while
+ * growth is what a season rollover looks like (the new line-up lands on top of
+ * everything still releasing) and what recovery from a truncated baseline
+ * looks like. Through August 2026 a symmetric ±30% gate ratcheted the baseline
+ * down in two sub-tolerance steps (242 → 181 → 137) and then refused every
+ * complete 244-show build for three weeks as an implausible jump, while letting
+ * the truncated ones through. The upper bound is a tripwire for a broken query
+ * — a filter dropped, a walk that never ends — and nothing tighter.
+ */
+export const SHOW_GROWTH_TOLERANCE = 2.0;
 
 /** Everything a gate is computed from, for one bundle. */
 export interface GateFacts {
@@ -57,8 +69,10 @@ const pct = (fraction: number): string => `${(fraction * 100).toFixed(1)}%`;
  * - **Empty** — the season fetch came back with nothing. The build script
  *   refuses to write this, so seeing it here means something downstream of it
  *   went wrong.
- * - **±30% shows** — a half-fetched season: AniList paginating short, or a
- *   mid-run rate limit the client's retries did not absorb.
+ * - **Shows fell more than 30%** — a half-fetched season: AniList paginating
+ *   short, or a mid-run rate limit the client's retries did not absorb.
+ * - **Shows more than tripled** — a broken query. Growth short of that is
+ *   normal; see SHOW_GROWTH_TOLERANCE for why it is not treated like loss.
  * - **`generatedAt` advanced** — committing the same file twice, or
  *   resurrecting an old one over a newer one.
  * - **Summaries not lost** — summaries are paid for, one at a time, by a human-
@@ -94,9 +108,14 @@ export function checkSeasonGates(next: GateFacts, prev: GateFacts | null): GateR
   const prevShows = prev.showIds.length;
   if (prevShows > 0) {
     stats.showDrift = (shows - prevShows) / prevShows;
-    if (Math.abs(stats.showDrift) > SHOW_COUNT_TOLERANCE) {
+    if (stats.showDrift < -SHOW_SHRINK_TOLERANCE) {
       return fail(
-        `show count moved ${pct(stats.showDrift)} (${prevShows} -> ${shows}), past the ±${pct(SHOW_COUNT_TOLERANCE)} gate`,
+        `show count fell ${pct(-stats.showDrift)} (${prevShows} -> ${shows}), past the ${pct(SHOW_SHRINK_TOLERANCE)} shrink gate`,
+      );
+    }
+    if (stats.showDrift > SHOW_GROWTH_TOLERANCE) {
+      return fail(
+        `show count grew ${pct(stats.showDrift)} (${prevShows} -> ${shows}), past the ${pct(SHOW_GROWTH_TOLERANCE)} growth gate`,
       );
     }
   }

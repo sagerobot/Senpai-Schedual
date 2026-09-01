@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { anilistRequest } from './client';
 import { MEDIA_CORE, MEDIA_FIELDS, MEDIA_FIELDS_FULL } from './fragments';
+import { hasMorePages } from './pagination';
 import { MalResolvedMediaSchema, MediaSchema } from './schemas';
 import type { AnimeMedia, MalResolvedMedia } from './schemas';
 
@@ -12,6 +13,8 @@ import type { AnimeMedia, MalResolvedMedia } from './schemas';
 
 /** Hard cap for paginated walks (~600 shows) so no query can spiral. */
 const MAX_PAGES = 12;
+/** AniList's maximum, and what `hasMorePages` measures a short page against. */
+const PAGE_SIZE = 50;
 const ID_BATCH_SIZE = 50;
 
 const MediaPageSchema = z.object({
@@ -44,7 +47,7 @@ async function fetchPaginatedMedia(
     const data = await anilistRequest(query, { ...variables, page }, MediaPageSchema);
     results.push(...data.Page.media);
     onPage?.(data.Page.media);
-    if (!data.Page.pageInfo?.hasNextPage) break;
+    if (!hasMorePages(data.Page.pageInfo, data.Page.media.length, PAGE_SIZE)) break;
     if (page >= MAX_PAGES) {
       console.warn(`[anilist] pagination capped at ${MAX_PAGES} pages; results truncated.`);
       break;
@@ -129,7 +132,7 @@ export async function fetchCurrentSeasonAnime(onPage?: (partial: AnimeMedia[]) =
 
   const querySeason = `
     query ($season: MediaSeason, $seasonYear: Int, $page: Int) {
-      Page(page: $page, perPage: 50) {
+      Page(page: $page, perPage: ${PAGE_SIZE}) {
         pageInfo { hasNextPage }
         media(season: $season, seasonYear: $seasonYear, type: ANIME, sort: POPULARITY_DESC, isAdult: false) { ${MEDIA_FIELDS} }
       }
@@ -138,7 +141,7 @@ export async function fetchCurrentSeasonAnime(onPage?: (partial: AnimeMedia[]) =
 
   const queryReleasing = `
     query ($page: Int) {
-      Page(page: $page, perPage: 50) {
+      Page(page: $page, perPage: ${PAGE_SIZE}) {
         pageInfo { hasNextPage }
         media(status: RELEASING, type: ANIME, sort: POPULARITY_DESC, isAdult: false) { ${MEDIA_FIELDS} }
       }
@@ -172,7 +175,7 @@ export async function searchAnime(search: string): Promise<AnimeMedia[]> {
 export async function fetchAnimeBySeason(season: string, seasonYear: number): Promise<AnimeMedia[]> {
   const query = `
     query ($season: MediaSeason, $seasonYear: Int, $page: Int) {
-      Page(page: $page, perPage: 50) {
+      Page(page: $page, perPage: ${PAGE_SIZE}) {
         pageInfo { hasNextPage }
         media(season: $season, seasonYear: $seasonYear, type: ANIME, sort: POPULARITY_DESC, isAdult: false) { ${MEDIA_FIELDS} }
       }
