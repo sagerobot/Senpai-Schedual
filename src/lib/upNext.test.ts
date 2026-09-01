@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import type { SeriesGraph } from '../series/labeling';
 import type { AnimeMedia, EpisodeLog, LibraryEntry } from '../types';
-import { isBingeReady, rankUpNext } from './upNext';
+import { foldSeriesCandidates, isBingeReady, rankUpNext } from './upNext';
 
 const NOW = 1_800_000_000; // fixed unix seconds; the module is clock-free
 const NOW_MS = NOW * 1000;
@@ -377,5 +378,161 @@ describe('rankUpNext ordering', () => {
     expect(c.behindCount).toBe(2);
     expect(c.airedCount).toBe(9);
     expect(c.userAvgScore).toBe(8);
+  });
+});
+
+/** A franchise graph in watch order; the first non-attachment id is the root. */
+function graph(ids: number[], attachments: number[] = []): SeriesGraph {
+  return {
+    seriesId: ids[0],
+    title: `Show ${ids[0]}`,
+    entries: ids.map((id, i) => ({
+      id,
+      format: attachments.includes(id) ? 'MOVIE' : 'TV',
+      startDate: { year: 2020 + i, month: 1, day: 1 },
+      seasonLabel: attachments.includes(id) ? 'The Movie' : `Season ${i + 1}`,
+      title: i === 0 ? `Show ${id}` : `Show ${ids[0]} Season ${i + 1}`,
+      isAttachment: attachments.includes(id),
+    })),
+  };
+}
+
+describe('foldSeriesCandidates', () => {
+  it('folds two waiting seasons into one card led by the earlier season', () => {
+    const ranked = rankUpNext({
+      animeList: [
+        show({ id: 1, aired: 15, status: 'FINISHED', episodes: 15 }),
+        show({ id: 2, aired: 12, status: 'FINISHED', episodes: 12 }),
+      ],
+      library: [entry(1, 'watching'), entry(2, 'watching')],
+      logs: [],
+      nowSec: NOW,
+    });
+    expect(ranked).toHaveLength(2);
+
+    const folded = foldSeriesCandidates(ranked, [graph([1, 2])]);
+    expect(folded).toHaveLength(1);
+    const [card] = folded;
+    expect(card.anime.id).toBe(1);
+    expect(card.nextEpisode).toBe(1);
+    // The lead's own progress stays the lead's; the chip carries the total.
+    expect(card.behindCount).toBe(15);
+    expect(card.reason.kind).toBe('backlog');
+    expect(card.reason.text).toBe('2 seasons · 27 waiting');
+    expect(card.series).toEqual({
+      title: 'Show 1',
+      seasonLabel: 'Season 1',
+      leadReason: { kind: 'backlog', text: '15 episodes waiting' },
+      totalBehind: 27,
+      then: [
+        expect.objectContaining({ seasonLabel: 'Season 2', nextEpisode: 1, behindCount: 12 }),
+      ],
+    });
+    expect(card.series!.then[0].anime.id).toBe(2);
+  });
+
+  it('leads with the earliest season that still has episodes waiting', () => {
+    const ranked = rankUpNext({
+      animeList: [
+        show({ id: 1, aired: 12, status: 'FINISHED', episodes: 12 }),
+        show({ id: 2, aired: 12, status: 'FINISHED', episodes: 12 }),
+        show({ id: 3, aired: 12, status: 'FINISHED', episodes: 12 }),
+      ],
+      library: [entry(1, 'watching'), entry(2, 'watching'), entry(3, 'watching')],
+      logs: logsThrough(1, 12),
+      nowSec: NOW,
+    });
+    // Season 1 is caught up, so it isn't a candidate at all.
+    expect(ranked.map((c) => c.anime.id).sort()).toEqual([2, 3]);
+
+    const [card] = foldSeriesCandidates(ranked, [graph([1, 2, 3])]);
+    expect(card.anime.id).toBe(2);
+    expect(card.series?.seasonLabel).toBe('Season 2');
+    expect(card.series?.then.map((q) => q.anime.id)).toEqual([3]);
+  });
+
+  it("keeps the best member's score and explains it with that season's label", () => {
+    const ranked = rankUpNext({
+      animeList: [
+        show({ id: 1, aired: 12, status: 'FINISHED', episodes: 12 }),
+        show({ id: 2, aired: 12, status: 'FINISHED', episodes: 12 }),
+        show({ id: 9, aired: 8, nextIn: 20 * 3600 }),
+      ],
+      library: [entry(1, 'watching'), entry(2, 'stacking'), entry(9, 'watching')],
+      logs: [...logsThrough(1, 9, { watchedAt: NOW_MS - 10 * DAY_MS }), ...logsThrough(9, 6)],
+      nowSec: NOW,
+    });
+    const folded = foldSeriesCandidates(ranked, [graph([1, 2])]);
+    expect(folded.map((c) => c.anime.id)).toEqual([1, 9]);
+
+    // The stack completing on Season 2 still tops the deck — above the
+    // urgent show 9 — but the card says Season 1 comes first.
+    const [card] = folded;
+    expect(card.nextEpisode).toBe(10);
+    expect(card.reason.kind).toBe('binge-ready');
+    expect(card.reason.text).toBe('Season 2: Season complete · 12 episodes ready');
+    expect(card.score).toBe(ranked.find((c) => c.anime.id === 2)!.score);
+    // The CTA is about the lead, which is a plain finish-line catch-up.
+    expect(card.series?.leadReason.kind).toBe('finish-line');
+  });
+
+  it("keeps the lead's own reason when the lead scores highest", () => {
+    const ranked = rankUpNext({
+      animeList: [
+        show({ id: 1, aired: 12, status: 'FINISHED', episodes: 12 }),
+        show({ id: 2, aired: 12, status: 'FINISHED', episodes: 12 }),
+      ],
+      library: [entry(1, 'watching'), entry(2, 'watching')],
+      logs: logsThrough(1, 10, { watchedAt: NOW_MS - DAY_MS }),
+      nowSec: NOW,
+    });
+    const [card] = foldSeriesCandidates(ranked, [graph([1, 2])]);
+    expect(card.anime.id).toBe(1);
+    expect(card.reason.kind).toBe('momentum');
+    expect(card.reason.text).toContain('10 episodes this week');
+  });
+
+  it('leaves unrelated shows, unresolved graphs, and attachments alone', () => {
+    const ranked = rankUpNext({
+      animeList: [
+        show({ id: 1, aired: 12, status: 'FINISHED', episodes: 12 }),
+        show({ id: 2, aired: 12, status: 'FINISHED', episodes: 12 }),
+        show({ id: 5, aired: 1, status: 'FINISHED', episodes: 1 }),
+        show({ id: 7, aired: 6 }),
+      ],
+      library: [entry(1, 'watching'), entry(2, 'watching'), entry(5, 'watching'), entry(7, 'watching')],
+      logs: [],
+      nowSec: NOW,
+    });
+    // Show 7 has no graph yet; the movie (5) is an attachment of 1's franchise.
+    const folded = foldSeriesCandidates(ranked, [graph([1, 5, 2], [5])]);
+    expect(folded.map((c) => c.anime.id).sort()).toEqual([1, 5, 7]);
+    expect(folded.find((c) => c.anime.id === 1)?.series?.then.map((q) => q.anime.id)).toEqual([2]);
+    expect(folded.find((c) => c.anime.id === 5)?.series).toBeUndefined();
+    expect(folded.find((c) => c.anime.id === 7)?.series).toBeUndefined();
+  });
+
+  it("re-sorts after folding so the franchise takes its best member's slot", () => {
+    const ranked = rankUpNext({
+      animeList: [
+        show({ id: 1, aired: 12, status: 'FINISHED', episodes: 12 }),
+        show({ id: 2, aired: 12, status: 'FINISHED', episodes: 12 }),
+        show({ id: 3, aired: 12, status: 'FINISHED', episodes: 12 }),
+      ],
+      library: [entry(1, 'watching'), entry(2, 'watching'), entry(3, 'watching')],
+      // Show 3: finish line (2 left). Show 2: finish line too (1 left), higher.
+      // Show 1: plain backlog. Logs sit outside the momentum window.
+      logs: [
+        ...logsThrough(2, 11, { watchedAt: NOW_MS - 10 * DAY_MS }),
+        ...logsThrough(3, 10, { watchedAt: NOW_MS - 10 * DAY_MS }),
+      ],
+      nowSec: NOW,
+    });
+    expect(ranked.map((c) => c.anime.id)).toEqual([2, 3, 1]);
+
+    const folded = foldSeriesCandidates(ranked, [graph([1, 2])]);
+    // 1+2 fold under 1 with 2's finish-line score, ahead of 3.
+    expect(folded.map((c) => c.anime.id)).toEqual([1, 3]);
+    expect(folded[0].reason.text).toBe('Season 2: Season finished · just the finale left');
   });
 });

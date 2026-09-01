@@ -73,9 +73,17 @@ export function DailySchedule({ animeList, favorites, stacking = NO_STACKING, on
   // deck resolves stacking shows the season list doesn't carry (a two-cour
   // show tagged to a past season, most importantly) — without the merge, that
   // show's finale could never graduate into the drops row.
+  // Seasons folded behind a franchise card count too: a stacked Season 2
+  // whose finale just aired is queued behind an unfinished Season 1 in the
+  // deck, but its graduation card still belongs in the drops row.
   const dropSource = useMemo(() => {
     const merged = new Map(animeList.map((a) => [a.id, a]));
-    for (const c of upNextCandidates) if (!merged.has(c.anime.id)) merged.set(c.anime.id, c.anime);
+    for (const c of upNextCandidates) {
+      if (!merged.has(c.anime.id)) merged.set(c.anime.id, c.anime);
+      for (const queued of c.series?.then ?? []) {
+        if (!merged.has(queued.anime.id)) merged.set(queued.anime.id, queued.anime);
+      }
+    }
     return Array.from(merged.values());
   }, [animeList, upNextCandidates]);
   const dropSkips = useUserData((s) => s.dropSkips);

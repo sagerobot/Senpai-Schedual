@@ -1,10 +1,10 @@
-import { Info, Play, Star, Zap } from 'lucide-react';
+import { CornerDownRight, Info, Play, Star, Zap } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { memo } from 'react';
 import { LowScoreButtons } from './LowScoreButtons';
 import { SwipeCell, useSwapSlots } from './SwipeCell';
 import { displayTitle } from '../lib/displayTitle';
-import { UpNextCandidate, UpNextReasonKind } from '../lib/upNext';
+import { UpNextCandidate, UpNextReasonKind, UpNextSeries } from '../lib/upNext';
 import { cn } from '../lib/utils';
 import { pickWatchLink } from '../lib/watchLinks';
 import { useUserData } from '../stores/userData';
@@ -19,6 +19,13 @@ interface UpNextDeckProps {
 }
 
 const QUICK_SCORES = [5, 6, 7, 8, 9, 10];
+
+/** "Then Season 2 · 12 waiting", or "Then Season 2, Season 3 · 24 waiting". */
+function queuedSeasonsText(then: UpNextSeries['then']): string {
+  const labels = then.map((q) => q.seasonLabel).join(', ');
+  const waiting = then.reduce((sum, q) => sum + q.behindCount, 0);
+  return `Then ${labels} · ${waiting} waiting`;
+}
 
 /** One row on a wide screen, mirroring the Today's Drops grid. */
 const DECK_SIZE = 4;
@@ -104,23 +111,29 @@ export const UpNextCard = memo(function UpNextCard({
   onSkip: (showId: number) => void;
   onAnimeSelect: (anime: AnimeMedia) => void;
 }) {
-  const { anime, reason, nextEpisode, behindCount, airedCount, userAvgScore } = candidate;
+  const { anime, reason, nextEpisode, behindCount, airedCount, userAvgScore, series } = candidate;
   const customSite = useUserData((s) => s.uiPrefs.customSource?.name);
 
-  const title = displayTitle(anime);
+  // A franchise card is titled by the franchise; the season pill says which
+  // season is up. A lone card keeps the show's own title.
+  const title = series ? series.title : displayTitle(anime);
   const hasBanner = !!(anime.bannerImage || anime.trailer?.thumbnail);
   const bgImage =
     anime.bannerImage || anime.trailer?.thumbnail || anime.coverImage.extraLarge || anime.coverImage.large;
   const watchLink = pickWatchLink(anime.externalLinks, customSite);
   const watchedCount = Math.max(0, airedCount - behindCount);
   const progressPct = airedCount > 0 ? Math.min(100, (watchedCount / airedCount) * 100) : 0;
+  // The rank (chip, frame, CTA tone) may come from a later season of the
+  // franchise; the CTA's wording is about the lead, whose reason is its own.
   const isBinge = reason.kind === 'binge-ready';
+  const leadIsBinge = (series?.leadReason ?? reason).kind === 'binge-ready';
   const chipTone = REASON_CHIP[reason.kind];
 
   const seasonMatch =
     anime.title.english?.match(/Season (\d+)/i) || anime.title.userPreferred?.match(/Season (\d+)/i);
-  const seasonText = seasonMatch ? `Season ${seasonMatch[1]}` : 'Series';
+  const seasonText = series ? series.seasonLabel : seasonMatch ? `Season ${seasonMatch[1]}` : 'Series';
   const totalEpisodes = anime.episodes ?? '?';
+  const thenText = series ? queuedSeasonsText(series.then) : null;
 
   const openShow = () => onAnimeSelect(anime);
 
@@ -212,7 +225,7 @@ export const UpNextCard = memo(function UpNextCard({
           </span>
         </div>
 
-        <div className="mb-4 flex items-center gap-3">
+        <div className={cn('flex items-center gap-3', thenText ? 'mb-2' : 'mb-4')}>
           <div className="h-[5px] flex-1 overflow-hidden rounded-full bg-hero-drops-edge">
             <div className="h-full rounded-full bg-accent-600" style={{ width: `${progressPct}%` }} />
           </div>
@@ -220,6 +233,12 @@ export const UpNextCard = memo(function UpNextCard({
             {watchedCount} / {airedCount}
           </span>
         </div>
+        {thenText && (
+          <p className="mb-4 flex min-w-0 items-center gap-1.5 text-caption text-hero-text-mid">
+            <CornerDownRight className="h-3.5 w-3.5 shrink-0 text-hero-text-low" aria-hidden="true" />
+            <span className="truncate">{thenText}</span>
+          </p>
+        )}
 
         <div className="mb-2 flex items-center gap-2">
           <Zap className="h-4 w-4 fill-accent-500 text-accent-500" aria-hidden="true" />
@@ -274,7 +293,7 @@ export const UpNextCard = memo(function UpNextCard({
               )}
             >
               <Play className="h-4 w-4 fill-current" aria-hidden="true" />
-              {isBinge ? 'Start the binge' : `Continue Episode ${nextEpisode}`}
+              {leadIsBinge ? 'Start the binge' : `Continue Episode ${nextEpisode}`}
             </a>
           ) : (
             <p className="flex h-11 w-full items-center justify-center rounded-inner bg-hero-drops-edge text-sm font-medium text-hero-text-mid">

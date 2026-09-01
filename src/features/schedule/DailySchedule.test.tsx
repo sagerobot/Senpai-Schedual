@@ -3,13 +3,19 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, type ReactElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Mock } from 'vitest';
+import { fetchAnimeByIds } from '../../api/anilist/queries';
 import { resetSkippedTonight } from '../../hooks/useUpNext';
+import { queryKeys } from '../../queries/keys';
+import { resetMediaBatcher } from '../../queries/mediaBatcher';
+import type { SeriesGraph } from '../../series/labeling';
 import { useUserData, logKey } from '../../stores/userData';
 import type { AnimeMedia, EpisodeLog, LibraryEntry } from '../../types';
 import { resetAdmittedDrops } from './CheckInFeed';
 import { DailySchedule } from './DailySchedule';
 
 vi.mock('../../components/LibraryStatusMenu', () => ({ LibraryStatusMenu: () => null }));
+vi.mock('../../api/anilist/queries', () => ({ fetchAnimeByIds: vi.fn() }));
 vi.mock('sonner', () => ({
   toast: Object.assign(vi.fn(), { error: vi.fn(), success: vi.fn() }),
 }));
@@ -220,5 +226,91 @@ describe('DailySchedule Mine / Everything', () => {
     });
 
     expect(container.textContent).toContain('None of your shows have an episode this week');
+  });
+});
+
+/**
+ * A stacked Season 2 whose finale just aired, behind an unfinished Season 1:
+ * the deck folds it under Season 1, and DailySchedule must still find it for
+ * the drops row — the graduation card is the point of stacking.
+ */
+describe('DailySchedule graduation behind a folded franchise card', () => {
+  let container: HTMLDivElement;
+  let root: Root;
+
+  const stackingEntry = (showId: number): LibraryEntry => ({
+    showId,
+    idMal: showId,
+    status: 'stacking',
+    showScore: null,
+    source: 'manual',
+  });
+
+  /** Season 1: episode 6 airs in two days, nothing watched — deck backlog, not a drop. */
+  const seasonOne: AnimeMedia = {
+    ...justAiredShow(1),
+    nextAiringEpisode: { airingAt: NOW + 2 * 24 * 3600, timeUntilAiring: 2 * 24 * 3600, episode: 6 },
+  };
+  /** Season 2: the finale (12 of 12) aired five minutes ago; not in the season list. */
+  const seasonTwo: AnimeMedia = {
+    ...justAiredShow(2),
+    nextAiringEpisode: { airingAt: NOW - 300, timeUntilAiring: -300, episode: 12 },
+  };
+  const franchise: SeriesGraph = {
+    seriesId: 1,
+    title: 'Show 1',
+    entries: [
+      { id: 1, format: 'TV', startDate: { year: 2026, month: 1, day: 1 }, seasonLabel: 'Season 1', title: 'Show 1', isAttachment: false },
+      { id: 2, format: 'TV', startDate: { year: 2026, month: 7, day: 1 }, seasonLabel: 'Season 2', title: 'Show 1 Season 2', isAttachment: false },
+    ],
+  };
+
+  beforeEach(() => {
+    (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+    resetAdmittedDrops();
+    resetSkippedTonight();
+    resetMediaBatcher();
+    (fetchAnimeByIds as Mock).mockResolvedValue([seasonTwo]);
+    useUserData.setState({
+      library: { 1: watchingEntry(1), 2: stackingEntry(2) },
+      logs: {},
+      dropSkips: {},
+    });
+    container = document.createElement('div');
+    document.body.appendChild(container);
+    root = createRoot(container);
+  });
+
+  afterEach(async () => {
+    await act(async () => root.unmount());
+    container.remove();
+    vi.restoreAllMocks();
+  });
+
+  it('still deals the stacked finale into the drops row', async () => {
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    for (const entry of franchise.entries) client.setQueryData(queryKeys.seriesByShow(entry.id), franchise);
+    await act(async () => {
+      root.render(
+        <QueryClientProvider client={client}>
+          <DailySchedule
+            animeList={[seasonOne]}
+            favorites={[1]}
+            stacking={[2]}
+            onAnimeSelect={() => {}}
+            logs={[]}
+            onLog={() => {}}
+          />
+        </QueryClientProvider>,
+      );
+    });
+    // Let the id_in micro-batcher deliver Season 2 to the deck.
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 80));
+    });
+
+    expect(container.textContent).toContain("Today's Drops");
+    expect(container.textContent).toContain('Stack complete');
+    expect(container.textContent).toContain('Then Season 2 · 12 waiting');
   });
 });

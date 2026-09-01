@@ -1,3 +1,4 @@
+import type { SeriesGraph } from '../series/labeling';
 import { AnimeMedia, DropSkip, EpisodeLog, LibraryEntry } from '../types';
 import { getAiredEpisodesCount, seasonFullyAired } from './aired';
 
@@ -24,6 +25,36 @@ export interface UpNextReason {
   text: string;
 }
 
+/** A later season folded behind a deck card's lead, in watch order. */
+export interface UpNextQueuedSeason {
+  anime: AnimeMedia;
+  seasonLabel: string;
+  nextEpisode: number;
+  behindCount: number;
+  reason: UpNextReason;
+}
+
+/**
+ * Present when the card stands for a franchise rather than a lone season: the
+ * lead is the earliest season with episodes waiting, and `then` is what queues
+ * behind it. Only ever set by foldSeriesCandidates.
+ */
+export interface UpNextSeries {
+  /** The franchise title from the series graph. */
+  title: string;
+  /** The lead's own label — "Season 1", "Part 2", "Final Season". */
+  seasonLabel: string;
+  /**
+   * The lead's own reason. The card's `reason` explains the rank and may
+   * belong to a later season; the CTA describes the lead, so it reads this.
+   */
+  leadReason: UpNextReason;
+  /** Later seasons with episodes waiting, in watch order. Never empty. */
+  then: UpNextQueuedSeason[];
+  /** Episodes waiting across the lead and every queued season. */
+  totalBehind: number;
+}
+
 export interface UpNextCandidate {
   anime: AnimeMedia;
   entry: LibraryEntry;
@@ -35,6 +66,7 @@ export interface UpNextCandidate {
   userAvgScore: number | null;
   /** Summed signal points; exported so tests can assert relative order. */
   score: number;
+  series?: UpNextSeries;
 }
 
 export interface UpNextInput {
@@ -226,8 +258,116 @@ export function rankUpNext({
     });
   }
 
-  candidates.sort(
-    (a, b) => b.score - a.score || b.behindCount - a.behindCount || a.anime.id - b.anime.id,
-  );
+  candidates.sort(compareCandidates);
   return candidates;
+}
+
+function compareCandidates(a: UpNextCandidate, b: UpNextCandidate): number {
+  return (
+    b.score - a.score ||
+    (b.series?.totalBehind ?? b.behindCount) - (a.series?.totalBehind ?? a.behindCount) ||
+    a.anime.id - b.anime.id
+  );
+}
+
+/**
+ * Fold same-franchise candidates into one card. Two seasons of one show are one
+ * decision, not two, and the seasons get watched in order — so the card leads
+ * with the earliest season that still has episodes waiting and queues the rest
+ * behind it in graph order.
+ *
+ * The franchise keeps its best member's slot: a stack completing on Season 2
+ * still tops the deck, and the card says Season 1 comes first. The reason chip
+ * therefore belongs to the top-scoring member, prefixed with its season label
+ * when that member isn't the lead, so the rank stays explained. A backlog
+ * reason reads as the franchise total instead — "15 waiting" on a card that
+ * also queues 12 more would be a lie — and stays short enough for a four-up
+ * card's chip.
+ *
+ * Attachments (movies, OVAs, specials) never fold: they aren't steps in the
+ * watch order. A candidate whose graph hasn't resolved stands alone until it
+ * does. Pure, like rankUpNext — the hook feeds it graphs from the query cache.
+ */
+export function foldSeriesCandidates(
+  candidates: UpNextCandidate[],
+  graphs: Iterable<SeriesGraph>,
+): UpNextCandidate[] {
+  interface Membership {
+    seriesId: number;
+    order: number;
+    seasonLabel: string;
+    seriesTitle: string;
+  }
+  const membership = new Map<number, Membership>();
+  for (const graph of graphs) {
+    graph.entries.forEach((entry, order) => {
+      if (entry.isAttachment) return;
+      membership.set(entry.id, {
+        seriesId: graph.seriesId,
+        order,
+        seasonLabel: entry.seasonLabel,
+        seriesTitle: graph.title,
+      });
+    });
+  }
+
+  const folded: UpNextCandidate[] = [];
+  const groups = new Map<number, UpNextCandidate[]>();
+  for (const candidate of candidates) {
+    const member = membership.get(candidate.anime.id);
+    if (member === undefined) {
+      folded.push(candidate);
+      continue;
+    }
+    const group = groups.get(member.seriesId);
+    if (group) group.push(candidate);
+    else groups.set(member.seriesId, [candidate]);
+  }
+
+  for (const group of groups.values()) {
+    if (group.length === 1) {
+      folded.push(group[0]);
+      continue;
+    }
+    const memberOf = (c: UpNextCandidate) => membership.get(c.anime.id)!;
+    group.sort((a, b) => memberOf(a).order - memberOf(b).order);
+    const [lead, ...rest] = group;
+    const totalBehind = group.reduce((sum, c) => sum + c.behindCount, 0);
+    // Strict comparison: on a tie the lead keeps its own reason.
+    const top = group.reduce((best, c) => (c.score > best.score ? c : best), lead);
+
+    let reason: UpNextReason;
+    if (top.reason.kind === 'backlog') {
+      reason = {
+        kind: 'backlog',
+        text: `${group.length} seasons · ${totalBehind} waiting`,
+      };
+    } else if (top === lead) {
+      reason = lead.reason;
+    } else {
+      reason = { kind: top.reason.kind, text: `${memberOf(top).seasonLabel}: ${top.reason.text}` };
+    }
+
+    folded.push({
+      ...lead,
+      reason,
+      score: top.score,
+      series: {
+        title: memberOf(lead).seriesTitle,
+        seasonLabel: memberOf(lead).seasonLabel,
+        leadReason: lead.reason,
+        then: rest.map((c) => ({
+          anime: c.anime,
+          seasonLabel: memberOf(c).seasonLabel,
+          nextEpisode: c.nextEpisode,
+          behindCount: c.behindCount,
+          reason: c.reason,
+        })),
+        totalBehind,
+      },
+    });
+  }
+
+  folded.sort(compareCandidates);
+  return folded;
 }
