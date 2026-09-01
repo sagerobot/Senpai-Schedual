@@ -297,6 +297,17 @@ rather than inventing a fourth tone.
 Amber here means *imminent*, never *wrong*. Status still spells itself out — `Ready`,
 `one behind`, `Ep. 9 next` — so nothing rests on the hue (§3, §11).
 
+Amber runs in both directions on the clock. Anticipation is one end; **expiry** is the
+other. A Today's Drops card carries a freshness rail (`src/lib/freshness.ts`) that drains
+across the 48-hour drop window: accent while the episode is under a day old, amber once it
+is `Yesterday`, amber and pulsing for the last eight hours as `Leaves in Nh`. Same ramp,
+same meaning — this surface is on a clock — so a card about to age out and a show about to
+land read as the same kind of fact.
+
+A corollary the audit would have caught: **no surface may hardcode "today"**. The drop
+window is two days wide, so "aired today" was wrong about as often as it was right. A card
+states its own age and lets the absolute timestamp say the rest.
+
 The runway strip is **not** a hero surface. §12 lists three protected heroes and this is not
 one: it borrows the `hero-drops-*` ground so it reads as the same family as the grid beneath
 it, and takes nothing else. It is also the one surface that is allowed to look unlike the

@@ -9,6 +9,7 @@ import { UpNextCard } from '../../components/UpNextDeck';
 import { VibeChip } from '../../components/VibeChip';
 import type { UpNextCandidate } from '../../lib/upNext';
 import { latestAiredEpisode } from '../../lib/aired';
+import { DROP_WINDOW_SEC, PIN_GRACE_SEC, dropFreshness } from '../../lib/freshness';
 import { LAYOUT_SWAP, SPRING_POP } from '../../lib/motion';
 import { displayTitle } from '../../lib/displayTitle';
 import { WATCH_STATE_LABELS } from '../../lib/status';
@@ -83,18 +84,16 @@ const NO_STACKING: number[] = [];
 /** Same stable-identity rule for the skips argument. */
 const NO_SKIPS: Record<number, DropSkip> = {};
 
-/** Admission window: an episode is drop material for 24h after it airs. */
-const DROP_WINDOW_SEC = 24 * 3600;
-
 /**
  * Admission pins: showId -> the latest-aired episode a drop card is up for.
  * The drops memo only re-runs when logs/animeList/favorites change, and it
  * reads the clock when it does — so without pins, a card that crossed the
- * 24h line while sitting on screen vanishes on exactly the recompute that a
+ * window while sitting on screen vanishes on exactly the recompute that a
  * catch-up rating triggers, looking like the rating logged today's episode.
  * The window therefore only gates *admission*; an admitted card stays until
- * today's episode is logged or a newer episode replaces it. Module-level so
- * a route hop doesn't reset it; a reload does, which is fine.
+ * the episode is logged, a newer one replaces it, or PIN_GRACE_SEC runs out.
+ * Module-level so a route hop doesn't reset it; a reload does, which means a
+ * refresh re-judges every card against the window alone.
  *
  * airedAt rides along because a finale's airing signal is the one AniList
  * later deletes — the post-finale refresh nulls nextAiringEpisode — so a
@@ -148,13 +147,21 @@ export function computeDrops(
       continue;
 
     // "Skip this week": the skipped episode never drops again — but its pin
-    // survives, so an Undo restores the card even after the 24h window. Next
+    // survives, so an Undo restores the card even after the window. Next
     // week's episode isn't the skipped one and admits normally.
     if (skips[anime.id]?.episode === episodeNum) continue;
 
     const timeSinceAir = now - current.airedAt;
     const inWindow = timeSinceAir >= 0 && timeSinceAir <= DROP_WINDOW_SEC;
-    if (!inWindow && pin?.episode !== episodeNum) continue;
+    const pinned = pin?.episode === episodeNum;
+    // A pin carries a card past the window so a catch-up rating can't look
+    // like it dismissed today's episode — but only so far. Past the grace the
+    // pin is dropped outright, or a tab left open for days would hoard cards.
+    if (pinned && timeSinceAir > DROP_WINDOW_SEC + PIN_GRACE_SEC) {
+      admittedDrops.delete(anime.id);
+      continue;
+    }
+    if (!inWindow && !pinned) continue;
 
     const showLogs = logs.filter((l) => l.showId === anime.id);
     if (showLogs.some((l) => l.episodeNumber === episodeNum)) continue;
@@ -460,7 +467,13 @@ const CheckInItem = memo(function CheckInItem({
   const bgImage = anime.bannerImage || anime.trailer?.thumbnail || anime.coverImage.extraLarge || anime.coverImage.large;
   const studio = anime.studios?.nodes?.[0]?.name || 'Unknown Studio';
 
-  const timeStr = new Date(drop.airedAt * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  // The absolute when, to complement the relative freshness rail rather than
+  // repeat it: bare time if it aired today, weekday-qualified once it didn't.
+  const airedDate = new Date(drop.airedAt * 1000);
+  const timeStr = airedDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const sameDay = airedDate.toDateString() === new Date().toDateString();
+  const whenStr = sameDay ? timeStr : `${airedDate.toLocaleDateString([], { weekday: 'short' })} ${timeStr}`;
+  const freshness = dropFreshness(drop.airedAt, Math.floor(Date.now() / 1000));
 
   const customSite = useUserData((s) => s.uiPrefs.customSource?.name);
   const watchLink = pickWatchLink(anime.externalLinks, customSite);
@@ -482,7 +495,7 @@ const CheckInItem = memo(function CheckInItem({
   const genresStr = anime.genres.slice(0, 3).join(', ');
   const formatStr = anime.format ? anime.format.replace('_', ' ') : '';
   const ratingStr = anime.averageScore ? `Global ${(anime.averageScore / 10).toFixed(1)}` : '';
-  const infoLine = [genresStr, formatStr, 'Today', timeStr, studio, ratingStr].filter(Boolean).join(' • ');
+  const infoLine = [genresStr, formatStr, whenStr, studio, ratingStr].filter(Boolean).join(' • ');
 
   const card = (
     <div
@@ -604,26 +617,44 @@ const CheckInItem = memo(function CheckInItem({
             Episode {todayEp}
             {isGraduation && ' — Finale'}
           </div>
+          {/* Freshness, not "today": the window is 48h, so a card states its
+              own age and how close it is to leaving. The rail drains as the
+              window is spent, and the tone crosses to amber — the app's time
+              colour (docs §16) — once the episode is a day old. */}
           <div
             className={cn(
               'flex items-center gap-1.5 text-caption sm:text-xs flex-shrink-0',
-              isGraduation ? 'text-success-300' : 'text-accent-400',
+              freshness.tier === 'leaving'
+                ? 'text-warning-300'
+                : freshness.tier === 'aging'
+                  ? 'text-warning-400'
+                  : isGraduation
+                    ? 'text-success-300'
+                    : 'text-accent-400',
             )}
           >
             <span
               className={cn(
-                'w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full',
-                isGraduation
-                  ? 'bg-success-400 shadow-[0_0_8px_color-mix(in_srgb,var(--color-success-400)_80%,transparent)]'
-                  : 'bg-accent-500 shadow-[0_0_8px_color-mix(in_srgb,var(--color-accent-500)_80%,transparent)]',
+                'h-1 w-7 shrink-0 overflow-hidden rounded-full bg-hero-drops-edge',
+                freshness.tier === 'leaving' && 'animate-pulse motion-reduce:animate-none',
               )}
               aria-hidden="true"
-            />
-            {isGraduation
-              ? 'Finale aired today'
-              : isCaughtUp
-                ? 'New episode today'
-                : `Episode ${todayEp} aired today`}
+            >
+              <span
+                className={cn(
+                  'block h-full rounded-full transition-[width] duration-500',
+                  freshness.tier === 'leaving'
+                    ? 'bg-warning-400'
+                    : freshness.tier === 'aging'
+                      ? 'bg-warning-500'
+                      : isGraduation
+                        ? 'bg-success-400'
+                        : 'bg-accent-500',
+                )}
+                style={{ width: `${Math.max(4, (1 - freshness.spent) * 100)}%` }}
+              />
+            </span>
+            {freshness.label}
           </div>
         </div>
 
@@ -641,7 +672,7 @@ const CheckInItem = memo(function CheckInItem({
           <div className="flex items-center gap-2 mb-4">
             <Zap className="w-4 h-4 text-accent-500 fill-accent-500" aria-hidden="true" />
             <span className="text-sm text-hero-text-hi font-medium">
-              <Ticker value={isCaughtUp ? "Rate today's episode" : `Rate Episode ${nextEp}`} />
+              <Ticker value={`Rate Episode ${isCaughtUp ? todayEp : nextEp}`} />
             </span>
           </div>
 
@@ -714,7 +745,7 @@ const CheckInItem = memo(function CheckInItem({
 
                   {/* The runway: one pip per stacked episode, the finale as the
                       star node — the binge answer to the behind card's
-                      "N episodes to today". */}
+                      "N episodes to go". */}
                   <div className="flex flex-1 min-w-0 flex-col items-center gap-1.5 pt-[7px]">
                     <div className="flex w-full gap-[3px]" aria-hidden="true">
                       {Array.from({ length: Math.max(0, stackedCount - 1) }, (_, i) => (
@@ -764,7 +795,7 @@ const CheckInItem = memo(function CheckInItem({
                       <div className="w-5 h-5 rounded-full border-2 border-accent-500 bg-hero-drops-bg flex items-center justify-center z-10 ring-[3px] ring-hero-drops-bg">
                         <Star className="w-2.5 h-2.5 text-accent-400 fill-current" aria-hidden="true" />
                       </div>
-                      <div className="text-micro text-hero-text-mid mt-1.5 text-center leading-tight">Today: Ep. {todayEp}</div>
+                      <div className="text-micro text-hero-text-mid mt-1.5 text-center leading-tight">Latest: Ep. {todayEp}</div>
                     </div>
                   </div>
                 </motion.div>
@@ -807,12 +838,12 @@ const CheckInItem = memo(function CheckInItem({
                       <div className="w-5 h-5 rounded-full border-2 border-hero-text-low/60 bg-hero-drops-bg flex items-center justify-center z-10 ring-[3px] ring-hero-drops-bg">
                         <Star className="w-2.5 h-2.5 text-hero-text-low fill-current" aria-hidden="true" />
                       </div>
-                      <div className="text-micro text-hero-text-mid mt-1.5 text-center leading-tight">Today: Ep. {todayEp}</div>
+                      <div className="text-micro text-hero-text-mid mt-1.5 text-center leading-tight">Latest: Ep. {todayEp}</div>
                     </div>
                   </div>
 
                   <div className="absolute top-[16px] left-[72.5%] transform -translate-x-1/2 -translate-y-1/2 border border-hero-drops-edge bg-hero-drops-bg rounded-full px-2 py-0.5 text-micro text-hero-text-mid whitespace-nowrap z-10 shadow-e1">
-                    <Ticker value={todayEp - nextEp} /> episodes to today
+                    <Ticker value={todayEp - nextEp} /> episodes to go
                   </div>
                 </motion.div>
               )}

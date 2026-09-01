@@ -121,12 +121,32 @@ describe('CheckInFeed drop admission', () => {
     });
   }
 
-  it('does not admit a drop that is already past the 24h window', async () => {
+  it('does not admit a drop that is already past the drop window', async () => {
     await render(
-      <CheckInFeed animeList={[show(26)]} favorites={[1]} logs={logsThrough(3)} onLog={() => {}} onAnimeSelect={() => {}} />,
+      <CheckInFeed animeList={[show(50)]} favorites={[1]} logs={logsThrough(3)} onLog={() => {}} onAnimeSelect={() => {}} />,
     );
 
     expect(container.textContent).not.toContain("Today's Drops");
+  });
+
+  it('still admits an episode from yesterday evening, and says so', async () => {
+    // The band that made the owner's cards vanish under the old 24h window:
+    // watched the following evening is the normal case, not the late one.
+    await render(
+      <CheckInFeed animeList={[show(26)]} favorites={[1]} logs={logsThrough(6)} onLog={() => {}} onAnimeSelect={() => {}} />,
+    );
+
+    expect(container.textContent).toContain("Today's Drops");
+    expect(container.textContent).toContain('Yesterday');
+    expect(container.textContent).not.toContain('aired today');
+  });
+
+  it('warns a card that is about to age out', async () => {
+    await render(
+      <CheckInFeed animeList={[show(45)]} favorites={[1]} logs={logsThrough(6)} onLog={() => {}} onAnimeSelect={() => {}} />,
+    );
+
+    expect(container.textContent).toContain('Leaves in 3h');
   });
 
   it('keeps an admitted card up across the window lapsing, advancing to the next unwatched episode', async () => {
@@ -139,14 +159,28 @@ describe('CheckInFeed drop admission', () => {
     // The catch-up rating lands after the window has lapsed. The recompute
     // used to expire the card here — as though today's episode were logged.
     await render(
-      <CheckInFeed animeList={[show(26)]} favorites={[1]} logs={logsThrough(4)} onLog={() => {}} onAnimeSelect={() => {}} />,
+      <CheckInFeed animeList={[show(50)]} favorites={[1]} logs={logsThrough(4)} onLog={() => {}} onAnimeSelect={() => {}} />,
     );
     expect(container.textContent).toContain("Today's Drops");
     expect(container.textContent).toContain('Rate Episode 5');
 
-    // Logging today's episode (7) is what resolves the card.
+    // Logging the aired episode (7) is what resolves the card.
     await render(
-      <CheckInFeed animeList={[show(26)]} favorites={[1]} logs={logsThrough(7)} onLog={() => {}} onAnimeSelect={() => {}} />,
+      <CheckInFeed animeList={[show(50)]} favorites={[1]} logs={logsThrough(7)} onLog={() => {}} onAnimeSelect={() => {}} />,
+    );
+    expect(container.textContent).not.toContain("Today's Drops");
+  });
+
+  it('drops a pinned card once the grace past the window runs out', async () => {
+    await render(
+      <CheckInFeed animeList={[show(23)]} favorites={[1]} logs={logsThrough(3)} onLog={() => {}} onAnimeSelect={() => {}} />,
+    );
+    expect(container.textContent).toContain("Today's Drops");
+
+    // 61h: past DROP_WINDOW_SEC + PIN_GRACE_SEC, so the pin stops carrying it
+    // and a tab left open for days cannot hoard cards.
+    await render(
+      <CheckInFeed animeList={[show(61)]} favorites={[1]} logs={logsThrough(3)} onLog={() => {}} onAnimeSelect={() => {}} />,
     );
     expect(container.textContent).not.toContain("Today's Drops");
   });
@@ -264,11 +298,12 @@ describe('CheckInFeed drop admission', () => {
     // Without the skip the fresh-clock guard would hold Show 2 out (it aired
     // 5 minutes ago); the skip hands it to the deck instead. Assert the
     // surface, not just presence: the candidate's reason text renders only on
-    // an UpNextCard, and "Rate today's episode" only on a caught-up drop card.
+    // an UpNextCard, and the drop card's rate well exactly once — for Cowboy
+    // Bebop — which is what proves Show 2 came through as a filler.
     expect(container.textContent).toContain('Cowboy Bebop');
     expect(container.textContent).toContain('Show 2');
     expect(container.textContent).toContain('1 episodes waiting');
-    expect(container.textContent).not.toContain("Rate today's episode");
+    expect(container.textContent!.match(/Tap a score to rate/g)).toHaveLength(1);
   });
 
   it("admits a stacking show's finale as a graduation drop", async () => {
@@ -283,7 +318,7 @@ describe('CheckInFeed drop admission', () => {
       />,
     );
     expect(container.textContent).toContain('Stack complete');
-    expect(container.textContent).toContain('Finale aired today');
+    expect(container.textContent).toContain('2h ago');
     expect(container.textContent).toContain('Start the binge — Episode 3');
     expect(container.textContent).toContain('Finale: Ep. 12');
   });
@@ -340,8 +375,10 @@ describe('wouldBeDrop', () => {
     expect(wouldBeDrop(episodeSixShow(2, -300), [2], logsThrough(6, 2), NOW)).toBe(false);
   });
 
-  it('ignores a show past the 24h drops window', () => {
-    expect(wouldBeDrop(episodeSixShow(2, -25 * 3600), [2], logs, NOW)).toBe(false);
+  it('ignores a show past the drops window', () => {
+    expect(wouldBeDrop(episodeSixShow(2, -50 * 3600), [2], logs, NOW)).toBe(false);
+    // ...but yesterday's episode is still the drops feed's to claim.
+    expect(wouldBeDrop(episodeSixShow(2, -26 * 3600), [2], logs, NOW)).toBe(true);
   });
 
   it('claims a stacking show for its finale and nothing else', () => {

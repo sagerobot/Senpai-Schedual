@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { cn } from '../../lib/utils';
 import { displayTitle } from '../../lib/displayTitle';
 import { latestAiredEpisode } from '../../lib/aired';
+import { DROP_WINDOW_SEC } from '../../lib/freshness';
 import { CheckInFeed, computeDrops, wouldBeDrop } from './CheckInFeed';
 import { STREAMING_SITES } from '../../lib/watchLinks';
 import { useUpNext } from '../../hooks/useUpNext';
@@ -63,13 +64,21 @@ export function DailySchedule({ animeList, favorites, stacking = NO_STACKING, on
     (c) => !wouldBeDrop(c.anime, favorites, logs, deckNowSec, stacking, dropSkips),
   );
   // "You're done for today" only means something if there was a today: at least
-  // one tracked episode aired in the last 24h and its log exists.
+  // one tracked episode aired inside the drop window and its log exists. Shares
+  // DROP_WINDOW_SEC with computeDrops — a done-tag on a different clock to the
+  // surface it describes is how you get "done" over a row of unwatched cards.
   const clearedDropsToday = useMemo(() => {
     const now = Math.floor(Date.now() / 1000);
     return dropSource.some((anime) => {
       if (!favorites.includes(anime.id) && !stacking.includes(anime.id)) return false;
       const latest = latestAiredEpisode(anime, now);
-      if (latest === null || now - latest.airedAt > 24 * 3600) return false;
+      if (latest === null) return false;
+      // The lower bound matters: latestAiredEpisode's estimated branch guesses
+      // airedAt as airingAt − 7 days, which lands in the *future* for a show on
+      // a break. Without this, such a show reported a cleared "today" that
+      // never happened.
+      const sinceAir = now - latest.airedAt;
+      if (sinceAir < 0 || sinceAir > DROP_WINDOW_SEC) return false;
       return logs.some((l) => l.showId === anime.id && l.episodeNumber === latest.episode);
     });
   }, [dropSource, favorites, stacking, logs]);
