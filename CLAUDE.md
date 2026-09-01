@@ -92,7 +92,7 @@ Override invalidation happens through a store subscription inside `resolver.ts`,
 
 ### User data (`src/stores/`)
 
-`userData.ts` is one zustand store persisted as `senpai.userdata.v3`: `library` keyed by showId, `logs` keyed `showId:episodeNumber`, `offsets`, `overrides`, `uiPrefs`. `useLibrary` / `useEpisodeLog` / `useSimulcastOffsets` are thin facades over it.
+`userData.ts` is one zustand store persisted as `senpai.userdata.v3`: `library` keyed by showId, `logs` keyed `showId:episodeNumber`, `offsets`, `overrides`, `uiPrefs`, `dropSkips` (Today's Drops "skip this week", keyed by showId — persisted so the skip outlives the session; the deck's "Not tonight" stays session-scoped by contrast). `useLibrary` / `useEpisodeLog` / `useSimulcastOffsets` are thin facades over it.
 
 `migrations.ts` runs on every boot before the store is created: it sweeps the caches the query layer replaced, one-shot imports the pre-v3 keys when `senpai.userdata.v3` is absent, then deletes those legacy keys. **The `PRESERVED_KEYS` guard matters** — `senpai_series_overrides` shares the retired `senpai_series_` prefix but is user data, and the sweep runs before the migration that reads it. Legacy-key deletion is gated on the v3 blob actually existing, so a failed write retries next boot instead of losing data.
 

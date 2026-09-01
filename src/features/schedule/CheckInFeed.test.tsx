@@ -2,12 +2,17 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, type ReactElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
+import { toast } from 'sonner';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { UpNextCandidate } from '../../lib/upNext';
+import { useUserData } from '../../stores/userData';
 import type { AnimeMedia, EpisodeLog, LibraryEntry } from '../../types';
 import { CheckInFeed, resetAdmittedDrops, wouldBeDrop } from './CheckInFeed';
 
 vi.mock('../../components/LibraryStatusMenu', () => ({ LibraryStatusMenu: () => null }));
+vi.mock('sonner', () => ({
+  toast: Object.assign(vi.fn(), { error: vi.fn(), success: vi.fn() }),
+}));
 
 const NOW = Math.floor(Date.now() / 1000);
 
@@ -96,6 +101,7 @@ describe('CheckInFeed drop admission', () => {
   beforeEach(() => {
     (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
     resetAdmittedDrops();
+    useUserData.setState({ dropSkips: {} });
     container = document.createElement('div');
     document.body.appendChild(container);
     root = createRoot(container);
@@ -183,6 +189,88 @@ describe('CheckInFeed drop admission', () => {
     expect(container.textContent).not.toContain('Show 2');
   });
 
+  it('skip button hides the drop for the week and the toast Undo brings it back', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(NOW * 1000);
+    const aired = episodeSixShow(2, -300);
+    const props = { favorites: [2], logs: logsThrough(5, 2), onLog: () => {}, onAnimeSelect: () => {} };
+    await render(<CheckInFeed animeList={[aired]} {...props} />);
+    expect(container.textContent).toContain("Today's Drops");
+
+    const skipButton = container.querySelector<HTMLButtonElement>('button[aria-label^="Skip this week"]');
+    expect(skipButton).not.toBeNull();
+    await act(async () => skipButton!.click());
+
+    expect(container.textContent).not.toContain("Today's Drops");
+    expect(useUserData.getState().dropSkips[2].episode).toBe(6);
+    expect(toast).toHaveBeenCalledWith('Skipped for this week', expect.anything());
+
+    // Undo through the toast's own action, after the 24h window has lapsed —
+    // only the surviving admission pin can bring the card back, so this fails
+    // if a skip ever starts clearing pins.
+    vi.setSystemTime((NOW + 25 * 3600) * 1000);
+    const [, opts] = vi.mocked(toast).mock.calls.at(-1)! as unknown as [
+      unknown,
+      { action: { onClick: () => void } },
+    ];
+    await act(async () => opts.action.onClick());
+    expect(container.textContent).toContain("Today's Drops");
+  });
+
+  it('readmits the show when the next episode airs after a skip', async () => {
+    // Last week's episode 5 was skipped; episode 6 just aired.
+    useUserData.getState().skipDrop(2, 5);
+    await render(
+      <CheckInFeed
+        animeList={[episodeSixShow(2, -300)]}
+        favorites={[2]}
+        logs={logsThrough(5, 2)}
+        onLog={() => {}}
+        onAnimeSelect={() => {}}
+      />,
+    );
+    expect(container.textContent).toContain("Today's Drops");
+  });
+
+  it('keeps a skipped episode out of the drops with fresh admission pins (the reload shape)', async () => {
+    useUserData.getState().skipDrop(2, 6);
+    await render(
+      <CheckInFeed
+        animeList={[episodeSixShow(2, -300)]}
+        favorites={[2]}
+        logs={logsThrough(5, 2)}
+        onLog={() => {}}
+        onAnimeSelect={() => {}}
+      />,
+    );
+    expect(container.textContent).not.toContain("Today's Drops");
+  });
+
+  it('deals a skipped show into the merged row as an Up Next filler', async () => {
+    const dropShow = show(23); // id 1 — keeps the drops row alive
+    const skipped = episodeSixShow(2, -300);
+    useUserData.getState().skipDrop(2, 6);
+    const noop = () => {};
+    await render(
+      <CheckInFeed
+        animeList={[dropShow, skipped]}
+        favorites={[1, 2]}
+        logs={[...logsThrough(3), ...logsThrough(5, 2)]}
+        onLog={noop}
+        onAnimeSelect={noop}
+        upNext={{ candidates: [candidate(skipped, 1, 6)], onLog: noop, onSkip: noop, onSelect: noop }}
+      />,
+    );
+    // Without the skip the fresh-clock guard would hold Show 2 out (it aired
+    // 5 minutes ago); the skip hands it to the deck instead. Assert the
+    // surface, not just presence: the candidate's reason text renders only on
+    // an UpNextCard, and "Rate today's episode" only on a caught-up drop card.
+    expect(container.textContent).toContain('Cowboy Bebop');
+    expect(container.textContent).toContain('Show 2');
+    expect(container.textContent).toContain('1 episodes waiting');
+    expect(container.textContent).not.toContain("Rate today's episode");
+  });
+
   it("admits a stacking show's finale as a graduation drop", async () => {
     await render(
       <CheckInFeed
@@ -260,5 +348,13 @@ describe('wouldBeDrop', () => {
     expect(wouldBeDrop(finaleShow(7, 2), [], [], NOW, [7])).toBe(true);
     expect(wouldBeDrop(episodeSixShow(7, -300), [], [], NOW, [7])).toBe(false);
     expect(wouldBeDrop(finaleShow(7, 2), [], [], NOW)).toBe(false);
+  });
+
+  it('releases a skipped episode to the deck instead of claiming it', () => {
+    const skips = { 2: { episode: 6, skippedAt: NOW * 1000 } };
+    expect(wouldBeDrop(episodeSixShow(2, -300), [2], logs, NOW, [], skips)).toBe(false);
+    // A skip for last week's episode does not release this week's.
+    const staleSkips = { 2: { episode: 5, skippedAt: NOW * 1000 } };
+    expect(wouldBeDrop(episodeSixShow(2, -300), [2], logs, NOW, [], staleSkips)).toBe(true);
   });
 });

@@ -17,7 +17,7 @@ import type { VibeEntry } from '../../lib/vibesFile';
 import { pickWatchLink } from '../../lib/watchLinks';
 import { useVibesIndex } from '../../queries/vibes';
 import { useUserData } from '../../stores/userData';
-import { AnimeMedia, EpisodeLog } from '../../types';
+import { AnimeMedia, DropSkip, EpisodeLog } from '../../types';
 
 /** The Up Next deck, dealt into this grid's leftover columns (the merged row). */
 export interface CheckInFeedUpNext {
@@ -80,6 +80,9 @@ const QUICK_SCORES = [5, 6, 7, 8, 9, 10];
  */
 const NO_STACKING: number[] = [];
 
+/** Same stable-identity rule for the skips argument. */
+const NO_SKIPS: Record<number, DropSkip> = {};
+
 /** Admission window: an episode is drop material for 24h after it airs. */
 const DROP_WINDOW_SEC = 24 * 3600;
 
@@ -115,6 +118,7 @@ export function computeDrops(
   favorites: number[],
   logs: EpisodeLog[],
   stacking: number[] = [],
+  skips: Record<number, DropSkip> = NO_SKIPS,
 ): Drop[] {
   const recent: Drop[] = [];
   const now = Math.floor(Date.now() / 1000);
@@ -142,6 +146,11 @@ export function computeDrops(
       !(anime.episodes !== null && episodeNum >= anime.episodes && (latest === null || !latest.estimated))
     )
       continue;
+
+    // "Skip this week": the skipped episode never drops again — but its pin
+    // survives, so an Undo restores the card even after the 24h window. Next
+    // week's episode isn't the skipped one and admits normally.
+    if (skips[anime.id]?.episode === episodeNum) continue;
 
     const timeSinceAir = now - current.airedAt;
     const inWindow = timeSinceAir >= 0 && timeSinceAir <= DROP_WINDOW_SEC;
@@ -182,11 +191,15 @@ export function wouldBeDrop(
   logs: EpisodeLog[],
   nowSec: number,
   stacking: number[] = [],
+  skips: Record<number, DropSkip> = NO_SKIPS,
 ): boolean {
   const isStacking = stacking.includes(anime.id);
   if (!favorites.includes(anime.id) && !isStacking) return false;
   const latest = latestAiredEpisode(anime, nowSec);
   if (latest === null) return false;
+  // A skipped episode is deck material by design — without this, the show
+  // would vanish from both surfaces for the rest of the drop window.
+  if (skips[anime.id]?.episode === latest.episode) return false;
   if (isStacking && !(anime.episodes !== null && latest.episode >= anime.episodes && !latest.estimated)) {
     return false;
   }
@@ -212,10 +225,11 @@ export function CheckInFeed({
 }: CheckInFeedProps) {
   const vibes = useVibesIndex();
   const cols = useGridColumns();
+  const dropSkips = useUserData((s) => s.dropSkips);
 
   const drops = useMemo(
-    () => computeDrops(animeList, favorites, logs, stacking),
-    [animeList, favorites, logs, stacking],
+    () => computeDrops(animeList, favorites, logs, stacking, dropSkips),
+    [animeList, favorites, logs, stacking, dropSkips],
   );
 
   // This surface's onLog arrives raw from schedule/route.tsx, so the undo
@@ -231,6 +245,20 @@ export function CheckInFeed({
     [onLog],
   );
 
+  // A mis-tap here hides the card for a week, so the undo toast is mandatory
+  // (a graduation card has no next week — its home becomes the deck).
+  const handleSkip = useCallback((drop: Drop) => {
+    // Record the freshest aired episode, not just the on-screen one: a pinned
+    // card can predate an airing a fresh clock already sees, and skipping the
+    // stale number would let the new episode re-admit on this very tap.
+    const latest = latestAiredEpisode(drop.anime, Math.floor(Date.now() / 1000));
+    const episode = Math.max(drop.episode, latest?.episode ?? 0);
+    useUserData.getState().skipDrop(drop.anime.id, episode);
+    toast(drop.graduation ? 'Saved for later — waiting in your deck' : 'Skipped for this week', {
+      action: { label: 'Undo', onClick: () => useUserData.getState().unskipDrop(drop.anime.id) },
+    });
+  }, []);
+
   // The merged row: deck cards complete the final drops row instead of the
   // page waiting for every drop to be logged. Single-column screens skip it —
   // there is no leftover column to fill. A behind drop show is also a ranked
@@ -242,7 +270,7 @@ export function CheckInFeed({
   const nowSec = Math.floor(Date.now() / 1000);
   const available = upNext
     ? upNext.candidates.filter(
-        (c) => !dropIds.has(c.anime.id) && !wouldBeDrop(c.anime, favorites, logs, nowSec, stacking),
+        (c) => !dropIds.has(c.anime.id) && !wouldBeDrop(c.anime, favorites, logs, nowSec, stacking, dropSkips),
       )
     : [];
   const fillCount = cols > 1 ? Math.min((cols - (drops.length % cols)) % cols, available.length) : 0;
@@ -348,6 +376,7 @@ export function CheckInFeed({
                   drop={drop}
                   vibe={vibes.get(drop.anime.id, drop.episode)}
                   onLog={handleLog}
+                  onSkip={handleSkip}
                   onAnimeSelect={onAnimeSelect}
                 />
               </SwipeCell>
@@ -415,11 +444,13 @@ const CheckInItem = memo(function CheckInItem({
   drop,
   vibe,
   onLog,
+  onSkip,
   onAnimeSelect,
 }: {
   drop: Drop;
   vibe: VibeEntry | undefined;
   onLog: (showId: number, episodeNumber: number, score: number | null) => void;
+  onSkip: (drop: Drop) => void;
   onAnimeSelect?: (anime: AnimeMedia) => void;
 }) {
   const { anime, maxWatched, userAvgScore, episode: todayEp, graduation: isGraduation } = drop;
@@ -816,6 +847,21 @@ const CheckInItem = memo(function CheckInItem({
               No stream linked
             </p>
           )}
+
+          <button
+            type="button"
+            onClick={() => onSkip(drop)}
+            aria-label={
+              // Leads with the visible label so voice control can match it
+              // (WCAG 2.5.3 Label in Name).
+              isGraduation
+                ? `Binge later — save ${title} for the deck`
+                : `Skip this week — hide ${title} until the next episode`
+            }
+            className="relative mt-2 flex h-8 w-full items-center justify-center rounded-field text-caption font-medium text-hero-text-low transition-colors hover:bg-hero-drops-well hover:text-hero-text-mid focus:outline-none focus-visible:ring-2 focus-visible:ring-ring after:absolute after:inset-x-0 after:top-1/2 after:h-11 after:-translate-y-1/2 after:content-['']"
+          >
+            {isGraduation ? 'Binge later →' : 'Skip this week →'}
+          </button>
         </div>
       </div>
     </div>

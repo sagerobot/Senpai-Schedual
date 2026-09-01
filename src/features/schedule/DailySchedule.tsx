@@ -49,16 +49,17 @@ export function DailySchedule({ animeList, favorites, stacking = NO_STACKING, on
     for (const c of upNextCandidates) if (!merged.has(c.anime.id)) merged.set(c.anime.id, c.anime);
     return Array.from(merged.values());
   }, [animeList, upNextCandidates]);
+  const dropSkips = useUserData((s) => s.dropSkips);
   const activeDropCount = useMemo(
-    () => computeDrops(dropSource, favorites, logs, stacking).length,
-    [dropSource, favorites, logs, stacking],
+    () => computeDrops(dropSource, favorites, logs, stacking, dropSkips).length,
+    [dropSource, favorites, logs, stacking, dropSkips],
   );
   // The standalone deck applies the same fresh-clock guard as the merged row:
   // a candidate whose episode just aired belongs to the drops feed, and the
   // memos above may not have re-run since the airing. Un-memoized on purpose.
   const deckNowSec = Math.floor(Date.now() / 1000);
   const deckCandidates = upNextCandidates.filter(
-    (c) => !wouldBeDrop(c.anime, favorites, logs, deckNowSec, stacking),
+    (c) => !wouldBeDrop(c.anime, favorites, logs, deckNowSec, stacking, dropSkips),
   );
   // "You're done for today" only means something if there was a today: at least
   // one tracked episode aired in the last 24h and its log exists.

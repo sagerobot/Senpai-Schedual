@@ -3,7 +3,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import type { StateStorage } from 'zustand/middleware';
 import { toast } from 'sonner';
 import type { CustomTheme, ThemeName } from '../lib/theme';
-import { EpisodeLog, LibraryEntry, LibraryStatus } from '../types';
+import { DropSkip, EpisodeLog, LibraryEntry, LibraryStatus } from '../types';
 import { removeKey, writeJSON, WriteResult } from './storage';
 import { runMigrations, USER_DATA_KEY } from './migrations';
 
@@ -61,6 +61,16 @@ export interface UserDataState {
   offsets: Record<number, number>;
   overrides: SeriesOverrides;
   uiPrefs: UiPrefs;
+  /**
+   * "Skip this week" on Today's Drops, keyed by showId. Persisted — unlike the
+   * deck's session-scoped "Not tonight" — because the skipped drop card would
+   * otherwise sit pinned on the schedule until next week's episode airs.
+   * Entries go inert on their own (logging the episode or a newer airing
+   * supersedes them), so nothing prunes them. Deliberately excluded from the
+   * Settings backup: week-scoped ephemera, same scope rule as offsets and
+   * overrides.
+   */
+  dropSkips: Record<number, DropSkip>;
 
   upsertEntry: (showId: number, update: Partial<LibraryEntry>) => void;
   setStatus: (showId: number, status: LibraryStatus) => void;
@@ -74,6 +84,8 @@ export interface UserDataState {
   setLogsBulk: (logs: EpisodeLog[]) => void;
   setLibraryBulk: (entries: LibraryEntry[]) => void;
   setOffset: (showId: number, offsetMinutes?: number) => void;
+  skipDrop: (showId: number, episodeNumber: number) => void;
+  unskipDrop: (showId: number) => void;
   setOverrides: (overrides: SeriesOverrides) => void;
   splitShow: (showId: number) => void;
   mergeShow: (showId: number, targetSeriesId: number) => void;
@@ -81,7 +93,10 @@ export interface UserDataState {
   clearAll: () => void;
 }
 
-type PersistedUserData = Pick<UserDataState, 'library' | 'logs' | 'offsets' | 'overrides' | 'uiPrefs'>;
+type PersistedUserData = Pick<
+  UserDataState,
+  'library' | 'logs' | 'offsets' | 'overrides' | 'uiPrefs' | 'dropSkips'
+>;
 
 const emptyData = (): PersistedUserData => ({
   library: {},
@@ -89,6 +104,7 @@ const emptyData = (): PersistedUserData => ({
   offsets: {},
   overrides: { merges: {}, splits: [] },
   uiPrefs: { includeMovies: false, selectedSources: [] },
+  dropSkips: {},
 });
 
 /** One toast per quota streak; re-arms after the next successful write. */
@@ -253,6 +269,21 @@ export const useUserData = create<UserDataState>()(
         set({ offsets: nextOffsets });
       },
 
+      skipDrop: (showId, episodeNumber) => {
+        set({
+          dropSkips: {
+            ...get().dropSkips,
+            [showId]: { episode: episodeNumber, skippedAt: Date.now() },
+          },
+        });
+      },
+
+      unskipDrop: (showId) => {
+        const nextSkips = { ...get().dropSkips };
+        delete nextSkips[showId];
+        set({ dropSkips: nextSkips });
+      },
+
       setOverrides: (overrides) => {
         set({ overrides });
       },
@@ -287,6 +318,7 @@ export const useUserData = create<UserDataState>()(
         offsets: state.offsets,
         overrides: state.overrides,
         uiPrefs: state.uiPrefs,
+        dropSkips: state.dropSkips,
       }),
     },
   ),

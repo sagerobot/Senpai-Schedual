@@ -184,6 +184,20 @@ describe('offsets, overrides, uiPrefs', () => {
     state().setUiPrefs({ selectedSources: ['Netflix'] });
     expect(state().uiPrefs).toEqual({ includeMovies: true, selectedSources: ['Netflix'] });
   });
+
+  it('skipDrop keeps one skip per show and unskipDrop clears it', () => {
+    state().skipDrop(9, 5);
+    expect(state().dropSkips[9].episode).toBe(5);
+    expect(state().dropSkips[9].skippedAt).toBeTypeOf('number');
+
+    state().skipDrop(9, 6); // next week's skip supersedes
+    state().skipDrop(10, 3);
+    expect(state().dropSkips[9].episode).toBe(6);
+
+    state().unskipDrop(9);
+    expect(state().dropSkips[9]).toBeUndefined();
+    expect(state().dropSkips[10].episode).toBe(3);
+  });
 });
 
 describe('persistence', () => {
@@ -232,6 +246,21 @@ describe('persistence', () => {
     expect(fresh.useUserData.getState().library[1]).toEqual(entry);
     expect(fresh.useUserData.getState().logs['1:1'].watchedAt).toBe(5);
     expect(fresh.useUserData.getState().uiPrefs).toEqual({ includeMovies: true, selectedSources: ['Netflix'] });
+    // A pre-dropSkips blob hydrates to the empty default, not undefined.
+    expect(fresh.useUserData.getState().dropSkips).toEqual({});
+  });
+
+  it('round-trips dropSkips through the persisted blob', async () => {
+    state().skipDrop(9, 5);
+
+    const raw = storage.getItem('senpai.userdata.v3');
+    expect(raw).not.toBeNull();
+    expect(JSON.parse(raw!).state.dropSkips['9'].episode).toBe(5);
+
+    // The whole reason skips live in the store: they must outlive the session.
+    vi.resetModules();
+    const fresh = await import('./userData');
+    expect(fresh.useUserData.getState().dropSkips[9].episode).toBe(5);
   });
 
   it('surfaces a quota failure via a single toast until a write succeeds again', () => {

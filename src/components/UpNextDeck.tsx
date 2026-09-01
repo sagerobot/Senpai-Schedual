@@ -26,6 +26,7 @@ const DECK_SIZE = 4;
 /** Reason chips share the drop cards' glassy pill grammar; never color-only. */
 const REASON_CHIP: Record<UpNextReasonKind, { chip: string; dot: string }> = {
   'binge-ready': { chip: 'border-success-500/40 text-success-300', dot: 'bg-success-400' },
+  'skipped-drop': { chip: 'border-accent-500/40 text-accent-300', dot: 'bg-accent-400' },
   'finish-line': { chip: 'border-success-500/40 text-success-300', dot: 'bg-success-400' },
   urgency: { chip: 'border-warning-500/40 text-warning-300', dot: 'bg-warning-400' },
   momentum: { chip: 'border-accent-500/40 text-accent-300', dot: 'bg-accent-400' },
@@ -56,7 +57,9 @@ export function UpNextDeck({ candidates, onLog, onSkip, onAnimeSelect }: UpNextD
       <div className="mb-6 flex items-end justify-between gap-3">
         <div>
           <h2 className="text-xl font-bold tracking-tight text-fg">Up next for you</h2>
-          <p className="mt-0.5 text-sm text-fg-muted">Ranked for right now · skips stick for tonight</p>
+          {/* Scoped to the deck's own skip: drop-card "Skip this week" cards
+              land here with a week-long life of their own. */}
+          <p className="mt-0.5 text-sm text-fg-muted">Ranked for right now · “Not tonight” sticks for tonight</p>
         </div>
         {remaining > 0 && (
           <span className="whitespace-nowrap pb-1 text-caption text-fg-faint">

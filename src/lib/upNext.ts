@@ -1,4 +1,4 @@
-import { AnimeMedia, EpisodeLog, LibraryEntry } from '../types';
+import { AnimeMedia, DropSkip, EpisodeLog, LibraryEntry } from '../types';
 import { getAiredEpisodesCount, seasonFullyAired } from './aired';
 
 /**
@@ -12,6 +12,7 @@ import { getAiredEpisodesCount, seasonFullyAired } from './aired';
 
 export type UpNextReasonKind =
   | 'binge-ready'
+  | 'skipped-drop'
   | 'urgency'
   | 'momentum'
   | 'finish-line'
@@ -41,6 +42,8 @@ export interface UpNextInput {
   library: LibraryEntry[];
   logs: EpisodeLog[];
   nowSec: number;
+  /** Today's Drops "skip this week" records; a current skip boosts its show. */
+  dropSkips?: Record<number, DropSkip>;
 }
 
 const HOUR = 3600;
@@ -48,6 +51,12 @@ const DAY_MS = 24 * 3600 * 1000;
 const MOMENTUM_WINDOW_MS = 7 * DAY_MS;
 /** A watching show untouched this long falls out of the deck entirely. */
 const STALE_MS = 21 * DAY_MS;
+/**
+ * A drop skip normally lapses when the next episode airs and takes over the
+ * drops surface; this cap handles the episodes nothing ever supersedes
+ * (finales), so "skipped this week" can't read as true a month later.
+ */
+const SKIP_BOOST_WINDOW_MS = 7 * DAY_MS;
 
 interface Signal extends UpNextReason {
   points: number;
@@ -66,7 +75,13 @@ export function isBingeReady(entry: LibraryEntry, anime: AnimeMedia, nowSec: num
   return getAiredEpisodesCount(anime, nowSec) >= entry.stackWakeCount;
 }
 
-export function rankUpNext({ animeList, library, logs, nowSec }: UpNextInput): UpNextCandidate[] {
+export function rankUpNext({
+  animeList,
+  library,
+  logs,
+  nowSec,
+  dropSkips = {},
+}: UpNextInput): UpNextCandidate[] {
   const nowMs = nowSec * 1000;
   const byId = new Map<number, AnimeMedia>();
   for (const anime of animeList) byId.set(anime.id, anime);
@@ -96,24 +111,54 @@ export function rankUpNext({ animeList, library, logs, nowSec }: UpNextInput): U
       rated.length > 0 ? rated.reduce((sum, l) => sum + (l.score ?? 0), 0) / rated.length : null;
 
     const signals: Signal[] = [];
+    const skip = dropSkips[entry.showId];
 
     if (entry.status === 'stacking') {
-      if (!isBingeReady(entry, anime, nowSec)) continue;
-      // High enough that no sum of watching signals (≤ ~1100) can outrank the
+      // A recorded skip for the finale is proof the finale aired — the
+      // graduation card only admits on an exact signal — so it carries the
+      // show through the post-finale gap where AniList has nulled
+      // nextAiringEpisode but not yet flipped FINISHED (the same gap the
+      // drops' admission pins cover). Without it, "Binge later" would hide
+      // the show from both surfaces until the status refresh.
+      const skippedFinale =
+        skip !== undefined && anime.episodes !== null && skip.episode >= anime.episodes;
+      if (!isBingeReady(entry, anime, nowSec) && !skippedFinale) continue;
+      // High enough that no sum of watching signals (≤ ~2100 in the
+      // theoretical worst case, with momentum capped) can outrank the
       // graduation moment — a wake condition coming true always tops the deck.
       signals.push({
         kind: 'binge-ready',
-        points: 2000 + Math.min(behindCount, 20),
+        points: 3000 + Math.min(behindCount, 20),
         text:
           seasonFullyAired(anime, nowSec)
             ? `Season complete · ${behindCount} episodes ready`
             : `${behindCount} episodes stacked — ready to binge`,
       });
     } else {
+      // A live skip: still for the latest aired episode, that episode still
+      // unlogged, and recent — otherwise the boost would outlive its drop.
+      const liveSkip =
+        skip !== undefined &&
+        skip.episode === airedCount &&
+        nowMs - skip.skippedAt <= SKIP_BOOST_WINDOW_MS &&
+        !showLogs.some((l) => l.episodeNumber === skip.episode);
+
       // Staleness gate: a show the viewer has touched, then left for ~3 weeks,
       // is no longer a deck pick. (It stays in the Catch-up Queue below.)
+      // A live skip bypasses it — the skip is itself a deliberate, dated touch,
+      // and gating it would vanish the show from drops AND deck at once.
       const lastWatchedAt = showLogs.reduce((max, l) => Math.max(max, l.watchedAt), 0);
-      if (lastWatchedAt > 0 && nowMs - lastWatchedAt > STALE_MS) continue;
+      if (!liveSkip && lastWatchedAt > 0 && nowMs - lastWatchedAt > STALE_MS) continue;
+
+      // A skipped drop is a deliberate "later this week", so it outranks every
+      // organic watching signal while staying under binge-ready's floor.
+      if (liveSkip) {
+        signals.push({
+          kind: 'skipped-drop',
+          points: 600,
+          text: 'Skipped this week — ready when you are',
+        });
+      }
 
       // Urgency reads airingAt, not the cached timeUntilAiring — the latter is
       // computed at fetch time and goes stale in the query cache.
@@ -134,7 +179,10 @@ export function rankUpNext({ animeList, library, logs, nowSec }: UpNextInput): U
       if (recentCount >= 3) {
         signals.push({
           kind: 'momentum',
-          points: 300 + recentCount * 20,
+          // Capped: recentCount is unbounded (a bulk catch-up stamps every log
+          // "now"), and an uncapped term would let a watching sum breach the
+          // binge-ready floor.
+          points: 300 + Math.min(recentCount, 10) * 20,
           text: `${recentCount} episodes this week — you're on a run`,
         });
       }

@@ -31,6 +31,7 @@ export interface UseUpNextResult {
 export function useUpNext(animeList: AnimeMedia[]): UseUpNextResult {
   const library = useUserData(selectLibraryArray);
   const logs = useUserData(selectLogsArray);
+  const dropSkips = useUserData((s) => s.dropSkips);
   const [skipTick, setSkipTick] = useState(0);
 
   const neededIds = useMemo(
@@ -57,8 +58,9 @@ export function useUpNext(animeList: AnimeMedia[]): UseUpNextResult {
       library,
       logs,
       nowSec: Math.floor(Date.now() / 1000),
+      dropSkips,
     }).filter((c) => !skippedTonight.has(c.anime.id));
-  }, [animeList, resolvedMedia, library, logs, skipTick]);
+  }, [animeList, resolvedMedia, library, logs, dropSkips, skipTick]);
 
   const skip = useCallback((showId: number) => {
     skippedTonight.add(showId);

@@ -211,6 +211,142 @@ describe('rankUpNext stacking', () => {
   });
 });
 
+describe('rankUpNext skipped drops', () => {
+  it('boosts a current-week skip above every organic watching signal', () => {
+    const result = rankUpNext({
+      animeList: [
+        show({ id: 1, aired: 8, nextIn: 20 * 3600 }), // urgent watching show
+        show({ id: 2, aired: 6 }),
+      ],
+      library: [entry(1, 'watching'), entry(2, 'watching')],
+      logs: [...logsThrough(1, 6), ...logsThrough(2, 5)],
+      nowSec: NOW,
+      dropSkips: { 2: { episode: 6, skippedAt: NOW_MS - 1 * DAY_MS } },
+    });
+    expect(result.map((c) => c.anime.id)).toEqual([2, 1]);
+    expect(result[0].reason.kind).toBe('skipped-drop');
+    expect(result[0].reason.text).toBe('Skipped this week — ready when you are');
+  });
+
+  it('keeps a binge-ready graduation above a skipped drop', () => {
+    const result = rankUpNext({
+      animeList: [
+        show({ id: 1, aired: 6 }),
+        show({ id: 2, aired: 0, status: 'FINISHED', episodes: 12 }),
+      ],
+      library: [entry(1, 'watching'), entry(2, 'stacking')],
+      logs: logsThrough(1, 5),
+      nowSec: NOW,
+      dropSkips: { 1: { episode: 6, skippedAt: NOW_MS - 1 * DAY_MS } },
+    });
+    expect(result.map((c) => c.anime.id)).toEqual([2, 1]);
+  });
+
+  it('lets the boost lapse once a newer episode has aired', () => {
+    // Episode 7 has aired since the skip of 6 — the new drop owns the surface.
+    // Logs sit outside the momentum window so backlog is the only signal left.
+    const result = rankUpNext({
+      animeList: [show({ id: 1, aired: 7 })],
+      library: [entry(1, 'watching')],
+      logs: logsThrough(1, 5, { watchedAt: NOW_MS - 10 * DAY_MS }),
+      nowSec: NOW,
+      dropSkips: { 1: { episode: 6, skippedAt: NOW_MS - 2 * DAY_MS } },
+    });
+    expect(result[0].reason.kind).toBe('backlog');
+  });
+
+  it('drops the boost when the skipped episode gets logged', () => {
+    const result = rankUpNext({
+      animeList: [show({ id: 1, aired: 6 })],
+      library: [entry(1, 'watching')],
+      logs: [
+        ...logsThrough(1, 4, { watchedAt: NOW_MS - 10 * DAY_MS }),
+        { showId: 1, episodeNumber: 6, watchedAt: NOW_MS, score: null },
+      ],
+      nowSec: NOW,
+      dropSkips: { 1: { episode: 6, skippedAt: NOW_MS - 1 * DAY_MS } },
+    });
+    expect(result[0].reason.kind).toBe('backlog'); // episode 5 still waiting
+  });
+
+  it('lets a live skip bypass the staleness gate', () => {
+    // Last log 25 days ago — normally stale — but the skip is a deliberate,
+    // dated touch: the show must stay deck-eligible or it vanishes from both
+    // drops and deck at once.
+    const result = rankUpNext({
+      animeList: [show({ id: 1, aired: 6 })],
+      library: [entry(1, 'watching')],
+      logs: logsThrough(1, 3, { watchedAt: NOW_MS - 25 * DAY_MS }),
+      nowSec: NOW,
+      dropSkips: { 1: { episode: 6, skippedAt: NOW_MS - 1 * DAY_MS } },
+    });
+    expect(result).toHaveLength(1);
+    expect(result[0].reason.kind).toBe('skipped-drop');
+  });
+
+  it('keeps a stale skip from resurrecting a stale show', () => {
+    // Same stale logs, but the skip is for a superseded episode — the
+    // staleness gate applies as before.
+    const result = rankUpNext({
+      animeList: [show({ id: 1, aired: 7 })],
+      library: [entry(1, 'watching')],
+      logs: logsThrough(1, 3, { watchedAt: NOW_MS - 25 * DAY_MS }),
+      nowSec: NOW,
+      dropSkips: { 1: { episode: 6, skippedAt: NOW_MS - 6 * DAY_MS } },
+    });
+    expect(result).toEqual([]);
+  });
+
+  it('carries a skipped graduation through the post-finale signal gap', () => {
+    // AniList nulled nextAiringEpisode but has not flipped FINISHED yet — the
+    // gap the drops' admission pins cover. The recorded finale skip is the
+    // proof the finale aired, so the deck candidate must survive it.
+    const gap: AnimeMedia = {
+      ...show({ id: 1, aired: 11, episodes: 12 }),
+      nextAiringEpisode: null,
+    };
+    const result = rankUpNext({
+      animeList: [gap],
+      library: [entry(1, 'stacking')],
+      logs: [],
+      nowSec: NOW,
+      dropSkips: { 1: { episode: 12, skippedAt: NOW_MS - 3600 * 1000 } },
+    });
+    expect(result).toHaveLength(1);
+    expect(result[0].reason.kind).toBe('binge-ready');
+  });
+
+  it('keeps binge-ready on top of even a worst-case boosted watching sum', () => {
+    // Skip + urgency + affinity + a 150-episode bulk catch-up (every log
+    // stamped this week) on one show. The momentum cap is what keeps this sum
+    // under the graduation — uncapped, momentum alone would be 3300 points —
+    // so this fails if the cap is ever removed. The 3000 floor is margin on
+    // top; capped sums (≤ ~1760) can't reach even the old 2000.
+    const result = rankUpNext({
+      animeList: [
+        show({ id: 1, aired: 151, nextIn: 1 * 3600, episodes: 200 }),
+        show({ id: 2, aired: 0, status: 'FINISHED', episodes: 12 }),
+      ],
+      library: [entry(1, 'watching'), entry(2, 'stacking')],
+      logs: logsThrough(1, 150, { score: 10, watchedAt: NOW_MS - 1 * DAY_MS }),
+      nowSec: NOW,
+      dropSkips: { 1: { episode: 151, skippedAt: NOW_MS - 1 * DAY_MS } },
+    });
+    expect(result.map((c) => c.anime.id)).toEqual([2, 1]);
+  });
+
+  it('expires a skip nothing supersedes (a finale) after a week', () => {
+    const result = rankUpNext({
+      animeList: [show({ id: 1, aired: 0, status: 'FINISHED', episodes: 12 })],
+      library: [entry(1, 'watching')],
+      logs: logsThrough(1, 11, { watchedAt: NOW_MS - 10 * DAY_MS }),
+      nowSec: NOW,
+      dropSkips: { 1: { episode: 12, skippedAt: NOW_MS - 8 * DAY_MS } },
+    });
+    expect(result[0].reason.kind).toBe('finish-line');
+  });
+});
+
 describe('rankUpNext ordering', () => {
   it('orders urgency over momentum over backlog, deterministically', () => {
     const result = rankUpNext({
