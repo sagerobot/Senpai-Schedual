@@ -16,26 +16,49 @@ interface ShowOpts {
   nextIn?: number;
   status?: AnimeMedia['status'];
   episodes?: number;
+  title?: string;
+  format?: string;
+  startYear?: number;
+  /** Direct franchise edges, as AniList relations: [relationType, id]. */
+  relations?: Array<['PREQUEL' | 'SEQUEL' | 'SIDE_STORY', number]>;
 }
 
-function show({ id, aired, nextIn = 5 * DAY, status = 'RELEASING', episodes = 24 }: ShowOpts): AnimeMedia {
+function show({
+  id,
+  aired,
+  nextIn = 5 * DAY,
+  status = 'RELEASING',
+  episodes = 24,
+  title = `Show ${id}`,
+  format = 'TV',
+  startYear = 2026,
+  relations,
+}: ShowOpts): AnimeMedia {
   return {
     id,
     idMal: id,
     averageScore: 80,
-    title: { romaji: `Show ${id}`, english: `Show ${id}`, userPreferred: `Show ${id}` },
+    title: { romaji: title, english: title, userPreferred: title },
     bannerImage: null,
     coverImage: { large: 'https://example.test/cover.jpg', color: null },
-    startDate: { year: 2026, month: 1, day: 1 },
+    startDate: { year: startYear, month: 1, day: 1 },
     nextAiringEpisode:
       status === 'FINISHED'
         ? null
         : { airingAt: NOW + nextIn, timeUntilAiring: nextIn, episode: aired + 1 },
     status,
-    format: 'TV',
+    format,
     episodes,
     externalLinks: [],
     genres: ['Action'],
+    ...(relations && {
+      relations: {
+        edges: relations.map(([relationType, nodeId]) => ({
+          relationType,
+          node: { id: nodeId, type: 'ANIME', averageScore: null, title: { userPreferred: `Show ${nodeId}` } },
+        })),
+      },
+    }),
   };
 }
 
@@ -534,5 +557,141 @@ describe('foldSeriesCandidates', () => {
     // 1+2 fold under 1 with 2's finish-line score, ahead of 3.
     expect(folded.map((c) => c.anime.id)).toEqual([1, 3]);
     expect(folded[0].reason.text).toBe('Season 2: Season finished · just the finale left');
+  });
+});
+
+/**
+ * The graph can be missing for exactly the shows on the deck — still resolving,
+ * or a walk that failed — while the records' own PREQUEL/SEQUEL edges already
+ * say they belong together. The Catch-up Queue groups on those edges; the deck
+ * must not split what the queue beneath it joins.
+ */
+describe('foldSeriesCandidates without a graph', () => {
+  const seasonOne = () =>
+    show({
+      id: 1,
+      aired: 15,
+      status: 'FINISHED',
+      episodes: 15,
+      startYear: 2020,
+      relations: [['SEQUEL', 2]],
+    });
+  const seasonTwo = () =>
+    show({
+      id: 2,
+      aired: 12,
+      status: 'FINISHED',
+      episodes: 12,
+      title: 'Show 1 Season 2',
+      startYear: 2021,
+      relations: [['PREQUEL', 1]],
+    });
+
+  it('folds two seasons linked by relation edges, labelled by the graph rules', () => {
+    const ranked = rankUpNext({
+      animeList: [seasonOne(), seasonTwo()],
+      library: [entry(1, 'watching'), entry(2, 'watching')],
+      logs: [],
+      nowSec: NOW,
+    });
+    const folded = foldSeriesCandidates(ranked, []);
+    expect(folded).toHaveLength(1);
+    const [card] = folded;
+    expect(card.anime.id).toBe(1);
+    expect(card.series?.title).toBe('Show 1');
+    expect(card.series?.seasonLabel).toBe('Season 1');
+    expect(card.series?.then.map((q) => [q.anime.id, q.seasonLabel])).toEqual([[2, 'Season 2']]);
+    expect(card.reason.text).toBe('2 seasons · 27 waiting');
+  });
+
+  it('orders by start date, so a later-added Season 1 still leads', () => {
+    const ranked = rankUpNext({
+      animeList: [seasonTwo(), seasonOne()],
+      library: [entry(2, 'watching'), entry(1, 'watching')],
+      logs: [],
+      nowSec: NOW,
+    });
+    const [card] = foldSeriesCandidates(ranked, []);
+    expect(card.anime.id).toBe(1);
+  });
+
+  it('respects a split override — the user pulled that season out on purpose', () => {
+    const ranked = rankUpNext({
+      animeList: [seasonOne(), seasonTwo()],
+      library: [entry(1, 'watching'), entry(2, 'watching')],
+      logs: [],
+      nowSec: NOW,
+    });
+    const folded = foldSeriesCandidates(ranked, [], { splits: [2] });
+    expect(folded.map((c) => c.anime.id).sort()).toEqual([1, 2]);
+    expect(folded.every((c) => c.series === undefined)).toBe(true);
+  });
+
+  it('never folds a movie in by edge, even one the season points at', () => {
+    const movie = show({
+      id: 5,
+      aired: 1,
+      status: 'FINISHED',
+      episodes: 1,
+      format: 'MOVIE',
+      title: 'Show 1: The Movie',
+      startYear: 2022,
+      relations: [['PREQUEL', 1]],
+    });
+    const ranked = rankUpNext({
+      animeList: [show({ ...{ id: 1, aired: 15, status: 'FINISHED', episodes: 15, startYear: 2020 }, relations: [['SEQUEL', 5]] }), movie],
+      library: [entry(1, 'watching'), entry(5, 'watching')],
+      logs: [],
+      nowSec: NOW,
+    });
+    const folded = foldSeriesCandidates(ranked, []);
+    expect(folded.map((c) => c.anime.id).sort()).toEqual([1, 5]);
+  });
+
+  it('keeps a lead with an off-deck prequel on its title instead of calling it Season 1', () => {
+    // Season 1 is completed and off the deck; "2nd Season" carries no marker
+    // the label regex knows, so a made-up "Season 1" would be a lie.
+    const second = show({
+      id: 2,
+      aired: 12,
+      status: 'FINISHED',
+      episodes: 12,
+      title: 'Show 1 2nd Season',
+      startYear: 2021,
+      relations: [['PREQUEL', 1], ['SEQUEL', 3]],
+    });
+    const third = show({
+      id: 3,
+      aired: 12,
+      status: 'FINISHED',
+      episodes: 12,
+      title: 'Show 1 3rd Season',
+      startYear: 2022,
+      relations: [['PREQUEL', 2]],
+    });
+    const ranked = rankUpNext({
+      animeList: [second, third],
+      library: [entry(2, 'watching'), entry(3, 'watching')],
+      logs: [],
+      nowSec: NOW,
+    });
+    const [card] = foldSeriesCandidates(ranked, []);
+    expect(card.anime.id).toBe(2);
+    expect(card.series?.seasonLabel).toBe('Show 1 2nd Season');
+    expect(card.series?.then[0].seasonLabel).toBe('Show 1 3rd Season');
+  });
+
+  it('bridges a show whose graph resolved with one whose graph did not', () => {
+    // Only Season 1's graph is in the cache (a solo, truncated one); the edge
+    // from Season 2 still joins them, and the graph's label wins where it exists.
+    const ranked = rankUpNext({
+      animeList: [seasonOne(), seasonTwo()],
+      library: [entry(1, 'watching'), entry(2, 'watching')],
+      logs: [],
+      nowSec: NOW,
+    });
+    const [card] = foldSeriesCandidates(ranked, [graph([1])]);
+    expect(card.anime.id).toBe(1);
+    expect(card.series?.then.map((q) => q.anime.id)).toEqual([2]);
   });
 });

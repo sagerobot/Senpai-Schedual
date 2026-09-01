@@ -35,13 +35,16 @@ export interface UseUpNextResult {
  *
  * Same-franchise candidates fold into one card (foldSeriesCandidates) using
  * the series graphs already in the query cache — the bundle primes them and
- * the Library view resolves them, so this rarely costs a request. Graphs are
- * only asked for when there are at least two candidates: one card can't fold.
+ * the Library view resolves them, so this rarely costs a request — with the
+ * records' own PREQUEL/SEQUEL edges as the fallback while a graph is missing.
+ * Graphs are only asked for when there are at least two candidates: one card
+ * can't fold.
  */
 export function useUpNext(animeList: AnimeMedia[]): UseUpNextResult {
   const library = useUserData(selectLibraryArray);
   const logs = useUserData(selectLogsArray);
   const dropSkips = useUserData((s) => s.dropSkips);
+  const splits = useUserData((s) => s.overrides.splits);
   const [skipTick, setSkipTick] = useState(0);
 
   const neededIds = useMemo(
@@ -79,8 +82,8 @@ export function useUpNext(animeList: AnimeMedia[]): UseUpNextResult {
   const { graphs } = useSeriesGraphs(graphIds);
 
   const candidates = useMemo(
-    () => foldSeriesCandidates(ranked, Object.values(graphs)),
-    [ranked, graphs],
+    () => foldSeriesCandidates(ranked, Object.values(graphs), { splits }),
+    [ranked, graphs, splits],
   );
 
   // Skips are keyed by the raw show ids the ranking filters on, so a skipped

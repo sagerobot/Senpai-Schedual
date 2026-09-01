@@ -46,7 +46,19 @@ export interface SeriesMember {
 const ATTACHMENT_FORMATS = ['MOVIE', 'OVA', 'SPECIAL', 'MUSIC'];
 const SEASON_LABEL_PATTERN = /(Season \d+|Part \d+|Final Season|Cour \d+|S\d+)/gi;
 
-function getSortableDate(d: FuzzyDate | null): string {
+/** Movies, OVAs, specials and music videos hang off a franchise; they are not seasons of it. */
+export function isAttachmentFormat(format: string | null): boolean {
+  return format !== null && ATTACHMENT_FORMATS.includes(format);
+}
+
+/** The season markers a title carries — "Season 2", "Part 2 Final Season" — or null. */
+export function seasonMarker(title: string): string | null {
+  const matches = Array.from(title.matchAll(SEASON_LABEL_PATTERN)).map((m) => m[0]);
+  return matches.length > 0 ? matches.join(' ') : null;
+}
+
+/** Watch order: by start date, unknown dates last. Callers tiebreak by id. */
+export function getSortableDate(d: FuzzyDate | null): string {
   if (!d || !d.year) return '9999-99-99';
   const month = d.month ? d.month.toString().padStart(2, '0') : '12';
   const day = d.day ? d.day.toString().padStart(2, '0') : '31';
@@ -66,14 +78,12 @@ export function buildSeriesGraph(members: SeriesMember[]): SeriesGraph {
   }
 
   const rawEntries = members.map((media) => {
-    const isAttachment = media.format !== null && ATTACHMENT_FORMATS.includes(media.format);
+    const isAttachment = isAttachmentFormat(media.format);
     const rawTitle = media.title.english || media.title.userPreferred || media.title.romaji || `Anime #${media.id}`;
 
     // A title carrying its own season marker labels itself; anything else is
     // labelled below, after sorting, from its position and its parent's title.
-    let seasonLabel = rawTitle;
-    const matches = Array.from(rawTitle.matchAll(SEASON_LABEL_PATTERN)).map((m) => m[0]);
-    if (matches.length > 0) seasonLabel = matches.join(' ');
+    const seasonLabel = seasonMarker(rawTitle) ?? rawTitle;
 
     return {
       id: media.id,

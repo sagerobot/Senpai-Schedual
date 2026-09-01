@@ -1,6 +1,7 @@
-import type { SeriesGraph } from '../series/labeling';
+import { getSortableDate, isAttachmentFormat, seasonMarker, type SeriesGraph } from '../series/labeling';
 import { AnimeMedia, DropSkip, EpisodeLog, LibraryEntry } from '../types';
 import { getAiredEpisodesCount, seasonFullyAired } from './aired';
+import { displayTitle } from './displayTitle';
 
 /**
  * The momentum score behind the Up Next deck: rank "what should I watch right
@@ -270,11 +271,23 @@ function compareCandidates(a: UpNextCandidate, b: UpNextCandidate): number {
   );
 }
 
+export interface FoldOptions {
+  /** Shows the user split out of their franchise; a relation edge never folds them. */
+  splits?: Iterable<number>;
+}
+
 /**
  * Fold same-franchise candidates into one card. Two seasons of one show are one
  * decision, not two, and the seasons get watched in order — so the card leads
  * with the earliest season that still has episodes waiting and queues the rest
- * behind it in graph order.
+ * behind it in start-date order (the order the series graph itself uses).
+ *
+ * Two seasons belong together when a resolved graph says so, or — the same
+ * fallback the Catch-up Queue relies on — when a PREQUEL/SEQUEL relation edge
+ * links them directly. The graph can be missing (still resolving, or a failed
+ * walk) for exactly the shows a viewer is looking at, and a deck that split a
+ * franchise the queue below it grouped read as broken. A user's split override
+ * still wins: the graph honours it, and the edge fallback refuses it.
  *
  * The franchise keeps its best member's slot: a stack completing on Season 2
  * still tops the deck, and the card says Season 1 comes first. The reason chip
@@ -285,52 +298,111 @@ function compareCandidates(a: UpNextCandidate, b: UpNextCandidate): number {
  * card's chip.
  *
  * Attachments (movies, OVAs, specials) never fold: they aren't steps in the
- * watch order. A candidate whose graph hasn't resolved stands alone until it
- * does. Pure, like rankUpNext — the hook feeds it graphs from the query cache.
+ * watch order. Pure, like rankUpNext — the hook feeds it graphs from the query
+ * cache and the split list from the store.
  */
 export function foldSeriesCandidates(
   candidates: UpNextCandidate[],
   graphs: Iterable<SeriesGraph>,
+  { splits = [] }: FoldOptions = {},
 ): UpNextCandidate[] {
   interface Membership {
     seriesId: number;
-    order: number;
     seasonLabel: string;
     seriesTitle: string;
   }
   const membership = new Map<number, Membership>();
   for (const graph of graphs) {
-    graph.entries.forEach((entry, order) => {
-      if (entry.isAttachment) return;
+    for (const entry of graph.entries) {
+      if (entry.isAttachment) continue;
       membership.set(entry.id, {
         seriesId: graph.seriesId,
-        order,
         seasonLabel: entry.seasonLabel,
         seriesTitle: graph.title,
       });
-    });
+    }
   }
+
+  // Union-find over candidate ids: graph membership first, relation edges second.
+  const byId = new Map(candidates.map((c) => [c.anime.id, c]));
+  const parent = new Map(candidates.map((c) => [c.anime.id, c.anime.id]));
+  const find = (id: number): number => {
+    let root = id;
+    while (parent.get(root) !== root) root = parent.get(root)!;
+    parent.set(id, root);
+    return root;
+  };
+  const union = (a: number, b: number) => {
+    const rootA = find(a);
+    const rootB = find(b);
+    if (rootA !== rootB) parent.set(rootA, rootB);
+  };
+
+  const firstOfSeries = new Map<number, number>();
+  for (const c of candidates) {
+    const member = membership.get(c.anime.id);
+    if (member === undefined) continue;
+    const first = firstOfSeries.get(member.seriesId);
+    if (first === undefined) firstOfSeries.set(member.seriesId, c.anime.id);
+    else union(c.anime.id, first);
+  }
+
+  const split = new Set(splits);
+  const foldable = (c: UpNextCandidate) => !split.has(c.anime.id) && !isAttachmentFormat(c.anime.format);
+  for (const c of candidates) {
+    if (!foldable(c)) continue;
+    for (const edge of c.anime.relations?.edges ?? []) {
+      if (edge.node.type !== 'ANIME') continue;
+      if (edge.relationType !== 'PREQUEL' && edge.relationType !== 'SEQUEL') continue;
+      const other = byId.get(edge.node.id);
+      if (other !== undefined && foldable(other)) union(c.anime.id, other.anime.id);
+    }
+  }
+
+  const groups = new Map<number, UpNextCandidate[]>();
+  for (const c of candidates) {
+    const root = find(c.anime.id);
+    const group = groups.get(root);
+    if (group) group.push(c);
+    else groups.set(root, [c]);
+  }
+
+  const hasPrequel = (c: UpNextCandidate) =>
+    (c.anime.relations?.edges ?? []).some((e) => e.node.type === 'ANIME' && e.relationType === 'PREQUEL');
+  /**
+   * A graph label when there is one; otherwise the graph's own rules applied
+   * to what the deck can see — the title's marker, a subtitle under the lead's
+   * title, or "Season 1" for a lead nothing precedes. A lead that does have a
+   * prequel (just not one on the deck) keeps its title rather than a made-up
+   * number.
+   */
+  const labelFor = (c: UpNextCandidate, lead: UpNextCandidate): string => {
+    const member = membership.get(c.anime.id);
+    if (member !== undefined) return member.seasonLabel;
+    const title = displayTitle(c.anime);
+    const marker = seasonMarker(title);
+    if (marker !== null) return marker;
+    if (c === lead) return hasPrequel(c) ? title : 'Season 1';
+    const leadTitle = displayTitle(lead.anime);
+    if (title.startsWith(leadTitle)) {
+      let sub = title.slice(leadTitle.length).trim();
+      if (sub.startsWith(':') || sub.startsWith('-')) sub = sub.slice(1).trim();
+      if (sub) return sub;
+    }
+    return title;
+  };
 
   const folded: UpNextCandidate[] = [];
-  const groups = new Map<number, UpNextCandidate[]>();
-  for (const candidate of candidates) {
-    const member = membership.get(candidate.anime.id);
-    if (member === undefined) {
-      folded.push(candidate);
-      continue;
-    }
-    const group = groups.get(member.seriesId);
-    if (group) group.push(candidate);
-    else groups.set(member.seriesId, [candidate]);
-  }
-
   for (const group of groups.values()) {
     if (group.length === 1) {
       folded.push(group[0]);
       continue;
     }
-    const memberOf = (c: UpNextCandidate) => membership.get(c.anime.id)!;
-    group.sort((a, b) => memberOf(a).order - memberOf(b).order);
+    group.sort(
+      (a, b) =>
+        getSortableDate(a.anime.startDate).localeCompare(getSortableDate(b.anime.startDate)) ||
+        a.anime.id - b.anime.id,
+    );
     const [lead, ...rest] = group;
     const totalBehind = group.reduce((sum, c) => sum + c.behindCount, 0);
     // Strict comparison: on a tie the lead keeps its own reason.
@@ -345,7 +417,7 @@ export function foldSeriesCandidates(
     } else if (top === lead) {
       reason = lead.reason;
     } else {
-      reason = { kind: top.reason.kind, text: `${memberOf(top).seasonLabel}: ${top.reason.text}` };
+      reason = { kind: top.reason.kind, text: `${labelFor(top, lead)}: ${top.reason.text}` };
     }
 
     folded.push({
@@ -353,12 +425,12 @@ export function foldSeriesCandidates(
       reason,
       score: top.score,
       series: {
-        title: memberOf(lead).seriesTitle,
-        seasonLabel: memberOf(lead).seasonLabel,
+        title: membership.get(lead.anime.id)?.seriesTitle ?? displayTitle(lead.anime),
+        seasonLabel: labelFor(lead, lead),
         leadReason: lead.reason,
         then: rest.map((c) => ({
           anime: c.anime,
-          seasonLabel: memberOf(c).seasonLabel,
+          seasonLabel: labelFor(c, lead),
           nextEpisode: c.nextEpisode,
           behindCount: c.behindCount,
           reason: c.reason,
