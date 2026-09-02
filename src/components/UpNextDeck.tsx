@@ -1,10 +1,11 @@
-import { CornerDownRight, Play } from 'lucide-react';
+import { Check, CornerDownRight, Layers, Play } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
 import { memo } from 'react';
 import { CardMetaPills } from './CardMetaPills';
 import { FitTitle } from './FitTitle';
 import { RatingBlock } from './RatingBlock';
 import { SwipeCell, useSwapSlots } from './SwipeCell';
+import { seasonFullyAired } from '../lib/aired';
 import { displayTitle } from '../lib/displayTitle';
 import { UpNextCandidate, UpNextReasonKind, UpNextSeries } from '../lib/upNext';
 import { cn } from '../lib/utils';
@@ -123,7 +124,18 @@ export const UpNextCard = memo(function UpNextCard({
     anime.bannerImage || anime.trailer?.thumbnail || anime.coverImage.extraLarge || anime.coverImage.large;
   const watchLink = pickWatchLink(anime.externalLinks, customSite);
   const watchedCount = Math.max(0, airedCount - behindCount);
-  const progressPct = airedCount > 0 ? Math.min(100, (watchedCount / airedCount) * 100) : 0;
+  // One rail segment per waiting episode; a deep backlog stops at twelve so
+  // the segments stay legible, and the pill carries the true count.
+  const railSegments = Math.max(1, Math.min(behindCount, 12));
+  const seasonDone = seasonFullyAired(anime, Math.floor(Date.now() / 1000));
+  const infoLine = [
+    anime.genres.slice(0, 3).join(', '),
+    anime.format ? anime.format.replace('_', ' ') : '',
+    anime.studios?.nodes?.[0]?.name ?? '',
+    anime.averageScore ? `Global ${(anime.averageScore / 10).toFixed(1)}` : '',
+  ]
+    .filter(Boolean)
+    .join(' • ');
   // The rank (chip, frame, CTA tone) may come from a later season of the
   // franchise; the CTA's wording is about the lead, whose reason is its own.
   const isBinge = reason.kind === 'binge-ready';
@@ -214,19 +226,15 @@ export const UpNextCard = memo(function UpNextCard({
           </span>
         </div>
 
-        <div className="mb-5 flex items-center gap-3 text-micro text-hero-text-low sm:text-caption">
-          {thenText && (
-            <span className="flex min-w-0 shrink items-center gap-1 text-hero-text-mid">
-              <CornerDownRight className="h-3 w-3 shrink-0 text-hero-text-low" aria-hidden="true" />
-              <span className="truncate">{thenText}</span>
-            </span>
+        <div className="mb-5 flex min-w-0 items-center gap-1 text-micro text-hero-text-low sm:text-caption">
+          {thenText ? (
+            <>
+              <CornerDownRight className="h-3 w-3 shrink-0" aria-hidden="true" />
+              <span className="truncate text-hero-text-mid">{thenText}</span>
+            </>
+          ) : (
+            <span className="truncate">{infoLine}</span>
           )}
-          <div className="h-[5px] min-w-16 flex-1 overflow-hidden rounded-full bg-hero-drops-edge">
-            <div className="h-full rounded-full bg-accent-600" style={{ width: `${progressPct}%` }} />
-          </div>
-          <span className="whitespace-nowrap">
-            {watchedCount} / {airedCount}
-          </span>
         </div>
 
         <RatingBlock
@@ -236,13 +244,58 @@ export const UpNextCard = memo(function UpNextCard({
         />
 
         <div className="mt-auto">
+          {/* The backlog rail, in the drops card's timeline slot and grammar —
+              check node, rail, end node, a pill on the rail — but built from
+              what makes a deck card different: nothing dropped today. The rail
+              is the queue itself, one segment per waiting episode with the next
+              one lit, and the end node is a stack, not the drops' "latest" star. */}
+          <div className="relative mb-6 mt-1 h-[52px] w-full" aria-hidden="true">
+            <div className="absolute left-4 right-4 top-2.5 flex items-center gap-1">
+              {Array.from({ length: railSegments }, (_, i) => (
+                <div
+                  key={i}
+                  className={cn(
+                    'h-[3px] flex-1 rounded-full',
+                    i === 0 ? 'bg-accent-500 shadow-glow-sm' : 'bg-accent-600/40',
+                  )}
+                />
+              ))}
+            </div>
+
+            <div className="absolute inset-0 flex items-start justify-between">
+              <div className="-ml-4 flex w-24 flex-col items-center">
+                <div className="z-10 flex h-5 w-5 items-center justify-center rounded-full bg-accent-600 ring-[3px] ring-hero-drops-bg">
+                  <Check className="h-3 w-3 stroke-[3] text-fg-inverse" aria-hidden="true" />
+                </div>
+                <div className="mt-1.5 text-center text-micro leading-tight text-hero-text-mid">
+                  Watched through
+                  <br />
+                  Ep. {watchedCount}
+                </div>
+              </div>
+
+              <div className="-mr-2 flex w-20 flex-col items-center">
+                <div className="z-10 flex h-5 w-5 items-center justify-center rounded-full border-2 border-hero-text-low/60 bg-hero-drops-bg ring-[3px] ring-hero-drops-bg">
+                  <Layers className="h-2.5 w-2.5 text-hero-text-low" aria-hidden="true" />
+                </div>
+                <div className="mt-1.5 text-center text-micro leading-tight text-hero-text-mid">
+                  {seasonDone ? 'Finale' : 'Aired'}: Ep. {airedCount}
+                </div>
+              </div>
+            </div>
+
+            <div className="absolute left-1/2 top-[16px] z-10 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full border border-accent-500/30 bg-hero-drops-bg px-2 py-0.5 text-micro text-hero-text-mid shadow-e1">
+              Ep. {nextEpisode} next · {behindCount} waiting
+            </div>
+          </div>
+
           {watchLink ? (
             <a
               href={watchLink}
               target="_blank"
               rel="noreferrer"
               className={cn(
-                'flex h-11 w-full items-center justify-center gap-2 rounded-inner text-sm font-medium transition-all',
+                'flex h-11 w-full items-center justify-center gap-2 rounded-inner text-sm font-medium transition-all sm:h-12 sm:text-base',
                 isBinge
                   ? 'bg-success-600 text-fg-inverse hover:bg-success-500'
                   : 'border border-accent-600 bg-hero-drops-bg text-accent-400 shadow-glow hover:bg-accent-600 hover:text-fg-inverse hover:shadow-glow-lg',
@@ -254,7 +307,7 @@ export const UpNextCard = memo(function UpNextCard({
                 : watchCta({ episode: nextEpisode, started: watchedCount > 0, seasonLabel: series?.seasonLabel })}
             </a>
           ) : (
-            <p className="flex h-11 w-full items-center justify-center rounded-inner bg-hero-drops-edge text-sm font-medium text-hero-text-mid">
+            <p className="flex h-11 w-full items-center justify-center rounded-inner bg-hero-drops-edge text-sm font-medium text-hero-text-mid sm:h-12 sm:text-base">
               No stream linked
             </p>
           )}
