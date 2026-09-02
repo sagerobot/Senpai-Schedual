@@ -8,6 +8,7 @@ import { getAiredEpisodesCount } from '../../lib/aired';
 import { displayTitle } from '../../lib/displayTitle';
 import { cn } from '../../lib/utils';
 import { pickWatchLink } from '../../lib/watchLinks';
+import { watchCta } from '../../lib/watchCta';
 import { useVibesIndex } from '../../queries/vibes';
 import { useUserData } from '../../stores/userData';
 import { useSeriesGraphs } from '../../series/useSeriesGraphs';
@@ -383,7 +384,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
                   className="flex-1 h-full flex items-center justify-center gap-2 rounded-control text-label font-bold text-fg-inverse transition-all shadow-e2 bg-gradient-to-b from-hero-grad-from to-hero-grad-to hover:brightness-110"
                 >
                   <Play className="w-4 h-4 fill-current" aria-hidden="true" />
-                  Continue Ep {nextUnwatched}
+                  {watchCta({ episode: nextUnwatched, started: item.watched.length > 0 }, 'short')}
                 </a>
               ) : (
                 <p className="flex-1 h-full flex items-center justify-center gap-2 rounded-control text-label font-bold text-hero-text-mid bg-hero-catchup-well-hover border border-hero-catchup-edge">
@@ -637,7 +638,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
                     >
                       <Play className="w-4 h-4 shrink-0 fill-current" aria-hidden="true" />
                       <span className="truncate">
-                        Continue {currentLabel} — Ep {nextEpisode}
+                        {watchCta({ episode: nextEpisode, started: currentItem.watched.length > 0, seasonLabel: currentLabel })}
                       </span>
                     </a>
                   ) : (

@@ -16,6 +16,7 @@ import { WATCH_STATE_LABELS } from '../../lib/status';
 import { cn } from '../../lib/utils';
 import type { VibeEntry } from '../../lib/vibesFile';
 import { pickWatchLink } from '../../lib/watchLinks';
+import { watchCta } from '../../lib/watchCta';
 import { useVibesIndex } from '../../queries/vibes';
 import { useUserData } from '../../stores/userData';
 import { AnimeMedia, DropSkip, EpisodeLog } from '../../types';
@@ -867,9 +868,7 @@ const CheckInItem = memo(function CheckInItem({
                 value={
                   isGraduation
                     ? `Start the binge — Episode ${nextEp}`
-                    : isCaughtUp
-                      ? `Watch Episode ${todayEp}`
-                      : `Continue Episode ${nextEp}`
+                    : watchCta({ episode: nextEp, started: maxWatched > 0, caughtUp: isCaughtUp })
                 }
               />
             </a>

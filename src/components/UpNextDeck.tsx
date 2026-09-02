@@ -7,6 +7,7 @@ import { displayTitle } from '../lib/displayTitle';
 import { UpNextCandidate, UpNextReasonKind, UpNextSeries } from '../lib/upNext';
 import { cn } from '../lib/utils';
 import { pickWatchLink } from '../lib/watchLinks';
+import { watchCta } from '../lib/watchCta';
 import { useUserData } from '../stores/userData';
 import { AnimeMedia } from '../types';
 
@@ -293,7 +294,9 @@ export const UpNextCard = memo(function UpNextCard({
               )}
             >
               <Play className="h-4 w-4 fill-current" aria-hidden="true" />
-              {leadIsBinge ? 'Start the binge' : `Continue Episode ${nextEpisode}`}
+              {leadIsBinge
+                ? 'Start the binge'
+                : watchCta({ episode: nextEpisode, started: watchedCount > 0, seasonLabel: series?.seasonLabel })}
             </a>
           ) : (
             <p className="flex h-11 w-full items-center justify-center rounded-inner bg-hero-drops-edge text-sm font-medium text-hero-text-mid">

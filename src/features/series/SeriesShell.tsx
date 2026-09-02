@@ -6,6 +6,7 @@ import type { SeriesEntry, SeriesGraph } from '../../series/labeling';
 import { StatusBadge } from '../../components/StatusBadge';
 import { SHOW_PARAM } from '../../routes/showParam';
 import { cn } from '../../lib/utils';
+import { watchCta } from '../../lib/watchCta';
 import type { AtlasState } from './useAtlas';
 import type { SeriesRoom } from './rooms';
 import { ROOM_LABELS, ROOM_ORDER, showHref } from './rooms';
@@ -70,6 +71,14 @@ export function SeriesShell({ graph, atlas, view, onViewChange, reveal, onToggle
   const art = pickArt(atlas, graph);
   const cover = atlas.mediaById.get(graph.seriesId)?.coverImage?.large ?? atlas.mediaById.get(atlas.seasons[0]?.id ?? 0)?.coverImage?.large;
   const targetMember = atlas.target !== null ? graph.entries.find((e) => e.id === atlas.target!.memberId) : undefined;
+  const targetCta =
+    atlas.target !== null && targetMember !== undefined
+      ? watchCta({
+          episode: atlas.target.episode,
+          started: (atlas.progress.get(atlas.target.memberId)?.watched.size ?? 0) > 0,
+          seasonLabel: targetMember.seasonLabel,
+        })
+      : '';
   const yearFrom = atlas.seasons[0]?.startDate?.year;
   const yearTo = atlas.seasons.at(-1)?.startDate?.year;
   const sealable = anySealed(atlas);
@@ -147,7 +156,7 @@ export function SeriesShell({ graph, atlas, view, onViewChange, reveal, onToggle
                 className="inline-flex h-11 items-center gap-2 rounded-control bg-gradient-to-b from-hero-grad-from to-hero-grad-to px-5 text-sm font-semibold text-white shadow-e2 transition-[filter] hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <Play className="h-4 w-4 fill-current" aria-hidden="true" />
-                Continue {targetMember.seasonLabel} — Ep {atlas.target.episode}
+                {targetCta}
               </a>
             ) : (
               <Link
@@ -156,7 +165,7 @@ export function SeriesShell({ graph, atlas, view, onViewChange, reveal, onToggle
                 className="inline-flex h-11 items-center gap-2 rounded-control bg-gradient-to-b from-hero-grad-from to-hero-grad-to px-5 text-sm font-semibold text-white shadow-e2 transition-[filter] hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <Play className="h-4 w-4 fill-current" aria-hidden="true" />
-                Continue {targetMember.seasonLabel} — Ep {atlas.target.episode}
+                {targetCta}
               </Link>
             )
           ) : (
