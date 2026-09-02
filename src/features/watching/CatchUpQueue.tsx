@@ -384,7 +384,7 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
                   className="flex-1 h-full flex items-center justify-center gap-2 rounded-control text-label font-bold text-fg-inverse transition-all shadow-e2 bg-gradient-to-b from-hero-grad-from to-hero-grad-to hover:brightness-110"
                 >
                   <Play className="w-4 h-4 fill-current" aria-hidden="true" />
-                  {watchCta({ episode: nextUnwatched, started: item.watched.length > 0 }, 'short')}
+                  {watchCta({ episode: nextUnwatched, started: item.watched.length > 0 })}
                 </a>
               ) : (
                 <p className="flex-1 h-full flex items-center justify-center gap-2 rounded-control text-label font-bold text-hero-text-mid bg-hero-catchup-well-hover border border-hero-catchup-edge">
