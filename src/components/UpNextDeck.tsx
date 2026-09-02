@@ -199,9 +199,13 @@ export const UpNextCard = memo(function UpNextCard({
         <FitTitle title={title} onClick={openShow} className="text-hero-text-hi hover:text-accent-400" />
         <CardMetaPills progress={`${seasonText} • ${watchedCount}/${totalEpisodes} watched`} userAvgScore={userAvgScore} />
 
-        <div className="mb-2 flex items-center justify-between gap-2">
+        {/* Two rows, the same footprint as a drops card's "Episode N" line and
+            info line, so the rating block below starts on the same y when the
+            deck completes the drops row. The progress bar shares the second
+            row with any queued-season note instead of taking its own. */}
+        <div className="mb-1 flex items-center justify-between gap-2">
           <span className="text-label text-hero-text-mid">Next: Episode {nextEpisode}</span>
-          <span className="flex items-center gap-1.5 text-caption text-accent-400">
+          <span className="flex shrink-0 items-center gap-1.5 text-caption text-accent-400">
             <span
               className="h-1.5 w-1.5 rounded-full bg-accent-500 shadow-[0_0_8px_rgba(168,85,247,0.8)]"
               aria-hidden="true"
@@ -210,20 +214,20 @@ export const UpNextCard = memo(function UpNextCard({
           </span>
         </div>
 
-        <div className={cn('flex items-center gap-3', thenText ? 'mb-2' : 'mb-4')}>
-          <div className="h-[5px] flex-1 overflow-hidden rounded-full bg-hero-drops-edge">
+        <div className="mb-5 flex items-center gap-3 text-micro text-hero-text-low sm:text-caption">
+          {thenText && (
+            <span className="flex min-w-0 shrink items-center gap-1 text-hero-text-mid">
+              <CornerDownRight className="h-3 w-3 shrink-0 text-hero-text-low" aria-hidden="true" />
+              <span className="truncate">{thenText}</span>
+            </span>
+          )}
+          <div className="h-[5px] min-w-16 flex-1 overflow-hidden rounded-full bg-hero-drops-edge">
             <div className="h-full rounded-full bg-accent-600" style={{ width: `${progressPct}%` }} />
           </div>
-          <span className="whitespace-nowrap text-caption text-hero-text-mid">
+          <span className="whitespace-nowrap">
             {watchedCount} / {airedCount}
           </span>
         </div>
-        {thenText && (
-          <p className="mb-4 flex min-w-0 items-center gap-1.5 text-caption text-hero-text-mid">
-            <CornerDownRight className="h-3.5 w-3.5 shrink-0 text-hero-text-low" aria-hidden="true" />
-            <span className="truncate">{thenText}</span>
-          </p>
-        )}
 
         <RatingBlock
           episode={nextEpisode}
