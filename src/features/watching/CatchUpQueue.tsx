@@ -1,6 +1,7 @@
 import { ChevronRight, Clock, History, Info, Link, Play, Zap } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useMemo, useState } from 'react';
+import { FitTitle } from '../../components/FitTitle';
 import { LowScoreButtons } from "../../components/LowScoreButtons";
 import { VibeChip } from '../../components/VibeChip';
 import { Tooltip } from '../../components/ui/Tooltip';
@@ -254,15 +255,13 @@ export function CatchUpQueue({ animeList, favorites, logs, onLog, onAnimeSelect 
           <div className="flex flex-1 flex-col min-w-0">
             <div className="flex justify-between items-start gap-2">
               <div className="min-w-0 flex-1">
-                <h3>
-                  <button
-                    type="button"
-                    onClick={openShow}
-                    className="block max-w-full text-left font-bold text-hero-text-hi text-sm leading-snug line-clamp-2 hover:text-hero-catchup-ink transition-colors pr-2"
-                  >
-                    {title}
-                  </button>
-                </h3>
+                <FitTitle
+                  title={title}
+                  onClick={openShow}
+                  maxPx={14}
+                  minPx={11}
+                  className="pr-2 text-hero-text-hi hover:text-hero-catchup-ink"
+                />
 
                 <div className="mt-1.5 flex flex-wrap items-center gap-2 text-caption text-hero-text-mid font-medium">
                   <span>

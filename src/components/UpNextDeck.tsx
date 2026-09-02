@@ -1,7 +1,9 @@
-import { CornerDownRight, Info, Play, Star, Zap } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
+import { CornerDownRight, Play } from 'lucide-react';
+import { AnimatePresence } from 'motion/react';
 import { memo } from 'react';
-import { LowScoreButtons } from './LowScoreButtons';
+import { CardMetaPills } from './CardMetaPills';
+import { FitTitle } from './FitTitle';
+import { RatingBlock } from './RatingBlock';
 import { SwipeCell, useSwapSlots } from './SwipeCell';
 import { displayTitle } from '../lib/displayTitle';
 import { UpNextCandidate, UpNextReasonKind, UpNextSeries } from '../lib/upNext';
@@ -18,8 +20,6 @@ interface UpNextDeckProps {
   onSkip: (showId: number) => void;
   onAnimeSelect: (anime: AnimeMedia) => void;
 }
-
-const QUICK_SCORES = [5, 6, 7, 8, 9, 10];
 
 /** "Then Season 2 · 12 waiting", or "Then Season 2, Season 3 · 24 waiting". */
 function queuedSeasonsText(then: UpNextSeries['then']): string {
@@ -145,7 +145,10 @@ export const UpNextCard = memo(function UpNextCard({
         isBinge ? 'border-success-500/40 shadow-glow-success' : 'border-hero-drops-edge',
       )}
     >
-      <div className="relative min-h-36 w-full grow overflow-hidden rounded-t-card bg-hero-drops-bg">
+      {/* Same banner height and body padding as a drops card, so the two share
+          a header line when the deck completes the drops row; the slack goes
+          above the CTA, which bottom-anchors on both. */}
+      <div className="relative h-48 w-full shrink-0 overflow-hidden rounded-t-card bg-hero-drops-bg sm:h-52">
         <button
           type="button"
           onClick={openShow}
@@ -192,28 +195,9 @@ export const UpNextCard = memo(function UpNextCard({
         </div>
       </div>
 
-      <div className="z-10 flex flex-col p-4">
-        <h3 className="min-w-0">
-          <button
-            type="button"
-            onClick={openShow}
-            className="block max-w-full truncate text-left text-lg font-bold leading-tight text-hero-text-hi transition-colors hover:text-accent-400"
-          >
-            {title}
-          </button>
-        </h3>
-
-        <div className="mb-1 mt-1.5 flex flex-wrap items-center gap-1.5">
-          <span className="whitespace-nowrap rounded-full border border-hero-drops-edge bg-hero-drops-well px-2 py-0.5 text-caption text-hero-text-mid">
-            {seasonText} • {watchedCount}/{totalEpisodes} watched
-          </span>
-          {userAvgScore !== null && (
-            <span className="flex items-center gap-1 whitespace-nowrap rounded-full border border-accent-500/30 bg-hero-drops-accent-well px-2 py-0.5 text-caption font-semibold text-accent-300 shadow-glow-sm">
-              <Star className="h-3 w-3 fill-accent-400 text-accent-400" aria-hidden="true" />
-              Your Avg {userAvgScore.toFixed(1)}
-            </span>
-          )}
-        </div>
+      <div className="z-10 flex flex-1 flex-col p-4 sm:p-5">
+        <FitTitle title={title} onClick={openShow} className="text-hero-text-hi hover:text-accent-400" />
+        <CardMetaPills progress={`${seasonText} • ${watchedCount}/${totalEpisodes} watched`} userAvgScore={userAvgScore} />
 
         <div className="mb-2 flex items-center justify-between gap-2">
           <span className="text-label text-hero-text-mid">Next: Episode {nextEpisode}</span>
@@ -241,44 +225,11 @@ export const UpNextCard = memo(function UpNextCard({
           </p>
         )}
 
-        <div className="mb-2 flex items-center gap-2">
-          <Zap className="h-4 w-4 fill-accent-500 text-accent-500" aria-hidden="true" />
-          <span className="text-label font-medium text-hero-text-hi">Rate Episode {nextEpisode}</span>
-        </div>
-        <div
-          role="group"
-          aria-label={`Rate episode ${nextEpisode}, 5 to 10`}
-          className="mb-2 flex w-full justify-between gap-1.5"
-        >
-          {QUICK_SCORES.map((s) => (
-            <motion.button
-              key={s}
-              type="button"
-              whileTap={{ scale: 0.88 }}
-              onClick={() => onLog(anime.id, nextEpisode, s)}
-              aria-label={`Rate episode ${nextEpisode} a ${s} and mark watched`}
-              className="h-10 flex-1 rounded-field border border-hero-drops-edge bg-hero-drops-bg text-base font-medium text-hero-text-hi transition-all hover:border-accent-500 hover:bg-accent-600 hover:text-fg-inverse hover:shadow-glow"
-            >
-              {s}
-            </motion.button>
-          ))}
-        </div>
-        <div className="mb-4 flex flex-wrap items-center justify-center gap-2">
-          <button
-            type="button"
-            onClick={() => onLog(anime.id, nextEpisode, null)}
-            aria-label={`Mark episode ${nextEpisode} watched without a score`}
-            className="relative flex items-center gap-1.5 rounded-full border border-hero-drops-edge bg-hero-drops-well px-3 py-1 text-caption text-hero-text-mid transition-colors after:absolute after:inset-x-0 after:top-1/2 after:h-11 after:-translate-y-1/2 after:content-[''] hover:bg-hero-drops-well-hover hover:text-hero-text-hi"
-          >
-            Watched only <Info className="h-3.5 w-3.5" aria-hidden="true" />
-          </button>
-          <LowScoreButtons
-            episode={nextEpisode}
-            onSelect={(score) => onLog(anime.id, nextEpisode, score)}
-            triggerClassName="px-3 py-1 rounded-full border border-hero-drops-edge bg-hero-drops-well text-caption text-hero-text-mid hover:bg-hero-drops-well-hover hover:text-hero-text-hi after:absolute after:inset-x-0 after:top-1/2 after:h-11 after:-translate-y-1/2 after:content-['']"
-            buttonClassName="h-7 min-w-7 px-1.5 rounded-xs border border-hero-drops-edge bg-hero-drops-well text-caption text-hero-text-mid hover:bg-hero-drops-well-hover hover:text-hero-text-hi"
-          />
-        </div>
+        <RatingBlock
+          episode={nextEpisode}
+          onRate={(score) => onLog(anime.id, nextEpisode, score)}
+          className="mb-4"
+        />
 
         <div className="mt-auto">
           {watchLink ? (

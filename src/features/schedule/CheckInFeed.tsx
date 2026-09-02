@@ -1,9 +1,11 @@
-import { Bookmark, Check, CheckCircle2, Clock, Info, Layers, Play, Star, Zap } from 'lucide-react';
+import { Bookmark, Check, CheckCircle2, Clock, Layers, Play, Star } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { memo, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { toast } from 'sonner';
+import { CardMetaPills } from '../../components/CardMetaPills';
+import { FitTitle } from '../../components/FitTitle';
 import { LibraryStatusMenu } from '../../components/LibraryStatusMenu';
-import { LowScoreButtons } from "../../components/LowScoreButtons";
+import { RatingBlock } from '../../components/RatingBlock';
 import { SwipeCell, portalExitCell, useSwapSlots } from '../../components/SwipeCell';
 import { UpNextCard } from '../../components/UpNextDeck';
 import { VibeChip } from '../../components/VibeChip';
@@ -73,7 +75,6 @@ interface Drop {
 }
 
 /** The quick row; everything below 5 lives behind the LowScoreButtons expander. */
-const QUICK_SCORES = [5, 6, 7, 8, 9, 10];
 
 /**
  * Stable empty default for the stacking prop — an inline `= []` would be a
@@ -590,28 +591,19 @@ const CheckInItem = memo(function CheckInItem({
       </div>
 
       <div className="p-4 sm:p-5 flex flex-col flex-1 z-10">
-        <div className="flex justify-between items-start mb-1 gap-2">
-          <h3 className="min-w-0 flex-1">
-            <button
-              type="button"
-              onClick={openShow}
-              className="block max-w-full text-left text-lg sm:text-xl font-bold text-hero-text-hi leading-tight line-clamp-1 hover:text-accent-400 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              {title}
-            </button>
-          </h3>
-          <div className="flex gap-1.5 mt-1 flex-col items-end sm:flex-row sm:items-center">
-            <div className="text-caption text-hero-text-mid whitespace-nowrap flex-shrink-0 border border-hero-drops-edge bg-hero-drops-well px-2 py-0.5 rounded-full">
+        <FitTitle
+          title={title}
+          onClick={openShow}
+          className="text-hero-text-hi hover:text-accent-400"
+        />
+        <CardMetaPills
+          progress={
+            <>
               {seasonText} • <Ticker value={maxWatched} />/{totalEpisodes} watched
-            </div>
-            {userAvgScore !== null && (
-              <div className="text-caption font-semibold text-accent-300 whitespace-nowrap flex-shrink-0 border border-accent-500/30 bg-hero-drops-accent-well px-2 py-0.5 rounded-full flex items-center gap-1 shadow-glow-sm">
-                <Star className="w-3 h-3 fill-accent-400 text-accent-400" aria-hidden="true" />
-                Your Avg {userAvgScore.toFixed(1)}
-              </div>
-            )}
-          </div>
-        </div>
+            </>
+          }
+          userAvgScore={userAvgScore}
+        />
 
         <div className="flex justify-between items-center mb-1 gap-2">
           <div className="text-label text-hero-text-mid line-clamp-1">
@@ -661,65 +653,14 @@ const CheckInItem = memo(function CheckInItem({
 
         <div className="text-micro sm:text-caption text-hero-text-low mb-5 line-clamp-1">{infoLine}</div>
 
-        <div className="border border-hero-drops-edge rounded-inner p-4 bg-hero-drops-deep flex flex-col items-center mb-5 relative">
-          <div
-            className={cn(
-              'absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent to-transparent',
-              isGraduation ? 'via-success-500/20' : 'via-accent-500/20',
-            )}
-            aria-hidden="true"
-          />
-
-          <div className="flex items-center gap-2 mb-4">
-            <Zap className="w-4 h-4 text-accent-500 fill-accent-500" aria-hidden="true" />
-            <span className="text-sm text-hero-text-hi font-medium">
-              <Ticker value={`Rate Episode ${isCaughtUp ? todayEp : nextEp}`} />
-            </span>
-          </div>
-
-          <div
-            role="group"
-            aria-label={`Rate episode ${targetEp}, 5 to 10`}
-            className="flex gap-2 w-full justify-between mb-4 px-1"
-          >
-            {QUICK_SCORES.map((s) => (
-              <motion.button
-                key={s}
-                type="button"
-                whileTap={{ scale: 0.88 }}
-                onClick={() => handleRateAndWatch(s)}
-                aria-label={`Rate episode ${targetEp} a ${s} and mark watched`}
-                className={cn(
-                  'flex-1 h-11 sm:h-[46px] bg-hero-drops-bg text-hero-text-hi border border-hero-drops-edge rounded-field text-base sm:text-lg font-medium hover:text-fg-inverse transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                  isGraduation
-                    ? 'hover:bg-success-600 hover:border-success-500 hover:shadow-glow-success'
-                    : 'hover:bg-accent-600 hover:border-accent-500 hover:shadow-glow',
-                )}
-              >
-                {s}
-              </motion.button>
-            ))}
-          </div>
-
-          <div className="flex flex-wrap items-center justify-center gap-2 mb-2">
-            <button
-              type="button"
-              onClick={() => handleRateAndWatch(null)}
-              aria-label={`Mark episode ${targetEp} watched without a score`}
-              className="relative flex items-center gap-1.5 px-3 py-1 rounded-full border border-hero-drops-edge bg-hero-drops-well text-micro sm:text-caption text-hero-text-mid hover:bg-hero-drops-well-hover hover:text-hero-text-hi transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring after:absolute after:inset-x-0 after:top-1/2 after:h-11 after:-translate-y-1/2 after:content-['']"
-            >
-              Mark watched only <Info className="w-3.5 h-3.5" aria-hidden="true" />
-            </button>
-            <LowScoreButtons
-              episode={targetEp}
-              onSelect={(score) => handleRateAndWatch(score)}
-              triggerClassName="px-3 py-1 rounded-full border border-hero-drops-edge bg-hero-drops-well text-micro sm:text-caption text-hero-text-mid hover:bg-hero-drops-well-hover hover:text-hero-text-hi after:absolute after:inset-x-0 after:top-1/2 after:h-11 after:-translate-y-1/2 after:content-['']"
-              buttonClassName="h-7 min-w-7 px-1.5 rounded-xs border border-hero-drops-edge bg-hero-drops-well text-caption text-hero-text-mid hover:bg-hero-drops-well-hover hover:text-hero-text-hi"
-            />
-          </div>
-
-          <div className="text-micro sm:text-caption text-hero-text-low">Tap a score to rate + mark watched</div>
-        </div>
+        <RatingBlock
+          episode={targetEp}
+          onRate={handleRateAndWatch}
+          label={<Ticker value={`Rate Episode ${isCaughtUp ? todayEp : nextEp}`} />}
+          tone={isGraduation ? 'success' : 'accent'}
+          hint="Tap a score to rate + mark watched"
+          className="mb-5"
+        />
 
         <div className="mt-auto">
           <div className="relative w-full h-[52px] mt-1">
