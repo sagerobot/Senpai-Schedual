@@ -1,5 +1,19 @@
 import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
+
+/**
+ * tailwind-merge only knows Tailwind's stock font sizes, so without this it
+ * files the app's own `text-micro` / `text-caption` / `text-label` (index.css
+ * @theme) under *text color* — and a later `text-fg-muted` silently deletes
+ * the size. Every cn('text-caption …', color) call in the app depends on this.
+ */
+const twMerge = extendTailwindMerge({
+  extend: {
+    classGroups: {
+      "font-size": [{ text: ["micro", "caption", "label"] }],
+    },
+  },
+});
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

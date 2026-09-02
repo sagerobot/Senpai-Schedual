@@ -4,10 +4,10 @@ import { NavLink, Outlet, useNavigate, useSearchParams } from 'react-router';
 import { toast } from 'sonner';
 import { SettingsDialog } from '../features/data/SettingsDialog';
 import { ShowDetailModal } from '../features/show/ShowDetailModal';
-import { ServerWakeBanner } from '../components/ServerWakeBanner';
+import { WakeStrip } from '../components/WakeStrip';
 import { useLibrary } from '../hooks/useLibrary';
 import { useCurrentSchedule, useMediaById } from '../queries/hooks';
-import { useServerWake } from '../queries/serverWake';
+import { retryWake, reloadNow, startWake, useWakeState } from '../queries/serverWake';
 import { AnimeMedia } from '../types';
 import { cn } from '../lib/utils';
 import { NAV_ITEMS } from './nav';
@@ -16,7 +16,12 @@ import { SHOW_PARAM, parseShowId } from './showParam';
 
 export function RootLayout() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const wakeStatus = useServerWake();
+  const wakeState = useWakeState();
+  // Registers the service worker and probes the sleeping server once per app
+  // lifetime; the strip below narrates what it finds.
+  useEffect(() => {
+    startWake();
+  }, []);
 
   const { library, updateEntry } = useLibrary();
   const favorites = useMemo(() => library.filter((l) => l.status === 'watching').map((l) => l.showId), [library]);
@@ -211,6 +216,7 @@ export function RootLayout() {
           className="min-w-0 flex-1 px-4 py-6 pb-[calc(3.5rem+1rem+env(safe-area-inset-bottom))] focus:outline-none md:px-8 md:pb-6 lg:px-12"
         >
           <div className="mx-auto w-full">
+            <WakeStrip state={wakeState} onRetry={retryWake} onReload={reloadNow} />
             <Outlet context={outletContext} />
           </div>
         </main>
@@ -227,8 +233,6 @@ export function RootLayout() {
         )}
 
         <SettingsDialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
-
-        <ServerWakeBanner status={wakeStatus} />
 
         {/* Mobile Bottom Navigation — fixed 56px row, six items, labels never wrap. */}
         <nav

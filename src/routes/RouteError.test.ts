@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { isStaleChunkError, shouldAutoReload } from './RouteError';
+import { shouldAutoReload } from '../lib/reloadGuard';
+import { isStaleChunkError } from './RouteError';
 
 describe('isStaleChunkError', () => {
   it('recognizes every browser wording for a stale route chunk', () => {

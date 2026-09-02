@@ -10,6 +10,7 @@ import { isInjectableTemplate } from '../../queries/offsets';
 import { QUERY_CACHE_KEY, removeKey } from '../../stores/storage';
 import { selectLibraryArray, selectLogsArray, useUserData } from '../../stores/userData';
 import { buildExport, exportFileName, parseBackup, type ParsedBackup } from './backup';
+import { BuildSection } from './BuildSection';
 import { ThemePicker } from './ThemePicker';
 
 interface SettingsDialogProps {
@@ -283,6 +284,8 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   Library
                 </Link>
               </section>
+
+              <BuildSection />
 
               {/* Danger zone */}
               <section className="rounded-inner border border-danger-500/30 bg-danger-600/10 p-4">

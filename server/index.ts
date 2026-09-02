@@ -3,12 +3,17 @@ import express from "express";
 import fs from "node:fs";
 import path from "node:path";
 import { anyExhausted } from "./budget";
+import { resolveBuildStamp } from "./buildStamp";
 import { apiLimiter, apiNotFound, requestLogger, securityHeaders } from "./middleware";
 import { aiRouter } from "./routes/ai";
 import { exportRouter } from "./routes/export";
 import { flagsRouter } from "./routes/flags";
 import { seasonRouter } from "./routes/season";
 import { vibesRouter } from "./routes/vibes";
+
+// Computed once: the wake strip compares this against the client's baked-in
+// stamp to tell "the server is back" from "the server is back on a newer build".
+const BUILD_STAMP = resolveBuildStamp();
 
 async function startServer(): Promise<void> {
   const app = express();
@@ -26,7 +31,7 @@ async function startServer(): Promise<void> {
 
   app.get("/api/health", (_req, res) => {
     const ai = !process.env.GEMINI_API_KEY ? "no_key" : anyExhausted() ? "resting" : "ready";
-    res.json({ ok: true, ai });
+    res.json({ ok: true, ai, build: BUILD_STAMP });
   });
 
   // Not AI routes: no Gemini, no budget, no aiLimiter — the general 60/min

@@ -3,9 +3,16 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import {defineConfig} from 'vite';
 import {VitePWA} from 'vite-plugin-pwa';
+import {resolveBuildStamp} from './server/buildStamp';
 
 export default defineConfig(() => {
   return {
+    // The build stamp the wake strip compares against /api/health's. Same
+    // resolver as the server so both sides agree on a Render deploy.
+    define: {
+      __APP_BUILD__: JSON.stringify(resolveBuildStamp()),
+      __APP_BUILT_AT__: JSON.stringify(new Date().toISOString()),
+    },
     plugins: [
       react(),
       tailwindcss(),
@@ -16,9 +23,10 @@ export default defineConfig(() => {
       // never cached here.
       VitePWA({
         registerType: 'autoUpdate',
-        // Registration is inlined into the hashed entry chunk so no
-        // un-hashed root script needs its own cache policy.
-        injectRegister: 'inline',
+        // No injected registration: src/queries/serverWake.ts registers the
+        // worker itself so it can re-run the update check the moment the
+        // sleeping host answers, and route the reload through the guard.
+        injectRegister: false,
         workbox: {
           clientsClaim: true,
           skipWaiting: true,

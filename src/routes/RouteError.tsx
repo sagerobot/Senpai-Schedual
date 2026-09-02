@@ -1,6 +1,7 @@
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useRouteError } from 'react-router';
+import { claimAutoReload } from '../lib/reloadGuard';
 
 /**
  * The screen behind the router's ErrorBoundary — most importantly, the screen
@@ -9,8 +10,9 @@ import { Link, useRouteError } from 'react-router';
  * Every deploy renames the hashed route chunks, so a tab that loaded the old
  * shell 404s the moment it lazy-loads a route that has since been rebuilt. A
  * plain reload always heals this (documents revalidate; the fresh HTML points
- * at the fresh chunks), so that case reloads itself once — the guard below is
- * what keeps "reload didn't help" (offline, half-deployed) from looping.
+ * at the fresh chunks), so that case reloads itself once — the guard in
+ * lib/reloadGuard.ts is what keeps "reload didn't help" (offline,
+ * half-deployed) from looping.
  */
 
 /** Chrome: "Failed to fetch dynamically imported module". Firefox: "error
@@ -23,32 +25,11 @@ export function isStaleChunkError(error: unknown): boolean {
   return STALE_CHUNK_RE.test(message);
 }
 
-const RELOAD_GUARD_KEY = 'senpai.staleChunkReloadAt';
-const RELOAD_GUARD_WINDOW_MS = 60_000;
-
-/** One automatic reload per minute: heals every deploy, can never loop. */
-export function shouldAutoReload(lastReloadAt: number, now: number): boolean {
-  return now - lastReloadAt > RELOAD_GUARD_WINDOW_MS;
-}
-
-/** sessionStorage on purpose: per-tab, gone when the tab closes, and outside
- *  the localStorage quota policy that storage.ts exists to enforce. */
-function claimAutoReload(): boolean {
-  try {
-    const last = Number(sessionStorage.getItem(RELOAD_GUARD_KEY) ?? 0);
-    if (!shouldAutoReload(last, Date.now())) return false;
-    sessionStorage.setItem(RELOAD_GUARD_KEY, String(Date.now()));
-    return true;
-  } catch {
-    return false; // storage unavailable — fall through to the manual screen
-  }
-}
-
 export function RouteError() {
   const error = useRouteError();
   const stale = isStaleChunkError(error);
   // State initializer so the claim happens exactly once per mount, not per render.
-  const [reloading] = useState(() => stale && claimAutoReload());
+  const [reloading] = useState(() => stale && claimAutoReload('staleChunk'));
 
   useEffect(() => {
     if (reloading) window.location.reload();
