@@ -1,0 +1,87 @@
+[
+ {
+  "key": "135865:9",
+  "showId": 135865,
+  "episode": 9,
+  "title": "Youjo Senki II",
+  "airedAt": 1788352200,
+  "kind": "update",
+  "thread": {
+   "title": "Saga of Tanya the Evil Season 2 \u2022 Youjo Senki II - Episode 9 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1w5ah34/saga_of_tanya_the_evil_season_2_youjo_senki_ii/",
+   "score": 0,
+   "num_comments": 30
+  },
+  "comments_read": 30,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many viewers enjoyed the episode\u2019s humor and lighter food-focused moments."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters praised Tanya\u2019s intensity and found her reactions entertaining."
+   },
+   {
+    "tone": "mixed",
+    "point": "Viewers appreciated the suspense and political tension but were uneasy about the leadership\u2019s direction."
+   },
+   {
+    "tone": "negative",
+    "point": "Multiple commenters criticized the leadership as reckless, especially given the empire\u2019s strained resources."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The exact target thread was retrieved and verified. The page exposed 30 comments, including the moderator comment; score metadata was not available, so score is reported as 0. Opinions are paraphrased and spoiler-free."
+ },
+ {
+  "key": "198946:9",
+  "showId": 198946,
+  "episode": 9,
+  "title": "Clevatess II: Majuu no Ou to Itsuwari no Yuusha Denshou",
+  "airedAt": 1788350400,
+  "kind": "update",
+  "thread": {
+   "title": "Clevatess Season 2 \u2022 Clevatess II: Majuu no Ou to Akago to Shikabane no Yuusha Denshou - Episode 9 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1w58cm9/clevatess_season_2_clevatess_ii_majuu_no_ou_to/",
+   "score": 0,
+   "num_comments": 0
+  },
+  "comments_read": 40,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many commenters enjoyed Alicia returning to her normal appearance and praised her resilience, comedic timing, and continued appeal as a character."
+   },
+   {
+    "tone": "positive",
+    "point": "The thread frequently found the episode\u2019s dark humor effective, especially the contrast between grim situations and absurd physical comedy."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters liked the horror atmosphere, unusual setting, and the episode\u2019s expansion of the show\u2019s mythology."
+   },
+   {
+    "tone": "mixed",
+    "point": "The princess and dean revelations generated substantial interest, but many viewers found the identities and twists difficult to follow."
+   },
+   {
+    "tone": "negative",
+    "point": "One recurring complaint was that the episode felt too short, reinforcing frustration that the weekly installments provide very little runtime."
+   },
+   {
+    "tone": "mixed",
+    "point": "Fan-service was widely noticed and often welcomed, though some reactions treated it as excessive or conspicuously inserted."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "pacing": "negative",
+   "characters": "positive"
+  },
+  "notes": "The title clearly identifies Clevatess Season 2 and episode 9. Reddit exposed the post and many comments, but did not expose reliable score or total-comment-count metadata in the retrieved page, so those fields are recorded as 0. Comments were paraphrased and plot details were omitted."
+ }
+]
