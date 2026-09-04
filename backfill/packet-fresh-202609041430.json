@@ -1,0 +1,185 @@
+[
+ {
+  "key": "199748:10",
+  "showId": 199748,
+  "episode": 10,
+  "title": "Koko wa Ore ni Makasete Saki ni Ike to Ittekara 10-nen ga Tattara Densetsu ni Natteita.",
+  "airedAt": 1788528600,
+  "kind": "first",
+  "thread": {
+   "title": "I Became a Legend After My 10 Year-Long Last Stand \u2022 Koko wa Ore ni Makasete Saki ni Ike to Itte kara 10-nen ga Tattara Densetsu ni Natteita. - Episode 10 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1w75bxj/i_became_a_legend_after_my_10_yearlong_last_stand/",
+   "score": 3,
+   "num_comments": 5
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "196218:10",
+  "showId": 196218,
+  "episode": 10,
+  "title": "Ryoumin 0-Nin Start no Henkyou Ryoushu-sama",
+  "airedAt": 1788528600,
+  "kind": "first",
+  "thread": {
+   "title": "The Frontier Lord Begins with Zero Subjects \u2022 Ryoumin 0-nin Start no Henkyou Ryoushu-sama - Episode 10 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1w74igy/the_frontier_lord_begins_with_zero_subjects/",
+   "score": 24,
+   "num_comments": 4
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "108992:9",
+  "showId": 108992,
+  "episode": 9,
+  "title": "Mebius Dust",
+  "airedAt": 1788445800,
+  "kind": "settle",
+  "thread": {
+   "title": "Mebius Dust - Episode 9 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1w69xai/mebius_dust_episode_9_discussion/",
+   "score": 4,
+   "num_comments": 12
+  },
+  "comments_read": 12,
+  "opinions": [
+   {
+    "tone": "mixed",
+    "point": "Some commenters enjoyed the strategic game discussion and found the chess logic convincing."
+   },
+   {
+    "tone": "mixed",
+    "point": "Reactions to Araki were conflicted: commenters criticized his actions while still wanting deeper motivation and possible redemption."
+   },
+   {
+    "tone": "negative",
+    "point": "Several commenters felt the episode prioritized games and abilities over meaningful narrative progression."
+   },
+   {
+    "tone": "negative",
+    "point": "Some viewers described the show\u2019s writing and presentation as confusing or poorly explained."
+   }
+  ],
+  "aspects": {
+   "story": "negative",
+   "pacing": "negative",
+   "characters": "mixed"
+  },
+  "notes": "The title explicitly identifies Mebius Dust and episode 9. I retrieved the thread metadata and visible comments through web search; no plot details are included in the sentiment summary."
+ },
+ {
+  "key": "198376:12",
+  "showId": 198376,
+  "episode": 12,
+  "title": "BanG Dream! Yume\u221eMita",
+  "airedAt": 1788444000,
+  "kind": "settle",
+  "thread": {
+   "title": "BanG Dream! YUME\u221eMITA - Episode 12 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1w68edh/bang_dream_yumemita_episode_12_discussion/",
+   "score": 0,
+   "num_comments": 7
+  },
+  "comments_read": 7,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the episode\u2019s dramatic, comedic, and unexpectedly theatrical moments."
+   },
+   {
+    "tone": "positive",
+    "point": "The manager\u2019s protective handling of the performers was viewed favorably."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some reactions found the episode emotionally effective while also describing parts as awkward, chaotic, or exaggerated."
+   },
+   {
+    "tone": "negative",
+    "point": "At least one reaction expressed disappointment that an anticipated confrontation did not happen."
+   }
+  ],
+  "aspects": {
+   "characters": "mixed",
+   "story": "mixed"
+  },
+  "notes": "The title and header clearly identify BanG Dream! YUME\u221eMITA episode 12. Seven user comments were available; the moderator notice and an image-only comment were excluded from sentiment analysis. The displayed page did not expose a reliable post score, so score is reported as 0."
+ },
+ {
+  "key": "187166:48",
+  "showId": 187166,
+  "episode": 48,
+  "title": "Ganso! Bandori-chan",
+  "airedAt": 1788440400,
+  "kind": "settle",
+  "thread": {
+   "title": "Ganso! Bandori-chan \u2022 GANSO! BanG Dream Chan - Episode 48 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1w6715h/ganso_bandorichan_ganso_bang_dream_chan_episode/",
+   "score": 11,
+   "num_comments": 0
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "201667:10",
+  "showId": 201667,
+  "episode": 10,
+  "title": "Bungou Stray Dogs Wan! 2",
+  "airedAt": 1788439200,
+  "kind": "settle",
+  "thread": {
+   "title": "Bungo Stray Dogs WAN! Season 2 - Episode 10 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1w66cdn/bungo_stray_dogs_wan_season_2_episode_10/",
+   "score": 24,
+   "num_comments": 4
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "203880:10",
+  "showId": 203880,
+  "episode": 10,
+  "title": "Reiwa no Dara-san",
+  "airedAt": 1788438600,
+  "kind": "settle",
+  "thread": {
+   "title": "Dara-san of Reiwa \u2022 Reiwa no Dara-san - Episode 10 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1w662b3/darasan_of_reiwa_reiwa_no_darasan_episode_10/",
+   "score": 0,
+   "num_comments": 14
+  },
+  "comments_read": 13,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters found the episode wholesome, funny, and emotionally pleasant."
+   },
+   {
+    "tone": "positive",
+    "point": "The family dynamics and character interactions were repeatedly praised, especially the children\u2019s humor and Dara-san\u2019s patience."
+   },
+   {
+    "tone": "positive",
+    "point": "Commenters enjoyed learning more about Chiyo and seeing additional character background."
+   },
+   {
+    "tone": "positive",
+    "point": "The episode\u2019s costumes, visual gags, and playful fanservice generated enthusiastic reactions."
+   },
+   {
+    "tone": "mixed",
+    "point": "One commenter felt the season\u2019s planned thirteen-episode length was too short and wished the series had more room."
+   },
+   {
+    "tone": "mixed",
+    "point": "A few reactions suggested some family behavior was excessive or that Dara-san was pressured into participating, while still viewing the relationships fondly."
+   }
+  ],
+  "aspects": {
+   "story": "positive",
+   "characters": "positive"
+  },
+  "notes": "The title explicitly identifies Dara-san of Reiwa/Reiwa no Dara-san and episode 10. I retrieved the thread page and 13 user comments, plus one moderator comment; Reddit did not expose a reliable post score, so score is recorded as 0."
+ }
+]
