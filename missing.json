@@ -35,11 +35,6 @@
     "description": "The third season of <i>Shiguang Dailiren</i>."
   },
   {
-    "id": 193414,
-    "title": "MyGO!!!!! Member no Nichijou",
-    "description": "A series of shorts showing the daily lives of the MyGO!!!!! members."
-  },
-  {
     "id": 193883,
     "title": "Chibi Godzilla no Gyakushuu 3",
     "description": "Sequel to <i>Chibi Godzilla no Gyakushuu 2</i>."
@@ -58,6 +53,11 @@
     "id": 198706,
     "title": "Da Zhu Zai 2",
     "description": "Second season of <i>Da Zhuzai</i>.<br><br>\n<i>Note: Includes Episodes 53 - 104.</i>"
+  },
+  {
+    "id": 198708,
+    "title": "Huyao Xiao Hongniang: Huang Feng Ling",
+    "description": "The thirteenth season of <i>Huyao Xiao Hongniang</i>."
   },
   {
     "id": 199363,
@@ -125,19 +125,9 @@
     "description": "The fourth season of <i>Fate/Grand Order: Fujimaru Ritsuka wa Wakaranai</i>."
   },
   {
-    "id": 216620,
-    "title": "Lingjing Xingzhe",
-    "description": "Its Spiritual Realms are bizarre and full of twists. After a mysterious black card turns him into a Night Wandering Deity, protagonist Zhang Yuanqing is pulled into a conspiracy-laden struggle between two rival camps of justice and evil.<br><br>(Source: WeTV)"
-  },
-  {
     "id": 216625,
     "title": "PokéOki SEASON 2",
     "description": "The second season of <i>PokéOki</i>.<br><br>\n\nThis entry includes:<br>\n1) バクフーン / Bakphoon / Typhlosion <br>\n2) ??? <br>\n3) ??? <br>\n4) ??? <br>"
-  },
-  {
-    "id": 216643,
-    "title": "Matsuken Anime: Kore Seibaishite mo Ii desu ka?",
-    "description": "The anime centers on the character Matsuken and his dog partner Matsu Inu, who cheerfully \"vanquish\" various hazy feelings or frustrations of the everyday modern life.\n<br><br>\n(Source: AnimeNewsNetwork)"
   },
   {
     "id": 216645,
