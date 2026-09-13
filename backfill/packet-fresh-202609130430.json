@@ -1,0 +1,157 @@
+[
+ {
+  "key": "188388:47",
+  "showId": 188388,
+  "episode": 47,
+  "title": "DIGIMON BEATBREAK",
+  "airedAt": 1789257600,
+  "kind": "first",
+  "thread": {
+   "title": "Digimon Beatbreak - Episode 47 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1wew68h/digimon_beatbreak_episode_47_discussion/",
+   "score": 21,
+   "num_comments": 31
+  },
+  "comments_read": 31,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many viewers found the episode highly surprising, intense, and exciting, with several describing it as a major escalation before the finale."
+   },
+   {
+    "tone": "positive",
+    "point": "The episode\u2019s twists and long-running theories were widely praised for making the story feel unpredictable."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers enjoyed the developments but felt that major late-series revelations and new elements arrived too abruptly."
+   },
+   {
+    "tone": "negative",
+    "point": "A minority criticized the handling and timing of character power progression, especially the uneven distribution of major upgrades."
+   },
+   {
+    "tone": "positive",
+    "point": "Several comments expressed strong emotional investment in the main cast and concern about their current circumstances."
+   }
+  ],
+  "aspects": {
+   "story": "positive",
+   "characters": "positive"
+  },
+  "notes": "The r/anime bot thread clearly matches Digimon Beatbreak and episode 47; the airing date also matches 2026-09-13 UTC. I read 31 accessible comments and paraphrased spoiler-free sentiment. No clear consensus on animation or sound was present."
+ },
+ {
+  "key": "202957:33",
+  "showId": 202957,
+  "episode": 33,
+  "title": "Meitantei Precure!",
+  "airedAt": 1789255800,
+  "kind": "update",
+  "thread": {
+   "title": "Meitantei Precure \u2022 Star Detective Precure! - Episode 33 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1weutg9/meitantei_precure_star_detective_precure_episode/",
+   "score": 5,
+   "num_comments": 3
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "186863:12",
+  "showId": 186863,
+  "episode": 12,
+  "title": "Neko to Ryuu",
+  "airedAt": 1789214400,
+  "kind": "update",
+  "thread": {
+   "title": "The Cat and the Dragon \u2022 Neko to Ryuu - Episode 12 discussion - FINAL",
+   "url": "https://www.reddit.com/r/anime/comments/1wec2vy/the_cat_and_the_dragon_neko_to_ryuu_episode_12/",
+   "score": 0,
+   "num_comments": 45
+  },
+  "comments_read": 45,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "The dominant reaction is that the finale and series were cozy, heartwarming, funny, and emotionally affecting."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters praised the character relationships, especially the evolving bond between the cats, dragon, and humans."
+   },
+   {
+    "tone": "positive",
+    "point": "The comedic performances and the embarrassment-focused humor were repeatedly singled out as highlights."
+   },
+   {
+    "tone": "positive",
+    "point": "Many viewers considered the show an unexpected seasonal favorite and expressed strong interest in another season."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers felt the finale functioned more as a recap than a fully conclusive ending."
+   },
+   {
+    "tone": "mixed",
+    "point": "A recurring criticism was that the episodic structure and unclear chronology made the broader timeline difficult to follow."
+   },
+   {
+    "tone": "mixed",
+    "point": "A few commenters enjoyed the show but considered it merely okay or wholesome rather than exceptional."
+   },
+   {
+    "tone": "negative",
+    "point": "Some viewers were disappointed that not all desired characters were present for the finale's central celebration."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "pacing": "mixed",
+   "characters": "positive",
+   "sound": "positive"
+  },
+  "notes": "The title and body explicitly identify Neko to Ryuu and episode 12, with a FINAL season marker. I retrieved the Reddit page and accessible comment text; the page did not expose a reliable post score, so score is reported as 0. Opinions are paraphrased and kept spoiler-free."
+ },
+ {
+  "key": "204431:2",
+  "showId": 204431,
+  "episode": 2,
+  "title": "Kaijuu 8-gou: Narumi no Heijitsu",
+  "airedAt": 1789210800,
+  "kind": "update",
+  "thread": {
+   "title": "Kaiju No. 8: Narumi's Week at Work \u2022 Kaijuu 8-gou: Narumi no Heijitsu - Episode 2 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1we9og9/kaiju_no_8_narumis_week_at_work_kaijuu_8gou/",
+   "score": 52,
+   "num_comments": 9
+  },
+  "comments_read": 8,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters found the short very funny and enjoyed its light, comedic tone."
+   },
+   {
+    "tone": "positive",
+    "point": "Some appreciated that the special gives characters room for everyday-life characterization."
+   },
+   {
+    "tone": "positive",
+    "point": "Commenters enjoyed the comedic contrast between the two central characters."
+   },
+   {
+    "tone": "mixed",
+    "point": "Narumi drew amusement but was repeatedly described as difficult or unpleasant, with commenters hoping for more redeeming characterization."
+   },
+   {
+    "tone": "positive",
+    "point": "One commenter enjoyed the idea of receiving more mini-episodes in this format."
+   }
+  ],
+  "aspects": {
+   "story": "positive",
+   "characters": "mixed"
+  },
+  "notes": "The title and metadata explicitly identify Kaijuu 8-gou: Narumi no Heijitsu, episode 2. I retrieved the thread score and nine total comments; eight substantive user comments were read. Opinions are paraphrased and spoiler-free. No clear multi-comment signal was available for animation, pacing, or so"
+ }
+]
