@@ -1,0 +1,98 @@
+[
+ {
+  "key": "199111:11",
+  "showId": 199111,
+  "episode": 11,
+  "title": "Grand Blue Season 3",
+  "airedAt": 1789398000,
+  "kind": "update",
+  "thread": {
+   "title": "Grand Blue Dreaming Season 3 \u2022 Grand Blue Season 3 - Episode 11 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1wg6oyw/grand_blue_dreaming_season_3_grand_blue_season_3/",
+   "score": 397,
+   "num_comments": 0
+  },
+  "comments_read": 21,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "The episode was widely considered funny, especially its physical comedy, awkward situations, and visual gags."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the sincere romantic chemistry and unusually wholesome character interactions."
+   },
+   {
+    "tone": "positive",
+    "point": "Many viewers praised the episode's character comedy and the contrast between responsible behavior and the cast's usual foolishness."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers enjoyed the episode overall but felt a key dramatic moment lacked tension and was rushed."
+   },
+   {
+    "tone": "negative",
+    "point": "One commenter strongly disliked the central sabotage behavior, saying it damaged their view of the characters."
+   },
+   {
+    "tone": "mixed",
+    "point": "A commenter liked the writing and general episode quality while criticizing the animation as weak."
+   }
+  ],
+  "aspects": {
+   "animation": "negative",
+   "story": "positive",
+   "pacing": "mixed",
+   "characters": "mixed"
+  },
+  "notes": "The title and page metadata explicitly identify Grand Blue Season 3, episode 11. Reddit exposed the post score and comment text, but did not expose a reliable total comment count in the retrieved page, so num_comments is 0. Opinions are paraphrased and spoiler-free."
+ },
+ {
+  "key": "197754:24",
+  "showId": 197754,
+  "episode": 24,
+  "title": "LIAR GAME",
+  "airedAt": 1789398000,
+  "kind": "update",
+  "thread": {
+   "title": "Liar Game - Episode 24 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1wg7sro/liar_game_episode_24_discussion/",
+   "score": 0,
+   "num_comments": 35
+  },
+  "comments_read": 35,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Viewers were highly engaged by the mind games and enjoyed theorizing about the episode\u2019s strategy."
+   },
+   {
+    "tone": "positive",
+    "point": "Many found the antagonist\u2019s exaggerated confidence and reactions entertaining."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters praised the voice acting and comic delivery."
+   },
+   {
+    "tone": "mixed",
+    "point": "The cliffhanger generated excitement and anticipation, but some considered it overly obvious or frustrating."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers admired the strategic depth, while others questioned whether the apparent solution felt sufficiently believable."
+   },
+   {
+    "tone": "negative",
+    "point": "A recurring criticism was that certain character decisions seemed overly greedy, arrogant, or na\u00efve."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "pacing": "mixed",
+   "characters": "mixed",
+   "sound": "positive"
+  },
+  "notes": "The title and episode label clearly identify Liar Game episode 24. I reviewed the visible discussion comments on this thread only; Reddit\u2019s page did not expose a reliable post score, so score is reported as 0. Sentiment is paraphrased and spoiler-free."
+ }
+]
