@@ -1,0 +1,76 @@
+[
+ {
+  "key": "207809:11",
+  "showId": 207809,
+  "episode": 11,
+  "title": "Sora wa Akai Kawa no Hotori",
+  "airedAt": 1789490100,
+  "kind": "first",
+  "thread": {
+   "title": "Red River \u2022 Sora wa Akai Kawa no Hotori - Episode 11 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1wh735z/red_river_sora_wa_akai_kawa_no_hotori_episode_11/",
+   "score": 5,
+   "num_comments": 2
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "209800:11",
+  "showId": 209800,
+  "episode": 11,
+  "title": "Yoroi Shinden Samurai Troopers Part 2",
+  "airedAt": 1789482600,
+  "kind": "first",
+  "thread": {
+   "title": "Yoroi-Shinden Samurai Troopers Part 2 - Episode 11 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1wh2zgg/yoroi_shin_den_samurai_troopers_part_2/",
+   "score": 3,
+   "num_comments": 3
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "196219:12",
+  "showId": 196219,
+  "episode": 12,
+  "title": "Mujikaku Seijo wa Kyou mo Muishiki ni Chikara wo Tare Nagasu",
+  "airedAt": 1789477200,
+  "kind": "update",
+  "thread": {
+   "title": "The Oblivious Saint Can't Contain Her Power \u2022 Mujikaku Seijo wa Kyou mo Muishiki ni Chikara wo Tare Nagasu - Episode 12 discussion - FINAL",
+   "url": "https://www.reddit.com/r/anime/comments/1wh0jun/the_oblivious_saint_cant_contain_her_power/",
+   "score": 0,
+   "num_comments": 32
+  },
+  "comments_read": 31,
+  "opinions": [
+   {
+    "tone": "negative",
+    "point": "Several commenters considered the series one of the weaker entries in its genre, criticizing shallow conflicts, weak antagonists, and limited character development."
+   },
+   {
+    "tone": "negative",
+    "point": "Many felt the writing and adaptation moved too quickly, making emotional developments and relationship changes feel abrupt or insufficiently earned."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers enjoyed the fantasy-romance premise, character relationships, and generally satisfying conclusion, while still describing the show as slow or only moderately impressive."
+   },
+   {
+    "tone": "positive",
+    "point": "A smaller group praised the cast, character growth, romantic resolution, and overall sense of closure."
+   },
+   {
+    "tone": "negative",
+    "point": "The visual consistency was criticized, with one commenter pointing out apparent character-proportion issues in a late scene."
+   }
+  ],
+  "aspects": {
+   "animation": "negative",
+   "story": "mixed",
+   "pacing": "negative",
+   "characters": "mixed"
+  },
+  "notes": "The title explicitly names Mujikaku Seijo wa Kyou mo Muishiki ni Chikara wo Tare Nagasu and episode 12, with the FINAL marker; season/episode identification agrees. The Reddit page exposed the discussion and comments, but did not expose a numeric post score, so score is reported as 0 rather than inf"
+ }
+]
