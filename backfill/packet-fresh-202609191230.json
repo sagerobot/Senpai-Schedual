@@ -1,0 +1,105 @@
+[
+ {
+  "key": "204431:3",
+  "showId": 204431,
+  "episode": 3,
+  "title": "Kaijuu 8-gou: Narumi no Heijitsu",
+  "airedAt": 1789815600,
+  "kind": "first",
+  "thread": {
+   "title": "Kaiju No. 8: Narumi's Week at Work \u2022 Kaijuu 8-gou: Narumi no Heijitsu - Episode 3 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1wkjax1/kaiju_no_8_narumis_week_at_work_kaijuu_8gou/",
+   "score": 5,
+   "num_comments": 4
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "184492:23",
+  "showId": 184492,
+  "episode": 23,
+  "title": "Mairimashita! Iruma-kun 4",
+  "airedAt": 1789809960,
+  "kind": "first",
+  "thread": {
+   "title": "Welcome to Demon School! Iruma-kun Season 4 \u2022 Mairimashita! Iruma-kun Season 4 - Episode 23 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1wkke01/welcome_to_demon_school_irumakun_season_4/",
+   "score": 16,
+   "num_comments": 2
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "235:1213",
+  "showId": 235,
+  "episode": 1213,
+  "title": "Meitantei Conan",
+  "airedAt": 1789808400,
+  "kind": "first",
+  "thread": {
+   "title": "Meitantei Conan \u2022 Case Closed - Episode 1213 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1wkju9c/meitantei_conan_case_closed_episode_1213/",
+   "score": 4,
+   "num_comments": 1
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "171110:22",
+  "showId": 171110,
+  "episode": 22,
+  "title": "Honzuki no Gekokujou: Ryoushu no Youjo",
+  "airedAt": 1789806600,
+  "kind": "first",
+  "thread": {
+   "title": "Ascendance of a Bookworm: Adopted Daughter of an Archduke \u2022 Honzuki no Gekokujou: Shisho ni Naru Tame ni wa Shudan wo Erandeiraremasen - Ryushu no Youjo - Episode 22 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1wkhodb/ascendance_of_a_bookworm_adopted_daughter_of_an/",
+   "score": 162,
+   "num_comments": 22
+  },
+  "comments_read": 8,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many commenters were enthusiastic about the episode\u2019s character work, especially the appeal of Charlotte and the emotional family dynamics."
+   },
+   {
+    "tone": "positive",
+    "point": "Several readers felt the adaptation handled the central developments effectively and enjoyed the interplay among the main characters."
+   },
+   {
+    "tone": "negative",
+    "point": "Some source readers felt important dramatic moments were weakened compared with the novels."
+   },
+   {
+    "tone": "mixed",
+    "point": "The episode was generally well received, but commenters disagreed on whether its major confrontations had enough tension."
+   },
+   {
+    "tone": "negative",
+    "point": "Wilfried drew substantial criticism for repeatedly making poor decisions and frustrating viewers."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "pacing": "mixed",
+   "characters": "mixed"
+  },
+  "notes": "The thread title and metadata clearly identify Honzuki no Gekokujou: Ryushu no Youjo, Season 4, episode 22. Search retrieval exposed the title, score, and a subset of comments, but not a reliably verifiable complete comment listing; num_comments is based on the retrieved thread metadata."
+ },
+ {
+  "key": "158871:150",
+  "showId": 158871,
+  "episode": 150,
+  "title": "Pocket Monsters (2023)",
+  "airedAt": 1789725300,
+  "kind": "settle",
+  "thread": {
+   "title": "Pok\u00e9mon Horizons: The Series - Episode 150 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1wkd85q/pok%C3%A9mon_horizons_the_series_episode_150_discussion/",
+   "score": 23,
+   "num_comments": 3
+  },
+  "status": "quiet"
+ }
+]
