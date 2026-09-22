@@ -1,0 +1,65 @@
+[
+ {
+  "key": "199111:12",
+  "showId": 199111,
+  "episode": 12,
+  "title": "Grand Blue Season 3",
+  "airedAt": 1790002800,
+  "kind": "update",
+  "thread": {
+   "title": "Grand Blue Dreaming Season 3 \u2022 Grand Blue Season 3 - Episode 12 discussion - FINAL",
+   "url": "https://www.reddit.com/r/anime/comments/1wmg57u/grand_blue_dreaming_season_3_grand_blue_season_3/",
+   "score": 0,
+   "num_comments": 30
+  },
+  "comments_read": 30,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many commenters found the episode extremely funny and praised its chaotic comic timing."
+   },
+   {
+    "tone": "positive",
+    "point": "Several enjoyed the character interactions, especially the unlikely comedic partnership between Aina and Kohei."
+   },
+   {
+    "tone": "positive",
+    "point": "The finale\u2019s dramatic final beat generated strong excitement and anticipation for the next season."
+   },
+   {
+    "tone": "positive",
+    "point": "Commenters generally felt the season was enjoyable overall and were pleased that another season was announced."
+   },
+   {
+    "tone": "negative",
+    "point": "Some viewers were frustrated by the abrupt cliffhanger and wanted immediate resolution."
+   },
+   {
+    "tone": "mixed",
+    "point": "The episode\u2019s balance of comedy, romance, and diving was appreciated, though some felt the ending was deliberately frustrating."
+   }
+  ],
+  "aspects": {
+   "animation": "positive",
+   "story": "positive",
+   "pacing": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The page title and metadata explicitly identify Grand Blue Season 3, episode 12. I read the accessible substantive comments on this thread only. Reddit did not expose reliable live score or total-comment metadata in the retrieved page, so score is reported as 0 and num_comments reflects the 30 comme"
+ },
+ {
+  "key": "197754:25",
+  "showId": 197754,
+  "episode": 25,
+  "title": "LIAR GAME",
+  "airedAt": 1790002800,
+  "kind": "update",
+  "thread": {
+   "title": "Liar Game - Episode 25 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1wmhepe/liar_game_episode_25_discussion/",
+   "score": 0,
+   "num_comments": 3
+  },
+  "status": "quiet"
+ }
+]
