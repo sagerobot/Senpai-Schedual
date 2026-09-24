@@ -1,0 +1,113 @@
+[
+ {
+  "key": "108992:12",
+  "showId": 108992,
+  "episode": 12,
+  "title": "Mebius Dust",
+  "airedAt": 1790260200,
+  "kind": "update",
+  "thread": {
+   "title": "Mebius Dust - Episode 12 discussion - FINAL",
+   "url": "https://www.reddit.com/r/anime/comments/1wp40jp/mebius_dust_episode_12_discussion_final/",
+   "score": 16,
+   "num_comments": 11
+  },
+  "comments_read": 11,
+  "opinions": [
+   {
+    "tone": "negative",
+    "point": "Several commenters felt the series was confusing, poorly connected, and unable to deliver satisfying payoffs."
+   },
+   {
+    "tone": "negative",
+    "point": "The finale was widely described as rushed, with unresolved questions and remaining plot holes."
+   },
+   {
+    "tone": "negative",
+    "point": "Some viewers considered the show tedious or not worth watching, rating it very low overall."
+   },
+   {
+    "tone": "mixed",
+    "point": "A few commenters acknowledged potential, occasional enjoyable moments, or some character resolution despite broad dissatisfaction."
+   },
+   {
+    "tone": "positive",
+    "point": "Some reactions appreciated individual character moments and the conclusion of certain personal arcs."
+   }
+  ],
+  "aspects": {
+   "story": "negative",
+   "pacing": "negative",
+   "characters": "mixed"
+  },
+  "notes": "The target thread title and body clearly identify Mebius Dust episode 12 and the FINAL marker. Search retrieval exposed the thread metadata and 11 comment entries; opinions are paraphrased and spoiler-free. No clear discussion of animation or sound was found."
+ },
+ {
+  "key": "187166:51",
+  "showId": 187166,
+  "episode": 51,
+  "title": "Ganso! Bandori-chan",
+  "airedAt": 1790254800,
+  "kind": "update",
+  "thread": {
+   "title": "Ganso! Bandori-chan \u2022 GANSO! BanG Dream Chan - Episode 51 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1wp1cbw/ganso_bandorichan_ganso_bang_dream_chan_episode/",
+   "score": 12,
+   "num_comments": 2
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "203880:13",
+  "showId": 203880,
+  "episode": 13,
+  "title": "Reiwa no Dara-san",
+  "airedAt": 1790253000,
+  "kind": "update",
+  "thread": {
+   "title": "Dara-san of Reiwa \u2022 Reiwa no Dara-san - Episode 13 discussion - FINAL",
+   "url": "https://www.reddit.com/r/anime/comments/1wp0dcw/darasan_of_reiwa_reiwa_no_darasan_episode_13/",
+   "score": 0,
+   "num_comments": 39
+  },
+  "comments_read": 36,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "The dominant reaction was that the finale and series were unexpectedly excellent, especially the blend of horror, comedy, supernatural elements, and everyday character interactions."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters found the conclusion emotionally satisfying and praised the character relationships and sense of closure."
+   },
+   {
+    "tone": "positive",
+    "point": "The action was generally considered effective and enjoyable, with some viewers calling the confrontation intense, well executed, or hype."
+   },
+   {
+    "tone": "mixed",
+    "point": "A few viewers felt the major confrontation was too brief or that the episode shifted abruptly back to comedy afterward."
+   },
+   {
+    "tone": "mixed",
+    "point": "Manga readers largely approved of the adaptation but mentioned some questionable or strange adaptation choices."
+   },
+   {
+    "tone": "negative",
+    "point": "Some commenters were disappointed that the season ended without more episodes or a clearly announced continuation, while others felt the existing ending was complete enough."
+   },
+   {
+    "tone": "negative",
+    "point": "There was minor disappointment about expected fan-service content not appearing."
+   }
+  ],
+  "aspects": {
+   "animation": "positive",
+   "story": "positive",
+   "pacing": "mixed",
+   "characters": "positive",
+   "sound": "mixed"
+  },
+  "notes": "The title and episode label explicitly identify Reiwa no Dara-san and episode 13. I read the accessible substantive discussion comments on this thread only; Reddit exposed no reliable score in the retrieved page, so score is recorded as 0. Summaries are paraphrased and spoiler-free."
+ }
+]
