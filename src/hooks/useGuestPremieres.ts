@@ -17,7 +17,7 @@ function premiereInReach(anime: AnimeMedia, nowSec: number): boolean {
   const next = anime.nextAiringEpisode;
   if (next?.episode === 1 && next.airingAt > nowSec && next.airingAt - nowSec <= RUNWAY_WINDOW_SEC) return true;
   const latest = latestAiredEpisode(anime, nowSec);
-  if (latest?.episode !== 1 || latest.estimated) return false;
+  if (latest?.episode !== 1) return false;
   const age = nowSec - latest.airedAt;
   return age >= 0 && age <= DROP_WINDOW_SEC;
 }

@@ -34,21 +34,6 @@ describe('premiere drops', () => {
     expect(drop).toMatchObject({ episode: 1, premiere: true, guest: false, adopt: true, graduation: false });
   });
 
-  it('holds back a premiere AniList only implies (next episode is 2, still in the future)', () => {
-    // The Magical Explorer shape: ep 2 listed six days out, so the estimated
-    // branch claims ep 1 aired yesterday — a guess, not a drop.
-    const implied = { ...airedShow(1, 2, 0), nextAiringEpisode: { airingAt: NOW + 6 * 24 * HOUR, timeUntilAiring: 6 * 24 * HOUR, episode: 2 } };
-    expect(computeDrops([implied], [], NO_LOGS, [], {}, [1], [])).toEqual([]);
-    expect(wouldBeDrop(implied, [], NO_LOGS, NOW, [], {}, [1], [])).toBe(false);
-  });
-
-  it('keeps an admitted premiere after the refresh turns its signal into an estimate', () => {
-    const [drop] = computeDrops([airedShow(1, 1, 3)], [], NO_LOGS, [], {}, [1], []);
-    expect(drop.episode).toBe(1);
-    const refreshed = { ...airedShow(1, 2, 0), nextAiringEpisode: { airingAt: NOW + 7 * 24 * HOUR - 3 * HOUR, timeUntilAiring: 0, episode: 2 } };
-    expect(computeDrops([refreshed], [], NO_LOGS, [], {}, [1], []).map((d) => d.episode)).toEqual([1]);
-  });
-
   it('keeps a Plan to Watch show out once its premiere has passed', () => {
     expect(computeDrops([airedShow(1, 2, 3)], [], NO_LOGS, [], {}, [1], [])).toEqual([]);
   });

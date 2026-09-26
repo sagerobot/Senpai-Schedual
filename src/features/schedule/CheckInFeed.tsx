@@ -187,11 +187,7 @@ export function computeDrops(
     // finale, Plan to Watch and guest seasons only for episode 1. Exact signal
     // only for a finale: the estimated branch can fabricate one when an episode
     // count is wrong (pins were admitted on an exact signal already).
-    // A pin was admitted on the rules below, so it stands as exact: once the
-    // post-airing refresh moves AniList on to the next episode, the premiere
-    // it admitted must not read as a guess and vanish mid-window.
-    const estimated = pin?.episode === episodeNum ? false : (latest?.estimated ?? false);
-    const role = dropRole(anime.id, episodeNum, anime.episodes, estimated, audience);
+    const role = dropRole(anime.id, episodeNum, anime.episodes, latest?.estimated ?? false, audience);
     if (role === null) continue;
 
     // "Skip this week": the skipped episode never drops again — but its pin

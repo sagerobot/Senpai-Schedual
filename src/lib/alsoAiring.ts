@@ -119,9 +119,7 @@ function placeOnRow(anime: AnimeMedia, nowSec: number): { episode: number; airin
     return { episode: next.episode, airingAt: next.airingAt, aired: false };
   }
   const latest = latestAiredEpisode(anime, nowSec);
-  // An estimated episode 1 is a guess about a premiere — the one airing the
-  // guess gets wrong (advance streams, off-by-one schedules). Say nothing.
-  if (latest && !(latest.estimated && latest.episode === 1)) {
+  if (latest) {
     const age = nowSec - latest.airedAt;
     if (age >= 0 && age <= DROP_WINDOW_SEC) {
       return { episode: latest.episode, airingAt: latest.airedAt, aired: true };

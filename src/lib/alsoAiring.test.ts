@@ -88,11 +88,6 @@ describe('computeAlsoAiring admission', () => {
     expect(ids(list, {}, [], NONE, { includeMovies: false, sources: [] })).toEqual([1, 2, 3]);
   });
 
-  it('leaves out a premiere AniList only implies', () => {
-    // next is episode 2, six days out: "episode 1 aired a day ago" is a guess.
-    expect(ids([show({ id: 1, in: 6 * 24 * HOUR, episode: 2 })])).toEqual([]);
-  });
-
   it('dedupes by id', () => {
     expect(ids([show({ id: 1, in: -HOUR }), show({ id: 1, in: -HOUR })])).toEqual([1]);
   });
