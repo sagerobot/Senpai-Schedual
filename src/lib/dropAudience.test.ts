@@ -29,6 +29,11 @@ describe('dropRole', () => {
     expect(dropRole(1, 2, 12, false, a)).toBeNull();
   });
 
+  it('never drops a Plan to Watch or guest premiere on an estimated signal', () => {
+    expect(dropRole(1, 1, 12, true, audience({ planning: [1] }))).toBeNull();
+    expect(dropRole(1, 1, 12, true, audience({ guests: [1] }))).toBeNull();
+  });
+
   it('drops a guest season for its premiere only', () => {
     const a = audience({ guests: [1] });
     expect(dropRole(1, 1, 12, false, a)).toEqual({ kind: 'premiere', guest: true });

@@ -10,6 +10,12 @@
  * - **guest**: a season premiere of a franchise you already follow, whose own
  *   entry isn't in the library yet. Also episode 1 only.
  *
+ * Premieres and finales both demand an **exact** airing signal. The estimated
+ * branch of latestAiredEpisode ("the episode before the next one aired a week
+ * earlier") is right for an ordinary weekly episode and wrong exactly where a
+ * premiere lives: an advance stream in Japan or an off-by-one schedule made
+ * Magical Explorer's "Episode 1" drop a week before it was watchable anywhere.
+ *
  * Pure: the id lists come in from the caller, which is the one place that
  * reads the library.
  */
@@ -46,7 +52,7 @@ export function dropRole(
     const finale = totalEpisodes !== null && episode >= totalEpisodes && !estimated;
     return finale ? { kind: 'graduation' } : null;
   }
-  if (episode !== 1) return null;
+  if (episode !== 1 || estimated) return null;
   if (audience.planning.includes(showId)) return { kind: 'premiere', guest: false };
   if (audience.guests.includes(showId)) return { kind: 'premiere', guest: true };
   return null;
