@@ -39,3 +39,27 @@ export const PORTAL_X: Transition = { duration: DUR.portal, ease: EASE_STANDARD 
 
 /** Shared layout transition for grid/list reflow. */
 export const LAYOUT_SWAP: Transition = { duration: DUR.swap, ease: EASE_SWAP };
+
+/**
+ * The rating celebration (docs §17). Seconds, like DUR. The stamp scales with
+ * the score — a 5 is acknowledged, a 10 is an event — and the beats that
+ * follow it (the swipe to the next episode, or the caught-up send-off before
+ * a card leaves) are long enough to read, short enough to rate a run of
+ * catch-up episodes without waiting.
+ */
+export const CELEBRATE = {
+  /** Stamp beat per tier: 5-6 / 7-8 / 9-10 (and "Watched only"). */
+  stamp: { 1: 1.15, 2: 1.4, 3: 1.75 },
+  /** The caught-up send-off before a card leaves the row. */
+  sendOff: 2.6,
+  /** The swipe-replace to the next episode. */
+  swap: 0.52,
+} as const;
+
+export type CelebrationTier = keyof typeof CELEBRATE.stamp;
+
+/** 5-6 → 1, 7-8 → 2, 9-10 → 3; a bare "Watched only" is the quiet tier. */
+export function celebrationTier(score: number | null): CelebrationTier {
+  if (score === null || score < 7) return 1;
+  return score >= 9 ? 3 : 2;
+}

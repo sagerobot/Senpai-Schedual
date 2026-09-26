@@ -5,16 +5,19 @@ import { SeriesTitle } from '../../components/SeriesTitle';
 import { UpNextDeck } from '../../components/UpNextDeck';
 import { WelcomeHero } from '../../components/WelcomeHero';
 import { Search, SearchX, Film, Loader2, X } from 'lucide-react';
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
 import { cn } from '../../lib/utils';
 import { displayTitle } from '../../lib/displayTitle';
 import { latestAiredEpisode } from '../../lib/aired';
 import { DROP_WINDOW_SEC } from '../../lib/freshness';
-import { CheckInFeed, computeDrops, wouldBeDrop } from './CheckInFeed';
+import { computeAlsoAiring, type AlsoAiringEntry } from '../../lib/alsoAiring';
+import { AlsoAiring } from './AlsoAiring';
+import { CheckInFeed, adoptWithUndo, computeDrops, wouldBeDrop } from './CheckInFeed';
 import { WeekRuler } from './WeekRuler';
 import { summarizeWeek } from './weekSummary';
 import { STREAMING_SITES } from '../../lib/watchLinks';
+import { useGuestPremieres } from '../../hooks/useGuestPremieres';
 import { useUpNext } from '../../hooks/useUpNext';
 import { useUserData } from '../../stores/userData';
 import { Button } from '../../components/ui/Button';
@@ -24,6 +27,8 @@ interface DailyScheduleProps {
   favorites: number[];
   /** Stacking-status show ids — drop material only on their finale's day. */
   stacking?: number[];
+  /** Plan to Watch show ids — drop material only for their premiere. */
+  planning?: number[];
   onAnimeSelect: (anime: AnimeMedia) => void;
   logs: EpisodeLog[];
   onLog: (showId: number, episodeNumber: number, score: number | null) => void;
@@ -62,7 +67,16 @@ function sitesFor(anime: AnimeMedia): Set<string> {
   return sites;
 }
 
-export function DailySchedule({ animeList, favorites, stacking = NO_STACKING, onAnimeSelect, logs, onLog, isStreaming = false }: DailyScheduleProps) {
+export function DailySchedule({
+  animeList,
+  favorites,
+  stacking = NO_STACKING,
+  planning = NO_STACKING,
+  onAnimeSelect,
+  logs,
+  onLog,
+  isStreaming = false,
+}: DailyScheduleProps) {
   const [search, setSearch] = useState('');
 
   // The handoff: once the drops feed is quiet, the page deals the Up Next deck
@@ -87,16 +101,21 @@ export function DailySchedule({ animeList, favorites, stacking = NO_STACKING, on
     return Array.from(merged.values());
   }, [animeList, upNextCandidates]);
   const dropSkips = useUserData((s) => s.dropSkips);
-  const activeDropCount = useMemo(
-    () => computeDrops(dropSource, favorites, logs, stacking, dropSkips).length,
-    [dropSource, favorites, logs, stacking, dropSkips],
+  const library = useUserData((s) => s.library);
+  // Season premieres of franchises you follow, whose own entry isn't in the
+  // library yet — the dashed guest drop card.
+  const guests = useGuestPremieres(dropSource, library);
+  const activeDrops = useMemo(
+    () => computeDrops(dropSource, favorites, logs, stacking, dropSkips, planning, guests),
+    [dropSource, favorites, logs, stacking, dropSkips, planning, guests],
   );
+  const activeDropCount = activeDrops.length;
   // The standalone deck applies the same fresh-clock guard as the merged row:
   // a candidate whose episode just aired belongs to the drops feed, and the
   // memos above may not have re-run since the airing. Un-memoized on purpose.
   const deckNowSec = Math.floor(Date.now() / 1000);
   const deckCandidates = upNextCandidates.filter(
-    (c) => !wouldBeDrop(c.anime, favorites, logs, deckNowSec, stacking, dropSkips),
+    (c) => !wouldBeDrop(c.anime, favorites, logs, deckNowSec, stacking, dropSkips, planning, guests),
   );
   // "You're done for today" only means something if there was a today: at least
   // one tracked episode aired inside the drop window and its log exists. Shares
@@ -117,6 +136,45 @@ export function DailySchedule({ animeList, favorites, stacking = NO_STACKING, on
       return logs.some((l) => l.showId === anime.id && l.episodeNumber === latest.episode);
     });
   }, [dropSource, favorites, stacking, logs]);
+
+  // Also Airing reads the clock for its NOW line (upcoming → aired), so it
+  // gets its own coarse tick instead of riding the drops memo's inputs.
+  const [alsoAiringMinute, setAlsoAiringMinute] = useState(() => Math.floor(Date.now() / 60_000));
+  useEffect(() => {
+    const id = setInterval(() => setAlsoAiringMinute(Math.floor(Date.now() / 60_000)), 60_000);
+    return () => clearInterval(id);
+  }, []);
+  const includeMoviesPref = useUserData((s) => s.uiPrefs.includeMovies);
+  const alsoAiringRow = useMemo(() => {
+    const now = alsoAiringMinute * 60;
+    // Everything that is, or is about to be, a drop card belongs to the row
+    // above — the fresh-clock check covers an airing the drops memo predates.
+    const exclude = new Set(activeDrops.map((d) => d.anime.id));
+    for (const anime of dropSource) {
+      if (wouldBeDrop(anime, favorites, logs, now, stacking, dropSkips, planning, guests)) exclude.add(anime.id);
+    }
+    return computeAlsoAiring(dropSource, library, logs, now, exclude, { includeMovies: includeMoviesPref });
+  }, [alsoAiringMinute, activeDrops, dropSource, favorites, logs, stacking, dropSkips, planning, guests, library, includeMoviesPref]);
+
+  // Adopted from Also Airing with more episodes already out: the new drop
+  // card arrives playing the rating celebration (see CheckInFeed arrivals).
+  const [arrivals, setArrivals] = useState<Record<number, { episode: number; score: number | null }>>({});
+  const handleArrivalShown = useCallback((showId: number) => {
+    setArrivals((current) => {
+      if (current[showId] === undefined) return current;
+      const next = { ...current };
+      delete next[showId];
+      return next;
+    });
+  }, []);
+  const handleAdopt = useCallback((entry: AlsoAiringEntry, rated: { episode: number; score: number | null }) => {
+    const latestAired = entry.aired ? entry.episode : entry.episode - 1;
+    if (latestAired > rated.episode) setArrivals((current) => ({ ...current, [entry.anime.id]: rated }));
+    adoptWithUndo(entry.anime.id, 'watching', displayTitle(entry.anime));
+  }, []);
+  const handlePlan = useCallback((entry: AlsoAiringEntry) => {
+    adoptWithUndo(entry.anime.id, 'plan_to_watch', displayTitle(entry.anime));
+  }, []);
 
   // Same undo-toast contract as CheckInFeed's handleLog — the deck never toasts.
   const handleDeckLog = useCallback(
@@ -259,6 +317,8 @@ export function DailySchedule({ animeList, favorites, stacking = NO_STACKING, on
         animeList={dropSource}
         favorites={favorites}
         stacking={stacking}
+        planning={planning}
+        guests={guests}
         logs={logs}
         onAnimeSelect={onAnimeSelect}
       />
@@ -267,6 +327,10 @@ export function DailySchedule({ animeList, favorites, stacking = NO_STACKING, on
         animeList={dropSource}
         favorites={favorites}
         stacking={stacking}
+        planning={planning}
+        guests={guests}
+        arrivals={arrivals}
+        onArrivalShown={handleArrivalShown}
         logs={logs}
         onLog={onLog}
         onAnimeSelect={onAnimeSelect}
@@ -301,6 +365,16 @@ export function DailySchedule({ animeList, favorites, stacking = NO_STACKING, on
           />
         </div>
       )}
+
+      {/* Everything else in the drop window: discovery, stacking reminders,
+          dropped shows that got good. Between the drops and the week. */}
+      <AlsoAiring
+        row={alsoAiringRow}
+        onOpen={onAnimeSelect}
+        onLog={handleDeckLog}
+        onAdopt={handleAdopt}
+        onPlan={handlePlan}
+      />
 
       <section
         aria-labelledby="schedule-heading"

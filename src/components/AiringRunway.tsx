@@ -23,6 +23,9 @@ interface AiringRunwayProps {
   favorites: number[];
   /** Stacking show ids — runway material only on their finale. */
   stacking?: number[];
+  /** Plan to Watch ids and guest season premieres — runway material only for episode 1. */
+  planning?: number[];
+  guests?: number[];
   logs: EpisodeLog[];
   onAnimeSelect?: (anime: AnimeMedia) => void;
 }
@@ -55,6 +58,8 @@ export function AiringRunway({
   animeList,
   favorites,
   stacking = NO_STACKING,
+  planning = NO_STACKING,
+  guests = NO_STACKING,
   logs,
   onAnimeSelect,
 }: AiringRunwayProps) {
@@ -63,7 +68,7 @@ export function AiringRunway({
   // One interval for the whole strip — never one per show. It reads the clock
   // here and nowhere else, so CheckInFeed's drops memo (and its admission
   // pins, which re-read the clock when they recompute) stays untouched.
-  const moments = computeRunway(animeList, favorites, logs, nowSec, stacking);
+  const moments = computeRunway(animeList, favorites, logs, nowSec, stacking, planning, guests);
   const active = moments.length > 0;
 
   useEffect(() => {
@@ -314,7 +319,7 @@ const RunwayChip = memo(function RunwayChip({
   showTime: boolean;
   onAnimeSelect?: (anime: AnimeMedia) => void;
 }) {
-  const { anime, episode, behindCount, nextEpisode, closable, finale } = show;
+  const { anime, episode, behindCount, nextEpisode, closable, finale, premiere } = show;
   const tier = tierFor(width);
   const full = displayTitle(anime);
   const title = shortTitle(full, tier.cut);
@@ -323,7 +328,7 @@ const RunwayChip = memo(function RunwayChip({
   const openShow = () => onAnimeSelect?.(anime);
 
   const meta = [
-    `Ep. ${episode}${finale ? ' • finale' : ''}`,
+    `Ep. ${episode}${finale ? ' • finale' : premiere ? ' • premiere' : ''}`,
     showTime ? formatAirTime(show.airingAt) : null,
     behindCount === 0 ? 'caught up' : behindCount === 1 ? 'one behind' : `${behindCount} behind`,
     tier.studio ? anime.studios?.nodes?.[0]?.name : null,

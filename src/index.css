@@ -456,3 +456,50 @@ h1, h2, h3, h4, h5, h6 {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: var(--color-fg-faint);
 }
+
+/* ------------------------------------------------------- rating celebration */
+
+/* The Stamp (docs §17). Durations arrive per element as inline
+   animation-duration from lib/motion.ts CELEBRATE, so the tier timing has one
+   source; these keyframes only carry the shapes. */
+@keyframes stamp-veil {
+  0% { opacity: 0; }
+  12% { opacity: 1; }
+  82% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes stamp-tile {
+  0% { transform: scale(2.3) rotate(-16deg); opacity: 0; }
+  18% { transform: scale(0.9) rotate(-6deg); opacity: 1; }
+  26% { transform: scale(1) rotate(-6deg); }
+  82% { transform: scale(1) rotate(-6deg); opacity: 1; }
+  100% { transform: scale(0.92) rotate(-6deg); opacity: 0; }
+}
+@keyframes stamp-ring {
+  0% { transform: scale(1) rotate(-6deg); opacity: 0.9; }
+  100% { transform: scale(2.5) rotate(-6deg); opacity: 0; }
+}
+@keyframes stamp-spark {
+  0% { transform: translateY(0) scaleY(0.4); opacity: 0; }
+  15% { opacity: 1; }
+  100% { transform: translateY(-190px) scaleY(1); opacity: 0; }
+}
+@keyframes stamp-caption {
+  0%, 20% { opacity: 0; transform: translateY(10px); }
+  32% { opacity: 1; transform: translateY(0); }
+  82% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes stamp-thump {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+@keyframes send-off-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes send-off-drain {
+  from { width: 100%; }
+  to { width: 0%; }
+}

@@ -1,5 +1,6 @@
 import { AnimeMedia, EpisodeLog } from '../types';
 import { displayTitle } from './displayTitle';
+import { dropRole, type DropAudience } from './dropAudience';
 
 /**
  * "On the Runway": the hour before an episode airs.
@@ -48,6 +49,8 @@ export interface RunwayShow {
   closable: boolean;
   /** The season's last episode. */
   finale: boolean;
+  /** Episode 1 — a series or season premiere. */
+  premiere: boolean;
 }
 
 export interface RunwayMoment {
@@ -59,9 +62,10 @@ export interface RunwayMoment {
 /**
  * The moments inside the next hour, soonest first.
  *
- * Eligibility mirrors the drops feed: watching shows, plus a stacking show
- * only for its finale — a show you are deliberately letting pile up does not
- * want twelve countdowns a season.
+ * Eligibility is the drops feed's (dropAudience.ts): watching shows, a
+ * stacking show only for its finale — a show you are deliberately letting pile
+ * up does not want twelve countdowns a season — and Plan to Watch or guest
+ * seasons only for their premiere.
  */
 export function computeRunway(
   animeList: AnimeMedia[],
@@ -69,7 +73,10 @@ export function computeRunway(
   logs: EpisodeLog[],
   nowSec: number,
   stacking: number[] = [],
+  planning: number[] = [],
+  guests: number[] = [],
 ): RunwayMoment[] {
+  const audience: DropAudience = { favorites, stacking, planning, guests };
   const watchedByShow = new Map<number, number[]>();
   for (const log of logs) {
     const list = watchedByShow.get(log.showId);
@@ -86,11 +93,11 @@ export function computeRunway(
     const remaining = next.airingAt - nowSec;
     if (remaining <= 0 || remaining > RUNWAY_WINDOW_SEC) continue;
 
-    const isStacking = stacking.includes(anime.id);
-    if (!favorites.includes(anime.id) && !isStacking) continue;
-
+    // The drops feed's audience rule (dropAudience.ts), so the handoff at T-0
+    // never changes its mind about whether this is your show.
+    const role = dropRole(anime.id, next.episode, anime.episodes, false, audience);
+    if (role === null) continue;
     const finale = anime.episodes !== null && next.episode >= anime.episodes;
-    if (isStacking && !finale) continue;
 
     const watched = watchedByShow.get(anime.id) ?? [];
     // Already logged ahead — a raw, a rewatch, a manual entry. Nothing left
@@ -110,6 +117,7 @@ export function computeRunway(
       nextEpisode: maxWatched + 1,
       closable: behindCount === 1,
       finale,
+      premiere: next.episode === 1,
     });
   }
 

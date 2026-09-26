@@ -312,3 +312,29 @@ The runway strip is **not** a hero surface. §12 lists three protected heroes an
 one: it borrows the `hero-drops-*` ground so it reads as the same family as the grid beneath
 it, and takes nothing else. It is also the one surface that is allowed to look unlike the
 rest of the app, because it exists for at most an hour a night and then unmounts itself.
+
+## 17. Premieres, Also Airing, and the rating celebration
+
+**Premiere drop.** Episode 1 wears a skin on the ordinary drop card. It is never a new card class, so the row stays aligned:
+- an accent band across the bottom of the art: `EPISODE 1 · SERIES PREMIERE`, or `· SEASON N PREMIERE`
+- a filled accent CTA ("Start watching — Episode 1")
+- a timeline from a glowing "Starts today" node to the finale
+
+A **guest** season premiere is one whose franchise you follow while its own entry isn't in Watching. It gets a dashed accent border, a "Not in Watching" chip and "Not this season →". The dashed edge is the only thing marking it as a guest: it stays in the theme's accent, never a second hue. Who a card is for is decided by one rule, `src/lib/dropAudience.ts`, shared by the drops, the deck hold-back and the runway.
+
+**Also Airing** (`src/features/schedule/AlsoAiring.tsx`, pure model in `src/lib/alsoAiring.ts`). Everything in the drop window that isn't one of your drops.
+- The h2 sits above a slim panel that wraps only the row. The row is fixed-width 300px cards (264px on phones) that never wrap: arrow bubbles, or a swipe on touch, page it, as the Runway does (§16).
+- Cards run in air-time order. An amber hairline with a NOW tag separates aired from upcoming; amber because it marks time.
+- Upcoming art is desaturated, dropped cards are dimmed and grayscale, and stacking cards get an accent border and a stack strip.
+- The pulse: per-episode r/anime tone bars. Their height differs per tone as well as their colour, so sentiment is never colour-only. With them come the latest tone as a word, "Rising/Cooling since Ep N", and up to three aspects. When no r/anime reading exists it falls back to the AniList score.
+- A discovery card has one action, Watch. Pressing it also arms the card's rating ("Back from Episode N?"), so the question is waiting when you come back.
+
+**The rating celebration** (`src/components/RatedStamp.tsx`, timings in `CELEBRATE`, `lib/motion.ts`). The log is written at the tap; everything after it is presentation.
+1. **Stamp.** The score tile stamps on at a tilt, with more rings the higher it goes: one for 5–6, two for 7–8, and for 9–10 three rings plus sparks and a thump of the card.
+2. **Then** one of two things:
+   - a **swipe-replace**: the rated face slides out left and the next episode's face slides in, if the card stays;
+   - a **send-off**: "You're all caught up", why, and when it's back, over a draining bar, if the card is leaving. A card never simply vanishes.
+3. **Adopting.** A premiere of a show not in Watching asks "Add to Watching?" between the two beats.
+4. **Flight.** Adopting from Also Airing with episodes already out flies the card up into Today's Drops (a shared layout id, set on each side only for the flight).
+
+Under reduced motion the stamp is a brief static confirmation and the swipe is instant, but the send-off still shows. Its words are information, not decoration.

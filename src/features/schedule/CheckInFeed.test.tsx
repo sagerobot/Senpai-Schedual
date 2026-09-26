@@ -1,6 +1,6 @@
 /** @vitest-environment happy-dom */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { act, type ReactElement } from 'react';
+import { act, useState, type ReactElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { toast } from 'sonner';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -393,5 +393,107 @@ describe('wouldBeDrop', () => {
     // A skip for last week's episode does not release this week's.
     const staleSkips = { 2: { episode: 5, skippedAt: NOW * 1000 } };
     expect(wouldBeDrop(episodeSixShow(2, -300), [2], logs, NOW, [], staleSkips)).toBe(true);
+  });
+});
+
+describe('CheckInFeed rating celebration', () => {
+  let container: HTMLDivElement;
+  let root: Root;
+
+  beforeEach(() => {
+    (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+    resetAdmittedDrops();
+    useUserData.setState({ dropSkips: {}, library: {} });
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] });
+    vi.setSystemTime(NOW * 1000);
+    container = document.createElement('div');
+    document.body.appendChild(container);
+    root = createRoot(container);
+  });
+
+  afterEach(async () => {
+    await act(async () => root.unmount());
+    container.remove();
+    vi.restoreAllMocks();
+    vi.useRealTimers();
+  });
+
+  /** Owns the logs like the route does, so a rating really resolves the drop. */
+  function Harness(props: { anime: AnimeMedia; favorites?: number[]; planning?: number[]; initialLogs: EpisodeLog[] }) {
+    const [logs, setLogs] = useState(props.initialLogs);
+    return (
+      <CheckInFeed
+        animeList={[props.anime]}
+        favorites={props.favorites ?? []}
+        planning={props.planning}
+        logs={logs}
+        onLog={(showId, episodeNumber, score) =>
+          setLogs((l) => [...l, { showId, episodeNumber, watchedAt: NOW, score }])
+        }
+      />
+    );
+  }
+
+  async function render(ui: ReactElement) {
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    await act(async () => {
+      root.render(<QueryClientProvider client={client}>{ui}</QueryClientProvider>);
+    });
+  }
+
+  const rate = async (episode: number, score: number) => {
+    const button = container.querySelector<HTMLButtonElement>(`button[aria-label="Rate episode ${episode} a ${score} and mark watched"]`);
+    expect(button).not.toBeNull();
+    await act(async () => button!.click());
+  };
+
+  const advance = async (ms: number) => {
+    await act(async () => {
+      vi.advanceTimersByTime(ms);
+    });
+  };
+
+  it("stamps today's episode, announces the send-off, then lets the card go", async () => {
+    await render(<Harness anime={episodeSixShow(2, -300)} favorites={[2]} initialLogs={logsThrough(5, 2)} />);
+    await rate(6, 8);
+
+    // Logged at once, but the card holds its slot while the beats play.
+    expect(container.textContent).toContain('Episode 6 rated 8');
+    expect(container.textContent).toContain("Today's Drops");
+
+    await advance(1500);
+    expect(container.textContent).toContain("You're all caught up");
+
+    await advance(2700);
+    expect(container.textContent).not.toContain("Today's Drops");
+  });
+
+  it('stamps a catch-up episode, then hands the card over to the next one', async () => {
+    await render(<Harness anime={episodeSixShow(2, -300)} favorites={[2]} initialLogs={logsThrough(3, 2)} />);
+    await rate(4, 9);
+    expect(container.textContent).toContain('Episode 4 rated 9');
+
+    await advance(1900);
+    expect(container.textContent).not.toContain("You're all caught up");
+    expect(container.querySelector('button[aria-label="Rate episode 5 a 8 and mark watched"]')).not.toBeNull();
+  });
+
+  it('asks a Plan to Watch premiere whether to add it, and files it on Yes', async () => {
+    const premiere: AnimeMedia = {
+      ...episodeSixShow(7, -300),
+      nextAiringEpisode: { airingAt: NOW - 300, timeUntilAiring: -300, episode: 1 },
+    };
+    useUserData.setState({ library: { 7: { ...watchingEntry(7), status: 'plan_to_watch' } } });
+    await render(<Harness anime={premiere} planning={[7]} initialLogs={[]} />);
+    expect(container.textContent).toContain('Series premiere');
+
+    await rate(1, 7);
+    await advance(1500);
+    const yes = Array.from(container.querySelectorAll('button')).find((b) => b.textContent === 'Yes, add to Watching');
+    expect(yes).toBeDefined();
+    await act(async () => yes!.click());
+
+    expect(useUserData.getState().library[7].status).toBe('watching');
+    expect(container.textContent).toContain('In Watching now');
   });
 });

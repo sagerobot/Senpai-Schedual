@@ -271,3 +271,18 @@ describe('shortTitle', () => {
     expect(shortTitle(long, 22)).toBe(long);
   });
 });
+
+describe('computeRunway premieres', () => {
+  it('counts down a Plan to Watch premiere, and only the premiere', () => {
+    const premiere = show({ id: 1, in: 20 * MIN, episode: 1 });
+    const later = show({ id: 2, in: 20 * MIN, episode: 2 });
+    const moments = computeRunway([premiere, later], [], [], NOW, [], [1, 2]);
+    expect(moments.flatMap((m) => m.shows.map((s) => s.anime.id))).toEqual([1]);
+    expect(moments[0].shows[0].premiere).toBe(true);
+  });
+
+  it('counts down a guest season premiere', () => {
+    const moments = computeRunway([show({ id: 3, in: 20 * MIN, episode: 1 })], [], [], NOW, [], [], [3]);
+    expect(moments).toHaveLength(1);
+  });
+});
