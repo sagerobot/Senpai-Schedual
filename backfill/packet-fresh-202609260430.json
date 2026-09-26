@@ -1,0 +1,59 @@
+[
+ {
+  "key": "196356:12",
+  "showId": 196356,
+  "episode": 12,
+  "title": "Ibitte Konai Gibo to Gishi",
+  "airedAt": 1790356980,
+  "kind": "update",
+  "thread": {
+   "title": "My Stepmother and Stepsisters Aren\u2019t Wicked \u2022 Ibitte Konai Gibo to Gishi - Episode 12 discussion - FINAL",
+   "url": "https://www.reddit.com/r/anime/comments/1wq2dmd/my_stepmother_and_stepsisters_arent_wicked_ibitte/",
+   "score": 94,
+   "num_comments": 7
+  },
+  "comments_read": 7,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Most commenters found the finale sweet, sincere, wholesome, and emotionally comforting."
+   },
+   {
+    "tone": "positive",
+    "point": "The supportive family dynamic and kind characterization were especially well received."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the humor, heartwarming tone, and consistently cozy atmosphere."
+   },
+   {
+    "tone": "mixed",
+    "point": "One commenter wished a secondary character had received more screen time."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some uncertainty remained about whether the ending felt fully conclusive, though the overall reaction was favorable."
+   }
+  ],
+  "aspects": {
+   "story": "positive",
+   "characters": "positive"
+  },
+  "notes": "The title explicitly names Ibitte Konai Gibo to Gishi and episode 12, with no conflicting season marker. I retrieved the thread title, score, and seven visible comments; Reddit did not expose a separate reliable total-comment count beyond those visible entries."
+ },
+ {
+  "key": "158871:151",
+  "showId": 158871,
+  "episode": 151,
+  "title": "Pocket Monsters (2023)",
+  "airedAt": 1790330100,
+  "kind": "first",
+  "thread": {
+   "title": "Pok\u00e9mon Horizons: The Series - Episode 151 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1wqgptn/pok%C3%A9mon_horizons_the_series_episode_151_discussion/",
+   "score": 0,
+   "num_comments": 2
+  },
+  "status": "quiet"
+ }
+]
