@@ -145,6 +145,7 @@ export function DailySchedule({
     return () => clearInterval(id);
   }, []);
   const includeMoviesPref = useUserData((s) => s.uiPrefs.includeMovies);
+  const sourcesPref = useUserData((s) => s.uiPrefs.selectedSources);
   const alsoAiringRow = useMemo(() => {
     const now = alsoAiringMinute * 60;
     // Everything that is, or is about to be, a drop card belongs to the row
@@ -153,8 +154,11 @@ export function DailySchedule({
     for (const anime of dropSource) {
       if (wouldBeDrop(anime, favorites, logs, now, stacking, dropSkips, planning, guests)) exclude.add(anime.id);
     }
-    return computeAlsoAiring(dropSource, library, logs, now, exclude, { includeMovies: includeMoviesPref });
-  }, [alsoAiringMinute, activeDrops, dropSource, favorites, logs, stacking, dropSkips, planning, guests, library, includeMoviesPref]);
+    return computeAlsoAiring(dropSource, library, logs, now, exclude, {
+      includeMovies: includeMoviesPref,
+      sources: sourcesPref,
+    });
+  }, [alsoAiringMinute, activeDrops, dropSource, favorites, logs, stacking, dropSkips, planning, guests, library, includeMoviesPref, sourcesPref]);
 
   // Adopted from Also Airing with more episodes already out: the new drop
   // card arrives playing the rating celebration (see CheckInFeed arrivals).

@@ -134,7 +134,12 @@ export function computeAlsoAiring(
   logs: EpisodeLog[],
   nowSec: number,
   exclude: ReadonlySet<number>,
-  opts: { includeMovies: boolean },
+  /**
+   * The Daily Schedule's own filters, so the row never shows a show the week
+   * grid below it has filtered out: the Movies toggle, and the streaming-source
+   * chips (empty = every source, the same rule the grid uses).
+   */
+  opts: { includeMovies: boolean; sources?: readonly string[] },
 ): AlsoAiringRow {
   const logSummary = summarizeLogs(logs);
   const seen = new Set<number>();
@@ -147,6 +152,8 @@ export function computeAlsoAiring(
     if (status === 'watching') continue;
     if (exclude.has(anime.id)) continue;
     if (anime.format === 'MOVIE' && !opts.includeMovies) continue;
+    const sources = opts.sources ?? [];
+    if (sources.length > 0 && !anime.externalLinks?.some((link) => sources.includes(link.site))) continue;
 
     const placed = placeOnRow(anime, nowSec);
     if (!placed) continue;

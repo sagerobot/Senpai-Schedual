@@ -59,7 +59,7 @@ function log(showId: number, episodeNumber: number, score: number | null = null)
 const NONE = new Set<number>();
 const TV_ONLY = { includeMovies: false };
 
-function ids(list: AnimeMedia[], library = {}, logs: EpisodeLog[] = [], exclude = NONE, opts = TV_ONLY): number[] {
+function ids(list: AnimeMedia[], library = {}, logs: EpisodeLog[] = [], exclude = NONE, opts: Parameters<typeof computeAlsoAiring>[5] = TV_ONLY): number[] {
   return computeAlsoAiring(list, library, logs, NOW, exclude, opts).entries.map((e) => e.anime.id);
 }
 
@@ -76,6 +76,16 @@ describe('computeAlsoAiring admission', () => {
     const list = [show({ id: 1, in: -HOUR, format: 'MOVIE' }), show({ id: 2, in: -HOUR })];
     expect(ids(list)).toEqual([2]);
     expect(ids(list, {}, [], NONE, { includeMovies: true })).toEqual([1, 2]);
+  });
+
+  it('keeps only shows on a selected streaming source, like the week grid', () => {
+    const on = (id: number, site: string): AnimeMedia => ({
+      ...show({ id, in: -HOUR }),
+      externalLinks: [{ url: `https://example.test/${id}`, site, icon: null, color: null }],
+    });
+    const list = [on(1, 'Crunchyroll'), on(2, 'Netflix'), show({ id: 3, in: -HOUR })];
+    expect(ids(list, {}, [], NONE, { includeMovies: false, sources: ['Netflix'] })).toEqual([2]);
+    expect(ids(list, {}, [], NONE, { includeMovies: false, sources: [] })).toEqual([1, 2, 3]);
   });
 
   it('dedupes by id', () => {
