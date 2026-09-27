@@ -8,6 +8,7 @@ import { Loader2, Sparkles, X, Filter, Moon, PowerOff, AlertTriangle } from 'luc
 import { displayTitle } from '../../lib/displayTitle';
 import { cn } from '../../lib/utils';
 import { Button } from '../../components/ui/Button';
+import { PageTip } from '../../components/PageTip';
 import { Tooltip } from '../../components/ui/Tooltip';
 
 interface ForYouViewProps {
@@ -118,6 +119,9 @@ export function ForYouView({ library, onAnimeSelect }: ForYouViewProps) {
           </button>
         </div>
       </div>
+
+      {/* Populated state only: the empty state already says how picks are made. */}
+      <PageTip id="forYou" />
 
       {loading && (
         <div className="flex items-center gap-2 text-sm text-accent-400 bg-accent-600/10 px-3 py-2 rounded-field border border-accent-500/30 w-max">

@@ -1,5 +1,6 @@
 import { AnimeMedia, EpisodeLog, LibraryEntry } from '../../types';
 import { AnimeCard, StatusPillType } from '../../components/AnimeCard';
+import { PageTip } from '../../components/PageTip';
 import { UpNextDeck } from '../../components/UpNextDeck';
 import { BookmarkIcon, TrendingUp, Loader2 } from 'lucide-react';
 import { CatchUpQueue } from './CatchUpQueue';
@@ -137,6 +138,8 @@ export function WatchingView({ animeList, library, logs, onLog, onAnimeSelect }:
           </Button>
         )}
       </div>
+
+      <PageTip id="watching" />
 
       <UpNextDeck
         candidates={upNextCandidates}

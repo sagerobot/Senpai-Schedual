@@ -1,7 +1,10 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
-import type { ReactNode } from 'react';
+import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 import { cn } from '../../lib/utils';
+
+/** Radix Content's behaviour hooks (onInteractOutside, onOpenAutoFocus, …); the shell owns its look. */
+type ContentProps = Omit<ComponentPropsWithoutRef<typeof Dialog.Content>, 'className' | 'children' | 'asChild'>;
 
 /**
  * The one modal chrome (docs/design-language.md §9): one overlay token, one
@@ -13,17 +16,20 @@ export function DialogShell({
   maxWidth = 'max-w-md',
   hideClose = false,
   panelClassName,
+  contentProps,
   children,
 }: {
   maxWidth?: string;
   hideClose?: boolean;
   panelClassName?: string;
+  contentProps?: ContentProps;
   children: ReactNode;
 }) {
   return (
     <Dialog.Portal>
       <Dialog.Overlay className="fixed inset-0 z-50 bg-overlay backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
       <Dialog.Content
+        {...contentProps}
         className={cn(
           'fixed left-[50%] top-[50%] z-50 w-full translate-x-[-50%] translate-y-[-50%] p-4 md:p-6 duration-200',
           'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
@@ -38,7 +44,7 @@ export function DialogShell({
         >
           {children}
           {!hideClose && (
-            <Dialog.Close className="absolute right-3 top-3 rounded-field p-1.5 text-fg-muted transition-colors hover:bg-surface-3 hover:text-fg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <Dialog.Close className="absolute right-2 top-2 z-10 flex h-11 w-11 items-center justify-center rounded-field text-fg-muted transition-colors hover:bg-surface-3 hover:text-fg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               <X className="h-5 w-5" aria-hidden="true" />
               <span className="sr-only">Close</span>
             </Dialog.Close>

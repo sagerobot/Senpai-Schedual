@@ -2,6 +2,8 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { closeOnboarding } from '../features/onboarding/onboardingStore';
+import { useUserData } from '../stores/userData';
 import { currentSeasonPath, maxSeasonYear, parseSeasonParams } from './season';
 import { parseShowId } from './showParam';
 
@@ -101,6 +103,13 @@ describe('router shell', () => {
   beforeEach(() => {
     (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
     window.history.pushState({}, '', '/schedule');
+    // An empty store on /schedule is exactly a first visit; these tests are
+    // about the shell, so they start as someone already onboarded.
+    useUserData.setState({
+      library: {},
+      logs: {},
+      uiPrefs: { includeMovies: false, selectedSources: [], onboarded: true },
+    });
     container = document.createElement('div');
     document.body.appendChild(container);
     root = createRoot(container);
@@ -109,8 +118,16 @@ describe('router shell', () => {
   afterEach(async () => {
     await act(async () => root.unmount());
     container.remove();
+    closeOnboarding();
     localStorage.clear();
   });
+
+  /** Put the (module-singleton) router somewhere before the shell first renders. */
+  async function renderAt(path: string) {
+    const { router } = await import('./router');
+    await router.navigate(path);
+    return render();
+  }
 
   async function render() {
     // `RouterProvider` comes from `react-router`, not the `react-router/dom`
@@ -234,6 +251,40 @@ describe('router shell', () => {
 
     expect(router.state.location.pathname).toBe('/schedule');
     expect(router.state.location.search).toBe('?show=1');
+  });
+
+  describe('first-visit onboarding', () => {
+    const fresh = () => useUserData.setState({ uiPrefs: { includeMovies: false, selectedSources: [] } });
+    const welcomeShown = () => document.body.textContent?.includes("Let's set up your season.") ?? false;
+
+    it('opens by itself for a brand-new visitor on the schedule', async () => {
+      fresh();
+      await renderAt('/schedule');
+      await settle(welcomeShown);
+      expect(welcomeShown()).toBe(true);
+    });
+
+    it('never covers a shared show link', async () => {
+      fresh();
+      await renderAt(`/schedule?show=${COWBOY_BEBOP.id}`);
+      await settle(() => document.body.textContent?.includes('Cowboy Bebop') ?? false);
+      await settle();
+      expect(welcomeShown()).toBe(false);
+    });
+
+    it('stays shut on other pages and for anyone already onboarded', async () => {
+      fresh();
+      await renderAt('/library');
+      await settle();
+      expect(welcomeShown()).toBe(false);
+
+      await act(async () => root.unmount());
+      root = createRoot(container);
+      useUserData.setState({ uiPrefs: { includeMovies: false, selectedSources: [], onboarded: true } });
+      await renderAt('/schedule');
+      await settle();
+      expect(welcomeShown()).toBe(false);
+    });
   });
 
   it('redirects a nonsense season to the current one', async () => {

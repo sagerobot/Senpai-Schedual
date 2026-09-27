@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { StateStorage } from 'zustand/middleware';
 import { toast } from 'sonner';
+import type { PageTipId } from '../lib/onboarding';
 import type { CustomTheme, ThemeName } from '../lib/theme';
 import { DropSkip, EpisodeLog, LibraryEntry, LibraryStatus } from '../types';
 import { removeKey, writeJSON, WriteResult } from './storage';
@@ -45,6 +46,14 @@ export interface UiPrefs {
   mineOnly?: boolean;
   /** First-run hero on the schedule, closed by hand. Absent = never dismissed. */
   welcomeDismissed?: boolean;
+  /**
+   * Set on any exit from the onboarding flow (finish, skip, close). Stops it
+   * auto-opening again, and arms the one-time page tips — a user who never saw
+   * onboarding never sees tips either. Absent = never onboarded.
+   */
+  onboarded?: boolean;
+  /** Page tips dismissed with "Got it". Absent = none seen. */
+  seenTips?: PageTipId[];
   /** Absent = the user never added one. */
   customSource?: CustomWatchSource;
   /** Absent = Midnight. Stamped pre-paint by index.html, kept by lib/theme.ts. */

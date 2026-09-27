@@ -8,6 +8,7 @@ import { displayTitle } from '../../lib/displayTitle';
 import { Loader2, Upload, BookmarkIcon, AlertCircle } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { ErrorState } from '../../components/ErrorState';
+import { PageTip } from '../../components/PageTip';
 import { LIBRARY_STATUS_LABELS, LIBRARY_STATUS_ORDER } from '../../lib/status';
 import { useSeriesGraphs } from '../../series/useSeriesGraphs';
 import { SeriesCard } from './SeriesCard';
@@ -259,6 +260,8 @@ export function LibraryView({ library, logs, animeList, onAnimeSelect, setLibrar
           </Button>
         </div>
       </div>
+
+      <PageTip id="library" />
 
       {importResult && (
         <div className="rounded-field bg-success-500/10 border border-success-500/30 p-4 text-success-300">

@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SettingsDialog } from './SettingsDialog';
 import { useUserData } from '../../stores/userData';
+import { closeOnboarding, useOnboarding } from '../onboarding/onboardingStore';
 
 function findByText<T extends Element>(selector: string, text: string): T | null {
   return (
@@ -58,6 +59,38 @@ describe('SettingsDialog', () => {
     const labelId = dialog!.getAttribute('aria-labelledby');
     expect(document.getElementById(labelId!)?.textContent).toBe('Data & Settings');
     expect(dialog!.getAttribute('aria-describedby')).not.toBeNull();
+  });
+
+  it('hands off to onboarding: closes itself first, and the tour re-arms the page tips', async () => {
+    useUserData.setState({ uiPrefs: { includeMovies: false, selectedSources: [], seenTips: ['watching'] } });
+    const onOpenChange = vi.fn();
+    await act(async () => {
+      root.render(
+        <MemoryRouter>
+          <SettingsDialog open onOpenChange={onOpenChange} />
+        </MemoryRouter>,
+      );
+    });
+
+    await act(async () => {
+      findByText<HTMLButtonElement>('button', 'Take the tour')!.click();
+    });
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+    expect(useUserData.getState().uiPrefs).toMatchObject({ onboarded: true, seenTips: [] });
+
+    // Opened on the next frame, once Settings' focus trap is gone.
+    await act(async () => {
+      await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+    });
+    expect(useOnboarding.getState()).toMatchObject({ open: true, start: 'tour' });
+
+    closeOnboarding();
+    await act(async () => {
+      findByText<HTMLButtonElement>('button', "Add this season's shows")!.click();
+      await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+    });
+    expect(useOnboarding.getState()).toMatchObject({ open: true, start: 'pick' });
+    closeOnboarding();
   });
 
   it('only clears data once the confirmation phrase is typed', async () => {

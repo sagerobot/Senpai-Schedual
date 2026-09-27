@@ -24,6 +24,36 @@ export function currentSeason(date = new Date()): { year: number; season: Season
   return { year: date.getFullYear(), season };
 }
 
+/** The season after the current one; fall rolls into next year's winter. */
+export function nextSeason(date = new Date()): { year: number; season: SeasonSlug } {
+  const { year, season } = currentSeason(date);
+  const i = SEASON_SLUGS.indexOf(season);
+  return i === SEASON_SLUGS.length - 1 ? { year: year + 1, season: 'winter' } : { year, season: SEASON_SLUGS[i + 1] };
+}
+
+/**
+ * Whole days (rounded up) until the next season's first day, local time — the
+ * same month-based boundary currentSeason uses, so the two never disagree.
+ */
+export function daysUntilNextSeason(date = new Date()): number {
+  const next = nextSeason(date);
+  const start = new Date(next.year, SEASON_SLUGS.indexOf(next.season) * 3, 1);
+  return Math.ceil((start.getTime() - date.getTime()) / (24 * 3600 * 1000));
+}
+
+/** Orders seasons: negative when `a` comes before `b`. */
+export function compareSeasons(
+  a: { year: number; season: SeasonSlug },
+  b: { year: number; season: SeasonSlug },
+): number {
+  return a.year - b.year || SEASON_SLUGS.indexOf(a.season) - SEASON_SLUGS.indexOf(b.season);
+}
+
+/** "Fall 2026". */
+export function seasonLabel({ year, season }: { year: number; season: SeasonSlug }): string {
+  return `${season[0].toUpperCase()}${season.slice(1)} ${year}`;
+}
+
 export function seasonPath(year: number, season: string): string {
   return `/season/${year}/${season.toLowerCase()}`;
 }

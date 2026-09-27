@@ -338,3 +338,19 @@ A **guest** season premiere is one whose franchise you follow while its own entr
 4. **Flight.** Adopting from Also Airing with episodes already out flies the card up into Today's Drops (a shared layout id, set on each side only for the flight).
 
 Under reduced motion the stamp is a brief static confirmation and the swipe is instant, but the send-off still shows. Its words are information, not decoration.
+
+## 18. Onboarding and page tips
+
+**The flow** (`src/features/onboarding/`). A wide dialog through the ordinary Dialog shell (§9), fixed at `h-[85vh]` so steps don't jump in height. Each step has one `Dialog.Title` (an h2), and the title takes focus on every step and slide change. The owner picked the look from mockups:
+- **Welcome (W2).** The pitch on the left; this season's own posters on the right as a staggered collage. The collage fades into `surface-1` on its inner and top edges, so the close button never sits on raw art. It is hidden on phones.
+- **Tiles (T3).** A poster with a bar along its bottom: "+ Add" on a scrim, then a filled `accent-600` "Added". The state is said in words, not only colour. A show already in the library is dimmed, carries its status chip, and is `aria-disabled`. Air dates under a tile are amber (§16).
+- **Where are you up to? (C2).** A radio group of episode chips, "None" then 1…aired, with a roving tabindex and arrow keys. Chips up to the chosen one fill `accent-700`; the chosen one is `accent-500` with a glow. Past 30 episodes the strip becomes a number field with a "Caught up" button.
+- **Tour (S3).** Slide 1 is a practice drop card: the real `RatingBlock` and `RatedStamp`, clearly labelled as a sample, and nothing is logged. It borrows the `hero-drops-*` ground because it deliberately *is* a drop card in miniature, the same exception the Runway takes (§16). Slides 2 and 3 are static glances.
+
+**Page tips (P2, `src/components/PageTip.tsx`).** An ordinary card, never a hero:
+- `surface-1`, `edge`, `radius-card`, `shadow-e1`
+- a 44px icon tile in `accent-600/15`, with an `accent-500/30` edge
+- a `text-micro` "New here" eyebrow, then the title and body
+- a secondary "Got it" button
+
+It collapses by height and opacity at `DUR.standard`. It shows only after onboarding and only until dismissed. One tip per page, placed under the view's header.

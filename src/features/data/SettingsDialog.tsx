@@ -1,10 +1,11 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { AlertTriangle, CheckCircle2, Download, FileUp, Library, Link2, Trash2 } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Download, FileUp, GraduationCap, Library, Link2, ListPlus, Trash2 } from 'lucide-react';
 import React, { useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { toast } from 'sonner';
 import { Button } from '../../components/ui/Button';
 import { DialogShell } from '../../components/ui/DialogShell';
+import { openOnboarding } from '../onboarding/onboardingStore';
 import { queryClient } from '../../queries/client';
 import { isInjectableTemplate } from '../../queries/offsets';
 import { QUERY_CACHE_KEY, removeKey } from '../../stores/storage';
@@ -63,6 +64,17 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
       setConfirmText('');
     }
     onOpenChange(next);
+  };
+
+  /**
+   * Close Settings first and open onboarding on the next frame, so two Radix
+   * focus traps never overlap. The tour also re-arms the page tips — that is
+   * the whole tutorial, replayed.
+   */
+  const launchOnboarding = (start: 'pick' | 'tour') => {
+    if (start === 'tour') setUiPrefs({ onboarded: true, seenTips: [] });
+    handleOpenChange(false);
+    requestAnimationFrame(() => openOnboarding(start));
   };
 
   const templateInvalid = sourceTemplate.trim() !== '' && !isInjectableTemplate(sourceTemplate);
@@ -283,6 +295,24 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   <Library className="h-4 w-4" aria-hidden="true" />
                   Library
                 </Link>
+              </section>
+
+              {/* The onboarding flow's way back in, for anyone who skipped it or wants a refresher. */}
+              <section className="rounded-inner border border-edge bg-surface-0 p-4">
+                <h3 className="text-sm font-semibold text-fg-secondary">New here?</h3>
+                <p className="mt-0.5 text-caption text-fg-muted">
+                  Add this season's shows in one go, or replay the quick tour and page tips.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Button onClick={() => launchOnboarding('pick')}>
+                    <ListPlus className="h-4 w-4" aria-hidden="true" />
+                    Add this season's shows
+                  </Button>
+                  <Button variant="ghost" onClick={() => launchOnboarding('tour')}>
+                    <GraduationCap className="h-4 w-4" aria-hidden="true" />
+                    Take the tour
+                  </Button>
+                </div>
               </section>
 
               <BuildSection />

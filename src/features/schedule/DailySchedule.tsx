@@ -3,7 +3,8 @@ import { AiringRunway } from '../../components/AiringRunway';
 import { AnimeCard } from '../../components/AnimeCard';
 import { SeriesTitle } from '../../components/SeriesTitle';
 import { UpNextDeck } from '../../components/UpNextDeck';
-import { WelcomeHero } from '../../components/WelcomeHero';
+import { PageTip } from '../../components/PageTip';
+import { WelcomeHero, useWelcomeHeroVisible } from '../../components/WelcomeHero';
 import { Search, SearchX, Film, Loader2, X } from 'lucide-react';
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
@@ -196,6 +197,8 @@ export function DailySchedule({
   const selectedSources = useUserData(s => s.uiPrefs.selectedSources);
   const mineOnly = useUserData(s => s.uiPrefs.mineOnly ?? false);
   const setUiPrefs = useUserData(s => s.setUiPrefs);
+  // The page tip waits for the first-run hero to go; two welcomes at once is one too many.
+  const welcomeVisible = useWelcomeHeroVisible();
 
   /** "Mine" is watching + stacking: both are shows the user has claimed. */
   const mineIds = useMemo(() => new Set([...favorites, ...stacking]), [favorites, stacking]);
@@ -313,6 +316,7 @@ export function DailySchedule({
           outline still leads with the view's one h1 (docs §11). */}
       <h1 className="sr-only">Daily Schedule</h1>
       <WelcomeHero />
+      {!welcomeVisible && <PageTip id="schedule" />}
 
       {/* The hour before the drop. Its own section rather than a fifth card
           class, so the drops grid — tray spans, fill maths, merged deck row —

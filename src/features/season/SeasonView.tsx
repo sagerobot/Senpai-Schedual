@@ -3,6 +3,7 @@ import { AnimeMedia } from '../../types';
 import { AnimeCard } from '../../components/AnimeCard';
 import { SeriesTitle } from '../../components/SeriesTitle';
 import { ErrorState, errorDetail } from '../../components/ErrorState';
+import { PageTip } from '../../components/PageTip';
 import { Button } from '../../components/ui/Button';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Tooltip } from '../../components/ui/Tooltip';
@@ -147,6 +148,8 @@ export function SeasonView({ onAnimeSelect }: SeasonViewProps) {
           />
         </div>
       </div>
+
+      {isCurrentSeason && <PageTip id="season" />}
 
       {loading ? (
         <SeasonSkeleton />

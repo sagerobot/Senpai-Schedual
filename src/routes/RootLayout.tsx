@@ -1,18 +1,24 @@
 import { Save, Settings, Sparkles } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { NavLink, Outlet, useNavigate, useSearchParams } from 'react-router';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router';
 import { toast } from 'sonner';
 import { SettingsDialog } from '../features/data/SettingsDialog';
+import { openOnboarding, useOnboarding } from '../features/onboarding/onboardingStore';
 import { ShowDetailModal } from '../features/show/ShowDetailModal';
 import { WakeStrip } from '../components/WakeStrip';
 import { useLibrary } from '../hooks/useLibrary';
+import { shouldAutoOpen } from '../lib/onboarding';
 import { useCurrentSchedule, useMediaById } from '../queries/hooks';
 import { retryWake, reloadNow, startWake, useWakeState } from '../queries/serverWake';
+import { useUserData } from '../stores/userData';
 import { AnimeMedia } from '../types';
 import { cn } from '../lib/utils';
 import { NAV_ITEMS } from './nav';
 import { ScheduleContext } from './scheduleContext';
 import { SHOW_PARAM, parseShowId } from './showParam';
+
+/** Only a first visit (or a Settings replay) needs it, so it stays out of the main chunk. */
+const OnboardingDialog = lazy(() => import('../features/onboarding/OnboardingDialog'));
 
 export function RootLayout() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -63,7 +69,29 @@ export function RootLayout() {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const rawShowParam = searchParams.get(SHOW_PARAM);
+
+  // ---- Onboarding --------------------------------------------------------
+
+  const onboardingOpen = useOnboarding((s) => s.open);
+
+  // Judged once, on the first render of the app — not reactively, or "Clear
+  // all data" in Settings would throw the wizard up the moment it finished.
+  const onboardingJudged = useRef(false);
+  useEffect(() => {
+    if (onboardingJudged.current) return;
+    onboardingJudged.current = true;
+    const { library, logs, uiPrefs } = useUserData.getState();
+    const first = shouldAutoOpen({
+      libraryCount: Object.keys(library).length,
+      logCount: Object.keys(logs).length,
+      uiPrefs,
+      pathname: location.pathname,
+      hasShowParam: rawShowParam !== null,
+    });
+    if (first) openOnboarding('welcome');
+  }, [location.pathname, rawShowParam]);
   const showId = parseShowId(rawShowParam);
 
   const clearShowParam = useCallback(() => {
@@ -233,6 +261,12 @@ export function RootLayout() {
         )}
 
         <SettingsDialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
+
+        {onboardingOpen && (
+          <Suspense fallback={null}>
+            <OnboardingDialog />
+          </Suspense>
+        )}
 
         {/* Mobile Bottom Navigation — fixed 56px row, six items, labels never wrap. */}
         <nav

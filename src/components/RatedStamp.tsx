@@ -27,6 +27,8 @@ interface RatedStampProps {
   episode: number;
   /** `sm` for the Also Airing card, `lg` for a drop card. */
   size?: 'sm' | 'lg';
+  /** The line under the word; defaults to "Episode N logged". The onboarding practice card logs nothing. */
+  caption?: string;
   /** Fires once when the beat is over. */
   onDone: () => void;
 }
@@ -40,7 +42,7 @@ interface RatedStampProps {
  * positioned parent and is purely presentational: the log itself was written
  * before the stamp started, so an interrupted animation can never lose it.
  */
-export function RatedStamp({ score, episode, size = 'lg', onDone }: RatedStampProps) {
+export function RatedStamp({ score, episode, size = 'lg', caption, onDone }: RatedStampProps) {
   const reduced = useReducedMotion() ?? false;
   const tier = celebrationTier(score);
   const seconds = stampSeconds(score, reduced);
@@ -66,6 +68,7 @@ export function RatedStamp({ score, episode, size = 'lg', onDone }: RatedStampPr
     >
       <span className="sr-only">
         Episode {episode} {score === null ? 'marked watched' : `rated ${score}`}
+        {caption && `. ${caption}`}
       </span>
       <div
         aria-hidden="true"
@@ -119,7 +122,7 @@ export function RatedStamp({ score, episode, size = 'lg', onDone }: RatedStampPr
         <div className={cn('font-display font-bold text-hero-text-hi', size === 'lg' ? 'text-2xl' : 'text-base')}>
           {stampWord(score)}
         </div>
-        <div className="text-caption text-accent-300">Episode {episode} logged</div>
+        <div className="text-caption text-accent-300">{caption ?? `Episode ${episode} logged`}</div>
       </div>
     </div>
   );

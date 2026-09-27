@@ -58,6 +58,14 @@ Never return a placeholder body as `ok` — that is exactly the bug the envelope
 
   `computeDrops`, `wouldBeDrop` and `computeRunway` all route through it. Add an audience there, never at one call site.
 - **Rating a drop card logs at the tap; the celebration is presentation** (`CheckInFeed` celebrations, `RatedStamp`, docs §17). A card whose drop the log resolved lingers as a frozen snapshot until its send-off finishes, so tests that expect a card to disappear must advance timers. **Also Airing** (`lib/alsoAiring.ts`, `features/schedule/AlsoAiring.tsx`) is everything in the window that isn't a drop. Watching shows never appear there. "Still deciding" is not a status: it is "has ratings, no library entry".
+- **Onboarding** (`src/features/onboarding/`; the pure half is `src/lib/onboarding.ts`): welcome → pick this season's shows → "where are you up to?" → a 3-slide tour.
+  - **Mounting and opening.** RootLayout mounts it lazily while a tiny non-persisted store (`onboardingStore.ts`) says open. WelcomeHero and the Settings "New here?" row open it too.
+  - **Auto-open is judged once, at mount.** It needs an empty library and no logs, no `uiPrefs.onboarded` or `welcomeDismissed`, and `/schedule`. It never opens over a `?show=` link, and "Clear all data" can't re-trigger it.
+  - **Writes.** Picks are written in one setState when the flow leaves the last step that edits them. Every pick is `watching`, including "not started": the deck ignores Plan to Watch, and episode 1 has already aired.
+  - **Backfill.** Backfilled logs are 1..N with `watchedAt: 0` ("time unknown"). A "now" stamp would make Up Next read the backfill as a binge.
+  - **Undo.** The Undo toast waits until the dialog closes, because a Radix modal blocks the toaster.
+  - **Next season.** In a season's final 28 days the picker adds next season's line-up (`useSeasonQuery(…, { enabled })`).
+  - **Page tips.** `components/PageTip.tsx`, with copy in `features/onboarding/tips.ts`. They show only once `uiPrefs.onboarded` is set, until "Got it" (`uiPrefs.seenTips`). Existing users never see them unless they replay the tour.
 - **`src/routes/`** — `router.tsx` maps `/schedule` (default), `/season/:year/:season`, `/search`, `/watching`, `/library`, `/for-you`, `/series/:id`, `*`. Each is `lazy` for code splitting. **Show detail is `?show=<id>`**, hosted by `RootLayout` so Back closes the modal and links are shareable; `/show/:id` is a short link that redirects into it. `nav.ts` is the single nav list feeding both the sidebar and the mobile bar. Adding a view means: a `router.tsx` entry, a `NAV_ITEMS` entry, and a `src/features/<name>/` directory.
 - **`/series/:id` is the Atlas** (`src/features/series/`): a persistent shell over rooms addressed by `?view=` (absent = Overview, `run`, `episodes`). Room switches **replace** history (tabs are peers); `?ep=<memberId>-<n>` episode permalinks **push**, carrying `view=episodes` in the same navigation, so Back returns to the room you came from. The frontier reveal toggle is per-visit component state, never persisted. Chart math lives in `insights.ts` (pure, tested); the per-show hero tint contract in `seriesSkin.ts` (see design-language §12).
 - **`src/features/<name>/`** — one directory per view: a `route.tsx` wrapper that pulls from hooks/queries, plus the view component. Wrappers stay thin; nothing above them owns view state.
@@ -74,7 +82,7 @@ Every key is built in `keys.ts` and nowhere else, which is what lets the persist
 | Key | staleTime | Notes |
 | --- | --- | --- |
 | `['schedule','current']` | 15 min | + 15-min `refetchInterval` |
-| `['season',year,season]` | 15 min current, `Infinity` past | past seasons cannot change |
+| `['season',year,season]` | 15 min current/upcoming, `Infinity` past | past seasons cannot change |
 | `['search',term]` | 5 min | **not persisted** — one entry per debounced keystroke |
 | `['media',id]` | 1 h | via the `id_in` micro-batcher |
 | `['showDetails',id]` | 24 h if `aiStatus==='ok'`, else `0` | degraded AI re-attempts on reopen |

@@ -9,7 +9,7 @@ import {
 import type { AnimeMedia } from '../api/anilist/schemas';
 import { fetchShowDetails, type ShowDetails } from '../api/showDetails';
 import { displayTitle } from '../lib/displayTitle';
-import { currentSeason, type SeasonSlug } from '../routes/season';
+import { compareSeasons, currentSeason, type SeasonSlug } from '../routes/season';
 import { queryKeys } from './keys';
 import { fetchMediaBatched } from './mediaBatcher';
 import { useMediaTransform } from './offsets';
@@ -109,20 +109,24 @@ export function useCurrentSchedule() {
 
 /**
  * One season's line-up. A past season can never change, so it is cached
- * forever; only the season we are living in is refreshed.
+ * forever; the current season and any upcoming one (air dates still move) are
+ * refreshed. `enabled: false` holds the fetch — onboarding only wants next
+ * season's list during the current season's final weeks.
  */
-export function useSeasonQuery(year: number, season: SeasonSlug) {
+export function useSeasonQuery(year: number, season: SeasonSlug, { enabled = true }: { enabled?: boolean } = {}) {
   const { transformList } = useMediaTransform();
   const queryClient = useQueryClient();
 
   const now = useMemo(() => currentSeason(), []);
   const isCurrent = year === now.year && season === now.season;
+  const isPast = compareSeasons({ year, season }, now) < 0;
 
   return useQuery({
     queryKey: queryKeys.season(year, season),
     queryFn: () => fetchAnimeBySeason(season.toUpperCase(), year),
     select: transformList,
-    staleTime: isCurrent ? 15 * MINUTE : Infinity,
+    enabled,
+    staleTime: isPast ? Infinity : 15 * MINUTE,
     gcTime: WEEK,
     // The schedule query already holds this season; show it while the
     // season-scoped fetch (which excludes other-season releasing shows) lands.
