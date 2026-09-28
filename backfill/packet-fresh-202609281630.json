@@ -1,0 +1,145 @@
+[
+ {
+  "key": "197754:26",
+  "showId": 197754,
+  "episode": 26,
+  "title": "LIAR GAME",
+  "airedAt": 1790607600,
+  "kind": "first",
+  "thread": {
+   "title": "Liar Game - Episode 26 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1wsimc8/liar_game_episode_26_discussion/",
+   "score": 7,
+   "num_comments": 0
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "185756:1",
+  "showId": 185756,
+  "episode": 1,
+  "title": "Tensei Kizoku, Kantei Skill de Nariagaru 3rd Season",
+  "airedAt": 1790521200,
+  "kind": "settle",
+  "thread": {
+   "title": "As a Reincarnated Aristocrat, I'll Use My Appraisal Skill to Rise in the World Season 3 \u2022 Tensei Kizoku, Kantei Skill de Nariagaru Season 3 - Episode 1 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1wrmf4y/as_a_reincarnated_aristocrat_ill_use_my_appraisal/",
+   "score": 0,
+   "num_comments": 30
+  },
+  "comments_read": 30,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many commenters were happy the series returned and eager to continue watching."
+   },
+   {
+    "tone": "positive",
+    "point": "Several users liked the returning cast and felt the new recruits showed promise, especially the engineer and mage."
+   },
+   {
+    "tone": "positive",
+    "point": "Some viewers thought the central team was highly capable and that the show remains fun and enjoyable."
+   },
+   {
+    "tone": "mixed",
+    "point": "The new characters generated interest, but multiple commenters felt their introductions were bland or too abrupt."
+   },
+   {
+    "tone": "negative",
+    "point": "Some felt the story was rushing through developments and not giving recent changes enough time to breathe."
+   },
+   {
+    "tone": "negative",
+    "point": "A minority criticized the premise as repetitive recruitment-focused wish fulfillment and questioned the protagonist's use of his reincarnation background."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "pacing": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The thread title clearly identifies Tensei Kizoku, Kantei Skill de Nariagaru Season 3, Episode 1. Reddit exposed the discussion text and comments, but did not expose reliable post score or exact comment-count metadata in the retrieved page, so score is reported as 0 and the comment count reflects th"
+ },
+ {
+  "key": "178789:14",
+  "showId": 178789,
+  "episode": 14,
+  "title": "Mushoku Tensei III: Isekai Ittara Honki Dasu",
+  "airedAt": 1790521200,
+  "kind": "settle",
+  "thread": {
+   "title": "Mushoku Tensei: Jobless Reincarnation Season 3 \u2022 Mushoku Tensei III: Isekai Ittara Honki Dasu - Episode 14 discussion - FINAL",
+   "url": "https://www.reddit.com/r/anime/comments/1wrmf28/mushoku_tensei_jobless_reincarnation_season_3/",
+   "score": 0,
+   "num_comments": 0
+  },
+  "comments_read": 52,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many commenters considered the episode emotionally powerful and praised the adaptation, calling the cour excellent and eagerly anticipating its continuation."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the character humor, especially reactions involving jealousy, relationships, and the returning cast."
+   },
+   {
+    "tone": "positive",
+    "point": "The episode was widely seen as intensifying the series' tension and leaving viewers excited for the next cour."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers found the material emotionally heavy or uncomfortable even while appreciating its dramatic impact."
+   },
+   {
+    "tone": "mixed",
+    "point": "A few comments criticized or mocked the season overall, while others strongly defended it as highly entertaining."
+   },
+   {
+    "tone": "negative",
+    "point": "At least one commenter expressed relief that the episode or season segment was over, indicating clear dislike."
+   }
+  ],
+  "aspects": {
+   "story": "positive",
+   "pacing": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The title explicitly identifies Mushoku Tensei III: Isekai Ittara Honki Dasu and episode 14, with the Season 3 marker agreeing. Reddit exposed the thread and visible comments, but did not expose reliable aggregate score or total comment count through the retrieved page, so those fields are 0. Commen"
+ },
+ {
+  "key": "215835:1",
+  "showId": 215835,
+  "episode": 1,
+  "title": "Umayuru: Full Gate!",
+  "airedAt": 1790520000,
+  "kind": "settle",
+  "thread": {
+   "title": "Umayuru: Full Gate! - Episode 1 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1ws7kvu/umayuru_full_gate_episode_1_discussion/",
+   "score": 32,
+   "num_comments": 6
+  },
+  "comments_read": 6,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters were pleased to see the expanded cast and regarded the episode as a fun continuation of the series."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some reactions were interested in the new season and its character additions but reserved judgment beyond the premiere."
+   },
+   {
+    "tone": "negative",
+    "point": "One commenter felt the animation quality was weaker than earlier shorts, attributing this partly to the production setup."
+   }
+  ],
+  "aspects": {
+   "animation": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The title clearly identifies Umayuru: Full Gate! and episode 1. I retrieved the thread and six comments, including one reply; reactions were brief and focused mainly on cast additions and animation."
+ }
+]
