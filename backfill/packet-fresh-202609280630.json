@@ -1,0 +1,151 @@
+[
+ {
+  "key": "212888:1",
+  "showId": 212888,
+  "episode": 1,
+  "title": "Temppal: Item no Chikara",
+  "airedAt": 1790519400,
+  "kind": "update",
+  "thread": {
+   "title": "Overgeared \u2022 Tempal: Item no Chikara - Episode 1 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1wrlqsg/overgeared_tempal_item_no_chikara_episode_1/",
+   "score": 354,
+   "num_comments": 58
+  },
+  "comments_read": 58,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Most reactions found the premiere entertaining, especially its comedy and misfortune-driven humor."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters praised the animation, pacing, voice acting, and overall production quality."
+   },
+   {
+    "tone": "positive",
+    "point": "Many readers liked the flawed protagonist\u2019s comedic potential and wanted to see whether he develops."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers found the game-world premise imaginative, while others considered its economics and rules confusing or dystopian."
+   },
+   {
+    "tone": "mixed",
+    "point": "The protagonist\u2019s personality divided viewers: some enjoyed his flaws, while others found him irritating or currently unlikable."
+   },
+   {
+    "tone": "negative",
+    "point": "A minority felt the episode was generic, tedious, or too close to familiar overpowered-player stories."
+   },
+   {
+    "tone": "mixed",
+    "point": "The English dub received strong praise from several commenters but was described as poor by at least one viewer."
+   }
+  ],
+  "aspects": {
+   "animation": "positive",
+   "story": "mixed",
+   "pacing": "positive",
+   "characters": "mixed",
+   "sound": "mixed"
+  },
+  "notes": "The thread title explicitly names Tempal: Item no Chikara and episode 1, with no conflicting season marker. Reddit\u2019s rendered page exposed a 354 score and the discussion content, but did not display a reliable total-comment count; num_comments reflects the 58 substantive comments/replies retrieved a"
+ },
+ {
+  "key": "21:1180",
+  "showId": 21,
+  "episode": 1180,
+  "title": "ONE PIECE",
+  "airedAt": 1790518560,
+  "kind": "update",
+  "thread": {
+   "title": "One Piece - Episode 1180 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1wrnyli/one_piece_episode_1180_discussion/",
+   "score": 155,
+   "num_comments": 27
+  },
+  "comments_read": 27,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many viewers found the episode exciting and praised its dramatic payoff, strong buildup, and memorable presentation."
+   },
+   {
+    "tone": "positive",
+    "point": "Several comments highlighted the animation as especially polished, energetic, and effective in key moments."
+   },
+   {
+    "tone": "positive",
+    "point": "The ending and transition into the upcoming break generated substantial enthusiasm and anticipation."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers enjoyed the episode but remained confused about the antagonist's abilities and unresolved mysteries."
+   },
+   {
+    "tone": "negative",
+    "point": "A few commenters criticized the pacing and felt the seasonal structure or stopping point was frustrating."
+   },
+   {
+    "tone": "negative",
+    "point": "Some viewers were less impressed or not as excited as the majority, particularly those without familiarity with the source material."
+   }
+  ],
+  "aspects": {
+   "animation": "positive",
+   "story": "mixed",
+   "pacing": "mixed",
+   "sound": "positive"
+  },
+  "notes": "The target page title explicitly identifies One Piece and episode 1180. I retrieved the post and its visible discussion comments; opinions are paraphrased and kept spoiler-free. Comment count is based on the retrieved thread listing."
+ },
+ {
+  "key": "103303:13",
+  "showId": 103303,
+  "episode": 13,
+  "title": "Nijusseiki Denki Mokuroku: Eureka Evrika",
+  "airedAt": 1790517600,
+  "kind": "update",
+  "thread": {
+   "title": "Sparks of Tomorrow \u2022 Nijuuseiki Denki Mokuroku -Eureka Evrika- - Episode 13 discussion - FINAL",
+   "url": "https://www.reddit.com/r/anime/comments/1wrl5gp/sparks_of_tomorrow_nijuuseiki_denki_mokuroku/",
+   "score": 0,
+   "num_comments": 19
+  },
+  "comments_read": 19,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several viewers enjoyed the energetic finale, comedy, and central relationship dynamics."
+   },
+   {
+    "tone": "positive",
+    "point": "Animation and visual presentation were repeatedly praised as beautiful and polished."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some found the series entertaining and unpredictable despite considering it uneven overall."
+   },
+   {
+    "tone": "negative",
+    "point": "Many felt the writing was poorly handled, especially the character focus and adaptation choices."
+   },
+   {
+    "tone": "negative",
+    "point": "Several viewers thought the main romance and character development were underdeveloped."
+   },
+   {
+    "tone": "negative",
+    "point": "Multiple comments criticized the finale as rushed, confusing, or insufficiently resolved."
+   }
+  ],
+  "aspects": {
+   "animation": "positive",
+   "story": "negative",
+   "pacing": "negative",
+   "characters": "mixed"
+  },
+  "notes": "The thread title and body explicitly identify Nijuuseiki Denki Mokuroku -Eureka Evrika- episode 13. Reddit exposed 19 substantive comments for review, but did not expose a reliable post score in the retrieved page, so score is reported as 0."
+ }
+]
