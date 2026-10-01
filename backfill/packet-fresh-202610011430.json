@@ -1,0 +1,150 @@
+[
+ {
+  "key": "187166:52",
+  "showId": 187166,
+  "episode": 52,
+  "title": "Ganso! Bandori-chan",
+  "airedAt": 1790859600,
+  "kind": "first",
+  "thread": {
+   "title": "Ganso! Bandori-chan \u2022 GANSO! BanG Dream Chan - Episode 52 discussion - FINAL",
+   "url": "https://www.reddit.com/r/anime/comments/1wuyvm0/ganso_bandorichan_ganso_bang_dream_chan_episode/",
+   "score": 1,
+   "num_comments": 0
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "206401:1",
+  "showId": 206401,
+  "episode": 1,
+  "title": "FX Senshi Kurumi-chan",
+  "airedAt": 1790857800,
+  "kind": "first",
+  "thread": {
+   "title": "FX Fighter Kurumi-chan \u2022 FX Senshi Kurumi-chan - Episode 1 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1wuy7tp/fx_fighter_kurumichan_fx_senshi_kurumichan/",
+   "score": 97,
+   "num_comments": 48
+  },
+  "comments_read": 47,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Most commenters found the premiere unexpectedly gripping, especially its tense financial theme and strong emotional impact."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters praised the anxiety-inducing presentation and said the series effectively immerses viewers in its subject matter."
+   },
+   {
+    "tone": "mixed",
+    "point": "The tonal contrast between cute character designs and bleak subject matter was widely noticed; many found it compelling, while some found the mismatch unsettling."
+   },
+   {
+    "tone": "negative",
+    "point": "A minority expected a lighter or comedic cute-girls series and decided the darker psychological direction was not for them."
+   },
+   {
+    "tone": "positive",
+    "point": "Commenters generally found Kurumi an engaging protagonist and expressed interest in continuing."
+   }
+  ],
+  "aspects": {
+   "animation": "positive",
+   "story": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The thread clearly identifies FX Senshi Kurumi-chan and episode 1, with FX Fighter Kurumi-chan listed as an alternate title. Opinions are paraphrased and spoiler-free; source-material discussion and plot-specific details were excluded."
+ },
+ {
+  "key": "210687:19",
+  "showId": 210687,
+  "episode": 19,
+  "title": "Re:Zero kara Hajimeru Kyuukei Jikan (Break Time) 4th Season",
+  "airedAt": 1790775000,
+  "kind": "settle",
+  "thread": {
+   "title": "Re:Zero Starting Break Time From Zero Season 4 \u2022 Re:Zero kara Hajimeru Kyuukei Jikan (Break Time) Season 4 - Episode 19 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1wu6wq0/rezero_starting_break_time_from_zero_season_4/",
+   "score": 396,
+   "num_comments": 13
+  },
+  "comments_read": 12,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many viewers found the episode emotionally powerful and were strongly affected by its character-focused material."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters praised the episode\u2019s dramatic impact and said it left them eager for more."
+   },
+   {
+    "tone": "positive",
+    "point": "The character work, especially involving Shaula, drew substantial sympathy and affection."
+   },
+   {
+    "tone": "mixed",
+    "point": "Viewers enjoyed the episode but were frustrated that it raised many new questions while delaying answers."
+   },
+   {
+    "tone": "negative",
+    "point": "One commenter felt the finale was underwhelming and lacked something compared with another series."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The title explicitly identifies Re:Zero kara Hajimeru Kyuukei Jikan (Break Time) Season 4 and episode 19. I retrieved the thread page, its score, comment count, and 12 substantive user comments; the moderator notice was excluded from sentiment analysis. Reactions are paraphrased and kept spoiler-fre"
+ },
+ {
+  "key": "189046:19",
+  "showId": 189046,
+  "episode": 19,
+  "title": "Re:Zero kara Hajimeru Isekai Seikatsu 4th Season",
+  "airedAt": 1790773200,
+  "kind": "settle",
+  "thread": {
+   "title": "Re:Zero Starting Life in Another World Season 4 \u2022 Re:Zero kara Hajimeru Isekai Seikatsu Season 4 - Episode 19 discussion - FINAL",
+   "url": "https://www.reddit.com/r/anime/comments/1wu5skl/rezero_starting_life_in_another_world_season_4/",
+   "score": 0,
+   "num_comments": 37
+  },
+  "comments_read": 37,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many commenters considered the episode and season exceptionally strong, emotional, and cinematic."
+   },
+   {
+    "tone": "positive",
+    "point": "Animation and production quality received especially enthusiastic praise."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters were deeply affected by the character-focused material and praised the emotional direction."
+   },
+   {
+    "tone": "positive",
+    "point": "Some commenters celebrated the return or prominence of favorite characters."
+   },
+   {
+    "tone": "mixed",
+    "point": "A minority felt the season was merely decent, citing confusing storytelling and adaptation choices that made it hard to follow."
+   },
+   {
+    "tone": "negative",
+    "point": "A few commenters rated the season below competing isekai series and called it mediocre."
+   }
+  ],
+  "aspects": {
+   "animation": "positive",
+   "story": "mixed",
+   "characters": "positive",
+   "sound": "positive"
+  },
+  "notes": "The thread title and body explicitly identify Re:Zero kara Hajimeru Isekai Seikatsu Season 4, episode 19. I retrieved the visible thread and 37 comments, including nested replies. The page did not expose a reliable post score, so score is recorded as 0. Opinions are paraphrased and spoiler-free."
+ }
+]
