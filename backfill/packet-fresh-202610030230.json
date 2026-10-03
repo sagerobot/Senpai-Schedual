@@ -1,0 +1,63 @@
+[
+ {
+  "key": "216557:1",
+  "showId": 216557,
+  "episode": 1,
+  "title": "Keroro Gunsou\u2606",
+  "airedAt": 1790987400,
+  "kind": "first",
+  "thread": {
+   "title": "Sgt. Frog\u2606 \u2022 Keroro Gunsou\u2606 - Episode 1 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1wwb0h0/sgt_frog_keroro_gunsou_episode_1_discussion/",
+   "score": 9,
+   "num_comments": 5
+  },
+  "comments_read": 5,
+  "opinions": [
+   {
+    "tone": "mixed",
+    "point": "Viewers were uncertain whether the premiere was a reboot or a sequel, with some feeling prior familiarity is important."
+   },
+   {
+    "tone": "positive",
+    "point": "The recast voice performances were viewed favorably, with one commenter finding the casting natural."
+   },
+   {
+    "tone": "mixed",
+    "point": "The lack of an apparent dub was noted as a disappointment."
+   }
+  ],
+  "aspects": {},
+  "notes": "The thread title and body clearly identify Keroro Gunsou\u2606 episode 1. Five comments were retrievable; reactions were limited, so no aspect dimensions had enough repeated discussion to classify."
+ },
+ {
+  "key": "183231:26",
+  "showId": 183231,
+  "episode": 26,
+  "title": "Rilakkuma",
+  "airedAt": 1790987160,
+  "kind": "first",
+  "thread": {
+   "title": "Rilakkuma - Episode 26 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1wwaapf/rilakkuma_episode_26_discussion/",
+   "score": 2,
+   "num_comments": 1
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "214703:5",
+  "showId": 214703,
+  "episode": 5,
+  "title": "Ghost Meets Gal!",
+  "airedAt": 1790982000,
+  "kind": "first",
+  "thread": {
+   "title": "Ghost Meets Gal! - Episode 5 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1ww7ujg/ghost_meets_gal_episode_5_discussion/",
+   "score": 4,
+   "num_comments": 2
+  },
+  "status": "quiet"
+ }
+]
