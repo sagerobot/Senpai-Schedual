@@ -1,0 +1,75 @@
+[
+ {
+  "key": "216557:1",
+  "showId": 216557,
+  "episode": 1,
+  "title": "Keroro Gunsou\u2606",
+  "airedAt": 1790987400,
+  "kind": "first",
+  "thread": {
+   "title": "Sgt. Frog\u2606 \u2022 Keroro Gunsou\u2606 - Episode 1 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1wwb0h0/sgt_frog_keroro_gunsou_episode_1_discussion/",
+   "score": 22,
+   "num_comments": 10
+  },
+  "comments_read": 10,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several viewers enjoyed the playful, eccentric comedy and found the cast appealing."
+   },
+   {
+    "tone": "positive",
+    "point": "The voice casting was described as natural, with appreciation for returning performers and notable additions."
+   },
+   {
+    "tone": "mixed",
+    "point": "Returning fans seemed pleased, while newcomers found the episode somewhat dependent on prior familiarity with the characters."
+   },
+   {
+    "tone": "negative",
+    "point": "Some viewers felt the episode\u2019s continuity and setup were confusing, especially regarding whether it was a reboot or continuation."
+   },
+   {
+    "tone": "mixed",
+    "point": "The episode was seen both as a welcoming preview for longtime fans and as an incomplete introduction for unfamiliar viewers."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "characters": "positive",
+   "sound": "positive"
+  },
+  "notes": "The title matched Keroro Gunsou\u2606 and episode 1 exactly. I retrieved the thread\u2019s visible post score and ten visible comments, including nested replies; sentiment is based only on this thread. No plot events are described."
+ },
+ {
+  "key": "183231:26",
+  "showId": 183231,
+  "episode": 26,
+  "title": "Rilakkuma",
+  "airedAt": 1790987160,
+  "kind": "first",
+  "thread": {
+   "title": "Rilakkuma - Episode 26 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1wwaapf/rilakkuma_episode_26_discussion/",
+   "score": 1,
+   "num_comments": 2
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "214703:5",
+  "showId": 214703,
+  "episode": 5,
+  "title": "Ghost Meets Gal!",
+  "airedAt": 1790982000,
+  "kind": "first",
+  "thread": {
+   "title": "Ghost Meets Gal! - Episode 5 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1ww7ujg/ghost_meets_gal_episode_5_discussion/",
+   "score": 3,
+   "num_comments": 2
+  },
+  "status": "quiet"
+ }
+]
