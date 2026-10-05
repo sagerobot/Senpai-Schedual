@@ -1,0 +1,110 @@
+[
+ {
+  "key": "160803:1",
+  "showId": 160803,
+  "episode": 1,
+  "title": "Mahou Shoujo Ikusei Keikaku: restart",
+  "airedAt": 1791219600,
+  "kind": "update",
+  "thread": {
+   "title": "Magical Girl Raising Project restart \u2022 Mahou Shoujo Ikusei Keikaku restart - Episode 1 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1wyevi5/magical_girl_raising_project_restart_mahou_shoujo/",
+   "score": 93,
+   "num_comments": 8
+  },
+  "comments_read": 8,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters were excited by the return of the franchise and enjoyed the dark magical-girl premise."
+   },
+   {
+    "tone": "positive",
+    "point": "The episode's many character introductions were viewed favorably, with some saying the pacing remained manageable despite the large cast."
+   },
+   {
+    "tone": "positive",
+    "point": "Some commenters liked the action and found the character designs and cast setup promising."
+   },
+   {
+    "tone": "positive",
+    "point": "The opening and ending music received enthusiastic reactions, including nostalgia for the performers."
+   },
+   {
+    "tone": "mixed",
+    "point": "Viewers differed on whether prior-season knowledge was necessary; some found the episode accessible while others felt its sequel connections reduced its standalone impact."
+   },
+   {
+    "tone": "negative",
+    "point": "One commenter disliked the emphasis given to the apparent protagonist's romantic motivation and felt it omitted more meaningful characterization."
+   },
+   {
+    "tone": "negative",
+    "point": "Another commenter was unconvinced by that protagonist and found a different character more interesting."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "pacing": "positive",
+   "characters": "mixed",
+   "sound": "positive"
+  },
+  "notes": "The target thread title explicitly names Mahou Shoujo Ikusei Keikaku restart and episode 1. Search indexing exposed the post metadata and eight substantive comment entries; direct Reddit page retrieval was unavailable, so the reported comment count reflects the retrievable indexed entries."
+ },
+ {
+  "key": "207191:1",
+  "showId": 207191,
+  "episode": 1,
+  "title": "Doumo, Suki na Hito ni Horegusuri wo Irai Sareta Majo desu.",
+  "airedAt": 1791203400,
+  "kind": "update",
+  "thread": {
+   "title": "Hello, I Am a Witch and My Crush Wants Me to Make a Love Potion! \u2022 Doumo, Suki na Hito ni Horegusuri wo Irai sareta Majo desu. - Episode 1 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1wy7e84/hello_i_am_a_witch_and_my_crush_wants_me_to_make/",
+   "score": 0,
+   "num_comments": 0
+  },
+  "comments_read": 35,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many viewers found the premiere charming, cozy, funny, and more entertaining than expected."
+   },
+   {
+    "tone": "positive",
+    "point": "The heroine was widely praised as adorable, expressive, and entertaining, especially her flustered romantic behavior."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters liked the show\u2019s soft melancholy, romantic yearning, and contrast between serious and comedic moments."
+   },
+   {
+    "tone": "positive",
+    "point": "The visual presentation, backgrounds, and overall animation were described as attractive and solid."
+   },
+   {
+    "tone": "positive",
+    "point": "Some viewers enjoyed the opening and ending music for their soothing, wistful atmosphere."
+   },
+   {
+    "tone": "mixed",
+    "point": "A number of viewers were interested in continuing, but wanted to see whether the central romantic premise would remain engaging rather than become repetitive."
+   },
+   {
+    "tone": "negative",
+    "point": "Some viewers disliked the ethical implications of love potions and dropped the series because of the premise."
+   },
+   {
+    "tone": "negative",
+    "point": "A few commenters found the heroine\u2019s prolonged pining uncomfortable or emotionally excessive."
+   }
+  ],
+  "aspects": {
+   "animation": "positive",
+   "story": "mixed",
+   "characters": "positive",
+   "sound": "positive"
+  },
+  "notes": "The title clearly identifies the specified show and Episode 1. Reddit\u2019s rendered page exposed the discussion and comments but did not expose reliable post score or total comment-count metadata, so those thread fields are reported as 0 rather than inferred."
+ }
+]
