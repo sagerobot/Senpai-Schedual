@@ -1,0 +1,103 @@
+[
+ {
+  "key": "210482:3",
+  "showId": 210482,
+  "episode": 3,
+  "title": "JoJo no Kimyou na Bouken: Steel Ball Run - 2nd & 3rd STAGE",
+  "airedAt": 1791532800,
+  "kind": "update",
+  "thread": {
+   "title": "Steel Ball Run: JoJo no Kimyou na Bouken \u2022 Steel Ball Run: JoJo's Bizarre Adventure - Episode 3 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1wvo607/steel_ball_run_jojo_no_kimyou_na_bouken_steel/",
+   "score": 0,
+   "num_comments": 24
+  },
+  "comments_read": 24,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "The episode was widely viewed as solid, with several commenters enthusiastic about its action and escalating ideas."
+   },
+   {
+    "tone": "positive",
+    "point": "Many commenters enjoyed the creative and eccentric abilities, especially the unusual powers introduced in this episode."
+   },
+   {
+    "tone": "positive",
+    "point": "The episode\u2019s major confrontation was praised as exciting, intense, and cinematic."
+   },
+   {
+    "tone": "positive",
+    "point": "Several viewers liked the handling of Mountain Tim and were interested in seeing more from him."
+   },
+   {
+    "tone": "positive",
+    "point": "Some commenters felt the animation and overall production quality were stronger than in the first two episodes."
+   },
+   {
+    "tone": "positive",
+    "point": "The race-centered premise was appreciated as a refreshing change from earlier JoJo parts."
+   },
+   {
+    "tone": "mixed",
+    "point": "The extreme violence and grotesque imagery impressed some viewers but unsettled others."
+   },
+   {
+    "tone": "mixed",
+    "point": "A few comments focused on the unchanged ending theme, with reactions ranging from playful acceptance to frustration about the lack of a change."
+   }
+  ],
+  "aspects": {
+   "animation": "positive",
+   "story": "positive",
+   "characters": "positive"
+  },
+  "notes": "The title and episode metadata explicitly identify Steel Ball Run and episode 3. I could read the thread page and 24 visible comment entries, including moderator, deleted, and removed entries; the Reddit page did not expose a numeric post score, so score is reported as 0."
+ },
+ {
+  "key": "206401:2",
+  "showId": 206401,
+  "episode": 2,
+  "title": "FX Senshi Kurumi-chan",
+  "airedAt": 1791462600,
+  "kind": "settle",
+  "thread": {
+   "title": "FX Fighter Kurumi-chan \u2022 FX Senshi Kurumi-chan - Episode 2 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1x0pq6m/fx_fighter_kurumichan_fx_senshi_kurumichan/",
+   "score": 257,
+   "num_comments": 238
+  },
+  "comments_read": 238,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters found the episode\u2019s financial anxiety and horror-like tension effective, especially because the situation felt realistic."
+   },
+   {
+    "tone": "positive",
+    "point": "Some viewers enjoyed the dark humor, trading references, and comparisons to gambling or psychological-thriller anime."
+   },
+   {
+    "tone": "mixed",
+    "point": "The central character was viewed as compelling but frustrating; commenters understood the intended tragedy while frequently criticizing her judgment."
+   },
+   {
+    "tone": "negative",
+    "point": "Many commenters disliked the reckless decision-making and felt the episode was stressful or anger-inducing enough to make them question continuing."
+   },
+   {
+    "tone": "negative",
+    "point": "The supporting friend was widely regarded as a harmful influence, though one detailed comment offered a more charitable interpretation."
+   },
+   {
+    "tone": "mixed",
+    "point": "Trading details drew both praise for seeming technically grounded and criticism for simplifying or presenting market reasoning too loosely."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "characters": "negative"
+  },
+  "notes": "The title and post body explicitly identify FX Senshi Kurumi-chan, episode 2, so the target matches. I retrieved the thread metadata and its comments; opinions are paraphrased and spoiler-free. No clear multi-comment signal about animation, pacing, or sound was found."
+ }
+]
