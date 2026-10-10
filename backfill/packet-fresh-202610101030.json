@@ -1,0 +1,70 @@
+[
+ {
+  "key": "183231:27",
+  "showId": 183231,
+  "episode": 27,
+  "title": "Rilakkuma",
+  "airedAt": 1791591960,
+  "kind": "update",
+  "thread": {
+   "title": "Rilakkuma - Episode 27 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1x226b2/rilakkuma_episode_27_discussion/",
+   "score": 3,
+   "num_comments": 1
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "178083:2",
+  "showId": 178083,
+  "episode": 2,
+  "title": "Tokyo Revengers: Santen Sensou-hen",
+  "airedAt": 1791564780,
+  "kind": "update",
+  "thread": {
+   "title": "Tokyo Revengers: War of the Three Titans Arc \u2022 Tokyo Revengers: Santen Sensou-hen - Episode 2 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1x1r4gn/tokyo_revengers_war_of_the_three_titans_arc_tokyo/",
+   "score": 65,
+   "num_comments": 9
+  },
+  "comments_read": 9,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters were engaged and eager to speculate about the episode\u2019s mysteries and future direction."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers found the episode tense and intriguing, while others felt its presentation made developments too obvious."
+   },
+   {
+    "tone": "negative",
+    "point": "One commenter criticized Takemichi as frustrating and emotionally excessive, saying this characterization contributed to dropping the series."
+   },
+   {
+    "tone": "positive",
+    "point": "Some comments expressed sympathy for the characters and interest in their emotional situations."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "characters": "mixed"
+  },
+  "notes": "The thread title explicitly identifies Tokyo Revengers: Santen Sensou-hen, episode 2, with Season 4 as an alternative marker. I retrieved the post score and nine visible non-moderator comments. Comments were paraphrased and summarized without plot spoilers; no clear multi-comment discussion of anima"
+ },
+ {
+  "key": "158871:152",
+  "showId": 158871,
+  "episode": 152,
+  "title": "Pocket Monsters (2023)",
+  "airedAt": 1791539700,
+  "kind": "settle",
+  "thread": {
+   "title": "Pok\u00e9mon Horizons: The Series - Episode 152 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1x25ezr/pok%C3%A9mon_horizons_the_series_episode_152_discussion/",
+   "score": 10,
+   "num_comments": 3
+  },
+  "status": "quiet"
+ }
+]
