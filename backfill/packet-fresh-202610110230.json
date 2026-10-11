@@ -1,0 +1,76 @@
+[
+ {
+  "key": "202957:37",
+  "showId": 202957,
+  "episode": 37,
+  "title": "Meitantei Precure!",
+  "airedAt": 1791675000,
+  "kind": "first",
+  "thread": {
+   "title": "Meitantei Precure \u2022 Star Detective Precure! - Episode 37 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1x2vo9c/meitantei_precure_star_detective_precure_episode/",
+   "score": 4,
+   "num_comments": 0
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "212799:2",
+  "showId": 212799,
+  "episode": 2,
+  "title": "Marronnier Oukoku no Shichinin no Kishi",
+  "airedAt": 1791624300,
+  "kind": "update",
+  "thread": {
+   "title": "The Seven Knights of the Marronnier Kingdom \u2022 Marronnier Oukoku no Shichinin no Kishi - Episode 2 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1x2hi9q/the_seven_knights_of_the_marronnier_kingdom/",
+   "score": 0,
+   "num_comments": 26
+  },
+  "comments_read": 26,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the show's unusual blend of earnest fantasy, absurd comedy, and eccentric worldbuilding."
+   },
+   {
+    "tone": "positive",
+    "point": "The ensemble cast and developing romantic pairings generated substantial enthusiasm, especially for the brothers' contrasting personalities."
+   },
+   {
+    "tone": "positive",
+    "point": "Commenters found the visual style and small comedic details increasingly appealing."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers liked the artistic direction but remained uncertain about the setting, stakes, and overall direction."
+   },
+   {
+    "tone": "negative",
+    "point": "A recurring criticism was that the story feels difficult to follow and may be juggling too many threads."
+   }
+  ],
+  "aspects": {
+   "animation": "positive",
+   "story": "mixed",
+   "pacing": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The page title and episode label explicitly identify Marronnier Oukoku no Shichinin no Kishi, episode 2. I read 26 substantive comments visible in the thread. Reddit did not expose a usable post score or an authoritative total comment count in the retrieved page, so score is recorded as 0 and num_co"
+ },
+ {
+  "key": "235:1216",
+  "showId": 235,
+  "episode": 1216,
+  "title": "Meitantei Conan",
+  "airedAt": 1791622800,
+  "kind": "update",
+  "thread": {
+   "title": "Meitantei Conan \u2022 Case Closed - Episode 1216 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1x2d8db/meitantei_conan_case_closed_episode_1216/",
+   "score": 4,
+   "num_comments": 4
+  },
+  "status": "quiet"
+ }
+]
