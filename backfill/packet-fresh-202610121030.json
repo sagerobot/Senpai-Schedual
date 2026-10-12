@@ -1,0 +1,109 @@
+[
+ {
+  "key": "185756:3",
+  "showId": 185756,
+  "episode": 3,
+  "title": "Tensei Kizoku, Kantei Skill de Nariagaru 3rd Season",
+  "airedAt": 1791729000,
+  "kind": "update",
+  "thread": {
+   "title": "As a Reincarnated Aristocrat, I'll Use My Appraisal Skill to Rise in the World Season 3 \u2022 Tensei Kizoku, Kantei Skill de Nariagaru Season 3 - Episode 3 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1x3ae90/as_a_reincarnated_aristocrat_ill_use_my_appraisal/",
+   "score": 0,
+   "num_comments": 2
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "209499:2",
+  "showId": 209499,
+  "episode": 2,
+  "title": "TANK CHAIR: Sensha Isu",
+  "airedAt": 1791727200,
+  "kind": "update",
+  "thread": {
+   "title": "Tank Chair - Episode 2 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1x39p51/tank_chair_episode_2_discussion/",
+   "score": 103,
+   "num_comments": 17
+  },
+  "comments_read": 17,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Viewers generally found the episode entertaining and appreciated that it changed the expected formula."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters praised the emotional weight and the sister character's appeal."
+   },
+   {
+    "tone": "mixed",
+    "point": "The recap and repeated material were criticized as padding, though some felt the episode's direction and presentation compensated."
+   },
+   {
+    "tone": "positive",
+    "point": "The visual presentation, art direction, and music were repeatedly viewed as effective for the show's unusual tone."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers questioned the absurd premise and underexplained setting, while others felt the focused emotional stakes made it work."
+   },
+   {
+    "tone": "positive",
+    "point": "Multiple commenters said they were enjoying the series and wanted to continue watching."
+   }
+  ],
+  "aspects": {
+   "animation": "positive",
+   "story": "mixed",
+   "pacing": "mixed",
+   "characters": "positive",
+   "sound": "positive"
+  },
+  "notes": "The linked thread was verified as the r/anime discussion for Tank Chair episode 2. I retrieved the post metadata and 17 visible comments/replies. Reactions were paraphrased and kept spoiler-free; plot-specific comments were treated only as evidence of sentiment."
+ },
+ {
+  "key": "209032:2",
+  "showId": 209032,
+  "episode": 2,
+  "title": "Mahou no Shimai LuluttoLilly Part 2",
+  "airedAt": 1791725400,
+  "kind": "first",
+  "thread": {
+   "title": "Magical Sisters Lulutto Lilly \u2022 Mahou no Shimai Lulutto Lilly - Episode 2 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1sjygnl/magical_sisters_lulutto_lilly_mahou_no_shimai/",
+   "score": 0,
+   "num_comments": 15
+  },
+  "comments_read": 15,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Most reactions found the episode extremely cute and enjoyed its relaxed magical-girl atmosphere."
+   },
+   {
+    "tone": "positive",
+    "point": "Several viewers especially liked the idol performance, transformation presentation, and songs."
+   },
+   {
+    "tone": "positive",
+    "point": "The sisters\u2019 relationship and individual character appeal were repeatedly praised as natural and charming."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers enjoyed the emerging mystery, while others expressed concern about potentially darker or unsettling implications."
+   },
+   {
+    "tone": "negative",
+    "point": "One commenter found the show cringe, and another was broadly skeptical of its idol-show direction."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "characters": "positive",
+   "sound": "positive"
+  },
+  "notes": "The thread title and body clearly identify Magical Sisters Lulutto Lilly / Mahou no Shimai LuluttoLilly, episode 2. The page exposed the matching episode thread and 15 readable comments, but did not reliably expose the live Reddit score or total comment count; score is reported as 0 and num_comments"
+ }
+]
