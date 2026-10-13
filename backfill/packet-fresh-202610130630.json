@@ -1,0 +1,100 @@
+[
+ {
+  "key": "204011:2",
+  "showId": 204011,
+  "episode": 2,
+  "title": "PSY\u042fEN",
+  "airedAt": 1791813600,
+  "kind": "update",
+  "thread": {
+   "title": "Psyren - Episode 2 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1x43f60/psyren_episode_2_discussion/",
+   "score": 165,
+   "num_comments": 49
+  },
+  "comments_read": 49,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many commenters were engaged by the mystery and wanted to continue discovering how the setting and its rules work."
+   },
+   {
+    "tone": "positive",
+    "point": "Several viewers praised the emotional weight, character personality, and especially the central characters\u2019 reactions."
+   },
+   {
+    "tone": "mixed",
+    "point": "The episode\u2019s dark, fast-moving development appealed to some viewers, while another commenter criticized a recurring introductory segment as unnecessary."
+   },
+   {
+    "tone": "negative",
+    "point": "A few comments criticized the visuals as lacking detail and the action as having limited impact, with one viewer also noticing awkward movement or lip-sync."
+   }
+  ],
+  "aspects": {
+   "animation": "mixed",
+   "story": "positive",
+   "pacing": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The thread title and body explicitly identify Psyren episode 2. I retrieved the Reddit page and JSON metadata, including the score and comment count, and reviewed the available comment text. Opinions are paraphrased and spoiler-free; source-material discussion and plot-specific details were excluded"
+ },
+ {
+  "key": "209219:3",
+  "showId": 209219,
+  "episode": 3,
+  "title": "Tensei Goblin Dakedo Shitsumon Aru?",
+  "airedAt": 1791810000,
+  "kind": "update",
+  "thread": {
+   "title": "So What's Wrong with Getting Reborn as a Goblin? \u2022 Tensei Goblin dakedo Shitsumon Aru? - Episode 3 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1x41a1j/so_whats_wrong_with_getting_reborn_as_a_goblin/",
+   "score": 0,
+   "num_comments": 42
+  },
+  "comments_read": 42,
+  "opinions": [
+   {
+    "tone": "negative",
+    "point": "Several commenters considered the episode visually rough, with some suspecting a change or outsourcing in production quality."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers found the premise or plot increasingly silly, while others still regarded the episode as entertaining and appreciated its more serious social tension."
+   },
+   {
+    "tone": "positive",
+    "point": "Character interactions were generally well received, especially the protagonist's resourcefulness and his dynamics with the supporting cast."
+   },
+   {
+    "tone": "positive",
+    "point": "The goblins' peaceful, comedic personality was seen as a refreshing contrast to more conventional portrayals."
+   },
+   {
+    "tone": "mixed",
+    "point": "Viewers debated whether the episode's human-goblin conflict felt thoughtfully ambiguous or overly dependent on drama."
+   }
+  ],
+  "aspects": {
+   "animation": "negative",
+   "story": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The title explicitly identifies Tensei Goblin dakedo Shitsumon Aru? and episode 3. Reddit exposed the thread and comments but did not expose reliable score metadata, so score is recorded as 0. Opinions are paraphrased and kept spoiler-free."
+ },
+ {
+  "key": "185756:3",
+  "showId": 185756,
+  "episode": 3,
+  "title": "Tensei Kizoku, Kantei Skill de Nariagaru 3rd Season",
+  "airedAt": 1791729000,
+  "kind": "settle",
+  "thread": {
+   "title": "As a Reincarnated Aristocrat, I'll Use My Appraisal Skill to Rise in the World Season 3 \u2022 Tensei Kizoku, Kantei Skill de Nariagaru Season 3 - Episode 3 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1x3ae90/as_a_reincarnated_aristocrat_ill_use_my_appraisal/",
+   "score": 0,
+   "num_comments": 3
+  },
+  "status": "quiet"
+ }
+]
