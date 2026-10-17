@@ -1,0 +1,93 @@
+[
+ {
+  "key": "205909:2",
+  "showId": 205909,
+  "episode": 2,
+  "title": "Hotaru no Yomeiri",
+  "airedAt": 1792161000,
+  "kind": "update",
+  "thread": {
+   "title": "Firefly Wedding \u2022 Hotaru no Yomeiri - Episode 2 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1x7ikfn/firefly_wedding_hotaru_no_yomeiri_episode_2/",
+   "score": 51,
+   "num_comments": 5
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "204650:3",
+  "showId": 204650,
+  "episode": 3,
+  "title": "Tougen Anki: Nikko\u30fbKegon no Taki-hen",
+  "airedAt": 1792161000,
+  "kind": "update",
+  "thread": {
+   "title": "Tougen Anki: Nikko Kegon Falls Arc \u2022 Tougen Anki: Nikko Kegon no Taki-hen - Episode 3 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1x7k51c/tougen_anki_nikko_kegon_falls_arc_tougen_anki/",
+   "score": 51,
+   "num_comments": 3
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "195516:3",
+  "showId": 195516,
+  "episode": 3,
+  "title": "Kusuriya no Hitorigoto 3rd Season",
+  "airedAt": 1792159200,
+  "kind": "update",
+  "thread": {
+   "title": "The Apothecary Diaries Season 3 \u2022 Kusuriya no Hitorigoto Season 3 - Episode 3 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1x7ikgb/the_apothecary_diaries_season_3_kusuriya_no/",
+   "score": 0,
+   "num_comments": 0
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "186742:2",
+  "showId": 186742,
+  "episode": 2,
+  "title": "Toaru Anbu no ITEM",
+  "airedAt": 1792157400,
+  "kind": "update",
+  "thread": {
+   "title": "A Certain Dark Item \u2022 Toaru Anbu no ITEM - Episode 2 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1x7jdhx/a_certain_dark_item_toaru_anbu_no_item_episode_2/",
+   "score": 347,
+   "num_comments": 57
+  },
+  "comments_read": 43,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many viewers enjoyed the contrast between the cast\u2019s casual banter and their ruthless professional behavior."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters found the character interactions, especially the team\u2019s humor and newcomer dynamics, entertaining."
+   },
+   {
+    "tone": "positive",
+    "point": "Some viewers praised the adaptation\u2019s brisk progression and said it felt refreshing compared with an earlier adaptation."
+   },
+   {
+    "tone": "mixed",
+    "point": "The violent tone and high body count amused some viewers, while others found the amount of killing excessive."
+   },
+   {
+    "tone": "mixed",
+    "point": "Fan-service and stylish outfits were popular with many commenters, though the discussion also suggested the presentation leaned heavily on them."
+   },
+   {
+    "tone": "negative",
+    "point": "At least one commenter felt that, despite potentially interesting material, parts of the episode were boring or difficult to watch."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The Reddit page title and episode label explicitly identify Toaru Anbu no ITEM, episode 2, with A Certain Dark Item as an alternative name. I retrieved the thread content and visible comments directly; Reddit exposed a score of 347 and 57 comments. Opinions are paraphrased and kept spoiler-free."
+ }
+]
