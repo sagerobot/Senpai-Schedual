@@ -1,0 +1,107 @@
+[
+ {
+  "key": "216557:3",
+  "showId": 216557,
+  "episode": 3,
+  "title": "Keroro Gunsou\u2606",
+  "airedAt": 1792197000,
+  "kind": "first",
+  "thread": {
+   "title": "Sgt. Frog\u2606 \u2022 Keroro Gunsou\u2606 - Episode 3 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1x7x77u/sgt_frog_keroro_gunsou_episode_3_discussion/",
+   "score": 4,
+   "num_comments": 2
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "183231:28",
+  "showId": 183231,
+  "episode": 28,
+  "title": "Rilakkuma",
+  "airedAt": 1792196760,
+  "kind": "first",
+  "thread": {
+   "title": "Rilakkuma - Episode 28 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1x7x72t/rilakkuma_episode_28_discussion/",
+   "score": 3,
+   "num_comments": 2
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "214703:7",
+  "showId": 214703,
+  "episode": 7,
+  "title": "Ghost Meets Gal!",
+  "airedAt": 1792191600,
+  "kind": "first",
+  "thread": {
+   "title": "Ghost Meets Gal! - Episode 7 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1x7ur71/ghost_meets_gal_episode_7_discussion/",
+   "score": 4,
+   "num_comments": 2
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "188034:2",
+  "showId": 188034,
+  "episode": 2,
+  "title": "Girls und Panzer: Motto Love Love Sakusen desu!",
+  "airedAt": 1792074600,
+  "kind": "settle",
+  "thread": {
+   "title": "Girls und Panzer: Motto Love Love Sakusen Desu! \u2022 Girls und Panzer - Operation: More Love Love! - Episode 2 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1raanpv/girls_und_panzer_motto_love_love_sakusen_desu/",
+   "score": 0,
+   "num_comments": 12
+  },
+  "comments_read": 11,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the slapstick humor and playful use of the large ensemble cast."
+   },
+   {
+    "tone": "positive",
+    "point": "Fans welcomed the appearance and interactions of various familiar and less frequently seen characters."
+   },
+   {
+    "tone": "positive",
+    "point": "Some reactions found the recurring character jokes and team-specific gags entertaining."
+   },
+   {
+    "tone": "mixed",
+    "point": "One viewer considered the episode weaker than episode 1, while still praising particular character dynamics and the expanded cast."
+   },
+   {
+    "tone": "mixed",
+    "point": "A commenter felt the comedy worked overall but was less comfortable with the extended fat-joke material and prominent fanservice."
+   },
+   {
+    "tone": "positive",
+    "point": "The thread showed clear enthusiasm from longtime franchise fans, including appreciation for the episode's broad comedic tone."
+   }
+  ],
+  "aspects": {
+   "characters": "positive"
+  },
+  "notes": "The title explicitly identifies Girls und Panzer: Motto Love Love Sakusen Desu! and episode 2, with matching season/episode markers. I retrieved the thread page and read 11 community comments, excluding the moderator's boilerplate. Post score was displayed as 0; no separate reliable comment-count me"
+ },
+ {
+  "key": "207084:2",
+  "showId": 207084,
+  "episode": 2,
+  "title": "Onee-chan Gokko",
+  "airedAt": 1792058400,
+  "kind": "settle",
+  "thread": {
+   "title": "Onee-chan Gokko (Playing Sister) episode 2 by Harumaki Gohan",
+   "url": "https://www.reddit.com/r/anime/comments/1x6ifur/oneechan_gokko_playing_sister_episode_2_by/",
+   "score": 34,
+   "num_comments": 2
+  },
+  "status": "quiet"
+ }
+]
