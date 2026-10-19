@@ -1,0 +1,157 @@
+[
+ {
+  "key": "218532:3",
+  "showId": 218532,
+  "episode": 3,
+  "title": "Maomao no Hitorigoto 3rd Season",
+  "airedAt": 1792378800,
+  "kind": "update",
+  "thread": {
+   "title": "The Apothecary Diaries Season 3 \u2022 Kusuriya no Hitorigoto Season 3 - Episode 3 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1x7ikgb/the_apothecary_diaries_season_3_kusuriya_no/",
+   "score": 0,
+   "num_comments": 0
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "199426:3",
+  "showId": 199426,
+  "episode": 3,
+  "title": "Hotel Inhumans 2nd Season",
+  "airedAt": 1792334700,
+  "kind": "update",
+  "thread": {
+   "title": "Hotel Inhumans Season 2 - Episode 3 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1x95rqb/hotel_inhumans_season_2_episode_3_discussion/",
+   "score": 0,
+   "num_comments": 1
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "209499:3",
+  "showId": 209499,
+  "episode": 3,
+  "title": "TANK CHAIR: Sensha Isu",
+  "airedAt": 1792332000,
+  "kind": "update",
+  "thread": {
+   "title": "Tank Chair - Episode 3 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1x94odw/tank_chair_episode_3_discussion/",
+   "score": 79,
+   "num_comments": 23
+  },
+  "comments_read": 23,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the character designs, backgrounds, and distinctive visual style."
+   },
+   {
+    "tone": "positive",
+    "point": "The episode was generally considered entertaining, with viewers interested in continuing the series."
+   },
+   {
+    "tone": "mixed",
+    "point": "The story was viewed as engaging and emotionally effective, though some found the setup and limited cast less substantial."
+   },
+   {
+    "tone": "negative",
+    "point": "Some viewers felt the character animation did not blend well with the detailed backgrounds and could look jarring."
+   },
+   {
+    "tone": "mixed",
+    "point": "The recap and slower setup were seen by some as padding, while others accepted the episode as useful preparation."
+   },
+   {
+    "tone": "mixed",
+    "point": "The music received praise for its distinctive atmosphere but criticism for not matching the action as well as some comparable soundtracks."
+   }
+  ],
+  "aspects": {
+   "animation": "mixed",
+   "story": "positive",
+   "pacing": "mixed",
+   "characters": "positive",
+   "sound": "mixed"
+  },
+  "notes": "The thread title and body clearly identify Tank Chair and episode 3. I retrieved the post score and 23 visible comments from this thread only. Opinions are paraphrased and spoiler-free; moderator and source-material comments were not treated as viewer sentiment."
+ },
+ {
+  "key": "186541:3",
+  "showId": 186541,
+  "episode": 3,
+  "title": "Mezametara Saikyou Soubi to Uchuusen-mochi datta node, Ikkodate Mezashite Youhei to shite Jiyuu ni Ikitai",
+  "airedAt": 1792326600,
+  "kind": "settle",
+  "thread": {
+   "title": "Reborn as a Space Mercenary: I Woke Up Piloting the Strongest Starship! \u2022 Mezametara Saikyou Soubi to Uchuusenmochi Datta node, Ikkodate Mezashite Youhei toshite Jiyuu ni Ikitai - Episode 3 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1x93z50/reborn_as_a_space_mercenary_i_woke_up_piloting/",
+   "score": 396,
+   "num_comments": 312
+  },
+  "comments_read": 23,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Most commenters found the episode entertaining and enjoyed the evolving crew dynamics."
+   },
+   {
+    "tone": "positive",
+    "point": "The central characters, especially the newer crew member and her relationship with the existing cast, received enthusiastic attention."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters liked the protagonist\u2019s unusually modest long-term goal and the cozy domestic tone around it."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers felt events unfolded predictably, even while enjoying the humor and character interactions."
+   },
+   {
+    "tone": "negative",
+    "point": "A few comments expressed disappointment that certain character introspection moments may have been omitted."
+   }
+  ],
+  "aspects": {
+   "story": "positive",
+   "pacing": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The title and body explicitly identify the requested show and episode 3, with no conflicting season marker. Reddit metadata provided the score and total comment count. I could inspect 23 substantive comments from the retrieved thread view; the page indicated 312 total comments, with some replies col"
+ },
+ {
+  "key": "215835:4",
+  "showId": 215835,
+  "episode": 4,
+  "title": "Umayuru: Full Gate!",
+  "airedAt": 1792324800,
+  "kind": "settle",
+  "thread": {
+   "title": "Umayuru: Full Gate! - Episode 4 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1x91ko0/umayuru_full_gate_episode_4_discussion/",
+   "score": 29,
+   "num_comments": 6
+  },
+  "comments_read": 6,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Commenters generally enjoyed the episode's playful humor and recurring visual gags."
+   },
+   {
+    "tone": "positive",
+    "point": "Several reactions welcomed the large cast of Uma Musume characters and the connections to related material."
+   },
+   {
+    "tone": "positive",
+    "point": "The discussion showed appreciation for the episode's character-focused charm and novelty."
+   }
+  ],
+  "aspects": {
+   "characters": "positive"
+  },
+  "notes": "The title clearly identifies Umayuru: Full Gate! and episode 4. I could retrieve the thread title, score, comment count, and six indexed comments. The available comments contained positive reactions but no clear negative or mixed sentiment; plot details were omitted from the summary."
+ }
+]
