@@ -1,0 +1,53 @@
+[
+ {
+  "key": "207329:4",
+  "showId": 207329,
+  "episode": 4,
+  "title": "Tsuihou Sareta Cheat Fuyo Majutsushi wa Kimama na Second Life wo Ouka Suru.: Ore wa Buki dake ja Naku, Arayuru Mono ni \"Kyouka Point\" wo Fuyo Dekiru shi, Ore no Ishi de Itsudemo Kouka wo Kaijo Dekiru kedo, Nokotta Hitotachi Daijoubu?",
+  "airedAt": 1793113200,
+  "kind": "update",
+  "thread": {
+   "title": "The Laid-Off Cheat-Granting Mage Enjoys a Second Lease on Life \u2022 Tsuihou Sareta Cheat Fuyo Majutsushi wa Kimama na Second Life wo Ouka Suru. - Episode 4 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1xgvozs/the_laidoff_cheatgranting_mage_enjoys_a_second/",
+   "score": 287,
+   "num_comments": 109
+  },
+  "comments_read": 12,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the contrast between serious material and deliberately absurd comedy."
+   },
+   {
+    "tone": "positive",
+    "point": "The visual presentation and animation were repeatedly praised."
+   },
+   {
+    "tone": "positive",
+    "point": "Some viewers found the central character interactions and comedic supporting moments appealing."
+   },
+   {
+    "tone": "mixed",
+    "point": "Commenters were intrigued by the setting details and unusual tone, but remained unsure what kind of series it is trying to be."
+   },
+   {
+    "tone": "negative",
+    "point": "Multiple comments criticized the revenge-focused storyline as annoying, trope-heavy, or boring."
+   },
+   {
+    "tone": "negative",
+    "point": "Some viewers felt the writing shifts too abruptly between comedy and tragedy."
+   },
+   {
+    "tone": "negative",
+    "point": "A recurring complaint targeted one character\u2019s costume as distracting and poorly judged."
+   }
+  ],
+  "aspects": {
+   "animation": "positive",
+   "story": "mixed",
+   "characters": "mixed"
+  },
+  "notes": "The thread title and body explicitly identify the show and episode 4. I retrieved the post metadata and a sample of visible top-level and nested comments; spoiler-related discussion was excluded from the sentiment summary."
+ }
+]
