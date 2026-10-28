@@ -1,0 +1,145 @@
+[
+ {
+  "key": "187316:4",
+  "showId": 187316,
+  "episode": 4,
+  "title": "Gensou Suikoden",
+  "airedAt": 1793111400,
+  "kind": "update",
+  "thread": {
+   "title": "Suikoden : The Anime \u2022 Genso Suikoden - Episode 4 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1xgut4j/suikoden_the_anime_genso_suikoden_episode_4/",
+   "score": 0,
+   "num_comments": 8
+  },
+  "comments_read": 7,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the character-focused emotional reactions and humor."
+   },
+   {
+    "tone": "positive",
+    "point": "Some viewers appreciated the episode\u2019s striking end-card imagery and anticipation for the adaptation\u2019s continuation."
+   },
+   {
+    "tone": "mixed",
+    "point": "Political and alliance-related developments generated interest, though some reactions framed them as tense or ominous."
+   },
+   {
+    "tone": "negative",
+    "point": "One commenter felt the disguises were ineffective and made that part of the episode feel pointless."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The title explicitly identifies Genso Suikoden and episode 4. I retrieved the thread page and seven substantive user comments; one additional visible comment was moderator/source-material guidance. Plot details were excluded from the sentiment summary."
+ },
+ {
+  "key": "200294:4",
+  "showId": 200294,
+  "episode": 4,
+  "title": "Choujun! Choujou Senpai",
+  "airedAt": 1793109600,
+  "kind": "update",
+  "thread": {
+   "title": "Super Psychic Policeman Chojo \u2022 Choujun! Choujou-senpai - Episode 4 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1xgu6gt/super_psychic_policeman_chojo_choujun/",
+   "score": 0,
+   "num_comments": 24
+  },
+  "comments_read": 23,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters found the episode consistently funny, especially its exaggerated character interactions and quiz-show-style comedy."
+   },
+   {
+    "tone": "positive",
+    "point": "Many enjoyed the show\u2019s blend of comedy with warmth and its underlying sense of community."
+   },
+   {
+    "tone": "positive",
+    "point": "The newly featured former-partner character was widely considered entertaining and memorable."
+   },
+   {
+    "tone": "mixed",
+    "point": "Commenters liked the character dynamic but also found the former partner\u2019s intense fixation unsettling and stalker-like."
+   },
+   {
+    "tone": "mixed",
+    "point": "The protagonist\u2019s abrasive behavior was criticized, though several viewers appreciated the contrast between his teasing exterior and apparent concern for ordinary people."
+   },
+   {
+    "tone": "positive",
+    "point": "The music, including the dramatic insert song and ending theme, received enthusiastic reactions."
+   },
+   {
+    "tone": "negative",
+    "point": "One commenter said they were enjoying the series but still missed Police in a Pod."
+   }
+  ],
+  "aspects": {
+   "story": "positive",
+   "characters": "mixed",
+   "sound": "positive"
+  },
+  "notes": "The title and page metadata clearly identify Choujun! Choujou-senpai episode 4, with no season-marker conflict. I retrieved the post and visible comment discussion. The displayed score was not available in the retrieved page, so score is recorded as 0; comments_read counts visible user comments excl"
+ },
+ {
+  "key": "187990:4",
+  "showId": 187990,
+  "episode": 4,
+  "title": "Battle Spirits [Re] Zekkai no Kuu",
+  "airedAt": 1793109600,
+  "kind": "update",
+  "thread": {
+   "title": "Battle Spirits [Re] ZEKKAI NO KU - Episode 4 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1xgu6fp/battle_spirits_re_zekkai_no_ku_episode_4/",
+   "score": 2,
+   "num_comments": 3
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "209502:4",
+  "showId": 209502,
+  "episode": 4,
+  "title": "Shiotaiou no Satou-san ga Ore ni dake Amai",
+  "airedAt": 1793106000,
+  "kind": "update",
+  "thread": {
+   "title": "The Cold Sato-san is Only Sweet to Me \u2022 Shiotaiou no Satou-san ga Ore ni dake Amai - Episode 4 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1xgsmyl/the_cold_satosan_is_only_sweet_to_me_shiotaiou_no/",
+   "score": 86,
+   "num_comments": 68
+  },
+  "comments_read": 15,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the romantic payoff, humor, and progress in the central relationship."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers found the show entertainingly cheesy and easy to keep watching, while still acknowledging that parts were awkward or cringey."
+   },
+   {
+    "tone": "negative",
+    "point": "Critics felt the episode relied too heavily on contrived misunderstandings and coincidences, weakening character agency and believability."
+   },
+   {
+    "tone": "mixed",
+    "point": "Reactions to the supporting cast were divided: some liked the family and secondary-character material, while others felt a supporting character was handled too abruptly."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "pacing": "mixed",
+   "characters": "mixed"
+  },
+  "notes": "The title and body explicitly identify Shiotaiou no Satou-san ga Ore ni dake Amai, episode 4. Sentiment was paraphrased and kept spoiler-free; animation and sound were not clearly discussed by several commenters."
+ }
+]
