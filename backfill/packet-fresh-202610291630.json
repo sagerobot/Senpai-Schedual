@@ -1,0 +1,83 @@
+[
+ {
+  "key": "188034:4",
+  "showId": 188034,
+  "episode": 4,
+  "title": "Girls und Panzer: Motto Love Love Sakusen desu!",
+  "airedAt": 1793284200,
+  "kind": "first",
+  "thread": {
+   "title": "Girls und Panzer - Operation: More Love Love! \u2022 Girls und Panzer: Motto Love Love Sakusen Desu! - Episode 4 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1rtlbyc/girls_und_panzer_operation_more_love_love_girls/",
+   "score": 30,
+   "num_comments": 5
+  },
+  "comments_read": 5,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters found the episode funny, charming, and unexpectedly heartwarming."
+   },
+   {
+    "tone": "positive",
+    "point": "The comedy and character interactions were generally well received."
+   },
+   {
+    "tone": "mixed",
+    "point": "One viewer thought the series had settled into a good rhythm but felt some recurring jokes were becoming worn."
+   },
+   {
+    "tone": "mixed",
+    "point": "A viewer rated the episode 7/10, enjoying it overall while preferring the return of the franchise\u2019s tank-focused material."
+   }
+  ],
+  "aspects": {
+   "characters": "positive",
+   "pacing": "mixed"
+  },
+  "notes": "The Reddit thread title and post body explicitly identify Girls und Panzer: Motto Love Love Sakusen desu! episode 4 and list Operation: More Love Love! as an alternate title. Sentiment was summarized without plot spoilers; animation and sound were not clearly discussed by several comments."
+ },
+ {
+  "key": "178868:4",
+  "showId": 178868,
+  "episode": 4,
+  "title": "Magic Knight Rayearth (2026)",
+  "airedAt": 1793198760,
+  "kind": "settle",
+  "thread": {
+   "title": "Magic Knight Rayearth (2026) - Episode 4 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1xhrast/magic_knight_rayearth_2026_episode_4_discussion/",
+   "score": 310,
+   "num_comments": 10
+  },
+  "comments_read": 10,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the characters, especially Fuu\u2019s intelligence and charm, the trio\u2019s friendship, and the emerging romantic chemistry."
+   },
+   {
+    "tone": "positive",
+    "point": "Mokona was praised for being more useful and endearing than a simple mascot."
+   },
+   {
+    "tone": "positive",
+    "point": "The episode\u2019s magical set pieces and selected still frames were viewed as visually striking, with some appreciation for its old-school aesthetic."
+   },
+   {
+    "tone": "mixed",
+    "point": "The story and character developments were generally well received, but one commenter questioned internal consistency in how magic-related items function."
+   },
+   {
+    "tone": "negative",
+    "point": "Multiple comments criticized the frequent panning still shots and felt Fuu\u2019s magic and some fight animation were less impressive than Umi\u2019s or the older adaptation\u2019s animation."
+   }
+  ],
+  "aspects": {
+   "animation": "mixed",
+   "story": "positive",
+   "characters": "positive"
+  },
+  "notes": "The thread title and metadata explicitly identify Magic Knight Rayearth (2026), episode 4. I retrieved the Reddit page and its visible discussion comments; opinions are paraphrased and kept spoiler-free. Sound and pacing were not clearly discussed by several commenters, so they are omitted."
+ }
+]
