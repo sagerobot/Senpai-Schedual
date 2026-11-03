@@ -1,0 +1,102 @@
+[
+ {
+  "key": "206949:5",
+  "showId": 206949,
+  "episode": 5,
+  "title": "Kyouran Reijou Nia Liston",
+  "airedAt": 1793708760,
+  "kind": "first",
+  "thread": {
+   "title": "Nia Liston: The Merciless Maiden \u2022 Kyouran Reijou Nia Liston: Byoujaku Reijou ni Tensei shita Kamigoroshi no Bujin no Karei naru Musouroku - Episode 5 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1xms8vq/",
+   "score": 19,
+   "num_comments": 2
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "160803:5",
+  "showId": 160803,
+  "episode": 5,
+  "title": "Mahou Shoujo Ikusei Keikaku: restart",
+  "airedAt": 1793638800,
+  "kind": "settle",
+  "thread": {
+   "title": "Magical Girl Raising Project restart \u2022 Mahou Shoujo Ikusei Keikaku restart - Episode 5 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1xm3vy4/magical_girl_raising_project_restart_mahou_shoujo/",
+   "score": 0,
+   "num_comments": 18
+  },
+  "comments_read": 18,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Viewers enjoyed the developing mystery and speculated actively about the culprit and character abilities."
+   },
+   {
+    "tone": "positive",
+    "point": "Several reactions welcomed the episode's action and the contrast between this installment's mascot figure and the original season's mascot."
+   },
+   {
+    "tone": "mixed",
+    "point": "The episode generated sympathy and discussion around the emotional turn, but reactions differed on how effective it was."
+   },
+   {
+    "tone": "negative",
+    "point": "Some viewers felt the cast still lacked sufficient characterization, making it difficult to care deeply about individual characters."
+   }
+  ],
+  "aspects": {
+   "story": "positive",
+   "characters": "mixed"
+  },
+  "notes": "The Reddit thread title, alternate title, and Episode 5 match the requested show and episode. A secondary roundup reports 18 Reddit comments and summarizes their reactions. Reddit itself could not be directly retrieved for live score metadata, so score is recorded as 0; no reliable animation, pacing"
+ },
+ {
+  "key": "207191:5",
+  "showId": 207191,
+  "episode": 5,
+  "title": "Doumo, Suki na Hito ni Horegusuri wo Irai Sareta Majo desu.",
+  "airedAt": 1793622600,
+  "kind": "settle",
+  "thread": {
+   "title": "Hello, I Am a Witch and My Crush Wants Me to Make a Love Potion! \u2022 Doumo, Suki na Hito ni Horegusuri wo Irai sareta Majo desu. - Episode 5 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1xlvx92/hello_i_am_a_witch_and_my_crush_wants_me_to_make/",
+   "score": 0,
+   "num_comments": 76
+  },
+  "comments_read": 76,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many viewers praised the episode's emotional writing and deeper worldbuilding."
+   },
+   {
+    "tone": "positive",
+    "point": "Harij was widely appreciated for defending Rose and confronting both children and adults."
+   },
+   {
+    "tone": "positive",
+    "point": "The central relationship continued to attract enthusiastic reactions, especially around Harij's kindness and the pair's awkward connection."
+   },
+   {
+    "tone": "mixed",
+    "point": "Several viewers found the episode unexpectedly heavy compared with the show's usual cozy tone."
+   },
+   {
+    "tone": "negative",
+    "point": "Some viewers were frustrated by the villagers' prejudice and by Rose's continued self-effacing misunderstanding of Harij."
+   },
+   {
+    "tone": "mixed",
+    "point": "A few comments worried that the remaining romantic misunderstanding could be prolonged, while others welcomed the prospect of imminent clarification."
+   }
+  ],
+  "aspects": {
+   "story": "positive",
+   "characters": "positive",
+   "pacing": "mixed"
+  },
+  "notes": "The Reddit bot post explicitly identifies the AniList romaji title and episode 5, and the thread title includes the matching alternate English title. Reddit's page did not expose the current score in the retrieved text, so score is recorded as 0. Community reaction was retrieved from 76 comments; op"
+ }
+]
