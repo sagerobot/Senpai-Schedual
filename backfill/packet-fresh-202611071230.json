@@ -1,0 +1,136 @@
+[
+ {
+  "key": "195571:5",
+  "showId": 195571,
+  "episode": 5,
+  "title": "Shuiro no Kamen",
+  "airedAt": 1794040200,
+  "kind": "first",
+  "thread": {
+   "title": "The Vermilion Mask \u2022 Shuiro no Kamen - Episode 5 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1xq2f3p/the_vermilion_mask_shuiro_no_kamen_episode_5/",
+   "score": 13,
+   "num_comments": 4
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "178083:6",
+  "showId": 178083,
+  "episode": 6,
+  "title": "Tokyo Revengers: Santen Sensou-hen",
+  "airedAt": 1793983980,
+  "kind": "update",
+  "thread": {
+   "title": "Tokyo Revengers: War of the Three Titans Arc \u2022 Tokyo Revengers: Santen Sensou-hen - Episode 6 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1xpi19l/tokyo_revengers_war_of_the_three_titans_arc_tokyo/",
+   "score": 71,
+   "num_comments": 39
+  },
+  "comments_read": 39,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many viewers found the episode entertaining and praised its energy, character interactions, and surprising developments."
+   },
+   {
+    "tone": "positive",
+    "point": "Senju was widely received as an appealing, fun, stylish, and strong character."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the animation and were excited to see memorable manga material adapted."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers liked the new developments involving Takemichi's abilities, while others felt they were insufficiently explained or appeared abruptly."
+   },
+   {
+    "tone": "mixed",
+    "point": "A few viewers enjoyed the episode but still considered an earlier episode stronger."
+   },
+   {
+    "tone": "negative",
+    "point": "Some commenters found the large number of character names and introductions difficult to follow."
+   },
+   {
+    "tone": "negative",
+    "point": "One recurring complaint was that the episode felt unusually short."
+   },
+   {
+    "tone": "negative",
+    "point": "Some viewers criticized the subtitles as taking too many liberties."
+   }
+  ],
+  "aspects": {
+   "animation": "positive",
+   "story": "mixed",
+   "characters": "positive",
+   "sound": "positive"
+  },
+  "notes": "The thread title and body explicitly identify Tokyo Revengers: Santen Sensou-hen, Season 4, episode 6. Community sentiment was summarized from the retrievable comments on this thread only; opinions are paraphrased and omit plot details."
+ },
+ {
+  "key": "203275:2",
+  "showId": 203275,
+  "episode": 2,
+  "title": "Demons' Crest",
+  "airedAt": 1793966400,
+  "kind": "settle",
+  "thread": {
+   "title": "Devils' Crest \u2022 Demons' Crest - Episode 2 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1xpkmzn/devils_crest_demons_crest_episode_2_discussion/",
+   "score": 60,
+   "num_comments": 32
+  },
+  "comments_read": 32,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several viewers found the opening episodes engaging, praised the character setup, and were eager to continue."
+   },
+   {
+    "tone": "positive",
+    "point": "Some viewers thought the CGI and visual presentation were better than expected."
+   },
+   {
+    "tone": "mixed",
+    "point": "The darker tone and mystery attracted interest, though some viewers were not yet convinced by the series."
+   },
+   {
+    "tone": "negative",
+    "point": "Multiple viewers felt the episode was too short or did not advance the story much."
+   },
+   {
+    "tone": "negative",
+    "point": "Some criticized the dialogue as basic and the characters as implausibly calm or overly mature."
+   },
+   {
+    "tone": "negative",
+    "point": "A few viewers perceived a noticeable animation-quality decline in this episode."
+   }
+  ],
+  "aspects": {
+   "animation": "mixed",
+   "story": "mixed",
+   "pacing": "negative",
+   "characters": "mixed"
+  },
+  "notes": "The thread title and metadata explicitly identify Demons' Crest, episode 2; the anime title is shown as Devils' Crest while Demons' Crest is also used. Comments were paraphrased and plot details omitted. Sound was not clearly discussed by several commenters."
+ },
+ {
+  "key": "158871:156",
+  "showId": 158871,
+  "episode": 156,
+  "title": "Pocket Monsters (2023)",
+  "airedAt": 1793958900,
+  "kind": "settle",
+  "thread": {
+   "title": "Pok\u00e9mon Horizons: The Series - Episode 156 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1xpypnd/pok%C3%A9mon_horizons_the_series_episode_156_discussion/",
+   "score": 11,
+   "num_comments": 2
+  },
+  "status": "quiet"
+ }
+]
