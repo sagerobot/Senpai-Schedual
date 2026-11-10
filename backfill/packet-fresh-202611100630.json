@@ -1,0 +1,45 @@
+[
+ {
+  "key": "204011:5",
+  "showId": 204011,
+  "episode": 5,
+  "title": "PSY\u042fEN",
+  "airedAt": 1794232800,
+  "kind": "update",
+  "thread": {
+   "title": "Psyren - Episode 5 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1xrt51m/psyren_episode_5_discussion/",
+   "score": 174,
+   "num_comments": 39
+  },
+  "comments_read": 20,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the episode's creative use of the power system, action, worldbuilding, and cooperation-focused premise."
+   },
+   {
+    "tone": "positive",
+    "point": "Amamiya's competence and the evolving group dynamics were well received."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers found the episode entertaining and stronger than earlier installments, while others felt the adaptation lacked characterization and atmosphere."
+   },
+   {
+    "tone": "negative",
+    "point": "A minority considered the episode boring and said they might stop watching."
+   },
+   {
+    "tone": "negative",
+    "point": "Some criticized the newcomers' implausibly poor decisions and questioned parts of the episode's tactical logic."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "characters": "mixed",
+   "pacing": "mixed"
+  },
+  "notes": "The title and embedded episode label match Psyren episode 5. I read 20 substantive comments from this thread only. Spoilers were excluded from the sentiment summary; animation and sound were not clearly discussed by several comments."
+ }
+]
