@@ -1,0 +1,142 @@
+[
+ {
+  "key": "206401:7",
+  "showId": 206401,
+  "episode": 7,
+  "title": "FX Senshi Kurumi-chan",
+  "airedAt": 1794486600,
+  "kind": "first",
+  "thread": {
+   "title": "FX Fighter Kurumi-chan \u2022 FX Senshi Kurumi-chan - Episode 7 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1xubl0y/fx_fighter_kurumichan_fx_senshi_kurumichan/",
+   "score": 78,
+   "num_comments": 29
+  },
+  "comments_read": 29,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several viewers found the episode compelling because of its unusually toxic financial and interpersonal dynamics."
+   },
+   {
+    "tone": "positive",
+    "point": "Mochiko was widely regarded as an entertaining, highly effective character, with some viewers enjoying her ruthlessness despite disliking her behavior."
+   },
+   {
+    "tone": "positive",
+    "point": "Yasuko received praise as the grounded and sympathetic voice of reason."
+   },
+   {
+    "tone": "mixed",
+    "point": "Viewers found the character conflict engaging, but many were increasingly frustrated by Mebuki's irrational decisions and continued financial risk-taking."
+   },
+   {
+    "tone": "negative",
+    "point": "A substantial portion of the discussion criticized Mebuki as frustratingly reckless and felt the repeated poor decisions were becoming difficult to root for."
+   },
+   {
+    "tone": "negative",
+    "point": "Mochiko's manipulation and encouragement of dangerous behavior made her appear cruel or evil to many commenters, even when they found her entertaining."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "characters": "mixed"
+  },
+  "notes": "The Reddit bot title explicitly includes both the alternate English title and the AniList romaji title, and the post body identifies this as episode 7, matching the target show and episode. The thread was accessible through search results; sentiment was summarized from the retrieved discussion text "
+ },
+ {
+  "key": "211778:6",
+  "showId": 211778,
+  "episode": 6,
+  "title": "Sekai Saikyou no Majo, Hajimemashita",
+  "airedAt": 1794402000,
+  "kind": "settle",
+  "thread": {
+   "title": "The World's Strongest Witch \u2022 Sekai Saikyou no Majo, Hajimemashita - Episode 6 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1xth5kd/the_worlds_strongest_witch_sekai_saikyou_no_majo/",
+   "score": 0,
+   "num_comments": 0
+  },
+  "comments_read": 50,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many commenters found the episode exceptionally funny and praised its dense parody and internet-culture humor."
+   },
+   {
+    "tone": "positive",
+    "point": "Several viewers enjoyed the visual comedy, including the pixel-art cutaways and carefully staged parody sequences."
+   },
+   {
+    "tone": "positive",
+    "point": "Lorna was widely liked as an adorably oblivious, overpowered, and consistently entertaining protagonist."
+   },
+   {
+    "tone": "positive",
+    "point": "Commenters appreciated the absurd supporting cast and especially enjoyed the guild-related comedy."
+   },
+   {
+    "tone": "positive",
+    "point": "Some viewers called it one of the season's funniest shows and said the episode strengthened their enthusiasm for the series."
+   },
+   {
+    "tone": "mixed",
+    "point": "A minority felt the episode's central scenario was filler-like or less engaging than the stronger comedic material elsewhere."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers enjoyed the references more after other commenters explained them, suggesting that unfamiliarity with the source parodies reduced their immediate impact."
+   }
+  ],
+  "aspects": {
+   "animation": "positive",
+   "story": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The thread title and body explicitly identify Sekai Saikyou no Majo, Hajimemashita episode 6. Reddit exposed the discussion text but not reliable post score or total comment-count metadata in the retrieved page, so those fields are reported as 0. Sentiment is based on 50 readable comments/replies; p"
+ },
+ {
+  "key": "176314:6",
+  "showId": 176314,
+  "episode": 6,
+  "title": "Sasaki to Pii-chan Season 2",
+  "airedAt": 1794402000,
+  "kind": "settle",
+  "thread": {
+   "title": "Sasaki and Peeps Season 2 \u2022 Sasaki to Pii-chan Season 2 - Episode 6 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1xth5ji/sasaki_and_peeps_season_2_sasaki_to_piichan/",
+   "score": 0,
+   "num_comments": 0
+  },
+  "comments_read": 31,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many commenters found the episode entertaining, especially its comedy, dinner sequence, and character interactions."
+   },
+   {
+    "tone": "positive",
+    "point": "Pii-chan, Elsa, Hoshizaki, and Shizuka were frequent sources of affection and amusement."
+   },
+   {
+    "tone": "mixed",
+    "point": "Viewers were divided over the balance between the real-world and other-world material, with some preferring the fantasy side and others finding it slower or less engaging."
+   },
+   {
+    "tone": "negative",
+    "point": "Several commenters criticized the other-world sections as boring, regressive, or overloaded with disconnected story elements."
+   },
+   {
+    "tone": "positive",
+    "point": "The episode\u2019s closing tease generated strong curiosity and anticipation for the next installment."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "pacing": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The title and episode metadata clearly identify Sasaki to Pii-chan Season 2, episode 6. I retrieved and reviewed the visible discussion comments, but the page did not expose reliable aggregate post score or total comment-count metadata, so those fields are reported as 0."
+ }
+]
