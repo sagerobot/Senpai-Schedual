@@ -1,0 +1,79 @@
+[
+ {
+  "key": "195571:6",
+  "showId": 195571,
+  "episode": 6,
+  "title": "Shuiro no Kamen",
+  "airedAt": 1794645000,
+  "kind": "first",
+  "thread": {
+   "title": "The Vermilion Mask \u2022 Shuiro no Kamen - Episode 6 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1xvyc5d/the_vermilion_mask_shuiro_no_kamen_episode_6/",
+   "score": 0,
+   "num_comments": 0
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "178083:7",
+  "showId": 178083,
+  "episode": 7,
+  "title": "Tokyo Revengers: Santen Sensou-hen",
+  "airedAt": 1794588780,
+  "kind": "update",
+  "thread": {
+   "title": "Tokyo Revengers: War of the Three Titans Arc \u2022 Tokyo Revengers: Santen Sensou-hen - Episode 7 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1xvdbuj/tokyo_revengers_war_of_the_three_titans_arc_tokyo/",
+   "score": 69,
+   "num_comments": 47
+  },
+  "comments_read": 47,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Many viewers enjoyed Senju\u2019s personality, her rapport with Takemichi, and her growing prominence."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters found the episode tense and praised its surprising cliffhanger ending."
+   },
+   {
+    "tone": "positive",
+    "point": "Some liked the expansion of Takemichi\u2019s abilities and the episode\u2019s changing stakes."
+   },
+   {
+    "tone": "mixed",
+    "point": "The episode generated strong emotional investment, but much of that reaction was anxiety and concern about the dramatic ending."
+   },
+   {
+    "tone": "negative",
+    "point": "Some viewers felt a major dramatic moment was handled poorly and lacked emotional impact compared with the source material."
+   },
+   {
+    "tone": "negative",
+    "point": "A few commenters criticized Takemichi\u2019s relationship behavior and questioned his choices."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "characters": "positive",
+   "pacing": "positive"
+  },
+  "notes": "The title explicitly identifies Tokyo Revengers: Santen Sensou-hen, episode 7, with the season marker also listing Tokyo Revengers Season 4. I retrieved the post metadata and the available comment thread; animation and sound were not discussed by several comments, so those dimensions are omitted. Op"
+ },
+ {
+  "key": "158871:157",
+  "showId": 158871,
+  "episode": 157,
+  "title": "Pocket Monsters (2023)",
+  "airedAt": 1794563700,
+  "kind": "settle",
+  "thread": {
+   "title": "Pok\u00e9mon Horizons: The Series - Episode 157 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1xvu9df/pok%C3%A9mon_horizons_the_series_episode_157_discussion/",
+   "score": 10,
+   "num_comments": 3
+  },
+  "status": "quiet"
+ }
+]
