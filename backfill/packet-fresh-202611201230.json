@@ -1,0 +1,110 @@
+[
+ {
+  "key": "203275:4",
+  "showId": 203275,
+  "episode": 4,
+  "title": "Demons' Crest",
+  "airedAt": 1795176000,
+  "kind": "first",
+  "thread": {
+   "title": "Devils' Crest \u2022 Demons' Crest - Episode 4 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1y11pxl/devils_crest_demons_crest_episode_4_discussion/",
+   "score": 5,
+   "num_comments": 1
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "213805:8",
+  "showId": 213805,
+  "episode": 8,
+  "title": "Koori no Jouheki 2nd Season",
+  "airedAt": 1795100160,
+  "kind": "update",
+  "thread": {
+   "title": "The Ramparts of Ice Season 2 \u2022 Koori no Jouheki Season 2 - Episode 8 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1y0c92b/the_ramparts_of_ice_season_2_koori_no_jouheki/",
+   "score": 607,
+   "num_comments": 0
+  },
+  "comments_read": 17,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Most commenters strongly praised the episode\u2019s emotional payoff and character development."
+   },
+   {
+    "tone": "positive",
+    "point": "Many viewed Minato\u2019s self-awareness and personal growth as compelling and unusually realistic."
+   },
+   {
+    "tone": "positive",
+    "point": "Miki\u2019s evolving feelings and the related character progression were especially well received."
+   },
+   {
+    "tone": "mixed",
+    "point": "Commenters sympathized with Momoka\u2019s emotions while still criticizing her behavior and disliking her character."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some felt the resolution was appropriately restrained, while others expected a messier or more cathartic confrontation."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters praised the writing for portraying flawed characters and complicated relationships without making anyone completely idealized."
+   }
+  ],
+  "aspects": {
+   "story": "positive",
+   "characters": "positive"
+  },
+  "notes": "The title and page metadata explicitly identify Koori no Jouheki Season 2, episode 8, with Koori no Jouheki 2nd Season listed as an alternative name. I retrieved and reviewed 17 visible comments or comment branches from this Reddit thread. Reddit\u2019s total comment count was not exposed in the retrieve"
+ },
+ {
+  "key": "206401:8",
+  "showId": 206401,
+  "episode": 8,
+  "title": "FX Senshi Kurumi-chan",
+  "airedAt": 1795091400,
+  "kind": "settle",
+  "thread": {
+   "title": "FX Fighter Kurumi-chan \u2022 FX Senshi Kurumi-chan - Episode 8 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1y0881o/fx_fighter_kurumichan_fx_senshi_kurumichan/",
+   "score": 282,
+   "num_comments": 47
+  },
+  "comments_read": 30,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Viewers found the episode compelling and unusually effective at creating anxiety and dread."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters praised Yasuko as the most sensible and likable character, especially for showing concern and restraint."
+   },
+   {
+    "tone": "positive",
+    "point": "Some enjoyed the dark humor and felt Mochiko's harsh, morally questionable personality was becoming increasingly entertaining."
+   },
+   {
+    "tone": "mixed",
+    "point": "The financial-trading elements were seen as unusually realistic and thought-provoking, but that realism also made the episode uncomfortable to watch."
+   },
+   {
+    "tone": "negative",
+    "point": "Many viewers were frustrated with Mebuki's repeated reckless decisions and expressed little sympathy for her."
+   },
+   {
+    "tone": "mixed",
+    "point": "Reactions to Kurumi were divided: some appreciated her boundaries and apparent responsibility, while others viewed her behavior as manipulative or sociopathic."
+   }
+  ],
+  "aspects": {
+   "story": "positive",
+   "characters": "mixed",
+   "pacing": "positive"
+  },
+  "notes": "The title and episode marker directly identify FX Senshi Kurumi-chan, episode 8. Reddit exposed the post score, comment count, and a readable subset of comments; opinions are paraphrased and kept spoiler-free."
+ }
+]
