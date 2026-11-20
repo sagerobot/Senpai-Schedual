@@ -1,0 +1,70 @@
+[
+ {
+  "key": "203275:4",
+  "showId": 203275,
+  "episode": 4,
+  "title": "Demons' Crest",
+  "airedAt": 1795176000,
+  "kind": "update",
+  "thread": {
+   "title": "Devils' Crest \u2022 Demons' Crest - Episode 4 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1y11pxl/devils_crest_demons_crest_episode_4_discussion/",
+   "score": 14,
+   "num_comments": 5
+  },
+  "comments_read": 5,
+  "opinions": [
+   {
+    "tone": "mixed",
+    "point": "Several commenters remain engaged with the episode and its ongoing character tensions."
+   },
+   {
+    "tone": "negative",
+    "point": "The pacing was criticized as awkward and overly drawn out in places."
+   },
+   {
+    "tone": "negative",
+    "point": "A recurring complaint was that some characters feel unhelpful or frustrating."
+   }
+  ],
+  "aspects": {
+   "pacing": "negative",
+   "characters": "mixed"
+  },
+  "notes": "The title and Reddit episode marker explicitly identify Demons' Crest, episode 4. I retrieved five comments, including the source-material discussion; sentiment is based on the episode-focused comments only. No clear multi-comment signal was available for animation or sound."
+ },
+ {
+  "key": "188034:7",
+  "showId": 188034,
+  "episode": 7,
+  "title": "Girls und Panzer: Motto Love Love Sakusen desu!",
+  "airedAt": 1795098600,
+  "kind": "settle",
+  "thread": {
+   "title": "Girls und Panzer - Operation: More Love Love! \u2022 Girls und Panzer: Motto Love Love Sakusen Desu! - Episode 7 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1soy0fj/girls_und_panzer_operation_more_love_love_girls/",
+   "score": 72,
+   "num_comments": 8
+  },
+  "comments_read": 8,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "The episode was broadly viewed as delightful, funny, and enjoyable."
+   },
+   {
+    "tone": "positive",
+    "point": "Several commenters singled out the character comedy and memorable personalities as highlights."
+   },
+   {
+    "tone": "positive",
+    "point": "The episode\u2019s playful variations on the series\u2019 usual comedic formula were appreciated."
+   }
+  ],
+  "aspects": {
+   "characters": "positive",
+   "story": "positive"
+  },
+  "notes": "The thread title and metadata explicitly identify Girls und Panzer: Motto Love Love Sakusen Desu!, Episode 7, with matching alternate title and web-release marker. I found predominantly positive reactions and no clear negative or mixed evaluations; animation, pacing, and sound were not discussed by "
+ }
+]
