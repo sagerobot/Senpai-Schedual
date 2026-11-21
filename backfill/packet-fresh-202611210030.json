@@ -1,0 +1,82 @@
+[
+ {
+  "key": "203490:20",
+  "showId": 203490,
+  "episode": 20,
+  "title": "Uchi no Otouto-domo ga Sumimasen",
+  "airedAt": 1795186800,
+  "kind": "update",
+  "thread": {
+   "title": "Please Excuse My Younger Brothers \u2022 Uchi no Otouto-domo ga Sumimasen - Episode 20 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1y17x3a/please_excuse_my_younger_brothers_uchi_no/",
+   "score": 0,
+   "num_comments": 20
+  },
+  "comments_read": 20,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the romantic character dynamics and found the secondary pairing more compelling than the main pairing."
+   },
+   {
+    "tone": "positive",
+    "point": "Many viewers described the cast and interactions as cute, entertaining, or funny."
+   },
+   {
+    "tone": "positive",
+    "point": "Some commenters appreciated the subtitles\u2019 expressive formatting and small comedic details."
+   },
+   {
+    "tone": "mixed",
+    "point": "The thread showed divided feelings about the central relationships, with enthusiasm for some pairings but frustration that communication remains weak."
+   },
+   {
+    "tone": "negative",
+    "point": "One recurring criticism was that the episode relies too heavily on internal monologue, making parts feel less engaging."
+   },
+   {
+    "tone": "negative",
+    "point": "Some commenters felt the main pairing was less interesting and wanted more focus on the side relationships."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "characters": "mixed"
+  },
+  "notes": "The title explicitly names Uchi no Otouto-domo ga Sumimasen and Episode 20, with no conflicting season marker. Sentiment was paraphrased from this thread only and kept spoiler-free. The page did not expose a reliable score, so score is reported as 0."
+ },
+ {
+  "key": "210482:9",
+  "showId": 210482,
+  "episode": 9,
+  "title": "JoJo no Kimyou na Bouken: Steel Ball Run - 2nd & 3rd STAGE",
+  "airedAt": 1795161600,
+  "kind": "update",
+  "thread": {
+   "title": "Steel Ball Run: JoJo no Kimyou na Bouken \u2022 Steel Ball Run: JoJo's Bizarre Adventure - Episode 9 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1xv408v/steel_ball_run_jojo_no_kimyou_na_bouken_steel/",
+   "score": 0,
+   "num_comments": 10
+  },
+  "comments_read": 9,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters found the episode unusually funny and enjoyed its absurd, unpredictable tone."
+   },
+   {
+    "tone": "positive",
+    "point": "The contrasting personalities and relationship dynamics among the central characters were a frequent source of amusement."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some discussion treated the character behavior as intentionally bizarre or over-the-top, suggesting that the humor depends on accepting the episode's exaggerated style."
+   }
+  ],
+  "aspects": {
+   "story": "positive",
+   "characters": "positive"
+  },
+  "notes": "The title and metadata explicitly identify Steel Ball Run and episode 9, matching the requested target. I could retrieve the thread title, episode marker, and visible comments, but Reddit did not expose a reliable score or complete comment-count metadata, so score is reported as 0 and the count refl"
+ }
+]
