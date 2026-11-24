@@ -1,0 +1,56 @@
+[
+ {
+  "key": "209219:8",
+  "showId": 209219,
+  "episode": 8,
+  "title": "Tensei Goblin Dakedo Shitsumon Aru?",
+  "airedAt": 1795438800,
+  "kind": "update",
+  "thread": {
+   "title": "So What's Wrong with Getting Reborn as a Goblin? \u2022 Tensei Goblin dakedo Shitsumon Aru? - Episode 8 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1y3ho1g/so_whats_wrong_with_getting_reborn_as_a_goblin/",
+   "score": 0,
+   "num_comments": 0
+  },
+  "comments_read": 13,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the episode's humor and found its character interactions entertaining."
+   },
+   {
+    "tone": "positive",
+    "point": "Some viewers were engaged by the episode's escalating developments and said the ending left them curious."
+   },
+   {
+    "tone": "mixed",
+    "point": "Discussion showed interest in the worldbuilding and character motivations, but also uncertainty about some of the episode's logic."
+   },
+   {
+    "tone": "negative",
+    "point": "One commenter criticized the quality of a particular animation sequence and implied production scheduling may have been strained."
+   }
+  ],
+  "aspects": {
+   "animation": "mixed",
+   "story": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The title and show name match the requested series and exact episode number. Reddit exposed the discussion text but did not provide reliable thread score or total comment-count metadata in the retrieved page, so those fields are reported as 0. The summary uses paraphrases only and avoids plot detail"
+ },
+ {
+  "key": "218532:8",
+  "showId": 218532,
+  "episode": 8,
+  "title": "Maomao no Hitorigoto 3rd Season",
+  "airedAt": 1795402800,
+  "kind": "settle",
+  "thread": {
+   "title": "The Apothecary Diaries Season 3 \u2022 Kusuriya no Hitorigoto Season 3 - Episode 8 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1y15omu/the_apothecary_diaries_season_3_kusuriya_no/",
+   "score": 0,
+   "num_comments": 4
+  },
+  "status": "quiet"
+ }
+]
