@@ -1,0 +1,102 @@
+[
+ {
+  "key": "179876:7",
+  "showId": 179876,
+  "episode": 7,
+  "title": "DARK MACHINE: The Animation",
+  "airedAt": 1795538700,
+  "kind": "update",
+  "thread": {
+   "title": "Dark Machine The Animation - Episode 7 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1y4jpf1/dark_machine_the_animation_episode_7_discussion/",
+   "score": 17,
+   "num_comments": 7
+  },
+  "comments_read": 7,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Some viewers felt the episode finally advanced the underlying story and gave the lead clearer motivation."
+   },
+   {
+    "tone": "positive",
+    "point": "A few commenters enjoyed seeing returning characters receive more attention."
+   },
+   {
+    "tone": "mixed",
+    "point": "Several viewers found the episode intriguing because it raised mysteries, but wanted more concrete explanations."
+   },
+   {
+    "tone": "negative",
+    "point": "One commenter considered the episode filler-like."
+   },
+   {
+    "tone": "negative",
+    "point": "Multiple comments criticized the slow handling of the background plot and wanted the story to move faster."
+   },
+   {
+    "tone": "mixed",
+    "point": "Character reactions were seen as potentially meaningful, though some viewers found the emotional material melodramatic."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "pacing": "negative",
+   "characters": "mixed"
+  },
+  "notes": "The thread title and metadata explicitly identify Dark Machine The Animation, episode 7. I retrieved the post and seven visible comments, including one source-material moderator comment; opinions summarize the six viewer-reaction comments without plot spoilers."
+ },
+ {
+  "key": "207809:21",
+  "showId": 207809,
+  "episode": 21,
+  "title": "Sora wa Akai Kawa no Hotori",
+  "airedAt": 1795538100,
+  "kind": "update",
+  "thread": {
+   "title": "Red River \u2022 Sora wa Akai Kawa no Hotori - Episode 21 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1y4jh3v/red_river_sora_wa_akai_kawa_no_hotori_episode_21/",
+   "score": 0,
+   "num_comments": 6
+  },
+  "comments_read": 6,
+  "opinions": [
+   {
+    "tone": "negative",
+    "point": "Several reactions criticized the episode\u2019s coercive romantic trope and found it uncomfortable rather than romantic."
+   },
+   {
+    "tone": "positive",
+    "point": "Some viewers enjoyed the emotional turning point in the central relationship and praised a supporting character\u2019s selfless loyalty."
+   },
+   {
+    "tone": "mixed",
+    "point": "Reactions were divided on the romance, with some viewers wanting the leads to resolve their uncertainty while others questioned the reasons keeping them apart."
+   },
+   {
+    "tone": "negative",
+    "point": "One reaction criticized the handling of a supporting character\u2019s backstory and described another adviser character as ineffective."
+   }
+  ],
+  "aspects": {
+   "story": "mixed",
+   "characters": "mixed"
+  },
+  "notes": "The title clearly identifies Sora wa Akai Kawa no Hotori episode 21. I could retrieve six visible user comments, but the page did not expose reliable separate vote metadata; score is reported as 0 because it was unavailable."
+ },
+ {
+  "key": "218532:8",
+  "showId": 218532,
+  "episode": 8,
+  "title": "Maomao no Hitorigoto 3rd Season",
+  "airedAt": 1795402800,
+  "kind": "settle",
+  "thread": {
+   "title": "The Apothecary Diaries Season 3 \u2022 Kusuriya no Hitorigoto Season 3 - Episode 8 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1y15omu/the_apothecary_diaries_season_3_kusuriya_no/",
+   "score": 0,
+   "num_comments": 3
+  },
+  "status": "quiet"
+ }
+]
