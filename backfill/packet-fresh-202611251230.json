@@ -1,0 +1,55 @@
+[
+ {
+  "key": "179876:7",
+  "showId": 179876,
+  "episode": 7,
+  "title": "DARK MACHINE: The Animation",
+  "airedAt": 1795538700,
+  "kind": "update",
+  "thread": {
+   "title": "Dark Machine The Animation - Episode 7 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1y4jpf1/dark_machine_the_animation_episode_7_discussion/",
+   "score": 0,
+   "num_comments": 2
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "206949:8",
+  "showId": 206949,
+  "episode": 8,
+  "title": "Kyouran Reijou Nia Liston",
+  "airedAt": 1795523100,
+  "kind": "settle",
+  "thread": {
+   "title": "Nia Liston: The Merciless Maiden \u2022 Kyouran Reijou Nia Liston: Byoujaku Reijou ni Tensei shita Kamigoroshi no Bujin no Karei naru Musouroku - Episode 8 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1y4cmh7/nia_liston_the_merciless_maiden_kyouran_reijou/",
+   "score": 0,
+   "num_comments": 0
+  },
+  "comments_read": 6,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several reactions found the episode\u2019s humor entertaining and enjoyed the exaggerated character interactions."
+   },
+   {
+    "tone": "positive",
+    "point": "One commenter specifically praised the visual quality of the action animation."
+   },
+   {
+    "tone": "mixed",
+    "point": "Some viewers liked the central character\u2019s overwhelming strength, while others felt the title\u2019s promise of mercilessness was not reflected in her behavior."
+   },
+   {
+    "tone": "negative",
+    "point": "Multiple commenters felt a character was treated unfairly, expressing sympathy and frustration about the episode\u2019s comedic handling of that character."
+   }
+  ],
+  "aspects": {
+   "animation": "positive",
+   "characters": "mixed"
+  },
+  "notes": "The title and episode metadata clearly identify Kyouran Reijou Nia Liston episode 8. Six non-moderator comments were readable. Reddit did not expose reliable score or total comment-count metadata in the retrieved page, so those fields are 0."
+ }
+]
