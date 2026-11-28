@@ -1,0 +1,147 @@
+[
+ {
+  "key": "216557:9",
+  "showId": 216557,
+  "episode": 9,
+  "title": "Keroro Gunsou\u2606",
+  "airedAt": 1795825800,
+  "kind": "first",
+  "thread": {
+   "title": "Sgt. Frog\u2606 \u2022 Keroro Gunsou\u2606 - Episode 9 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1y795i6/sgt_frog_keroro_gunsou_episode_9_discussion/",
+   "score": 4,
+   "num_comments": 1
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "183231:34",
+  "showId": 183231,
+  "episode": 34,
+  "title": "Rilakkuma",
+  "airedAt": 1795825560,
+  "kind": "first",
+  "thread": {
+   "title": "Rilakkuma - Episode 34 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1y7aa6z/rilakkuma_episode_34_discussion/",
+   "score": 2,
+   "num_comments": 1
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "214703:10",
+  "showId": 214703,
+  "episode": 10,
+  "title": "Ghost Meets Gal!",
+  "airedAt": 1795820400,
+  "kind": "first",
+  "thread": {
+   "title": "Ghost Meets Gal! - Episode 10 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1y76mve/ghost_meets_gal_episode_10_discussion/",
+   "score": 3,
+   "num_comments": 2
+  },
+  "status": "quiet"
+ },
+ {
+  "key": "178083:9",
+  "showId": 178083,
+  "episode": 9,
+  "title": "Tokyo Revengers: Santen Sensou-hen",
+  "airedAt": 1795796580,
+  "kind": "update",
+  "thread": {
+   "title": "Tokyo Revengers: War of the Three Titans Arc \u2022 Tokyo Revengers: Santen Sensou-hen - Episode 9 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1y6ya45/tokyo_revengers_war_of_the_three_titans_arc_tokyo/",
+   "score": 20,
+   "num_comments": 21
+  },
+  "comments_read": 19,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several viewers found the escalating conflict exciting and described the action as spectacular or high-energy."
+   },
+   {
+    "tone": "positive",
+    "point": "South was repeatedly singled out as an especially compelling and intimidating character."
+   },
+   {
+    "tone": "positive",
+    "point": "Some commenters enjoyed Senju, the Brahman characters, and the anticipation surrounding the next confrontation."
+   },
+   {
+    "tone": "mixed",
+    "point": "The stylized presentation of one major fight impressed some viewers but left others unable to clearly follow the action."
+   },
+   {
+    "tone": "negative",
+    "point": "Some viewers criticized Takemichi\u2019s fighting ability and felt certain supporting characters contributed little beyond talking."
+   },
+   {
+    "tone": "mixed",
+    "point": "Reactions to the episode\u2019s handling of major emotional beats varied, with some finding them effective and others wanting more visible emotional impact."
+   }
+  ],
+  "aspects": {
+   "animation": "mixed",
+   "story": "positive",
+   "pacing": "mixed",
+   "characters": "positive"
+  },
+  "notes": "The title explicitly identifies Tokyo Revengers: Santen Sensou-hen, episode 9, and also lists it as Tokyo Revengers Season 4. I retrieved the thread and its visible comments; spoiler-related and source-material discussion was excluded from the sentiment summary. The thread score was shown as +20 and"
+ },
+ {
+  "key": "203490:21",
+  "showId": 203490,
+  "episode": 21,
+  "title": "Uchi no Otouto-domo ga Sumimasen",
+  "airedAt": 1795791600,
+  "kind": "update",
+  "thread": {
+   "title": "Please Excuse My Younger Brothers \u2022 Uchi no Otouto-domo ga Sumimasen - Episode 21 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1y6xi12/please_excuse_my_younger_brothers_uchi_no/",
+   "score": 0,
+   "num_comments": 7
+  },
+  "comments_read": 6,
+  "opinions": [
+   {
+    "tone": "positive",
+    "point": "Several commenters enjoyed the episode\u2019s romantic and comedic character interactions."
+   },
+   {
+    "tone": "positive",
+    "point": "Some viewers liked the maturity and restraint shown in the central relationship dynamics."
+   },
+   {
+    "tone": "positive",
+    "point": "The character-focused reactions were especially favorable toward Raku and Azusa."
+   },
+   {
+    "tone": "mixed",
+    "point": "A few commenters felt the episode should have spent more time on Gen and Ito, despite otherwise enjoying it."
+   }
+  ],
+  "aspects": {
+   "characters": "positive"
+  },
+  "notes": "The thread title and episode label explicitly match Uchi no Otouto-domo ga Sumimasen episode 21. I retrieved the post and six substantive user comments; one additional visible comment was a moderator source-material notice. Reddit did not expose a reliable post score in the retrieved page, so score "
+ },
+ {
+  "key": "210482:10",
+  "showId": 210482,
+  "episode": 10,
+  "title": "JoJo no Kimyou na Bouken: Steel Ball Run - 2nd & 3rd STAGE",
+  "airedAt": 1795766400,
+  "kind": "update",
+  "thread": {
+   "title": "Steel Ball Run: JoJo no Kimyou na Bouken \u2022 Steel Ball Run: JoJo's Bizarre Adventure - Episode 10 discussion",
+   "url": "https://www.reddit.com/r/anime/comments/1y0xth4/steel_ball_run_jojo_no_kimyou_na_bouken_steel/",
+   "score": 0,
+   "num_comments": 2
+  },
+  "status": "quiet"
+ }
+]
